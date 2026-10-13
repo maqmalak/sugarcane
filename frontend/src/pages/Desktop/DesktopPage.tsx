@@ -83,8 +83,8 @@ function dayLabel(iso: string): string {
 }
 
 /** A document link: React route when the app has a page for it, the Frappe desk otherwise (a full page load). */
-function DocLink({ doctype, name, className, children }: { doctype: string; name: string; className?: string; children: React.ReactNode }) {
-  const u = docUrl(doctype, name);
+function DocLink({ doctype, name, className, children, to }: { doctype: string; name: string; className?: string; children: React.ReactNode; to?: string }) {
+  const u = to ? { href: to, external: false } : docUrl(doctype, name);
   return u.external ? <a href={u.href} className={className}>{children}</a> : <Link to={u.href} className={className}>{children}</Link>;
 }
 
@@ -559,7 +559,7 @@ function ActivityPanel({ home, loading, tab, setTab, onChanged }: { home?: HomeD
             <PanelTile to={home.todos?.overdue ? "/todos?overdue=1" : "/todos"} icon={ListTodo} tone="violet" title="Your open to-dos"
               label="To-dos" count={home.todos?.open ?? 0}
               sub={home.todos?.overdue ? `${home.todos.overdue} overdue` : "none overdue"} warn={Boolean(home.todos?.overdue)} warnTone="rose" />
-            <PanelTile to="/approvals/inbox" icon={Inbox} tone="amber" title="Workflow and HR requests waiting for you"
+            <PanelTile to="/approvals/inbox" icon={Inbox} tone="amber" title="Overlap reviews, workflow and HR requests waiting for you"
               label="Approvals" count={approvalsTotal}
               sub={approvalsTotal ? "waiting for you" : "all clear"} warn={approvalsTotal > 0} warnTone="amber" />
           </div>
@@ -638,10 +638,10 @@ function ActivityPanel({ home, loading, tab, setTab, onChanged }: { home?: HomeD
                             {a.can_approve && (
                               <button type="button" disabled={busy === a.name} onClick={() => void approve(a)}
                                 className="inline-flex h-7 items-center gap-1 rounded-full bg-gradient-to-r from-emerald-500 to-green-600 px-3 text-xs font-semibold text-white shadow-md shadow-emerald-500/30 ring-1 ring-inset ring-white/20 transition hover:brightness-110 active:scale-95 disabled:opacity-60">
-                                {busy === a.name ? <RefreshCw className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />} Approve
+                                {busy === a.name ? <RefreshCw className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />} {a.doctype === "Survey Overlap Review" ? "Accept both" : "Approve"}
                               </button>
                             )}
-                            <DocLink doctype={a.doctype} name={a.name}
+                            <DocLink doctype={a.doctype} name={a.name} to={a.doctype === "Survey Overlap Review" ? "/approvals/inbox" : undefined}
                               className="inline-flex h-7 items-center gap-1 rounded-full bg-gradient-to-r from-sky-500 to-blue-600 px-3 text-xs font-semibold text-white shadow-md shadow-sky-500/30 ring-1 ring-inset ring-white/20 transition hover:brightness-110 active:scale-95">
                               <Eye className="h-3.5 w-3.5" /> Review
                             </DocLink>

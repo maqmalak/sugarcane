@@ -174,3 +174,17 @@ class TestInbox(IntegrationTestCase):
 		_a2, _b2, review2 = self._pair(0.18)
 		act("Survey Overlap Review", review2, "Accept both")
 		self.assertEqual(frappe.db.get_value("Survey Overlap Review", review2, "status"), "Accepted")
+
+
+class TestHomeApprovals(TestInbox):
+	def test_open_overlaps_count_on_the_home_page(self):
+		from sugarcane.api.v1.home import approve, get_home
+
+		_a, _b, review = self._pair(0.20)
+		out = get_home(refresh=1)
+		self.assertGreaterEqual(out["approvals_total"], 1)
+		self.assertEqual(out["stats"]["pending"], out["approvals_total"])
+		item = next(a for a in out["approvals"] if a["name"] == review)
+		self.assertTrue(item["can_approve"])
+		approve("Survey Overlap Review", review)  # the home card's button accepts both
+		self.assertEqual(frappe.db.get_value("Survey Overlap Review", review, "status"), "Accepted")

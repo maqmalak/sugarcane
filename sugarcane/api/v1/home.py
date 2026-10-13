@@ -60,7 +60,7 @@ def _alerts(approvals_total):
 	if _can("Survey Overlap Review"):
 		add("sc_overlaps", len(frappe.get_list("Survey Overlap Review", filters={"status": "Open"}, pluck="name", limit_page_length=0)),
 			_("Overlapping fields to review"), _("Two surveys claim the same land — accept or reject one"),
-			"/survey/d/survey-overlap-review?status=Open", "rose")
+			"/approvals/inbox", "rose")
 	if _can("Survey Device"):
 		add("sc_devices", len(frappe.get_list("Survey Device", filters={"status": "Pending"}, pluck="name", limit_page_length=0)),
 			_("Phones waiting for approval"), _("Surveyors cannot sign in until a manager approves the phone"), "/field-force/users", "amber")
@@ -94,7 +94,7 @@ def _alerts(approvals_total):
 			n = len(frappe.get_list(dt, filters={"is_active": 1, "latitude": ["in", [0, None]]}, pluck="name", limit_page_length=0))
 			add(f"sc_nopin_{frappe.scrub(dt)}", n, _("{0} without a location").format(_(dt) + ("s" if not dt.endswith("s") else "")),
 				_("No map pin — distance and journey time cannot be worked out"), f"/setup/d/{dt.lower().replace(' ', '-')}", "sky")
-	add("approvals", approvals_total, _("Approvals waiting"), _("Workflow requests waiting for you"), "/approvals/inbox", "yellow")
+	add("approvals", approvals_total, _("Approvals waiting"), _("Workflow and HR requests waiting for you"), "/approvals/inbox", "yellow")
 	return out
 
 
@@ -202,6 +202,29 @@ def _tiles():
 	return t
 
 
+def _approvals(limit=30, company=None):
+	"""What waits for the user — the sugar inbox (open overlap reviews + mm_core's workflow / HR items). mm_core's own
+	home imports mm_core.approvals directly, which the whitelisted-method override does not reach, so overlaps were 0."""
+	from sugarcane.api.v1.approvals import ACCEPT, get_inbox
+
+	pending = get_inbox(company, days=1)["pending"]
+	items = [{"doctype": p["doctype"], "name": p["name"], "state": p["state"], "title": p.get("title") or "", "amount": p.get("amount"),
+		"since": p["since"], "category": p["category"],
+		# "Approve" on the home card: accept both fields for an overlap, the workflow's Approve otherwise
+		"can_approve": "Approve" in (p.get("actions") or []) or ACCEPT in (p.get("actions") or [])} for p in pending[:limit]]
+	return items, len(pending), sum(1 for p in pending if p["category"] == "overlap")
+
+
+@frappe.whitelist()
+def approve(doctype: str, name: str) -> dict:
+	"""The home card's Approve button: Accept both for an overlap review, mm_core's workflow approve otherwise."""
+	from sugarcane.api.v1.approvals import ACCEPT, DT, act
+
+	if doctype == DT:
+		return act(doctype, name, ACCEPT)
+	return base.approve(doctype, name)
+
+
 @frappe.whitelist()
 def get_home(company: str | None = None, refresh: int = 0) -> dict:
 	company = company or frappe.db.get_single_value("Sugar Settings", "company")
@@ -216,13 +239,13 @@ def get_home(company: str | None = None, refresh: int = 0) -> dict:
 
 
 def _compute(company):
-	approvals, approvals_total = base._block(base._approvals, 30, company) or ([], 0)
+	approvals, approvals_total, overlap_total = base._block(_approvals, 30, company) or ([], 0, 0)
 	feed, hours, mix = base._block(_feed) or ([], [0] * 24, {})
 	days, module_mix = base._block(_counts) or ([], {"counts": {}, "top": {}})
 	today = nowdate()
 	return {
 		"company": company, "kpis": [], "approvals": approvals, "approvals_total": approvals_total,
-		"alerts": base._block(_alerts, approvals_total) or [],
+		"alerts": base._block(_alerts, approvals_total - overlap_total) or [],
 		"activity": feed, "hours": hours, "days": days, "mix": mix, "module_mix": module_mix,
 		"stats": {"entries_today": next((d["count"] for d in days if d["date"] == today), sum(hours)), "pending": approvals_total,
 			"posted_today": sum(1 for f in feed if f["day"] == today and f["status"] not in ("Draft", "Cancelled"))},

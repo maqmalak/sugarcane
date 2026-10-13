@@ -1,0 +1,65 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-13 12:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "murabba_no",
+  "killa_no",
+  "acres",
+  "kanal",
+  "ownership"
+ ],
+ "fields": [
+  {
+   "fieldname": "murabba_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Murabba No."
+  },
+  {
+   "fieldname": "killa_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Killa No."
+  },
+  {
+   "fieldname": "acres",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Acres",
+   "non_negative": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "kanal",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Kanal",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "default": "Owned",
+   "fieldname": "ownership",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Ownership",
+   "options": "Owned\nLeased\nShared"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-10-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Sugarcane",
+ "name": "Grower Land Holding",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

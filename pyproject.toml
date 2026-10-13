@@ -58,6 +58,7 @@ ignore = [
     "UP032", # Use f-string instead of `format` call (translations)
     "UP037", # quoted annotations
     "UP040", # Use type aliases instead of type annotations
+    "RUF001", "RUF002", "RUF003", # ×, – and Urdu text in strings, docstrings and comments are intentional
 ]
 typing-modules = ["frappe.types.DF"]
 

@@ -1,0 +1,204 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-10-13 12:00:00.000000",
+ "description": "Named <circle code>-S<sector code>, e.g. 001-S01",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "sector_name",
+  "sector_code",
+  "circle",
+  "circle_code",
+  "zone",
+  "is_active",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "sector_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Sector Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sector_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Sector Code",
+   "length": 3,
+   "reqd": 1
+  },
+  {
+   "fieldname": "circle",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Circle",
+   "options": "Cane Circle",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "circle.circle_code",
+   "fieldname": "circle_code",
+   "fieldtype": "Data",
+   "label": "Circle Code",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "circle.zone",
+   "fieldname": "zone",
+   "fieldtype": "Link",
+   "label": "Zone",
+   "options": "Sugar Zone",
+   "read_only": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_standard_filter": 1,
+   "label": "Active"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Demo Record",
+   "no_copy": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Sugarcane",
+ "name": "Cane Sector",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Circle Officer"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Surveyor"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Indent Clerk"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Token Clerk"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Gross Weighman"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tare Weighman"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Yard Supervisor"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Cashier"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lab Chemist"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Production Manager"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Accountant"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Depot User"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "MIS Viewer"
+  }
+ ],
+ "search_fields": "sector_name,circle",
+ "show_title_field_in_link": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "sector_name",
+ "track_changes": 1
+}

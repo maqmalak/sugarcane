@@ -1,0 +1,290 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-10-13 12:00:00.000000",
+ "description": "Named <circle code>-<village code>, e.g. 001-001",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "village_name",
+  "village_code",
+  "circle",
+  "circle_code",
+  "sector",
+  "zone",
+  "cb_main",
+  "distance_km",
+  "latitude",
+  "longitude",
+  "is_active",
+  "sb_rates",
+  "cane_incentive_rate",
+  "cane_subsidy_rate",
+  "cb_rates",
+  "tpt_subsidy_rate",
+  "tpt_deduction_rate",
+  "sb_map",
+  "polygon",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "village_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Village Name",
+   "reqd": 1
+  },
+  {
+   "description": "3 digits, unique within the circle; second part of the grower ID",
+   "fieldname": "village_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Village Code",
+   "length": 3,
+   "reqd": 1
+  },
+  {
+   "fieldname": "circle",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Circle",
+   "options": "Cane Circle",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "circle.circle_code",
+   "fieldname": "circle_code",
+   "fieldtype": "Data",
+   "label": "Circle Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sector",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Sector",
+   "options": "Cane Sector"
+  },
+  {
+   "fetch_from": "circle.zone",
+   "fieldname": "zone",
+   "fieldtype": "Link",
+   "label": "Zone",
+   "options": "Sugar Zone",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "distance_km",
+   "fieldtype": "Float",
+   "label": "Distance (km)",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "latitude",
+   "fieldtype": "Float",
+   "label": "Latitude",
+   "precision": "6"
+  },
+  {
+   "fieldname": "longitude",
+   "fieldtype": "Float",
+   "label": "Longitude",
+   "precision": "6"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_standard_filter": 1,
+   "label": "Active"
+  },
+  {
+   "fieldname": "sb_rates",
+   "fieldtype": "Section Break",
+   "label": "Incentives, Subsidies & TPT"
+  },
+  {
+   "fieldname": "cane_incentive_rate",
+   "fieldtype": "Currency",
+   "label": "Cane Incentive (per maund)",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "cane_subsidy_rate",
+   "fieldtype": "Currency",
+   "label": "Cane Subsidy (per maund)",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "cb_rates",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tpt_subsidy_rate",
+   "fieldtype": "Currency",
+   "label": "TPT Subsidy (per maund)",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "tpt_deduction_rate",
+   "fieldtype": "Currency",
+   "label": "TPT Deduction (per maund)",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "sb_map",
+   "fieldtype": "Section Break",
+   "label": "Boundary"
+  },
+  {
+   "fieldname": "polygon",
+   "fieldtype": "Geolocation",
+   "label": "Village Boundary"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Demo Record",
+   "no_copy": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Sugarcane",
+ "name": "Cane Village",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Circle Officer"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Surveyor"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Indent Clerk"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Token Clerk"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Gross Weighman"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tare Weighman"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Yard Supervisor"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Cashier"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lab Chemist"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Production Manager"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Accountant"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Depot User"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "MIS Viewer"
+  }
+ ],
+ "search_fields": "village_name,circle,village_code",
+ "show_title_field_in_link": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "village_name",
+ "track_changes": 1
+}

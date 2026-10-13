@@ -1,0 +1,270 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:depot_name",
+ "creation": "2026-10-13 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "depot_name",
+  "source",
+  "circle",
+  "cb_main",
+  "contractor",
+  "depot_rate",
+  "target_maund",
+  "is_active",
+  "sb_geo",
+  "latitude",
+  "longitude",
+  "cb_geo",
+  "geofence_radius_m",
+  "sb_fence",
+  "geofence",
+  "sb_users",
+  "depot_users",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "depot_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Depot Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Source",
+   "options": "Cane Source",
+   "reqd": 1
+  },
+  {
+   "fieldname": "circle",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Circle",
+   "options": "Cane Circle"
+  },
+  {
+   "fieldname": "cb_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contractor",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Contractor",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "depot_rate",
+   "fieldtype": "Currency",
+   "label": "Depot Rate (per maund)",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "target_maund",
+   "fieldtype": "Float",
+   "label": "Season Target (maund)",
+   "non_negative": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_standard_filter": 1,
+   "label": "Active"
+  },
+  {
+   "fieldname": "sb_geo",
+   "fieldtype": "Section Break",
+   "label": "Location & Geofence"
+  },
+  {
+   "fieldname": "latitude",
+   "fieldtype": "Float",
+   "label": "Latitude",
+   "precision": "6"
+  },
+  {
+   "fieldname": "longitude",
+   "fieldtype": "Float",
+   "label": "Longitude",
+   "precision": "6"
+  },
+  {
+   "fieldname": "cb_geo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Empty = Sugar Settings default",
+   "fieldname": "geofence_radius_m",
+   "fieldtype": "Int",
+   "label": "Geofence Radius (m)"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sb_fence",
+   "fieldtype": "Section Break",
+   "label": "Geofence Polygon"
+  },
+  {
+   "fieldname": "geofence",
+   "fieldtype": "Geolocation",
+   "label": "Geofence"
+  },
+  {
+   "fieldname": "sb_users",
+   "fieldtype": "Section Break",
+   "label": "Depot Users"
+  },
+  {
+   "fieldname": "depot_users",
+   "fieldtype": "Table",
+   "label": "Depot Users",
+   "options": "Cane Depot User"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Demo Record",
+   "no_copy": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Sugarcane",
+ "name": "Cane Depot",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Circle Officer"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Surveyor"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Indent Clerk"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Token Clerk"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Gross Weighman"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tare Weighman"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Yard Supervisor"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Cashier"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lab Chemist"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Production Manager"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Accountant"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Depot User"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "MIS Viewer"
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

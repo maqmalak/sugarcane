@@ -1,9 +1,23 @@
 # MicroMax Sugar Mills Ltd. — Sugar ERP Architecture (Phase 0, for approval)
 
 App `sugarcane` · site `sugarcane` · Frappe 16.34 / ERPNext 16.35 / HRMS · Python 3.14 · Node 24 · MariaDB
-Status: **draft v2 (revised spec: Grower party type, JE-based CPR, Bilty, Road Cess Deposit, daily Purchase Invoice,
-Sugar Production). Waiting for approval.** No code yet. This file moves to `apps/sugarcane/docs/ARCHITECTURE.md` and is the
-first commit on `develop`.
+Status: **approved 2026-10-13** (v3: decisions below). Phase 0 is built; see `docs/PHASE_0.md`.
+
+### Decisions (2026-10-13)
+
+| # | Decision |
+|---|---|
+| Site | **`sugarcane.local`** (bench refuses a site named like an app); desk `http://sugarcane.local:8006`, React dev `:5179` |
+| TPT | Per maund of payable weight |
+| Binding | **0.265 kg per quintal** of net weight (season value, overridable per vehicle type); garbage % / fixed kg configurable, 0 by default |
+| Bank payment | The accountant scans CPR barcodes into one scroll: many CPRs, many growers (Phase 6) |
+| Road cess | Deposited **100% monthly**; **grower bears 50%** (deducted on the CPR), **mill bears 50%** (expense) |
+| Cost of sales | Separate ledgers: **Cane Purchase A/c (Govt)**, **Subsidy Purchase**, **Additional Subsidy** (plus Road Cess – Mill Share) |
+| Crushing day | **07:00 → 07:00** |
+| Withholding tax | **None** on cane purchase |
+| Grower ID | **circle code − village code − serial**, e.g. `001-001-0001` |
+| Android | Source in `android/`; the Android SDK is installed in the user's home when Phase 1 needs a build |
+| Git | `main` on github.com/maqmalak/sugarcane |
 
 ---
 
@@ -12,10 +26,10 @@ first commit on `develop`.
 | Spec | Actual | Proposal |
 |---|---|---|
 | Bench `~/frappe-bench` | Not present. The bench is `/home/maqmalak/erpnext-react` (shared with micromaxerp, wise, muzzamal, realestate; Frappe v16, Py 3.14, Node 24, HRMS available) | Use this bench. No other site's config is touched. |
-| Site `sugarcane` at `http://sugarcane:8006` | Site doesn't exist; hostname `sugarcane` doesn't resolve | Create site `sugarcane`, `host_name http://sugarcane:8006`, Procfile `web_sugarcane: bench --site sugarcane serve --port 8006`. Needs one line in `/etc/hosts`: `127.0.0.1 sugarcane` (sudo, so you add it, or I fall back to `sugarcane.localhost`). The separate hostname also keeps its login cookie apart from the other sites. |
+| Site `sugarcane` at `http://sugarcane:8006` | bench refuses a site with an app's name | Site **`sugarcane.local`**, `host_name http://sugarcane.local:8006`, Procfile `web_sugarcane`. Needs `127.0.0.1 sugarcane.local` in `/etc/hosts` (sudo); until then the React dev server uses `sugarcane.localhost`. |
 | `frappe_whatsapp` | The bench's WhatsApp app is `whatsapp` (Meta Cloud API) | Install `whatsapp`; mock mode until a real account exists. |
-| React dev on `:8080` | **`:8080` is in use** by a Docker container `erpnext-frontend-1` (nginx) | Dev server on **`:8081`** (proxy → `:8006`) unless you want that container stopped. The build is served at `/sugar` either way. |
-| Git `github.com/maqmalak/sugarcane.git`, branch `develop` | The repo exists and is empty. Push goes over HTTPS with the cached credential helper, as for your other apps | `git init` in `apps/sugarcane`, create `develop`, push. If push asks for credentials, I'll stop and tell you. |
+| React dev on `:8080` | `:8080` is used by Docker `erpnext-frontend-1` | Dev server on **`:5179`** (your choice), proxy → `:8006`; the build is served at `/sugar`. |
+| Git `github.com/maqmalak/sugarcane.git` | Repo exists | Branch **`main`** (your instruction). Push needs your GitHub credentials once (credential cache). |
 | `pyproj`, `shapely` | Not installed | Declared in `pyproject.toml`; `bench setup requirements`. |
 | Android | Java present, no Android SDK / Gradle | Write the source; APKs need the SDK (Q12). |
 | Scheduler | `bench schedule` runs jobs for **every** site (micromaxerp has real MEPL data) | Not started without asking; sugarcane jobs run individually during development. |
@@ -86,41 +100,48 @@ Tests: a Payment Entry and a Journal Entry against a Grower post, and the party 
 ### 4.1 Formula (`sugarcane/calc/cpr.py`, pure function)
 
 ```
-net_kg          = gross_kg − tare_kg
-binding_kg      = rule(season, vehicle_type): fixed kg and/or % of net_kg
-garbage_kg      = rule(season, vehicle_type): fixed kg and/or % of net_kg
-payable_kg      = net_kg − binding_kg − garbage_kg
-payable_maund   = payable_kg / 40                                 (maund_kg in Sugar Settings)
-govt_value      = payable_maund × govt_rate_per_maund
-road_cess       = govt_value × road_cess_pct / 100
-subsidy         = payable_maund × subsidy_rate
-net_amount      = govt_value − road_cess + subsidy
-tpt_amount      = tpt_rate × payable_maund   OR   per-trip rate   (rate setup's tpt_basis; per kg also supported)
-loan_deduction  = Phase 6, capped at what's left
-payable_cpr     = net_amount − tpt_amount − loan_deduction
+net_kg             = gross_kg − tare_kg
+binding_kg         = net_kg / 100 × binding_kg_per_quintal            (0.265; whole kg)
+garbage_kg         = net_kg × garbage_pct / 100 + garbage_fixed_kg     (whole kg)
+payable_kg         = net_kg − binding_kg − garbage_kg
+payable_maund      = payable_kg / 40                                   (3 decimals, display)
+govt_value         = payable_kg × govt_rate / 40
+road_cess_total    = govt_value × road_cess_pct / 100                  (deposited 100%)
+road_cess_grower   = road_cess_total × grower_cess_share_pct / 100     (50%)
+road_cess_mill     = road_cess_total − road_cess_grower
+subsidy            = payable_kg × subsidy_rate / 40
+additional_subsidy = payable_kg × additional_subsidy_rate / 40
+net_amount         = govt_value − road_cess_grower + subsidy + additional_subsidy
+tpt_amount         = payable_kg × tpt_rate / 40                        (per maund)
+loan_deduction     = min(requested, net_amount − tpt_amount)           (Phase 6)
+payable_cpr        = net_amount − tpt_amount − loan_deduction
 ```
 
-Every line is a stored, read-only field on the CPR. Rounding: weights in whole kg; maunds to 3 decimals; each amount
-rounded to 2 decimals (PKR) **before** the next step, so the printed slip adds up exactly. Validation: payable_kg > 0,
-payable_cpr ≥ 0 (otherwise TPT/loan is capped and the shortfall flagged).
+Amounts are computed from kg (not the rounded maunds) and each is rounded to paisa (half up) before the next step, so the
+printed slip adds up. Worked example (tested): gross 18,450, tare 4,250 → net 14,200, binding 38, payable 14,162 kg
+(354.050 md); govt value 150,471.25; cess 1,504.71 (grower 752.36, mill 752.35); subsidy 3,540.50; additional 1,770.25;
+net 155,029.64; TPT 10,621.50; payable 144,408.14.
 
 ### 4.2 Accounts (created per company by `sugarcane.setup.accounts`, linked in Sugar Settings)
 
-| Account | Parent / type | Why |
+| Account (MSML) | Parent / type | Why |
 |---|---|---|
-| Grower Payable | Current Liabilities, **Payable** | party_type Grower |
-| Cane Purchase Clearing | Current Liabilities, **Payable** | it must be a payable to be the `credit_to` of the daily PI; JE rows on it carry party Supplier "Daily Cane Purchase" |
-| Road Cess Payable – Govt | Duties and Taxes, Tax | no party needed |
-| TPT/Bilty Payable | Current Liabilities (no account type) | drivers aren't parties; the Bilty document is the sub-ledger |
-| Cane Subsidy Expense | Direct Expenses | |
-| Cash Counter – Cane | Cash In Hand, Cash | the mill cash counter |
-| Cane Yard warehouse + its stock account | Stock Assets | perpetual inventory |
+| Grower Payable | Accounts Payable, **Payable** | party_type Grower |
+| Cane Purchase Clearing | Accounts Payable, **Payable** | `credit_to` of the daily PI; CPR JE rows carry party Supplier "Daily Cane Purchase" |
+| TPT-Bilty Payable | Current Liabilities | drivers aren't parties; the Bilty document is the sub-ledger |
+| Road Cess Payable - Govt | Duties and Taxes, Tax | 100% of cess until the monthly deposit |
+| Grower Loan Receivable | Loans and Advances (Assets), Receivable | Phase 6 |
+| Cash Counter - Cane | Cash In Hand, Cash | the mill cash counter (bilties) |
+| **Cane Cost of Sales** (group) → Cane Purchase A-c (Govt), Subsidy Purchase, Additional Subsidy, Road Cess - Mill Share | Direct Expenses | the separate cost-of-sales ledgers |
+| Cane Yard warehouse; item SUGARCANE (stock UOM Kg, UOM Maund = 40 kg) | Stock | perpetual inventory |
+
+"/" isn't used in account names (it breaks desk URLs): "TPT/Bilty" is "TPT-Bilty" and "A/c" is "A-c".
 
 ### 4.3 Documents → vouchers
 
 | Document | When | Voucher | Entry |
 |---|---|---|---|
-| **CPR** (S) | submit (after tare; Cane Admin only for cancel) | **Journal Entry** | Dr Cane Purchase Clearing *(party Supplier "Daily Cane Purchase")* govt_value · Dr Cane Subsidy Expense subsidy · Cr Road Cess Payable road_cess · Cr TPT/Bilty Payable tpt · Cr Grower Payable *(party Grower)* payable_cpr · (Phase 6: Cr Grower Loan Receivable loan_deduction) |
+| **CPR** (S) | submit (after tare; Cane Admin only for cancel) | **Journal Entry** | Dr Cane Purchase Clearing *(party Supplier "Daily Cane Purchase")* govt_value · Dr Subsidy Purchase subsidy · Dr Additional Subsidy additional_subsidy · Dr Road Cess – Mill Share road_cess_mill · Cr Road Cess Payable – Govt road_cess_total · Cr TPT-Bilty Payable tpt · Cr Grower Payable *(party Grower)* payable_cpr · (Phase 6: Cr Grower Loan Receivable loan_deduction) |
 | **TPT Bilty** (S) | auto-created (submitted) with the CPR; paid at the counter | **Journal Entry** on "Pay" | Dr TPT/Bilty Payable · Cr Cash Counter – Cane. Slip: driver name, CNIC, vehicle no., CPR no., amount |
 | **Road Cess Deposit** (S) | periodic | **Journal Entry** (or Payment Entry to the govt) | Dr Road Cess Payable · Cr Bank. Holds challan no., period and the CPRs covered (each CPR marked deposited) |
 | **Cane Payment Scroll (Bank)** (S) | batch of unpaid submitted CPRs | **Payment Entry per grower** (default, Q3) | Dr Grower Payable (party Grower) · Cr Bank, allocated against the CPR JEs. Marks CPRs paid; exports the bank file |
@@ -129,7 +150,7 @@ payable_cpr ≥ 0 (otherwise TPT/loan is capped and the shortfall flagged).
 **Closing the clearing loop.** CPR JEs debit the clearing account against the internal supplier during the day. The
 daily PI credits it. Right after the PI is submitted, the day's CPR JE rows are **reconciled against the PI** (ERPNext's
 payment reconciliation API). That brings the PI's outstanding to 0 and the clearing balance to 0, with no open advances.
-Day boundary = **crushing day** (configurable start hour, e.g. 06:00–06:00, Q8). A CPR cancelled after its day's PI
+Day boundary = **crushing day 07:00 → 07:00** (Sugar Settings → crushing_day_start_hour). A CPR cancelled after its day's PI
 needs an adjustment (a debit note on the daily PI, created automatically).
 
 **Daily checks** (report "Cane Day Close", also a test): Clearing = 0; Road Cess Payable = cess on CPRs not yet
@@ -240,7 +261,7 @@ Sugar SMS Template · Sugar SMS Log · SMS Keyword; MIS API + realtime events.
 
 React 18 + TS + Vite + **frappe-react-sdk** (`FrappeProvider`, `useFrappeAuth`, `useFrappeGetDocList`, `useFrappeGetCall`,
 `useFrappePostCall`, `useFrappeEventListener`), Tailwind + shadcn/ui, Recharts, Leaflet, TanStack Table. Build →
-`sugarcane/public/frontend` + `www/sugar.html`; `website_route_rules` maps `/sugar/<path>` to it. Dev server :8081 (§0).
+`sugarcane/public/frontend` + `www/sugar.html`; `website_route_rules` maps `/sugar/<path>` to it. Dev server :5179 (§0).
 Shell (login, layout, theme, role-aware menu) adapted from the realestate frontend, written against frappe-react-sdk.
 
 ```
@@ -260,7 +281,7 @@ Room, WorkManager.
 
 ## 10. Phase 0 deliverables (once approved)
 
-Site + app + git (`develop`, pushed). Sugar Settings / Season / Shift; area, source, LP, depot, variety, disease, vehicle
+Site + app + git (`main`). Sugar Settings / Season / Shift; area, source, LP, depot, variety, disease, vehicle
 masters; **Grower + Party Type + Passbook + Import**; account setup (§4.2); Weighbridge Terminal; roles + User Permission
 scoping; fixtures; demo masters (MicroMax Sugar Mills Ltd., ~3 zones, ~12 circles, ~150 villages, ~500 growers, flagged
 `is_demo`); React shell at `/sugar`. Tests: CNIC, unit conversions, rate resolution, **CPR formula (pure function, ahead of
@@ -268,20 +289,8 @@ Phase 3)**, Grower JE/PE posting. Then `docs/PHASE_0.md`, push, stop.
 
 ---
 
-## 11. Open questions (default used if you don't decide)
+## 11. Open questions
 
-| # | Question | Default |
-|---|---|---|
-| 1 | TPT: per maund/kg of payable weight, or fixed per trip by distance/vehicle type? | Both supported per rate setup (`tpt_basis`); demo uses **per maund** |
-| 2 | Binding / garbage: fixed kg, % of net, or both? By vehicle type? | Both, per vehicle type: e.g. binding fixed kg (trolley 40, truck 80), garbage % of net (e.g. 2%) |
-| 3 | Bank scroll: PE per grower or one JE per scroll? Bank file format? | **One Payment Entry per grower** (clean ledgers, cheque/IBAN per grower); CSV/XLSX export with IBAN, CNIC, amount; specific bank formats when you send samples |
-| 4 | Road cess deposit frequency, challan format | Monthly; challan no., date, bank, period, CPRs covered |
-| 5 | Daily PI value: govt rate value only, or + subsidy? | **Govt rate value only** (subsidy stays an expense). If you want cane at full cost, the CPR JE debits clearing with govt_value + subsidy and the PI matches |
-| 6 | Weighbridge indicator, camera, lab instrument models | Generic serial ASCII parser + Modbus-TCP stub, RTSP/HTTP snapshot, simulator |
-| 7 | Data to migrate (growers, passbooks, opening balances, loans) | Excel templates; opening grower balances by an opening JE (party Grower) |
-| 8 | Crushing day boundary for the daily PI and production | 06:00 → 06:00 (configurable) |
-| 9 | Withholding tax on grower payments (filer/non-filer)? The new formula has none | None on CPR; `filer_status` stored for reports. If needed, it becomes a CPR line + Cr WHT Payable |
-| 10 | `/etc/hosts` entry `127.0.0.1 sugarcane`: will you add it (sudo), or use `sugarcane.localhost`? | You add it; until then I use `sugarcane.localhost:8006` |
-| 11 | Grower ID: auto `GRW-#####`, or passbook no.? | Auto ID; passbook no. unique and searchable |
-| 12 | Android SDK: install here, or source only? | Source only |
-| 13 | React dev port: 8080 is taken by Docker `erpnext-frontend-1`. Use 8081, or stop that container? | 8081 |
+Answered 2026-10-13 (see Decisions at the top). Still open: weighbridge indicator / camera / lab instrument models (Phase 3/5),
+bank file formats (Phase 6, send samples), data to migrate (growers, passbooks, opening balances, loans), the road cess
+challan format, and how **Cane Purchase A/c (Govt)** should be used — see `docs/PHASE_0.md` → Known gaps.

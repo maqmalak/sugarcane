@@ -1,0 +1,248 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:vehicle_type_name",
+ "creation": "2026-10-13 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "vehicle_type_name",
+  "default_lane",
+  "is_active",
+  "sb_limits",
+  "min_gross_kg",
+  "max_gross_kg",
+  "cb_limits",
+  "min_tare_kg",
+  "max_tare_kg",
+  "sb_ded",
+  "binding_kg_per_quintal",
+  "cb_ded",
+  "garbage_pct",
+  "garbage_fixed_kg",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "vehicle_type_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Vehicle Type Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "default_lane",
+   "fieldtype": "Link",
+   "label": "Default Lane",
+   "options": "Vehicle Lane"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_standard_filter": 1,
+   "label": "Active"
+  },
+  {
+   "fieldname": "sb_limits",
+   "fieldtype": "Section Break",
+   "label": "Weight Limits (kg)"
+  },
+  {
+   "fieldname": "min_gross_kg",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Min Gross (kg)",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "max_gross_kg",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Max Gross (kg)",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "cb_limits",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "min_tare_kg",
+   "fieldtype": "Int",
+   "label": "Min Tare (kg)",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "max_tare_kg",
+   "fieldtype": "Int",
+   "label": "Max Tare (kg)",
+   "non_negative": 1
+  },
+  {
+   "description": "Leave empty to use the Crushing Season values",
+   "fieldname": "sb_ded",
+   "fieldtype": "Section Break",
+   "label": "Deductions (override the season)"
+  },
+  {
+   "fieldname": "binding_kg_per_quintal",
+   "fieldtype": "Float",
+   "label": "Binding Material (kg per quintal)",
+   "non_negative": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "cb_ded",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "garbage_pct",
+   "fieldtype": "Percent",
+   "label": "Garbage / Trash (% of net)"
+  },
+  {
+   "fieldname": "garbage_fixed_kg",
+   "fieldtype": "Int",
+   "label": "Garbage Fixed (kg)",
+   "non_negative": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Demo Record",
+   "no_copy": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Sugarcane",
+ "name": "Vehicle Type",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Circle Officer"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Surveyor"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Indent Clerk"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Token Clerk"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Gross Weighman"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tare Weighman"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Yard Supervisor"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Cashier"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lab Chemist"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Production Manager"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Accountant"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Depot User"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "MIS Viewer"
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

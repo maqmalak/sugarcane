@@ -1,0 +1,268 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:passbook_no",
+ "creation": "2026-10-13 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "passbook_no",
+  "grower",
+  "grower_name",
+  "cnic",
+  "cb_main",
+  "circle",
+  "village",
+  "issue_season",
+  "issue_date",
+  "status",
+  "sb_land",
+  "land_holdings",
+  "total_acres",
+  "total_kanal",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "passbook_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Passbook No.",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "grower",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Grower",
+   "options": "Grower",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "grower.grower_name",
+   "fieldname": "grower_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Grower Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "grower.cnic",
+   "fieldname": "cnic",
+   "fieldtype": "Data",
+   "label": "CNIC",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "grower.circle",
+   "fieldname": "circle",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Circle",
+   "options": "Cane Circle",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "grower.village",
+   "fieldname": "village",
+   "fieldtype": "Link",
+   "label": "Village",
+   "options": "Cane Village",
+   "read_only": 1
+  },
+  {
+   "fieldname": "issue_season",
+   "fieldtype": "Link",
+   "label": "Issue Season",
+   "options": "Crushing Season"
+  },
+  {
+   "default": "Today",
+   "fieldname": "issue_date",
+   "fieldtype": "Date",
+   "label": "Issue Date"
+  },
+  {
+   "default": "Active",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Active\nLost\nCancelled"
+  },
+  {
+   "fieldname": "sb_land",
+   "fieldtype": "Section Break",
+   "label": "Land Holdings"
+  },
+  {
+   "fieldname": "land_holdings",
+   "fieldtype": "Table",
+   "label": "Land Holdings",
+   "options": "Grower Land Holding"
+  },
+  {
+   "fieldname": "total_acres",
+   "fieldtype": "Float",
+   "label": "Total Acres",
+   "precision": "3",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_kanal",
+   "fieldtype": "Float",
+   "label": "Total Kanal",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Demo Record",
+   "no_copy": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Sugarcane",
+ "name": "Grower Passbook",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Circle Officer",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Surveyor"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Indent Clerk"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Token Clerk"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Gross Weighman"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tare Weighman"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Yard Supervisor"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Cashier"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lab Chemist"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Production Manager"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Accountant"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Depot User"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "MIS Viewer"
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "grower_name",
+ "track_changes": 1
+}

@@ -262,3 +262,22 @@ app_license = "mit"
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
 
+
+# ---------------------------------------------------------------- MicroMax Sugar Mills ERP
+
+required_apps = ["erpnext", "hrms"]
+
+before_install = "sugarcane.setup.install.before_install"
+after_install = "sugarcane.setup.install.after_install"
+after_migrate = "sugarcane.setup.install.after_migrate"
+
+fixtures = [
+	{"dt": "Role", "filters": [["name", "in", [
+		"Cane Manager", "Cane Admin", "Circle Officer", "Surveyor", "Indent Clerk", "Token Clerk", "Gross Weighman",
+		"Tare Weighman", "Yard Supervisor", "Cane Cashier", "Lab Chemist", "Production Manager", "Cane Accountant",
+		"Depot User", "MIS Viewer"]]]},
+	{"dt": "Party Type", "filters": [["name", "=", "Grower"]]},
+]
+
+# React app at /sugar (built into sugarcane/public/frontend, page in www/sugar.html)
+website_route_rules = [{"from_route": "/sugar/<path:app_path>", "to_route": "sugar"}]

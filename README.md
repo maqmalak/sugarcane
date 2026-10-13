@@ -1,32 +1,28 @@
-### Sugarcane
+## Sugarcane — MicroMax Sugar Mills ERP
 
-MicroMax Sugar Mills ERP: cane survey, indenting, procurement, weighbridge, CPR, laboratory, production, cane accounting
+Frappe / ERPNext v16 app for a Pakistani sugar mill: cane survey, indenting, procurement, weighbridge, CPR, TPT bilty,
+road cess, laboratory, production, cane accounting, grower loans, costing and MIS. Growers are an ERPNext **Party Type**;
+cane purchases post through Journal Entries and one daily cane Purchase Invoice.
 
-### Installation
+- Architecture and decisions: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- Phase notes: [docs/PHASE_0.md](docs/PHASE_0.md)
 
-You can install this app using the [bench](https://github.com/frappe/bench) CLI:
-
-```bash
-cd $PATH_TO_YOUR_BENCH
-bench get-app $URL_OF_THIS_REPO --branch develop
-bench install-app sugarcane
-```
-
-### Contributing
-
-This app uses `pre-commit` for code formatting and linting. Please [install pre-commit](https://pre-commit.com/#installation) and enable it for this repository:
+### Install
 
 ```bash
-cd apps/sugarcane
-pre-commit install
+bench get-app https://github.com/maqmalak/sugarcane.git
+bench --site <site> install-app sugarcane      # needs erpnext and hrms
+bench --site <site> execute sugarcane.setup.company.ensure_company   # optional: MicroMax Sugar Mills Ltd. + cane ledgers
+bench --site <site> sc-demo                     # optional: demo masters (500 growers)
 ```
 
-Pre-commit is configured to use the following tools for checking and formatting your code:
+### Develop
 
-- ruff
-- eslint
-- prettier
-- pyupgrade
+```bash
+bench --site sugarcane.local run-tests --app sugarcane
+cd frontend && npm install && npm run dev       # http://sugarcane.local:5179  → proxies to :8006
+npm run build                                   # → sugarcane/public/frontend + www/sugar.html (/sugar)
+```
 
 ### License
 

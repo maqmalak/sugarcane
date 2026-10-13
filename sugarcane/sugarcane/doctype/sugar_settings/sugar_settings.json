@@ -1,0 +1,353 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-13 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "general_tab",
+  "company",
+  "active_season",
+  "cb_general",
+  "maund_kg",
+  "crushing_day_start_hour",
+  "sb_survey",
+  "overlap_tolerance_pct",
+  "min_gps_accuracy_m",
+  "cb_survey",
+  "geofence_radius_m",
+  "tracking_interval_s",
+  "sb_weighbridge",
+  "weighbridge_ip_check",
+  "accounts_tab",
+  "accounts_help",
+  "sb_party",
+  "grower_payable_account",
+  "cane_purchase_clearing_account",
+  "tpt_payable_account",
+  "cb_party",
+  "road_cess_payable_account",
+  "grower_loan_account",
+  "cash_counter_account",
+  "sb_cost",
+  "cane_purchase_govt_account",
+  "subsidy_purchase_account",
+  "cb_cost",
+  "additional_subsidy_account",
+  "road_cess_expense_account",
+  "cost_center",
+  "stock_tab",
+  "cane_item",
+  "cane_yard_warehouse",
+  "cb_stock",
+  "daily_purchase_supplier",
+  "contractor_supplier_group"
+ ],
+ "fields": [
+  {
+   "fieldname": "general_tab",
+   "fieldtype": "Tab Break",
+   "label": "General"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "active_season",
+   "fieldtype": "Link",
+   "label": "Active Season",
+   "options": "Crushing Season"
+  },
+  {
+   "fieldname": "cb_general",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "40",
+   "fieldname": "maund_kg",
+   "fieldtype": "Float",
+   "label": "Maund (kg)",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "default": "7",
+   "description": "A crushing day runs from this hour to the same hour next day, e.g. 7 = 07:00 → 07:00.",
+   "fieldname": "crushing_day_start_hour",
+   "fieldtype": "Int",
+   "label": "Crushing Day Starts At (hour)"
+  },
+  {
+   "fieldname": "sb_survey",
+   "fieldtype": "Section Break",
+   "label": "Survey & Field Force"
+  },
+  {
+   "default": "5",
+   "fieldname": "overlap_tolerance_pct",
+   "fieldtype": "Percent",
+   "label": "Survey Overlap Tolerance (%)"
+  },
+  {
+   "default": "20",
+   "fieldname": "min_gps_accuracy_m",
+   "fieldtype": "Float",
+   "label": "Minimum GPS Accuracy (m)"
+  },
+  {
+   "fieldname": "cb_survey",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "200",
+   "fieldname": "geofence_radius_m",
+   "fieldtype": "Int",
+   "label": "Default Geofence Radius (m)"
+  },
+  {
+   "default": "300",
+   "fieldname": "tracking_interval_s",
+   "fieldtype": "Int",
+   "label": "Tracking Interval (seconds)"
+  },
+  {
+   "fieldname": "sb_weighbridge",
+   "fieldtype": "Section Break",
+   "label": "Weighbridge"
+  },
+  {
+   "default": "1",
+   "fieldname": "weighbridge_ip_check",
+   "fieldtype": "Check",
+   "label": "Accept Readings Only From Registered Terminal IPs"
+  },
+  {
+   "fieldname": "accounts_tab",
+   "fieldtype": "Tab Break",
+   "label": "Accounts"
+  },
+  {
+   "fieldname": "accounts_help",
+   "fieldtype": "HTML",
+   "label": "Accounts Help",
+   "options": "<p class='text-muted small'>Created by <b>Set Up Accounts</b> for the company. Change only if your chart of accounts uses other ledgers.</p>"
+  },
+  {
+   "fieldname": "sb_party",
+   "fieldtype": "Section Break",
+   "label": "Payables"
+  },
+  {
+   "description": "Payable account, party type Grower",
+   "fieldname": "grower_payable_account",
+   "fieldtype": "Link",
+   "label": "Grower Payable Account",
+   "options": "Account"
+  },
+  {
+   "description": "Debited by every CPR, credited by the daily cane Purchase Invoice; zero after each day close",
+   "fieldname": "cane_purchase_clearing_account",
+   "fieldtype": "Link",
+   "label": "Cane Purchase Clearing Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "tpt_payable_account",
+   "fieldtype": "Link",
+   "label": "TPT/Bilty Payable Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "cb_party",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "road_cess_payable_account",
+   "fieldtype": "Link",
+   "label": "Road Cess Payable – Govt Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "grower_loan_account",
+   "fieldtype": "Link",
+   "label": "Grower Loan Receivable Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "cash_counter_account",
+   "fieldtype": "Link",
+   "label": "Cash Counter (Cane) Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "sb_cost",
+   "fieldtype": "Section Break",
+   "label": "Cost of Sales"
+  },
+  {
+   "fieldname": "cane_purchase_govt_account",
+   "fieldtype": "Link",
+   "label": "Cane Purchase A/c (Govt)",
+   "options": "Account"
+  },
+  {
+   "fieldname": "subsidy_purchase_account",
+   "fieldtype": "Link",
+   "label": "Subsidy Purchase Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "cb_cost",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "additional_subsidy_account",
+   "fieldtype": "Link",
+   "label": "Additional Subsidy Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "road_cess_expense_account",
+   "fieldtype": "Link",
+   "label": "Road Cess – Mill Share Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "stock_tab",
+   "fieldtype": "Tab Break",
+   "label": "Stock"
+  },
+  {
+   "fieldname": "cane_item",
+   "fieldtype": "Link",
+   "label": "Sugarcane Item",
+   "options": "Item"
+  },
+  {
+   "fieldname": "cane_yard_warehouse",
+   "fieldtype": "Link",
+   "label": "Cane Yard Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "cb_stock",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Internal supplier on the one daily cane Purchase Invoice",
+   "fieldname": "daily_purchase_supplier",
+   "fieldtype": "Link",
+   "label": "Daily Cane Purchase Supplier",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "contractor_supplier_group",
+   "fieldtype": "Link",
+   "label": "Cane Contractor Supplier Group",
+   "options": "Supplier Group"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-10-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Sugarcane",
+ "name": "Sugar Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Cane Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Cane Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Circle Officer"
+  },
+  {
+   "read": 1,
+   "role": "Surveyor"
+  },
+  {
+   "read": 1,
+   "role": "Indent Clerk"
+  },
+  {
+   "read": 1,
+   "role": "Token Clerk"
+  },
+  {
+   "read": 1,
+   "role": "Gross Weighman"
+  },
+  {
+   "read": 1,
+   "role": "Tare Weighman"
+  },
+  {
+   "read": 1,
+   "role": "Yard Supervisor"
+  },
+  {
+   "read": 1,
+   "role": "Cane Cashier"
+  },
+  {
+   "read": 1,
+   "role": "Lab Chemist"
+  },
+  {
+   "read": 1,
+   "role": "Production Manager"
+  },
+  {
+   "read": 1,
+   "role": "Cane Accountant"
+  },
+  {
+   "read": 1,
+   "role": "Depot User"
+  },
+  {
+   "read": 1,
+   "role": "MIS Viewer"
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

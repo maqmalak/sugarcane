@@ -1,0 +1,386 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-10-13 12:00:00.000000",
+ "description": "Cane grower; registered as an ERPNext Party Type. ID = circle code-village code-serial, e.g. 001-001-0001",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "sb_identity",
+  "grower_name",
+  "father_name",
+  "cnic",
+  "mobile",
+  "cb_identity",
+  "passbook_no",
+  "filer_status",
+  "grower_serial",
+  "disabled",
+  "sb_location",
+  "circle",
+  "village",
+  "village_name",
+  "cb_location",
+  "sector",
+  "zone",
+  "address",
+  "bank_tab",
+  "bank_name",
+  "branch_name",
+  "branch_code",
+  "cb_bank",
+  "account_title",
+  "account_no",
+  "iban",
+  "bank_account",
+  "default_bank_account",
+  "accounting_tab",
+  "accounts_help",
+  "accounts",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "sb_identity",
+   "fieldtype": "Section Break",
+   "label": "Grower"
+  },
+  {
+   "fieldname": "grower_name",
+   "fieldtype": "Data",
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "label": "Grower Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "father_name",
+   "fieldtype": "Data",
+   "in_global_search": 1,
+   "label": "Father / Husband Name"
+  },
+  {
+   "description": "#####-#######-#",
+   "fieldname": "cnic",
+   "fieldtype": "Data",
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "label": "CNIC",
+   "length": 15,
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "mobile",
+   "fieldtype": "Data",
+   "label": "Mobile",
+   "options": "Phone"
+  },
+  {
+   "fieldname": "cb_identity",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Set from the Grower Passbook",
+   "fieldname": "passbook_no",
+   "fieldtype": "Data",
+   "in_global_search": 1,
+   "label": "Passbook No.",
+   "read_only": 1,
+   "unique": 1
+  },
+  {
+   "default": "Non-Filer",
+   "fieldname": "filer_status",
+   "fieldtype": "Select",
+   "label": "Tax Status",
+   "options": "Non-Filer\nFiler"
+  },
+  {
+   "fieldname": "grower_serial",
+   "fieldtype": "Int",
+   "label": "Serial in Village",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "in_standard_filter": 1,
+   "label": "Disabled"
+  },
+  {
+   "fieldname": "sb_location",
+   "fieldtype": "Section Break",
+   "label": "Location"
+  },
+  {
+   "fieldname": "circle",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Circle",
+   "options": "Cane Circle",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "village",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Village",
+   "options": "Cane Village",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "fetch_from": "village.village_name",
+   "fieldname": "village_name",
+   "fieldtype": "Data",
+   "label": "Village Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_location",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "village.sector",
+   "fieldname": "sector",
+   "fieldtype": "Link",
+   "label": "Sector",
+   "options": "Cane Sector",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "circle.zone",
+   "fieldname": "zone",
+   "fieldtype": "Link",
+   "label": "Zone",
+   "options": "Sugar Zone",
+   "read_only": 1
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "Address"
+  },
+  {
+   "fieldname": "bank_tab",
+   "fieldtype": "Tab Break",
+   "label": "Bank"
+  },
+  {
+   "fieldname": "bank_name",
+   "fieldtype": "Data",
+   "label": "Bank"
+  },
+  {
+   "fieldname": "branch_name",
+   "fieldtype": "Data",
+   "label": "Branch"
+  },
+  {
+   "fieldname": "branch_code",
+   "fieldtype": "Data",
+   "label": "Branch Code"
+  },
+  {
+   "fieldname": "cb_bank",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "account_title",
+   "fieldtype": "Data",
+   "label": "Account Title"
+  },
+  {
+   "fieldname": "account_no",
+   "fieldtype": "Data",
+   "label": "Account No."
+  },
+  {
+   "fieldname": "iban",
+   "fieldtype": "Data",
+   "label": "IBAN",
+   "length": 34
+  },
+  {
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "label": "ERPNext Bank Account",
+   "no_copy": 1,
+   "options": "Bank Account",
+   "read_only": 1
+  },
+  {
+   "description": "Read by ERPNext Payment Entry for any party type",
+   "fieldname": "default_bank_account",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Default Company Bank Account",
+   "options": "Bank Account"
+  },
+  {
+   "fieldname": "accounting_tab",
+   "fieldtype": "Tab Break",
+   "label": "Accounting"
+  },
+  {
+   "fieldname": "accounts_help",
+   "fieldtype": "HTML",
+   "label": "Accounts Help",
+   "options": "<p class='text-muted small'>Filled automatically from Sugar Settings → Grower Payable.</p>"
+  },
+  {
+   "fieldname": "accounts",
+   "fieldtype": "Table",
+   "label": "Payable Account",
+   "options": "Party Account"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Demo Record",
+   "no_copy": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Sugarcane",
+ "name": "Grower",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Circle Officer",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Surveyor"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Indent Clerk"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Token Clerk"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Gross Weighman"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tare Weighman"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Yard Supervisor"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Cashier"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lab Chemist"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Production Manager"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Accountant"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Depot User"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "MIS Viewer"
+  }
+ ],
+ "search_fields": "grower_name,cnic,father_name,passbook_no,village_name",
+ "show_title_field_in_link": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "grower_name",
+ "track_changes": 1
+}

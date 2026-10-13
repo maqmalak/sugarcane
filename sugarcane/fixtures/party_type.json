@@ -1,0 +1,10 @@
+[
+ {
+  "account_type": "Payable",
+  "docstatus": 0,
+  "doctype": "Party Type",
+  "modified": "2026-10-13 16:25:33.793188",
+  "name": "Grower",
+  "party_type": "Grower"
+ }
+]

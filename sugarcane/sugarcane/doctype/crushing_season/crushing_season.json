@@ -1,0 +1,328 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:season_name",
+ "creation": "2026-10-13 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "season_name",
+  "company",
+  "status",
+  "cb_main",
+  "start_date",
+  "end_date",
+  "crushing_target_maund",
+  "sb_rates",
+  "govt_rate",
+  "road_cess_pct",
+  "grower_cess_share_pct",
+  "tpt_rate",
+  "cb_rates",
+  "subsidy_rate",
+  "additional_subsidy_rate",
+  "binding_kg_per_quintal",
+  "garbage_pct",
+  "sb_prod",
+  "standard_recovery_pct",
+  "bag_weight_kg",
+  "cb_prod",
+  "molasses_nrv_per_kg",
+  "bagasse_nrv_per_kg",
+  "press_mud_nrv_per_kg",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "description": "e.g. 2026-27",
+   "fieldname": "season_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Season Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "default": "Planned",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Planned\nOpen\nClosed"
+  },
+  {
+   "fieldname": "cb_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Start Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "End Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "crushing_target_maund",
+   "fieldtype": "Float",
+   "label": "Crushing Target (maund)",
+   "non_negative": 1
+  },
+  {
+   "description": "Circle, source and loading-point rate setups override these from Phase 3.",
+   "fieldname": "sb_rates",
+   "fieldtype": "Section Break",
+   "label": "Cane Rates (season defaults)"
+  },
+  {
+   "fieldname": "govt_rate",
+   "fieldtype": "Currency",
+   "label": "Govt Notified Rate (per 40 kg)",
+   "non_negative": 1,
+   "options": "Company:company:default_currency"
+  },
+  {
+   "description": "Total cess on govt rate value; deposited 100% monthly",
+   "fieldname": "road_cess_pct",
+   "fieldtype": "Percent",
+   "label": "Road Cess (%)"
+  },
+  {
+   "default": "50",
+   "description": "Deducted from the grower; the rest is borne by the mill",
+   "fieldname": "grower_cess_share_pct",
+   "fieldtype": "Percent",
+   "label": "Grower Share of Road Cess (%)"
+  },
+  {
+   "fieldname": "tpt_rate",
+   "fieldtype": "Currency",
+   "label": "TPT Rate (per maund)",
+   "non_negative": 1,
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "cb_rates",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "subsidy_rate",
+   "fieldtype": "Currency",
+   "label": "Subsidy (per maund)",
+   "non_negative": 1,
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "additional_subsidy_rate",
+   "fieldtype": "Currency",
+   "label": "Additional Subsidy (per maund)",
+   "non_negative": 1,
+   "options": "Company:company:default_currency"
+  },
+  {
+   "default": "0.265",
+   "fieldname": "binding_kg_per_quintal",
+   "fieldtype": "Float",
+   "label": "Binding Material (kg per quintal)",
+   "non_negative": 1,
+   "precision": "3"
+  },
+  {
+   "default": "0",
+   "fieldname": "garbage_pct",
+   "fieldtype": "Percent",
+   "label": "Garbage / Trash (% of net)"
+  },
+  {
+   "fieldname": "sb_prod",
+   "fieldtype": "Section Break",
+   "label": "Production"
+  },
+  {
+   "default": "10",
+   "fieldname": "standard_recovery_pct",
+   "fieldtype": "Percent",
+   "label": "Standard Recovery (%)"
+  },
+  {
+   "default": "50",
+   "fieldname": "bag_weight_kg",
+   "fieldtype": "Float",
+   "label": "Sugar Bag (kg)"
+  },
+  {
+   "fieldname": "cb_prod",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "molasses_nrv_per_kg",
+   "fieldtype": "Currency",
+   "label": "Molasses NRV (per kg)",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "bagasse_nrv_per_kg",
+   "fieldtype": "Currency",
+   "label": "Bagasse NRV (per kg)",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "press_mud_nrv_per_kg",
+   "fieldtype": "Currency",
+   "label": "Press Mud NRV (per kg)",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Demo Record",
+   "no_copy": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Sugarcane",
+ "name": "Crushing Season",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Circle Officer"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Surveyor"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Indent Clerk"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Token Clerk"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Gross Weighman"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tare Weighman"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Yard Supervisor"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Cashier"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lab Chemist"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Production Manager"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Accountant"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Depot User"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "MIS Viewer"
+  }
+ ],
+ "sort_field": "start_date",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,339 @@
+{
+ "app": "sugarcane",
+ "charts": [],
+ "content": "[{\"id\": \"u8jzPde0Ig\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Shortcuts</b></span>\", \"col\": 12}}, {\"id\": \"xLd6GncfBA\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Grower\", \"col\": 3}}, {\"id\": \"epfJBd0Kh8\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Cane Village\", \"col\": 3}}, {\"id\": \"oOOL8dKLzd\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Crushing Season\", \"col\": 3}}, {\"id\": \"ocJ2isAjIh\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Sugar Settings\", \"col\": 3}}, {\"id\": \"KtJ0RlgLKO\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"mxgJTeKdNn\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Masters</b></span>\", \"col\": 12}}, {\"id\": \"FRIBXuDL7D\", \"type\": \"card\", \"data\": {\"card_name\": \"Growers\", \"col\": 4}}, {\"id\": \"xtpYlSXpfK\", \"type\": \"card\", \"data\": {\"card_name\": \"Area\", \"col\": 4}}, {\"id\": \"tHF4vUCsMe\", \"type\": \"card\", \"data\": {\"card_name\": \"Sources\", \"col\": 4}}, {\"id\": \"hGAkWvj7FA\", \"type\": \"card\", \"data\": {\"card_name\": \"Crop\", \"col\": 4}}, {\"id\": \"c9QeWJKY40\", \"type\": \"card\", \"data\": {\"card_name\": \"Vehicles & Weighbridge\", \"col\": 4}}, {\"id\": \"uvSwMFLZDe\", \"type\": \"card\", \"data\": {\"card_name\": \"Setup\", \"col\": 4}}]",
+ "creation": "2026-10-13 12:00:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "organization",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "Sugarcane",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Growers",
+   "link_count": 3,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Grower",
+   "link_count": 0,
+   "link_to": "Grower",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Grower Passbook",
+   "link_count": 0,
+   "link_to": "Grower Passbook",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Grower Import",
+   "link_count": 0,
+   "link_to": "Grower Import",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Area",
+   "link_count": 6,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sugar Division",
+   "link_count": 0,
+   "link_to": "Sugar Division",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sugar District",
+   "link_count": 0,
+   "link_to": "Sugar District",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sugar Zone",
+   "link_count": 0,
+   "link_to": "Sugar Zone",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Cane Circle",
+   "link_count": 0,
+   "link_to": "Cane Circle",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Cane Sector",
+   "link_count": 0,
+   "link_to": "Cane Sector",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Cane Village",
+   "link_count": 0,
+   "link_to": "Cane Village",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sources",
+   "link_count": 3,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Cane Source",
+   "link_count": 0,
+   "link_to": "Cane Source",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Loading Point",
+   "link_count": 0,
+   "link_to": "Loading Point",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Cane Depot",
+   "link_count": 0,
+   "link_to": "Cane Depot",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Crop",
+   "link_count": 2,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Cane Variety",
+   "link_count": 0,
+   "link_to": "Cane Variety",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Crop Disease",
+   "link_count": 0,
+   "link_to": "Crop Disease",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicles & Weighbridge",
+   "link_count": 4,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Type",
+   "link_count": 0,
+   "link_to": "Vehicle Type",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sugar Vehicle",
+   "link_count": 0,
+   "link_to": "Sugar Vehicle",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Lane",
+   "link_count": 0,
+   "link_to": "Vehicle Lane",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Weighbridge Terminal",
+   "link_count": 0,
+   "link_to": "Weighbridge Terminal",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Setup",
+   "link_count": 3,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sugar Settings",
+   "link_count": 0,
+   "link_to": "Sugar Settings",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Crushing Season",
+   "link_count": 0,
+   "link_to": "Crushing Season",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Crushing Shift",
+   "link_count": 0,
+   "link_to": "Crushing Shift",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-10-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Sugarcane",
+ "name": "Sugarcane",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 30.0,
+ "shortcuts": [
+  {
+   "color": "Blue",
+   "doc_view": "List",
+   "label": "Grower",
+   "link_to": "Grower",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Cane Village",
+   "link_to": "Cane Village",
+   "type": "DocType"
+  },
+  {
+   "color": "Orange",
+   "doc_view": "List",
+   "label": "Crushing Season",
+   "link_to": "Crushing Season",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Sugar Settings",
+   "link_to": "Sugar Settings",
+   "type": "DocType"
+  }
+ ],
+ "title": "Sugarcane",
+ "type": "Workspace"
+}

@@ -1,0 +1,294 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:circle_name",
+ "creation": "2026-10-13 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "circle_name",
+  "circle_code",
+  "zone",
+  "district",
+  "division",
+  "cb_main",
+  "circle_officer",
+  "affiliation",
+  "quality_grade",
+  "is_active",
+  "sb_rates",
+  "distance_km",
+  "quota_maund",
+  "cb_rates",
+  "cane_incentive_rate",
+  "subsidy_rate",
+  "deduction_pct",
+  "sb_map",
+  "polygon",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "circle_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Circle Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "description": "3 digits (001–999); first part of every grower ID in this circle",
+   "fieldname": "circle_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Circle Code",
+   "length": 3,
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "zone",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Zone",
+   "options": "Sugar Zone",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "zone.district",
+   "fieldname": "district",
+   "fieldtype": "Link",
+   "label": "District",
+   "options": "Sugar District",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "zone.division",
+   "fieldname": "division",
+   "fieldtype": "Link",
+   "label": "Division",
+   "options": "Sugar Division",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "circle_officer",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Circle Officer",
+   "options": "User"
+  },
+  {
+   "default": "Own",
+   "fieldname": "affiliation",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Affiliation",
+   "options": "Own\nAffiliated\nFree"
+  },
+  {
+   "fieldname": "quality_grade",
+   "fieldtype": "Select",
+   "label": "Quality Grade",
+   "options": "\nA\nB\nC"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_standard_filter": 1,
+   "label": "Active"
+  },
+  {
+   "fieldname": "sb_rates",
+   "fieldtype": "Section Break",
+   "label": "Distance, Incentives & Quota"
+  },
+  {
+   "fieldname": "distance_km",
+   "fieldtype": "Float",
+   "label": "Distance (km)",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "quota_maund",
+   "fieldtype": "Float",
+   "label": "Quota (maund)",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "cb_rates",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cane_incentive_rate",
+   "fieldtype": "Currency",
+   "label": "Cane Incentive (per maund)",
+   "non_negative": 1
+  },
+  {
+   "description": "Leave empty to use the season rate",
+   "fieldname": "subsidy_rate",
+   "fieldtype": "Currency",
+   "label": "Subsidy (per maund)",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "deduction_pct",
+   "fieldtype": "Percent",
+   "label": "Deduction (%)"
+  },
+  {
+   "fieldname": "sb_map",
+   "fieldtype": "Section Break",
+   "label": "Boundary"
+  },
+  {
+   "fieldname": "polygon",
+   "fieldtype": "Geolocation",
+   "label": "Circle Boundary"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Demo Record",
+   "no_copy": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Sugarcane",
+ "name": "Cane Circle",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Circle Officer"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Surveyor"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Indent Clerk"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Token Clerk"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Gross Weighman"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tare Weighman"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Yard Supervisor"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Cashier"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lab Chemist"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Production Manager"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Accountant"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Depot User"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "MIS Viewer"
+  }
+ ],
+ "search_fields": "circle_code,zone",
+ "sort_field": "circle_code",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

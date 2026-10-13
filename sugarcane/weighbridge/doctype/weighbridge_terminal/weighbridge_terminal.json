@@ -1,0 +1,191 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:terminal_name",
+ "creation": "2026-10-13 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "terminal_name",
+  "weighbridge_no",
+  "allowed_operations",
+  "lane",
+  "cb_main",
+  "ip_address",
+  "device_id",
+  "api_user",
+  "is_active",
+  "sb_hw",
+  "indicator_protocol",
+  "indicator_port",
+  "lcd_port",
+  "cb_hw",
+  "camera_front_url",
+  "camera_rear_url",
+  "camera_top_url"
+ ],
+ "fields": [
+  {
+   "fieldname": "terminal_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Terminal Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "weighbridge_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Weighbridge No."
+  },
+  {
+   "default": "Gross and Tare",
+   "fieldname": "allowed_operations",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Allowed Operations",
+   "options": "Gross\nTare\nGross and Tare\nMisc\nAll"
+  },
+  {
+   "fieldname": "lane",
+   "fieldtype": "Link",
+   "label": "Lane",
+   "options": "Vehicle Lane"
+  },
+  {
+   "fieldname": "cb_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ip_address",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "PC IP Address",
+   "reqd": 1
+  },
+  {
+   "fieldname": "device_id",
+   "fieldtype": "Data",
+   "label": "Device ID"
+  },
+  {
+   "description": "The local agent signs in as this user (API key/secret)",
+   "fieldname": "api_user",
+   "fieldtype": "Link",
+   "label": "Agent API User",
+   "options": "User"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_standard_filter": 1,
+   "label": "Active"
+  },
+  {
+   "fieldname": "sb_hw",
+   "fieldtype": "Section Break",
+   "label": "Hardware"
+  },
+  {
+   "default": "Simulator",
+   "fieldname": "indicator_protocol",
+   "fieldtype": "Select",
+   "label": "Indicator Protocol",
+   "options": "Serial ASCII\nModbus TCP\nSimulator"
+  },
+  {
+   "description": "e.g. /dev/ttyUSB0, COM3 or 192.168.1.50:502",
+   "fieldname": "indicator_port",
+   "fieldtype": "Data",
+   "label": "Indicator Port"
+  },
+  {
+   "fieldname": "lcd_port",
+   "fieldtype": "Data",
+   "label": "LCD Display Port"
+  },
+  {
+   "fieldname": "cb_hw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "camera_front_url",
+   "fieldtype": "Data",
+   "label": "Front Camera URL"
+  },
+  {
+   "fieldname": "camera_rear_url",
+   "fieldtype": "Data",
+   "label": "Rear Camera URL"
+  },
+  {
+   "fieldname": "camera_top_url",
+   "fieldtype": "Data",
+   "label": "Top Camera URL"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Weighbridge",
+ "name": "Weighbridge Terminal",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Manager"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Gross Weighman"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tare Weighman"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Yard Supervisor"
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

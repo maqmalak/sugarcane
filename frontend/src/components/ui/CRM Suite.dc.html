@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-91c732ce-a972-4817-bfe9-cd018aaa3097/styles.css">
+<script src="_ds/modernist-91c732ce-a972-4817-bfe9-cd018aaa3097/_ds_bundle.js"></script>
+<style>
+  /* Theme layer: aliases only — every literal comes from the Modernist token sheet. */
+  :root, [data-theme="light"] {
+    --bg: var(--color-bg); --surface: var(--color-surface); --hover: var(--color-neutral-200); --card-hover: var(--color-neutral-100);
+    --ink: var(--color-text); --ink-2: var(--color-neutral-800); --ink-3: var(--color-neutral-700);
+    --muted: var(--color-neutral-600); --muted-2: var(--color-neutral-500);
+    --rule: var(--color-neutral-300); --rule-strong: var(--color-text); --border-strong: var(--color-text); --border-soft: var(--color-neutral-400);
+    --invert-bg: var(--color-text); --invert-ink: var(--color-bg);
+    --accent: var(--color-accent); --accent-pressed: var(--color-accent-600); --accent-ink: var(--color-accent-700);
+    --accent-tint: var(--color-accent-200); --accent-soft: var(--color-accent-400);
+    --select: var(--color-accent-300); --backdrop: color-mix(in srgb, var(--color-text) 45%, transparent);
+  }
+  [data-theme="dark"] {
+    --bg: var(--color-text); --surface: var(--color-neutral-900); --hover: var(--color-neutral-800); --card-hover: var(--color-neutral-800);
+    --ink: var(--color-bg); --ink-2: var(--color-neutral-300); --ink-3: var(--color-neutral-400);
+    --muted: var(--color-neutral-500); --muted-2: var(--color-neutral-600);
+    --rule: var(--color-neutral-800); --rule-strong: var(--color-neutral-500); --border-strong: var(--color-neutral-600); --border-soft: var(--color-neutral-700);
+    --invert-bg: var(--color-bg); --invert-ink: var(--color-text);
+    --accent: var(--color-accent); --accent-pressed: var(--color-accent-600); --accent-ink: var(--color-accent-400);
+    --accent-tint: var(--color-accent-800); --accent-soft: var(--color-accent-300);
+    --select: var(--color-accent-800); --backdrop: color-mix(in srgb, var(--color-accent-900) 70%, transparent);
+  }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); }
+  * { box-sizing: border-box; }
+  a { color: var(--accent-ink); text-decoration: none; }
+  a:hover { color: var(--accent-pressed); text-decoration: underline; }
+  input, select, textarea, button { font-family: var(--font-body); color: var(--ink); }
+  h1 { font-family: var(--font-heading); }
+  input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible, div:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  ::selection { background: var(--select); }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: var(--rule); }
+</style>
+</helmet>
+<div data-theme="{{ theme }}" style="display:grid; grid-template-columns:216px 1fr; height:100vh; min-width:1120px; overflow:hidden; background:var(--bg); color:var(--ink); font-size:13px; line-height:1.35">
+
+  <aside style="border-right:2px solid var(--rule-strong); background:var(--surface); display:flex; flex-direction:column; overflow:hidden">
+    <div style="padding:14px 14px 12px; border-bottom:2px solid var(--rule-strong); display:flex; align-items:center; gap:9px">
+      <div style="width:14px; height:14px; background:var(--accent)"></div>
+      <div style="display:flex; flex-direction:column; gap:1px">
+        <div style="font-weight:700; letter-spacing:0.06em; font-size:12px; text-transform:uppercase">Ledgerline CRM</div>
+        <div style="font-size:11px; color:var(--muted)">Administrator · v16</div>
+      </div>
+    </div>
+
+    <div style="flex:1; overflow-y:auto; padding-bottom:8px">
+      <sc-for list="{{ navGroups }}" as="group" hint-placeholder-count="4">
+        <div style="padding:12px 14px 4px; font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); font-weight:600">{{ group.label }}</div>
+        <div style="display:flex; flex-direction:column">
+          <sc-for list="{{ group.items }}" as="item" hint-placeholder-count="4">
+            <sc-if value="{{ item.active }}" hint-placeholder-val="{{ true }}">
+              <div onClick="{{ item.go }}" style="display:grid; grid-template-columns:3px 1fr auto; align-items:center; gap:9px; padding:6px 14px 6px 0; background:var(--accent-tint); cursor:pointer">
+                <div style="width:3px; height:20px; background:var(--accent)"></div>
+                <div style="font-weight:600; color:var(--ink)">{{ item.label }}</div>
+                <div style="font-size:11px; color:var(--accent-ink); font-weight:600">{{ item.count }}</div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ item.inactive }}" hint-placeholder-val="{{ true }}">
+              <div onClick="{{ item.go }}" style="display:grid; grid-template-columns:3px 1fr auto; align-items:center; gap:9px; padding:6px 14px 6px 0; cursor:pointer" style-hover="background:var(--hover)">
+                <div style="width:3px; height:20px"></div>
+                <div style="color:var(--ink-2)">{{ item.label }}</div>
+                <div style="font-size:11px; color:var(--muted-2)">{{ item.count }}</div>
+              </div>
+            </sc-if>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="border-top:2px solid var(--rule-strong); padding:10px 14px; display:flex; flex-direction:column; gap:6px">
+      <div onClick="{{ openPalette }}" style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border-soft); padding:5px 8px; cursor:pointer; background:var(--bg)" style-hover="border-color:var(--ink)">
+        <span style="color:var(--ink-3)">Search everything</span>
+        <span style="font-size:11px; color:var(--muted); font-family:ui-monospace, monospace">⌘K</span>
+      </div>
+      <div style="font-size:11px; color:var(--muted)">Sandbox site · demo data</div>
+    </div>
+  </aside>
+
+  <main style="display:flex; flex-direction:column; overflow:hidden">
+    <header style="border-bottom:2px solid var(--rule-strong); background:var(--bg)">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; padding:11px 18px">
+        <div style="display:flex; align-items:baseline; gap:10px">
+          <h1 style="margin:0; font-size:19px; font-weight:700; letter-spacing:-0.01em">{{ screenTitle }}</h1>
+          <span style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em">{{ screenMeta }}</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px">
+          <sc-if value="{{ hasViewTypes }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex; border:1px solid var(--border-strong)">
+              <sc-for list="{{ viewTypes }}" as="vt" hint-placeholder-count="3">
+                <sc-if value="{{ vt.active }}" hint-placeholder-val="{{ true }}">
+                  <div onClick="{{ vt.go }}" style="padding:5px 11px; background:var(--invert-bg); color:var(--invert-ink); font-weight:600; cursor:pointer; font-size:12px">{{ vt.label }}</div>
+                </sc-if>
+                <sc-if value="{{ vt.inactive }}" hint-placeholder-val="{{ true }}">
+                  <div onClick="{{ vt.go }}" style="padding:5px 11px; cursor:pointer; font-size:12px; color:var(--ink-2); border-left:1px solid var(--rule)" style-hover="background:var(--surface)">{{ vt.label }}</div>
+                </sc-if>
+              </sc-for>
+            </div>
+          </sc-if>
+          <button onClick="{{ toggleTheme }}" title="Toggle light / dark" style="border:1px solid var(--border-strong); background:transparent; color:var(--ink); padding:5px 10px; font-size:12px; cursor:pointer; text-align:left; display:flex; align-items:center; gap:7px" style-hover="background:var(--surface)">
+            <span style="width:9px; height:9px; background:var(--accent); display:inline-block"></span>{{ themeLabel }}
+          </button>
+          <button onClick="{{ exportCsv }}" style="border:1px solid var(--border-strong); background:transparent; color:var(--ink); padding:5px 11px; font-size:12px; cursor:pointer; text-align:left" style-hover="background:var(--surface)">Export</button>
+          <button onClick="{{ importCsv }}" style="border:1px solid var(--border-strong); background:transparent; color:var(--ink); padding:5px 11px; font-size:12px; cursor:pointer; text-align:left" style-hover="background:var(--surface)">Import</button>
+          <button onClick="{{ create }}" style="border:1px solid var(--accent); background:var(--accent); color:var(--color-bg); padding:5px 13px; font-size:12px; font-weight:600; cursor:pointer; text-align:left" style-hover="background:var(--accent-pressed)">+ Create</button>
+        </div>
+      </div>
+
+      <sc-if value="{{ showFilterBar }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex; align-items:center; gap:10px; padding:8px 18px; border-top:1px solid var(--rule); background:var(--surface)">
+          <div style="display:flex; align-items:center; gap:6px">
+            <span style="font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); font-weight:600">Saved view</span>
+            <select value="{{ savedView }}" onChange="{{ setSavedView }}" style="border:1px solid var(--border-soft); background:var(--bg); padding:4px 6px; font-size:12px; color:var(--ink)">
+              <sc-for list="{{ savedViews }}" as="sv" hint-placeholder-count="3">
+                <option value="{{ sv }}">{{ sv }}</option>
+              </sc-for>
+            </select>
+          </div>
+          <input value="{{ q }}" onChange="{{ setQ }}" placeholder="Filter by name, email, organization" style="flex:1; max-width:320px; border:1px solid var(--border-soft); background:var(--bg); padding:5px 8px; font-size:12px"></input>
+          <select value="{{ status }}" onChange="{{ setStatus }}" style="border:1px solid var(--border-soft); background:var(--bg); padding:4px 6px; font-size:12px">
+            <sc-for list="{{ statusOptions }}" as="s" hint-placeholder-count="5">
+              <option value="{{ s }}">{{ s }}</option>
+            </sc-for>
+          </select>
+          <select value="{{ source }}" onChange="{{ setSource }}" style="border:1px solid var(--border-soft); background:var(--bg); padding:4px 6px; font-size:12px">
+            <sc-for list="{{ sourceOptions }}" as="s" hint-placeholder-count="5">
+              <option value="{{ s }}">{{ s }}</option>
+            </sc-for>
+          </select>
+          <div style="margin-left:auto; font-size:11px; color:var(--ink-3)">{{ resultCount }}</div>
+        </div>
+      </sc-if>
+    </header>
+
+    <div style="flex:1; overflow:auto">
+
+      <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
+        <section data-screen-label="Dashboard" style="display:flex; flex-direction:column">
+          <div style="display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); border-bottom:2px solid var(--rule-strong)">
+            <sc-for list="{{ metrics }}" as="m" hint-placeholder-count="4">
+              <div style="padding:16px 18px; border-right:1px solid var(--rule); display:flex; flex-direction:column; gap:5px">
+                <div style="font-size:10px; letter-spacing:0.13em; text-transform:uppercase; color:var(--muted); font-weight:600">{{ m.label }}</div>
+                <div style="font-size:29px; font-weight:700; letter-spacing:-0.02em">{{ m.value }}</div>
+                <div style="font-size:11px; color:var(--ink-3)">{{ m.note }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:grid; grid-template-columns:1.35fr 1fr">
+            <div style="border-right:2px solid var(--rule-strong); padding:16px 18px">
+              <div style="font-size:11px; letter-spacing:0.13em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:12px">Pipeline by stage</div>
+              <div style="display:flex; flex-direction:column; gap:9px">
+                <sc-for list="{{ funnel }}" as="f" hint-placeholder-count="5">
+                  <div style="display:grid; grid-template-columns:120px 1fr 96px; align-items:center; gap:10px">
+                    <div style="font-weight:500">{{ f.label }}</div>
+                    <div style="height:16px; background:var(--hover)">
+                      <div style="height:16px; background:var(--accent); width: {{ f.pct }}"></div>
+                    </div>
+                    <div style="text-align:right; font-variant-numeric:tabular-nums; color:var(--ink-2)">{{ f.value }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="height:2px; background:var(--rule-strong); margin:18px 0"></div>
+              <div style="font-size:11px; letter-spacing:0.13em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:10px">Recent activity</div>
+              <div style="display:flex; flex-direction:column">
+                <sc-for list="{{ activityFeed }}" as="a" hint-placeholder-count="5">
+                  <div style="display:grid; grid-template-columns:74px 1fr; gap:12px; padding:7px 0; border-bottom:1px solid var(--rule)">
+                    <div style="font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums">{{ a.when }}</div>
+                    <div><span style="font-weight:600">{{ a.who }}</span> <span style="color:var(--ink-2)">{{ a.what }}</span></div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="padding:16px 18px; display:flex; flex-direction:column; gap:16px">
+              <div>
+                <div style="font-size:11px; letter-spacing:0.13em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:10px">Today · 8 September</div>
+                <div style="display:flex; flex-direction:column">
+                  <sc-for list="{{ todaySchedule }}" as="t" hint-placeholder-count="4">
+                    <div style="display:grid; grid-template-columns:56px 1fr; gap:10px; padding:8px 0; border-bottom:1px solid var(--rule)">
+                      <div style="font-weight:600; font-variant-numeric:tabular-nums">{{ t.time }}</div>
+                      <div style="display:flex; flex-direction:column; gap:2px">
+                        <div style="font-weight:500">{{ t.title }}</div>
+                        <div style="font-size:11px; color:var(--muted)">{{ t.kind }} · {{ t.with }}</div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11px; letter-spacing:0.13em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:10px">SLA at risk</div>
+                <div style="display:flex; flex-direction:column">
+                  <sc-for list="{{ slaRisk }}" as="r" hint-placeholder-count="3">
+                    <div style="display:flex; justify-content:space-between; gap:10px; padding:7px 0; border-bottom:1px solid var(--rule)">
+                      <div>{{ r.name }}</div>
+                      <div style="color:var(--accent-ink); font-weight:600">{{ r.due }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ isKanban }}" hint-placeholder-val="{{ true }}">
+        <section data-screen-label="Leads Kanban" style="display:flex; gap:0; align-items:flex-start; min-height:100%">
+          <sc-for list="{{ columns }}" as="col" hint-placeholder-count="5">
+            <div style="width:272px; flex:0 0 272px; border-right:1px solid var(--rule); min-height:100%; background:var(--bg)">
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-bottom:2px solid var(--rule-strong); position:sticky; top:0; background:var(--bg)">
+                <div style="display:flex; align-items:center; gap:8px">
+                  <div style="width:8px; height:8px; background:var(--accent)"></div>
+                  <div style="font-weight:700; font-size:12px; letter-spacing:0.04em; text-transform:uppercase">{{ col.label }}</div>
+                  <div style="font-size:11px; color:var(--muted)">{{ col.count }}</div>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px">
+                  <div style="font-size:11px; color:var(--ink-3); font-variant-numeric:tabular-nums">{{ col.value }}</div>
+                  <div onClick="{{ col.add }}" style="cursor:pointer; font-weight:700; color:var(--ink-3); padding:0 2px" style-hover="color:var(--accent)">+</div>
+                </div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:8px; padding:10px">
+                <sc-for list="{{ col.cards }}" as="card" hint-placeholder-count="3">
+                  <div onClick="{{ card.open }}" style="border:1px solid var(--border-soft); background:var(--surface); padding:10px; cursor:pointer; display:flex; flex-direction:column; gap:7px" style-hover="border-color:var(--ink); background:var(--card-hover)">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px">
+                      <div style="font-weight:600">{{ card.name }}</div>
+                      <div style="font-size:10px; border:1px solid var(--accent-ink); color:var(--accent-ink); padding:0 4px; font-weight:600">{{ card.score }}</div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:3px; color:var(--ink-2); font-size:12px">
+                      <div>{{ card.org }}</div>
+                      <div style="color:var(--ink-3)">{{ card.email }}</div>
+                      <div style="color:var(--ink-3); font-variant-numeric:tabular-nums">{{ card.phone }}</div>
+                    </div>
+                    <div style="height:1px; background:var(--rule)"></div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; font-size:11px; color:var(--muted)">
+                      <span>{{ card.owner }}</span>
+                      <span>{{ card.ago }}</span>
+                    </div>
+                    <div style="display:flex; gap:10px; font-size:11px; color:var(--ink-3)">
+                      <span>✉ {{ card.emails }}</span>
+                      <span>☎ {{ card.calls }}</span>
+                      <span>✓ {{ card.tasks }}</span>
+                      <span>◷ {{ card.next }}</span>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ isTable }}" hint-placeholder-val="{{ true }}">
+        <section data-screen-label="List view" style="display:flex; flex-direction:column">
+          <sc-if value="{{ hasSelection }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 18px; background:var(--invert-bg); color:var(--invert-ink); position:sticky; top:0; z-index:2">
+              <span style="font-weight:600">{{ selectionLabel }}</span>
+              <button onClick="{{ bulkAssign }}" style="border:1px solid var(--invert-ink); background:transparent; color:var(--invert-ink); padding:3px 9px; font-size:12px; cursor:pointer; text-align:left">Assign owner</button>
+              <button onClick="{{ bulkStage }}" style="border:1px solid var(--invert-ink); background:transparent; color:var(--invert-ink); padding:3px 9px; font-size:12px; cursor:pointer; text-align:left">Change status</button>
+              <button onClick="{{ bulkSchedule }}" style="border:1px solid var(--invert-ink); background:transparent; color:var(--invert-ink); padding:3px 9px; font-size:12px; cursor:pointer; text-align:left">Schedule follow-up</button>
+              <button onClick="{{ clearSelection }}" style="margin-left:auto; border:0; background:transparent; color:var(--accent-soft); font-size:12px; cursor:pointer; text-align:left">Clear</button>
+            </div>
+          </sc-if>
+          <div style="display:grid; grid-template-columns:{{ gridCols }}; align-items:center; border-bottom:2px solid var(--rule-strong); background:var(--surface); padding:0 18px; position:sticky; top:0">
+            <div onClick="{{ toggleAll }}" style="padding:8px 0; cursor:pointer; color:var(--ink-3)">▣</div>
+            <sc-for list="{{ tableColumns }}" as="c" hint-placeholder-count="6">
+              <div style="padding:8px 10px 8px 0; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-3); font-weight:600">{{ c.label }}</div>
+            </sc-for>
+          </div>
+          <sc-for list="{{ tableRows }}" as="row" hint-placeholder-count="8">
+            <div style="display:grid; grid-template-columns:{{ gridCols }}; align-items:center; border-bottom:1px solid var(--rule); padding:0 18px" style-hover="background:var(--surface)">
+              <div onClick="{{ row.toggle }}" style="padding:9px 0; cursor:pointer; color:var(--muted)">{{ row.mark }}</div>
+              <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="6">
+                <div onClick="{{ row.open }}" style="padding:9px 10px 9px 0; cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">
+                  <sc-if value="{{ cell.plain }}" hint-placeholder-val="{{ true }}">
+                    <span style="color:var(--ink)">{{ cell.v }}</span>
+                  </sc-if>
+                  <sc-if value="{{ cell.tag }}" hint-placeholder-val="{{ true }}">
+                    <span style="border:1px solid var(--border-strong); padding:1px 6px; font-size:11px; font-weight:600">{{ cell.v }}</span>
+                  </sc-if>
+                  <sc-if value="{{ cell.num }}" hint-placeholder-val="{{ true }}">
+                    <span style="font-variant-numeric:tabular-nums; font-weight:500">{{ cell.v }}</span>
+                  </sc-if>
+                  <sc-if value="{{ cell.dim }}" hint-placeholder-val="{{ true }}">
+                    <span style="color:var(--muted)">{{ cell.v }}</span>
+                  </sc-if>
+                  <sc-if value="{{ cell.alert }}" hint-placeholder-val="{{ true }}">
+                    <span style="background:var(--accent-tint); color:var(--accent-ink); padding:1px 6px; font-weight:600; font-size:11px">{{ cell.v }}</span>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </sc-for>
+          <div style="padding:10px 18px; color:var(--muted); font-size:11px">{{ resultCount }} · page 1 of 1</div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ isCalendar }}" hint-placeholder-val="{{ true }}">
+        <section data-screen-label="Calendar" style="display:grid; grid-template-columns:1fr 300px; height:100%">
+          <div style="border-right:2px solid var(--rule-strong); display:flex; flex-direction:column">
+            <div style="display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); border-bottom:2px solid var(--rule-strong); background:var(--surface)">
+              <sc-for list="{{ weekdays }}" as="d" hint-placeholder-count="7">
+                <div style="padding:7px 9px; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-3); font-weight:600; border-right:1px solid var(--rule)">{{ d }}</div>
+              </sc-for>
+            </div>
+            <div style="flex:1; display:grid; grid-template-rows:repeat(5, minmax(96px,1fr))">
+              <sc-for list="{{ weeks }}" as="week" hint-placeholder-count="5">
+                <div style="display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); border-bottom:1px solid var(--rule)">
+                  <sc-for list="{{ week.days }}" as="day" hint-placeholder-count="7">
+                    <div onClick="{{ day.open }}" style="border-right:1px solid var(--rule); padding:6px 7px; display:flex; flex-direction:column; gap:4px; cursor:pointer; overflow:hidden" style-hover="background:var(--surface)">
+                      <div style="display:flex; align-items:center; justify-content:space-between">
+                        <sc-if value="{{ day.isToday }}" hint-placeholder-val="{{ true }}">
+                          <span style="background:var(--accent); color:var(--color-bg); font-weight:700; padding:0 5px; font-size:11px">{{ day.n }}</span>
+                        </sc-if>
+                        <sc-if value="{{ day.notToday }}" hint-placeholder-val="{{ true }}">
+                          <span style="font-weight:600; font-size:11px; color:var(--ink-3)">{{ day.n }}</span>
+                        </sc-if>
+                      </div>
+                      <sc-for list="{{ day.events }}" as="ev" hint-placeholder-count="2">
+                        <div style="font-size:11px; border-left:3px solid var(--accent); padding:2px 4px; background:var(--surface); overflow:hidden; text-overflow:ellipsis; white-space:nowrap">
+                          <span style="font-weight:600; font-variant-numeric:tabular-nums">{{ ev.time }}</span> {{ ev.title }}
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="padding:14px 16px; display:flex; flex-direction:column; gap:12px; overflow-y:auto">
+            <div style="font-size:11px; letter-spacing:0.13em; text-transform:uppercase; color:var(--muted); font-weight:600">Schedule an activity</div>
+            <div style="display:flex; flex-direction:column; gap:4px">
+              <label style="font-size:11px; color:var(--ink-3)">Type</label>
+              <select value="{{ schedType }}" onChange="{{ setSchedType }}" style="border:1px solid var(--border-soft); background:var(--bg); padding:5px 6px; font-size:12px">
+                <option value="Follow-up">Follow-up</option>
+                <option value="Reminder">Reminder</option>
+                <option value="Meeting">Meeting</option>
+                <option value="Call">Call</option>
+              </select>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 88px; gap:8px">
+              <div style="display:flex; flex-direction:column; gap:4px">
+                <label style="font-size:11px; color:var(--ink-3)">Date</label>
+                <input type="date" value="{{ schedDate }}" onChange="{{ setSchedDate }}" style="border:1px solid var(--border-soft); background:var(--bg); padding:5px 6px; font-size:12px"></input>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:4px">
+                <label style="font-size:11px; color:var(--ink-3)">Time</label>
+                <input type="time" value="{{ schedTime }}" onChange="{{ setSchedTime }}" style="border:1px solid var(--border-soft); background:var(--bg); padding:5px 6px; font-size:12px"></input>
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:4px">
+              <label style="font-size:11px; color:var(--ink-3)">Linked to</label>
+              <select value="{{ schedLink }}" onChange="{{ setSchedLink }}" style="border:1px solid var(--border-soft); background:var(--bg); padding:5px 6px; font-size:12px">
+                <sc-for list="{{ linkTargets }}" as="t" hint-placeholder-count="4">
+                  <option value="{{ t }}">{{ t }}</option>
+                </sc-for>
+              </select>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:4px">
+              <label style="font-size:11px; color:var(--ink-3)">Note</label>
+              <textarea value="{{ schedNote }}" onChange="{{ setSchedNote }}" rows="3" placeholder="Agenda, next step, reminder text" style="border:1px solid var(--border-soft); background:var(--bg); padding:5px 6px; font-size:12px; resize:vertical"></textarea>
+            </div>
+            <button onClick="{{ addSchedule }}" style="border:1px solid var(--accent); background:var(--accent); color:var(--color-bg); padding:7px 12px; font-weight:600; font-size:12px; cursor:pointer; text-align:left" style-hover="background:var(--accent-pressed)">Schedule activity</button>
+            <div style="height:2px; background:var(--rule-strong)"></div>
+            <div style="font-size:11px; letter-spacing:0.13em; text-transform:uppercase; color:var(--muted); font-weight:600">{{ dayPanelTitle }}</div>
+            <div style="display:flex; flex-direction:column">
+              <sc-for list="{{ dayPanelEvents }}" as="ev" hint-placeholder-count="3">
+                <div style="padding:8px 0; border-bottom:1px solid var(--rule); display:flex; flex-direction:column; gap:2px">
+                  <div style="display:flex; justify-content:space-between; gap:8px">
+                    <span style="font-weight:600">{{ ev.title }}</span>
+                    <span style="font-variant-numeric:tabular-nums; color:var(--ink-3)">{{ ev.time }}</span>
+                  </div>
+                  <div style="font-size:11px; color:var(--muted)">{{ ev.kind }} · {{ ev.link }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ isInbox }}" hint-placeholder-val="{{ true }}">
+        <section data-screen-label="Email inbox" style="display:grid; grid-template-columns:330px 1fr; height:100%">
+          <div style="border-right:2px solid var(--rule-strong); overflow-y:auto">
+            <sc-for list="{{ emails }}" as="m" hint-placeholder-count="5">
+              <sc-if value="{{ m.active }}" hint-placeholder-val="{{ true }}">
+                <div onClick="{{ m.open }}" style="padding:10px 14px; border-bottom:1px solid var(--rule); background:var(--accent-tint); cursor:pointer; display:flex; flex-direction:column; gap:3px">
+                  <div style="display:flex; justify-content:space-between; gap:8px"><span style="font-weight:700">{{ m.from }}</span><span style="font-size:11px; color:var(--ink-3)">{{ m.when }}</span></div>
+                  <div style="font-weight:500">{{ m.subject }}</div>
+                  <div style="font-size:11px; color:var(--ink-3); overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ m.preview }}</div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ m.inactive }}" hint-placeholder-val="{{ true }}">
+                <div onClick="{{ m.open }}" style="padding:10px 14px; border-bottom:1px solid var(--rule); cursor:pointer; display:flex; flex-direction:column; gap:3px" style-hover="background:var(--surface)">
+                  <div style="display:flex; justify-content:space-between; gap:8px"><span style="font-weight:600">{{ m.from }}</span><span style="font-size:11px; color:var(--muted)">{{ m.when }}</span></div>
+                  <div style="color:var(--ink-2)">{{ m.subject }}</div>
+                  <div style="font-size:11px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ m.preview }}</div>
+                </div>
+              </sc-if>
+            </sc-for>
+          </div>
+          <div style="display:flex; flex-direction:column; overflow-y:auto">
+            <div style="padding:16px 20px; border-bottom:2px solid var(--rule-strong); display:flex; flex-direction:column; gap:6px">
+              <div style="font-size:17px; font-weight:700">{{ openEmail.subject }}</div>
+              <div style="font-size:12px; color:var(--ink-3)">{{ openEmail.from }} → {{ openEmail.to }} · {{ openEmail.when }}</div>
+              <div style="font-size:11px; color:var(--muted)">Linked: {{ openEmail.link }}</div>
+            </div>
+            <div style="padding:18px 20px; max-width:720px; color:var(--ink); white-space:pre-wrap">{{ openEmail.body }}</div>
+            <div style="margin-top:auto; border-top:2px solid var(--rule-strong); padding:12px 20px; display:flex; gap:8px">
+              <button onClick="{{ reply }}" style="border:1px solid var(--accent); background:var(--accent); color:var(--color-bg); padding:6px 12px; font-weight:600; font-size:12px; cursor:pointer; text-align:left">Reply</button>
+              <button onClick="{{ bulkSchedule }}" style="border:1px solid var(--border-strong); background:transparent; padding:6px 12px; font-size:12px; cursor:pointer; text-align:left" style-hover="background:var(--surface)">Create follow-up</button>
+              <button onClick="{{ create }}" style="border:1px solid var(--border-strong); background:transparent; padding:6px 12px; font-size:12px; cursor:pointer; text-align:left" style-hover="background:var(--surface)">Convert to lead</button>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+    </div>
+  </main>
+
+  <sc-if value="{{ leadOpen }}" hint-placeholder-val="{{ true }}">
+    <div style="position:fixed; inset:0; background:var(--backdrop); display:flex; justify-content:flex-end; z-index:20">
+      <div style="width:920px; max-width:92vw; background:var(--bg); border-left:2px solid var(--rule-strong); display:flex; flex-direction:column; overflow:hidden">
+        <div style="padding:14px 20px; border-bottom:2px solid var(--rule-strong); display:flex; align-items:flex-start; justify-content:space-between; gap:16px">
+          <div style="display:flex; flex-direction:column; gap:4px">
+            <div style="font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted)">CRM Lead · {{ lead.id }}</div>
+            <div style="font-size:22px; font-weight:700; letter-spacing:-0.01em">{{ lead.name }}</div>
+            <div style="font-size:12px; color:var(--ink-3)">{{ lead.org }} · {{ lead.title }}</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px">
+            <select value="{{ lead.status }}" onChange="{{ setLeadStatus }}" style="border:1px solid var(--border-strong); background:var(--bg); padding:5px 7px; font-size:12px; font-weight:600">
+              <sc-for list="{{ leadStatuses }}" as="s" hint-placeholder-count="5">
+                <option value="{{ s }}">{{ s }}</option>
+              </sc-for>
+            </select>
+            <button onClick="{{ convertLead }}" style="border:1px solid var(--accent); background:var(--accent); color:var(--color-bg); padding:5px 12px; font-weight:600; font-size:12px; cursor:pointer; text-align:left">Convert to deal</button>
+            <button onClick="{{ closeLead }}" style="border:1px solid var(--border-strong); background:transparent; padding:5px 10px; font-size:12px; cursor:pointer; text-align:left" style-hover="background:var(--surface)">Close</button>
+          </div>
+        </div>
+        <div style="flex:1; display:grid; grid-template-columns:300px 1fr; overflow:hidden">
+          <div style="border-right:2px solid var(--rule-strong); overflow-y:auto; padding:14px 16px; display:flex; flex-direction:column; gap:14px">
+            <div>
+              <div style="font-size:10px; letter-spacing:0.13em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:8px">Details</div>
+              <div style="display:flex; flex-direction:column">
+                <sc-for list="{{ lead.fields }}" as="f" hint-placeholder-count="8">
+                  <div style="display:grid; grid-template-columns:104px 1fr; gap:8px; padding:5px 0; border-bottom:1px solid var(--rule)">
+                    <div style="font-size:11px; color:var(--muted)">{{ f.label }}</div>
+                    <div style="font-size:12px">{{ f.value }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:10px; letter-spacing:0.13em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:8px">Next activity</div>
+              <div style="border:1px solid var(--border-strong); padding:9px 10px; display:flex; flex-direction:column; gap:3px; background:var(--surface)">
+                <div style="font-weight:600">{{ lead.next.title }}</div>
+                <div style="font-size:11px; color:var(--ink-3)">{{ lead.next.when }} · {{ lead.next.kind }}</div>
+              </div>
+              <button onClick="{{ goCalendar }}" style="margin-top:8px; border:1px solid var(--border-strong); background:transparent; padding:5px 10px; font-size:12px; cursor:pointer; width:100%; text-align:left" style-hover="background:var(--surface)">Schedule follow-up</button>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; overflow:hidden">
+            <div style="display:flex; border-bottom:2px solid var(--rule-strong); background:var(--surface)">
+              <sc-for list="{{ detailTabs }}" as="t" hint-placeholder-count="5">
+                <sc-if value="{{ t.active }}" hint-placeholder-val="{{ true }}">
+                  <div onClick="{{ t.go }}" style="padding:8px 14px; background:var(--invert-bg); color:var(--invert-ink); font-weight:600; font-size:12px; cursor:pointer">{{ t.label }}</div>
+                </sc-if>
+                <sc-if value="{{ t.inactive }}" hint-placeholder-val="{{ true }}">
+                  <div onClick="{{ t.go }}" style="padding:8px 14px; color:var(--ink-2); font-size:12px; cursor:pointer; border-right:1px solid var(--rule)" style-hover="background:var(--hover)">{{ t.label }}</div>
+                </sc-if>
+              </sc-for>
+            </div>
+            <div style="flex:1; overflow-y:auto; padding:14px 18px">
+              <div style="display:flex; flex-direction:column">
+                <sc-for list="{{ timeline }}" as="e" hint-placeholder-count="6">
+                  <div style="display:grid; grid-template-columns:96px 1fr; gap:14px; padding:10px 0; border-bottom:1px solid var(--rule)">
+                    <div style="font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums">{{ e.when }}</div>
+                    <div style="display:flex; flex-direction:column; gap:3px">
+                      <div style="display:flex; align-items:center; gap:8px">
+                        <span style="font-size:10px; border:1px solid var(--ink-3); color:var(--ink-2); padding:0 5px; text-transform:uppercase; letter-spacing:0.08em">{{ e.kind }}</span>
+                        <span style="font-weight:600">{{ e.title }}</span>
+                      </div>
+                      <div style="color:var(--ink-2); font-size:12px">{{ e.body }}</div>
+                      <div style="font-size:11px; color:var(--muted)">{{ e.by }}</div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="border-top:2px solid var(--rule-strong); padding:10px 18px; display:flex; gap:8px; align-items:center">
+              <input value="{{ comment }}" onChange="{{ setComment }}" placeholder="Add a comment, @mention a teammate" style="flex:1; border:1px solid var(--border-soft); background:var(--bg); padding:6px 8px; font-size:12px"></input>
+              <button onClick="{{ postComment }}" style="border:1px solid var(--border-strong); background:var(--invert-bg); color:var(--invert-ink); padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer; text-align:left">Post</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ paletteOpen }}" hint-placeholder-val="{{ true }}">
+    <div onClick="{{ closePalette }}" style="position:fixed; inset:0; background:var(--backdrop); display:flex; align-items:flex-start; justify-content:center; padding-top:12vh; z-index:30">
+      <div style="width:560px; background:var(--bg); border:2px solid var(--rule-strong); display:flex; flex-direction:column">
+        <input value="{{ paletteQ }}" onChange="{{ setPaletteQ }}" placeholder="Jump to a module, lead, deal or action" style="border:0; border-bottom:2px solid var(--rule-strong); background:var(--bg); padding:12px 14px; font-size:14px"></input>
+        <div style="max-height:340px; overflow-y:auto">
+          <sc-for list="{{ paletteResults }}" as="r" hint-placeholder-count="6">
+            <div onClick="{{ r.go }}" style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:9px 14px; border-bottom:1px solid var(--rule); cursor:pointer" style-hover="background:var(--accent-tint)">
+              <span style="font-weight:500">{{ r.label }}</span>
+              <span style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.09em">{{ r.kind }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ true }}">
+    <div style="position:fixed; bottom:18px; left:236px; background:var(--invert-bg); color:var(--invert-ink); padding:9px 14px; font-size:12px; font-weight:500; z-index:40">{{ toast }}</div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;defaultTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;\&quot;light\&quot; | \&quot;dark\&quot;&quot;,&quot;section&quot;:&quot;Appearance&quot;}}">
+const LEADS = [
+  { id: "CRM-LEAD-2026-00041", name: "Emma Williams", title: "Head of Ops", org: "CloudBase LLC", email: "emma.williams@example.com", phone: "+1 555 000 2345", owner: "Sarah Connor", status: "New", source: "Website", score: 72, ago: "1 month ago", emails: 2, calls: 1, tasks: 1, next: "10 Sep", industry: "SaaS", territory: "US East", value: 42000 },
+  { id: "CRM-LEAD-2026-00048", name: "Bob Martinez", title: "CTO", org: "Globex Industries", email: "bob.martinez@example.com", phone: "+1 555 000 5678", owner: "Sarah Connor", status: "Contacted", score: 64, ago: "2 days ago", emails: 1, calls: 2, tasks: 2, next: "9 Sep", industry: "Manufacturing", territory: "US West", value: 88000 },
+  { id: "CRM-LEAD-2026-00052", name: "Maq Malak", title: "IT Manager", org: "IT Horizon", email: "maqmalak@example.com", phone: "+92 300 721 2058", owner: "Administrator", status: "Contacted", score: 58, ago: "10 hours ago", emails: 3, calls: 0, tasks: 1, next: "8 Sep", industry: "IT Services", territory: "APAC", value: 26000 },
+  { id: "CRM-LEAD-2026-00055", name: "Grace Park", title: "VP Finance", org: "NextWave Corp", email: "grace.park@example.com", phone: "+1 555 000 0123", owner: "Sarah Connor", status: "Nurture", score: 41, ago: "1 month ago", emails: 1, calls: 1, tasks: 0, next: "24 Sep", industry: "Fintech", territory: "US East", value: 61000 },
+  { id: "CRM-LEAD-2026-00058", name: "Frank Turner", title: "COO", org: "DataSync Co", email: "frank.turner@example.com", phone: "+1 555 000 6789", owner: "John Parker", status: "Nurture", score: 55, ago: "1 month ago", emails: 2, calls: 1, tasks: 1, next: "18 Sep", industry: "Analytics", territory: "EMEA", value: 120000 },
+  { id: "CRM-LEAD-2026-00061", name: "Lina Haddad", title: "Procurement Lead", org: "Aurora Freight", email: "lina.haddad@example.com", phone: "+971 50 118 4477", owner: "Administrator", status: "Qualified", score: 83, ago: "4 days ago", emails: 4, calls: 3, tasks: 2, next: "9 Sep", industry: "Logistics", territory: "MEA", value: 145000 },
+  { id: "CRM-LEAD-2026-00063", name: "Peter Osei", title: "Founder", org: "Kite Robotics", email: "peter.osei@example.com", phone: "+44 7700 900 411", owner: "John Parker", status: "Qualified", score: 77, ago: "1 week ago", emails: 3, calls: 2, tasks: 1, next: "11 Sep", industry: "Hardware", territory: "EMEA", value: 74000 },
+  { id: "CRM-LEAD-2026-00066", name: "Ruth Vega", title: "Director IT", org: "Meridian Health", email: "ruth.vega@example.com", phone: "+1 555 000 7781", owner: "Sarah Connor", status: "Converted", score: 90, ago: "3 weeks ago", emails: 6, calls: 4, tasks: 3, next: "—", industry: "Healthcare", territory: "US Central", value: 210000 },
+  { id: "CRM-LEAD-2026-00068", name: "Tomas Weber", title: "Plant Manager", org: "Rheinwerk GmbH", email: "tomas.weber@example.com", phone: "+49 151 2233 8890", owner: "Administrator", status: "Converted", score: 86, ago: "2 weeks ago", emails: 5, calls: 3, tasks: 2, next: "—", industry: "Industrial", territory: "EMEA", value: 168000 }
+];
+
+const DEALS = [
+  { id: "CRM-DEAL-2026-00019", org: "Meridian Health", contact: "Ruth Vega", stage: "Negotiation", amount: 210000, prob: 70, close: "2026-09-30", owner: "Sarah Connor", sla: "" },
+  { id: "CRM-DEAL-2026-00021", org: "Rheinwerk GmbH", contact: "Tomas Weber", stage: "Proposal", amount: 168000, prob: 55, close: "2026-10-14", owner: "Administrator", sla: "Response due 4h" },
+  { id: "CRM-DEAL-2026-00024", org: "Aurora Freight", contact: "Lina Haddad", stage: "Qualification", amount: 145000, prob: 35, close: "2026-11-02", owner: "Administrator", sla: "" },
+  { id: "CRM-DEAL-2026-00026", org: "DataSync Co", contact: "Frank Turner", stage: "Proposal", amount: 120000, prob: 45, close: "2026-10-21", owner: "John Parker", sla: "" },
+  { id: "CRM-DEAL-2026-00029", org: "Globex Industries", contact: "Bob Martinez", stage: "Qualification", amount: 88000, prob: 30, close: "2026-11-18", owner: "Sarah Connor", sla: "Overdue 2d" },
+  { id: "CRM-DEAL-2026-00031", org: "Kite Robotics", contact: "Peter Osei", stage: "Won", amount: 74000, prob: 100, close: "2026-08-28", owner: "John Parker", sla: "" },
+  { id: "CRM-DEAL-2026-00033", org: "NextWave Corp", contact: "Grace Park", stage: "Lost", amount: 61000, prob: 0, close: "2026-08-19", owner: "Sarah Connor", sla: "" },
+  { id: "CRM-DEAL-2026-00035", org: "CloudBase LLC", contact: "Emma Williams", stage: "Qualification", amount: 42000, prob: 25, close: "2026-12-04", owner: "Sarah Connor", sla: "" }
+];
+
+const CONTACTS = [
+  { name: "Ruth Vega", org: "Meridian Health", title: "Director IT", email: "ruth.vega@example.com", phone: "+1 555 000 7781", owner: "Sarah Connor" },
+  { name: "Tomas Weber", org: "Rheinwerk GmbH", title: "Plant Manager", email: "tomas.weber@example.com", phone: "+49 151 2233 8890", owner: "Administrator" },
+  { name: "Lina Haddad", org: "Aurora Freight", title: "Procurement Lead", email: "lina.haddad@example.com", phone: "+971 50 118 4477", owner: "Administrator" },
+  { name: "Frank Turner", org: "DataSync Co", title: "COO", email: "frank.turner@example.com", phone: "+1 555 000 6789", owner: "John Parker" },
+  { name: "Bob Martinez", org: "Globex Industries", title: "CTO", email: "bob.martinez@example.com", phone: "+1 555 000 5678", owner: "Sarah Connor" },
+  { name: "Peter Osei", org: "Kite Robotics", title: "Founder", email: "peter.osei@example.com", phone: "+44 7700 900 411", owner: "John Parker" },
+  { name: "Emma Williams", org: "CloudBase LLC", title: "Head of Ops", email: "emma.williams@example.com", phone: "+1 555 000 2345", owner: "Sarah Connor" }
+];
+
+const ORGS = [
+  { name: "Meridian Health", industry: "Healthcare", territory: "US Central", employees: "4,200", website: "meridianhealth.example", deals: 3, value: 310000 },
+  { name: "Rheinwerk GmbH", industry: "Industrial", territory: "EMEA", employees: "1,800", website: "rheinwerk.example", deals: 2, value: 168000 },
+  { name: "Aurora Freight", industry: "Logistics", territory: "MEA", employees: "950", website: "aurorafreight.example", deals: 2, value: 145000 },
+  { name: "DataSync Co", industry: "Analytics", territory: "EMEA", employees: "310", website: "datasync.example", deals: 1, value: 120000 },
+  { name: "Globex Industries", industry: "Manufacturing", territory: "US West", employees: "6,400", website: "globex.example", deals: 1, value: 88000 },
+  { name: "CloudBase LLC", industry: "SaaS", territory: "US East", employees: "120", website: "cloudbase.example", deals: 1, value: 42000 }
+];
+
+const TASKS = [
+  { title: "Send security questionnaire", link: "Meridian Health", due: "2026-09-08 16:00", priority: "High", status: "Open", owner: "Sarah Connor" },
+  { title: "Follow up on pricing sheet", link: "Rheinwerk GmbH", due: "2026-09-09 10:30", priority: "High", status: "Open", owner: "Administrator" },
+  { title: "Prepare pilot scope doc", link: "Aurora Freight", due: "2026-09-11 09:00", priority: "Medium", status: "Open", owner: "Administrator" },
+  { title: "Call back after board review", link: "DataSync Co", due: "2026-09-18 14:00", priority: "Medium", status: "Open", owner: "John Parker" },
+  { title: "Log demo notes", link: "Kite Robotics", due: "2026-09-05 12:00", priority: "Low", status: "Done", owner: "John Parker" },
+  { title: "Re-engage after budget freeze", link: "NextWave Corp", due: "2026-09-24 11:00", priority: "Low", status: "Open", owner: "Sarah Connor" }
+];
+
+const NOTES = [
+  { title: "Procurement wants annual billing", link: "Aurora Freight", author: "Administrator", when: "4 days ago" },
+  { title: "Compliance review takes 3 weeks", link: "Meridian Health", author: "Sarah Connor", when: "1 week ago" },
+  { title: "Competitor quoted 12% lower", link: "Rheinwerk GmbH", author: "Administrator", when: "1 week ago" },
+  { title: "Budget freeze until Q1", link: "NextWave Corp", author: "Sarah Connor", when: "3 weeks ago" }
+];
+
+const CALLS = [
+  { with: "Lina Haddad", org: "Aurora Freight", type: "Outgoing", duration: "14:22", status: "Completed", when: "2026-09-08 11:05", owner: "Administrator" },
+  { with: "Bob Martinez", org: "Globex Industries", type: "Incoming", duration: "06:41", status: "Completed", when: "2026-09-07 15:40", owner: "Sarah Connor" },
+  { with: "Frank Turner", org: "DataSync Co", type: "Outgoing", duration: "00:00", status: "No answer", when: "2026-09-07 09:12", owner: "John Parker" },
+  { with: "Ruth Vega", org: "Meridian Health", type: "Outgoing", duration: "22:08", status: "Completed", when: "2026-09-04 13:30", owner: "Sarah Connor" },
+  { with: "Peter Osei", org: "Kite Robotics", type: "Incoming", duration: "09:55", status: "Completed", when: "2026-09-03 16:20", owner: "John Parker" },
+  { with: "Emma Williams", org: "CloudBase LLC", type: "Outgoing", duration: "03:12", status: "Voicemail", when: "2026-09-02 10:02", owner: "Sarah Connor" }
+];
+
+const EMAILS = [
+  { from: "Lina Haddad", to: "administrator@ledgerline.example", subject: "Re: Pilot scope and annual billing", when: "11:42", preview: "Procurement approved the pilot in principle, but they want annual invoicing.", link: "CRM-DEAL-2026-00024 · Aurora Freight", body: "Hi,\n\nProcurement approved the pilot in principle. Two conditions before we sign:\n\n1. Annual invoicing rather than monthly.\n2. A named implementation contact for the first 90 days.\n\nCan you send a revised quotation this week? Our board meets on the 16th.\n\nLina" },
+  { from: "Tomas Weber", to: "administrator@ledgerline.example", subject: "Pricing sheet — clarification", when: "09:18", preview: "The per-site figure differs from what we discussed on the call.", link: "CRM-DEAL-2026-00021 · Rheinwerk GmbH", body: "Good morning,\n\nThe per-site figure in the sheet differs from what we discussed on the call. Please confirm which applies for 14 sites.\n\nRegards,\nTomas" },
+  { from: "Ruth Vega", to: "sarah.connor@ledgerline.example", subject: "Security questionnaire attached", when: "Yesterday", preview: "Our infosec team needs the completed questionnaire before the legal review.", link: "CRM-DEAL-2026-00019 · Meridian Health", body: "Hello,\n\nInfosec needs the completed questionnaire before legal review starts. Turnaround on our side is about three weeks once received.\n\nRuth" },
+  { from: "Bob Martinez", to: "sarah.connor@ledgerline.example", subject: "Re: Discovery call notes", when: "Mon", preview: "Thanks for the summary. Adding our plant manager to the next call.", link: "CRM-LEAD-2026-00048 · Globex Industries", body: "Thanks for the summary. I am adding our plant manager to the next call so we can talk integration.\n\nBob" },
+  { from: "Grace Park", to: "sarah.connor@ledgerline.example", subject: "Budget freeze", when: "3 Sep", preview: "We are pausing new vendor spend until Q1. Please check back in January.", link: "CRM-LEAD-2026-00055 · NextWave Corp", body: "We are pausing new vendor spend until Q1. Please check back in January and we can restart the evaluation.\n\nGrace" }
+];
+
+const QUOTATIONS = [
+  { id: "CRM-QTN-2026-00087", org: "Aurora Freight", items: 6, amount: 145000, status: "Sent", valid: "2026-09-30", owner: "Administrator" },
+  { id: "CRM-QTN-2026-00085", org: "Rheinwerk GmbH", items: 14, amount: 168000, status: "Revising", valid: "2026-09-22", owner: "Administrator" },
+  { id: "CRM-QTN-2026-00082", org: "Meridian Health", items: 9, amount: 210000, status: "Accepted", valid: "2026-09-15", owner: "Sarah Connor" },
+  { id: "CRM-QTN-2026-00079", org: "DataSync Co", items: 4, amount: 120000, status: "Sent", valid: "2026-10-05", owner: "John Parker" },
+  { id: "CRM-QTN-2026-00074", org: "NextWave Corp", items: 3, amount: 61000, status: "Expired", valid: "2026-08-20", owner: "Sarah Connor" }
+];
+
+const PRODUCTS = [
+  { code: "PLAT-CORE", name: "Platform licence — core", uom: "Seat / year", price: 480, active: "Yes" },
+  { code: "PLAT-ADV", name: "Platform licence — advanced", uom: "Seat / year", price: 720, active: "Yes" },
+  { code: "IMP-STD", name: "Implementation — standard", uom: "Project", price: 12000, active: "Yes" },
+  { code: "IMP-ENT", name: "Implementation — enterprise", uom: "Project", price: 38000, active: "Yes" },
+  { code: "SUP-24", name: "Support 24/7", uom: "Year", price: 9600, active: "Yes" },
+  { code: "TRN-DAY", name: "On-site training day", uom: "Day", price: 1800, active: "No" }
+];
+
+const INVOICES = [
+  { id: "ACC-SINV-2026-00312", org: "Meridian Health", amount: 210000, due: "2026-09-25", status: "Unpaid", outstanding: 210000 },
+  { id: "ACC-SINV-2026-00298", org: "Kite Robotics", amount: 74000, due: "2026-09-11", status: "Overdue", outstanding: 74000 },
+  { id: "ACC-SINV-2026-00281", org: "CloudBase LLC", amount: 42000, due: "2026-09-02", status: "Paid", outstanding: 0 },
+  { id: "ACC-SINV-2026-00265", org: "Globex Industries", amount: 88000, due: "2026-08-30", status: "Partly paid", outstanding: 33000 },
+  { id: "ACC-SINV-2026-00240", org: "DataSync Co", amount: 120000, due: "2026-08-14", status: "Paid", outstanding: 0 }
+];
+
+const TEAMS = [
+  { name: "Enterprise — EMEA", lead: "Administrator", members: 6, territories: "EMEA, MEA", quota: 1200000, attainment: "68%" },
+  { name: "Enterprise — Americas", lead: "Sarah Connor", members: 8, territories: "US East, US Central", quota: 1800000, attainment: "74%" },
+  { name: "Mid-market", lead: "John Parker", members: 5, territories: "US West, APAC", quota: 900000, attainment: "51%" },
+  { name: "Inbound SDR", lead: "Sarah Connor", members: 4, territories: "Global", quota: 400000, attainment: "88%" }
+];
+
+const AUTOMATION = [
+  { name: "Assign inbound web leads round-robin", trigger: "CRM Lead · after insert", action: "Set lead owner", status: "Enabled", runs: 412 },
+  { name: "Follow-up reminder if no reply in 3 days", trigger: "Communication · scheduled", action: "Create CRM Activity", status: "Enabled", runs: 1188 },
+  { name: "Escalate SLA breach to team lead", trigger: "CRM Deal · on update", action: "Notify + set priority", status: "Enabled", runs: 63 },
+  { name: "Create quotation draft when stage = Proposal", trigger: "CRM Deal · on update", action: "Insert CRM Quotation", status: "Paused", runs: 27 },
+  { name: "Archive lost leads after 180 days", trigger: "Daily scheduler", action: "Set status Archived", status: "Enabled", runs: 9 }
+];
+
+const EVENTS = [
+  { d: 8, time: "09:30", title: "Standup — pipeline review", kind: "Meeting", link: "Enterprise — EMEA" },
+  { d: 8, time: "13:00", title: "Aurora Freight pilot scope", kind: "Meeting", link: "CRM-DEAL-2026-00024" },
+  { d: 8, time: "16:00", title: "Send security questionnaire", kind: "Reminder", link: "Meridian Health" },
+  { d: 9, time: "10:30", title: "Follow-up call — Tomas Weber", kind: "Follow-up", link: "CRM-DEAL-2026-00021" },
+  { d: 9, time: "15:00", title: "Lina Haddad — revised quotation", kind: "Follow-up", link: "CRM-QTN-2026-00087" },
+  { d: 10, time: "11:00", title: "Emma Williams intro call", kind: "Call", link: "CRM-LEAD-2026-00041" },
+  { d: 11, time: "09:00", title: "Pilot scope doc due", kind: "Reminder", link: "Aurora Freight" },
+  { d: 14, time: "14:00", title: "Meridian legal review sync", kind: "Meeting", link: "CRM-DEAL-2026-00019" },
+  { d: 16, time: "10:00", title: "Aurora board decision", kind: "Reminder", link: "Aurora Freight" },
+  { d: 18, time: "14:00", title: "DataSync board follow-up", kind: "Follow-up", link: "CRM-DEAL-2026-00026" },
+  { d: 22, time: "11:30", title: "Quarter forecast with team leads", kind: "Meeting", link: "Teams" },
+  { d: 24, time: "11:00", title: "Re-engage NextWave", kind: "Follow-up", link: "CRM-LEAD-2026-00055" },
+  { d: 30, time: "17:00", title: "Meridian close target", kind: "Reminder", link: "CRM-DEAL-2026-00019" }
+];
+
+const MODULES = [
+  { group: "Overview", items: [["dashboard", "Dashboard"], ["calendar", "Calendar"]] },
+  { group: "Sales", items: [["leads", "Leads"], ["deals", "Deals"], ["contacts", "Contacts"], ["organizations", "Organizations"]] },
+  { group: "Activity", items: [["tasks", "Tasks"], ["notes", "Notes"], ["calls", "Call logs"], ["inbox", "Email inbox"]] },
+  { group: "Commerce", items: [["products", "Products"], ["quotations", "Quotations"], ["invoices", "Invoices"]] },
+  { group: "Administration", items: [["teams", "Teams & territories"], ["automation", "Automation"]] }
+];
+
+const money = (n) => "$" + n.toLocaleString("en-US");
+
+class Component extends DCLogic {
+  state = {
+    route: "leads", viewType: "kanban", leadId: null, q: "", status: "All statuses", source: "All sources",
+    sel: [], palette: false, paletteQ: "", tab: "activity", comment: "", toast: "",
+    savedView: "My open leads", day: 8, emailIdx: 0, extraEvents: [],
+    theme: "light",
+    sched: { type: "Follow-up", date: "2026-09-10", time: "10:00", link: "CRM-DEAL-2026-00024 · Aurora Freight", note: "" },
+    statusOverrides: {}
+  };
+
+  componentDidMount() {
+    let stored = null;
+    try { stored = localStorage.getItem("crm-suite-theme"); } catch (e) {}
+    this.applyTheme(stored || this.props.defaultTheme || "light");
+    this._key = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); this.setState({ palette: true, paletteQ: "" }); }
+      if (e.key === "Escape") this.setState({ palette: false, leadId: null });
+    };
+    window.addEventListener("keydown", this._key);
+  }
+  componentWillUnmount() { window.removeEventListener("keydown", this._key); }
+
+  applyTheme(theme) {
+    this.setState({ theme });
+    try { localStorage.setItem("crm-suite-theme", theme); } catch (e) {}
+    if (document.documentElement) document.documentElement.setAttribute("data-theme", theme);
+    if (document.body) document.body.setAttribute("data-theme", theme);
+  }
+
+  flash(msg) {
+    this.setState({ toast: msg });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ toast: "" }), 2200);
+  }
+
+  go(route) {
+    const viewType = route === "leads" || route === "deals" ? (route === "leads" ? "kanban" : "table") : "table";
+    this.setState({ route, viewType, sel: [], q: "", status: "All statuses", source: "All sources", palette: false });
+  }
+
+  leadStatus(l) { return this.state.statusOverrides[l.id] || l.status; }
+
+  filteredLeads() {
+    const q = this.state.q.trim().toLowerCase();
+    return LEADS.filter((l) => {
+      const st = this.leadStatus(l);
+      if (this.state.status !== "All statuses" && st !== this.state.status) return false;
+      if (this.state.source !== "All sources" && l.source !== this.state.source) return false;
+      if (this.state.savedView === "My open leads" && this.state.route === "leads" && st === "Converted" && !q) return false;
+      if (!q) return true;
+      return (l.name + l.org + l.email + l.owner).toLowerCase().includes(q);
+    });
+  }
+
+  rowsFor(route) {
+    const q = this.state.q.trim().toLowerCase();
+    const hit = (o) => !q || Object.values(o).join(" ").toLowerCase().includes(q);
+    switch (route) {
+      case "leads": return this.filteredLeads().map((l) => ({ key: l.id, lead: l, cells: [
+        { v: l.name, k: "plain" }, { v: l.org, k: "plain" }, { v: l.email, k: "dim" }, { v: this.leadStatus(l), k: "tag" },
+        { v: String(l.score), k: "num" }, { v: l.owner, k: "plain" }, { v: l.territory, k: "dim" }, { v: l.ago, k: "dim" }] }));
+      case "deals": return DEALS.filter(hit).map((d) => ({ key: d.id, cells: [
+        { v: d.org, k: "plain" }, { v: d.contact, k: "plain" }, { v: d.stage, k: "tag" }, { v: money(d.amount), k: "num" },
+        { v: d.prob + "%", k: "num" }, { v: d.close, k: "dim" }, { v: d.owner, k: "plain" }, { v: d.sla || "on track", k: d.sla ? "alert" : "dim" }] }));
+      case "contacts": return CONTACTS.filter(hit).map((c) => ({ key: c.name, cells: [
+        { v: c.name, k: "plain" }, { v: c.org, k: "plain" }, { v: c.title, k: "dim" }, { v: c.email, k: "dim" }, { v: c.phone, k: "num" }, { v: c.owner, k: "plain" }] }));
+      case "organizations": return ORGS.filter(hit).map((o) => ({ key: o.name, cells: [
+        { v: o.name, k: "plain" }, { v: o.industry, k: "plain" }, { v: o.territory, k: "dim" }, { v: o.employees, k: "num" },
+        { v: o.website, k: "dim" }, { v: String(o.deals), k: "num" }, { v: money(o.value), k: "num" }] }));
+      case "tasks": return TASKS.filter(hit).map((t) => ({ key: t.title, cells: [
+        { v: t.title, k: "plain" }, { v: t.link, k: "plain" }, { v: t.due, k: "num" }, { v: t.priority, k: "tag" }, { v: t.status, k: "dim" }, { v: t.owner, k: "plain" }] }));
+      case "notes": return NOTES.filter(hit).map((n) => ({ key: n.title, cells: [
+        { v: n.title, k: "plain" }, { v: n.link, k: "plain" }, { v: n.author, k: "plain" }, { v: n.when, k: "dim" }] }));
+      case "calls": return CALLS.filter(hit).map((c) => ({ key: c.when + c.with, cells: [
+        { v: c.with, k: "plain" }, { v: c.org, k: "plain" }, { v: c.type, k: "tag" }, { v: c.duration, k: "num" },
+        { v: c.status, k: c.status === "Completed" ? "dim" : "alert" }, { v: c.when, k: "num" }, { v: c.owner, k: "plain" }] }));
+      case "products": return PRODUCTS.filter(hit).map((p) => ({ key: p.code, cells: [
+        { v: p.code, k: "plain" }, { v: p.name, k: "plain" }, { v: p.uom, k: "dim" }, { v: money(p.price), k: "num" }, { v: p.active, k: "tag" }] }));
+      case "quotations": return QUOTATIONS.filter(hit).map((qt) => ({ key: qt.id, cells: [
+        { v: qt.id, k: "dim" }, { v: qt.org, k: "plain" }, { v: String(qt.items), k: "num" }, { v: money(qt.amount), k: "num" },
+        { v: qt.status, k: qt.status === "Expired" ? "alert" : "tag" }, { v: qt.valid, k: "num" }, { v: qt.owner, k: "plain" }] }));
+      case "invoices": return INVOICES.filter(hit).map((i) => ({ key: i.id, cells: [
+        { v: i.id, k: "dim" }, { v: i.org, k: "plain" }, { v: money(i.amount), k: "num" }, { v: i.due, k: "num" },
+        { v: i.status, k: i.status === "Overdue" ? "alert" : "tag" }, { v: money(i.outstanding), k: "num" }] }));
+      case "teams": return TEAMS.filter(hit).map((t) => ({ key: t.name, cells: [
+        { v: t.name, k: "plain" }, { v: t.lead, k: "plain" }, { v: String(t.members), k: "num" }, { v: t.territories, k: "dim" },
+        { v: money(t.quota), k: "num" }, { v: t.attainment, k: "tag" }] }));
+      case "automation": return AUTOMATION.filter(hit).map((a) => ({ key: a.name, cells: [
+        { v: a.name, k: "plain" }, { v: a.trigger, k: "dim" }, { v: a.action, k: "plain" },
+        { v: a.status, k: a.status === "Paused" ? "alert" : "tag" }, { v: String(a.runs), k: "num" }] }));
+      default: return [];
+    }
+  }
+
+  columnsFor(route) {
+    const c = {
+      leads: ["Full name", "Organization", "Email", "Status", "Score", "Lead owner", "Territory", "Modified"],
+      deals: ["Organization", "Primary contact", "Stage", "Annual value", "Probability", "Expected close", "Owner", "SLA"],
+      contacts: ["Name", "Organization", "Designation", "Email", "Mobile", "Owner"],
+      organizations: ["Organization", "Industry", "Territory", "Employees", "Website", "Deals", "Pipeline"],
+      tasks: ["Task", "Linked to", "Due", "Priority", "Status", "Assigned to"],
+      notes: ["Note", "Linked to", "Author", "Modified"],
+      calls: ["Contact", "Organization", "Type", "Duration", "Result", "When", "Agent"],
+      products: ["Item code", "Item name", "UoM", "Rate", "Active"],
+      quotations: ["Quotation", "Organization", "Items", "Total", "Status", "Valid till", "Owner"],
+      invoices: ["Invoice", "Organization", "Grand total", "Due date", "Status", "Outstanding"],
+      teams: ["Team", "Team lead", "Members", "Territories", "Quota", "Attainment"],
+      automation: ["Rule", "Trigger", "Action", "Status", "Runs"]
+    };
+    return (c[route] || []).map((label) => ({ label }));
+  }
+
+  renderVals() {
+    const s = this.state;
+    const route = s.route;
+    const titles = {
+      dashboard: "Sales overview", calendar: "Calendar", leads: "Leads", deals: "Deals", contacts: "Contacts",
+      organizations: "Organizations", tasks: "Tasks", notes: "Notes", calls: "Call logs", inbox: "Email inbox",
+      products: "Products", quotations: "Quotations", invoices: "Invoices", teams: "Teams & territories", automation: "Automation"
+    };
+    const doctypes = {
+      dashboard: "workspace", calendar: "CRM Activity", leads: "CRM Lead", deals: "CRM Deal", contacts: "Contact",
+      organizations: "CRM Organization", tasks: "CRM Task", notes: "CRM Note", calls: "CRM Call Log", inbox: "Communication",
+      products: "Item", quotations: "CRM Quotation", invoices: "Sales Invoice", teams: "CRM Team", automation: "CRM Automation Rule"
+    };
+    const counts = {
+      dashboard: "", calendar: String(EVENTS.length + s.extraEvents.length), leads: String(LEADS.length), deals: String(DEALS.length),
+      contacts: String(CONTACTS.length), organizations: String(ORGS.length), tasks: String(TASKS.filter((t) => t.status === "Open").length),
+      notes: String(NOTES.length), calls: String(CALLS.length), inbox: String(EMAILS.length), products: String(PRODUCTS.length),
+      quotations: String(QUOTATIONS.length), invoices: String(INVOICES.filter((i) => i.status !== "Paid").length),
+      teams: String(TEAMS.length), automation: String(AUTOMATION.filter((a) => a.status === "Enabled").length)
+    };
+
+    const navGroups = MODULES.map((g) => ({
+      label: g.group,
+      items: g.items.map(([id, label]) => ({
+        label, count: counts[id] || "", active: route === id, inactive: route !== id, go: () => this.go(id)
+      }))
+    }));
+
+    const isKanbanRoute = route === "leads";
+    const viewTypeList = isKanbanRoute ? ["kanban", "table", "calendar"] : ["table", "calendar"];
+    const viewTypes = viewTypeList.map((v) => ({
+      label: v === "table" ? "List" : v === "kanban" ? "Kanban" : "Calendar",
+      active: s.viewType === v, inactive: s.viewType !== v, go: () => this.setState({ viewType: v })
+    }));
+
+    const listRoutes = ["leads", "deals", "contacts", "organizations", "tasks", "notes", "calls", "products", "quotations", "invoices", "teams", "automation"];
+    const isTable = listRoutes.includes(route) && s.viewType === "table";
+    const isKanban = route === "leads" && s.viewType === "kanban";
+    const isCalendar = route === "calendar" || (listRoutes.includes(route) && s.viewType === "calendar");
+
+    const stages = ["New", "Contacted", "Nurture", "Qualified", "Converted"];
+    const shown = this.filteredLeads();
+    const columns = stages.map((st) => {
+      const cards = shown.filter((l) => this.leadStatus(l) === st);
+      return {
+        label: st, count: String(cards.length), value: money(cards.reduce((a, b) => a + b.value, 0)),
+        add: () => this.flash("New lead in " + st + " — form not wired in prototype"),
+        cards: cards.map((l) => ({
+          name: l.name, org: l.org, email: l.email, phone: l.phone, owner: l.owner, ago: l.ago,
+          score: String(l.score), emails: String(l.emails), calls: String(l.calls), tasks: String(l.tasks), next: l.next,
+          open: () => this.setState({ leadId: l.id, tab: "activity" })
+        }))
+      };
+    });
+
+    const tableColumns = this.columnsFor(route);
+    const rows = this.rowsFor(route);
+    const gridCols = "28px " + tableColumns.map((c, i) => (i === 0 ? "1.4fr" : "1fr")).join(" ");
+    const tableRows = rows.map((r) => ({
+      mark: s.sel.includes(r.key) ? "▣" : "▢",
+      toggle: () => this.setState({ sel: s.sel.includes(r.key) ? s.sel.filter((k) => k !== r.key) : s.sel.concat(r.key) }),
+      open: () => (r.lead ? this.setState({ leadId: r.lead.id, tab: "activity" }) : this.flash(doctypes[route] + " · " + r.key)),
+      cells: r.cells.map((c) => ({ v: c.v, plain: c.k === "plain", tag: c.k === "tag", num: c.k === "num", dim: c.k === "dim", alert: c.k === "alert" }))
+    }));
+
+    const allEvents = EVENTS.concat(s.extraEvents);
+    const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const weeks = [];
+    let n = 0;
+    for (let w = 0; w < 5; w++) {
+      const days = [];
+      for (let d = 0; d < 7; d++) {
+        const isLead = w === 0 && d === 0;
+        n = isLead ? 0 : n + 1;
+        const num = isLead ? 31 : n;
+        const inMonth = !isLead && num <= 30;
+        days.push({
+          n: inMonth ? String(num) : (isLead ? "31 Aug" : ""),
+          isToday: inMonth && num === 8, notToday: !(inMonth && num === 8),
+          open: inMonth ? () => this.setState({ day: num, sched: Object.assign({}, s.sched, { date: "2026-09-" + String(num).padStart(2, "0") }) }) : () => {},
+          events: inMonth ? allEvents.filter((e) => e.d === num).map((e) => ({ time: e.time, title: e.title })) : []
+        });
+      }
+      weeks.push({ days });
+    }
+    const dayEvents = allEvents.filter((e) => e.d === s.day);
+
+    const lead = LEADS.find((l) => l.id === s.leadId);
+    const leadVals = lead ? {
+      id: lead.id, name: lead.name, org: lead.org, title: lead.title, status: this.leadStatus(lead),
+      fields: [
+        { label: "Email", value: lead.email }, { label: "Mobile", value: lead.phone },
+        { label: "Lead owner", value: lead.owner }, { label: "Source", value: lead.source },
+        { label: "Industry", value: lead.industry }, { label: "Territory", value: lead.territory },
+        { label: "Lead score", value: String(lead.score) + " / 100" }, { label: "Annual value", value: money(lead.value) },
+        { label: "Created", value: lead.ago }, { label: "SLA", value: lead.next === "—" ? "Met" : "First response due " + lead.next }
+      ],
+      next: { title: lead.next === "—" ? "No open activity" : "Follow-up call — " + lead.name, when: lead.next === "—" ? "—" : lead.next + " · 10:30", kind: "Follow-up" }
+    } : { id: "", name: "", org: "", title: "", status: "New", fields: [], next: { title: "", when: "", kind: "" } };
+
+    const tabs = [["activity", "Activity"], ["emails", "Emails"], ["calls", "Calls"], ["tasks", "Tasks"], ["notes", "Notes"]];
+    const detailTabs = tabs.map(([id, label]) => ({ label, active: s.tab === id, inactive: s.tab !== id, go: () => this.setState({ tab: id }) }));
+    const tlAll = lead ? [
+      { kind: "email", when: "8 Sep 11:42", title: "Outbound email", body: "Sent pricing sheet and pilot scope draft.", by: lead.owner, tab: "emails" },
+      { kind: "call", when: "7 Sep 15:40", title: "Call · 6m 41s", body: "Discussed integration scope; adding plant manager to next call.", by: lead.owner, tab: "calls" },
+      { kind: "status", when: "7 Sep 09:02", title: "Status → " + this.leadStatus(lead), body: "Moved after discovery call.", by: "Administrator", tab: "activity" },
+      { kind: "task", when: "6 Sep 17:20", title: "Task created", body: "Prepare security questionnaire response.", by: "Administrator", tab: "tasks" },
+      { kind: "note", when: "5 Sep 10:11", title: "Note", body: "Procurement prefers annual billing; legal review takes three weeks.", by: lead.owner, tab: "notes" },
+      { kind: "system", when: "2 Aug 08:00", title: "Lead created", body: "Source: " + lead.source + " · assigned by round-robin rule.", by: "System", tab: "activity" }
+    ] : [];
+    const timeline = s.tab === "activity" ? tlAll : tlAll.filter((e) => e.tab === s.tab);
+
+    const pq = s.paletteQ.trim().toLowerCase();
+    const paletteAll = MODULES.flatMap((g) => g.items.map(([id, label]) => ({ label, kind: "module", go: () => this.go(id) })))
+      .concat(LEADS.map((l) => ({ label: l.name + " · " + l.org, kind: "lead", go: () => this.setState({ leadId: l.id, palette: false }) })))
+      .concat(DEALS.map((d) => ({ label: d.org + " · " + money(d.amount), kind: "deal", go: () => { this.go("deals"); this.flash(d.id); } })))
+      .concat([
+        { label: "Schedule follow-up", kind: "action", go: () => this.go("calendar") },
+        { label: "Import leads from CSV", kind: "action", go: () => { this.setState({ palette: false }); this.flash("Data import — 0 of 0 rows queued"); } }
+      ]);
+    const paletteResults = paletteAll.filter((r) => !pq || r.label.toLowerCase().includes(pq)).slice(0, 12);
+
+    const openEmail = EMAILS[s.emailIdx];
+    const pipelineTotal = DEALS.filter((d) => d.stage !== "Won" && d.stage !== "Lost").reduce((a, b) => a + b.amount, 0);
+    const funnelRows = ["Qualification", "Proposal", "Negotiation", "Won", "Lost"].map((st) => {
+      const v = DEALS.filter((d) => d.stage === st).reduce((a, b) => a + b.amount, 0);
+      return { label: st, value: money(v), pct: Math.round((v / 275000) * 100) + "%" };
+    });
+
+    return {
+      theme: s.theme,
+      themeLabel: s.theme === "dark" ? "Light" : "Dark",
+      toggleTheme: () => this.applyTheme(s.theme === "dark" ? "light" : "dark"),
+      navGroups, screenTitle: titles[route], screenMeta: doctypes[route],
+      hasViewTypes: route !== "dashboard" && route !== "inbox" && route !== "calendar", viewTypes,
+      showFilterBar: isTable || isKanban,
+      isDashboard: route === "dashboard", isKanban, isTable, isCalendar, isInbox: route === "inbox",
+      q: s.q, setQ: (e) => this.setState({ q: e.target.value }),
+      status: s.status, setStatus: (e) => this.setState({ status: e.target.value }),
+      source: s.source, setSource: (e) => this.setState({ source: e.target.value }),
+      statusOptions: ["All statuses"].concat(stages),
+      sourceOptions: ["All sources", "Website", "Referral", "Outbound", "Event", "Partner"],
+      savedView: s.savedView, savedViews: ["My open leads", "All records", "Unassigned", "Closing this month", "SLA breached"],
+      setSavedView: (e) => { this.setState({ savedView: e.target.value }); this.flash("View: " + e.target.value); },
+      resultCount: (isKanban ? shown.length : rows.length) + " of " + (route === "leads" ? LEADS.length : rows.length) + " records",
+      columns, tableColumns, tableRows, gridCols,
+      hasSelection: s.sel.length > 0, selectionLabel: s.sel.length + " selected",
+      toggleAll: () => this.setState({ sel: s.sel.length ? [] : rows.map((r) => r.key) }),
+      clearSelection: () => this.setState({ sel: [] }),
+      bulkAssign: () => this.flash("Assigned " + s.sel.length + " records to Administrator"),
+      bulkStage: () => this.flash("Status updated on " + s.sel.length + " records"),
+      bulkSchedule: () => { this.setState({ route: "calendar", viewType: "table" }); this.flash("Follow-up drafted for " + (s.sel.length || 1) + " record(s)"); },
+      exportCsv: () => this.flash("Exported " + rows.length + " rows · " + doctypes[route] + ".csv"),
+      importCsv: () => this.flash("Data import queued for " + doctypes[route]),
+      create: () => this.flash("New " + doctypes[route] + " — quick entry form"),
+      openPalette: () => this.setState({ palette: true, paletteQ: "" }),
+      closePalette: () => this.setState({ palette: false }),
+      paletteOpen: s.palette, paletteQ: s.paletteQ, setPaletteQ: (e) => this.setState({ paletteQ: e.target.value }), paletteResults,
+      metrics: [
+        { label: "Open pipeline", value: money(pipelineTotal), note: "6 deals across 4 stages" },
+        { label: "Won this quarter", value: money(74000), note: "1 deal · Kite Robotics" },
+        { label: "Win rate", value: "43%", note: "Rolling 90 days" },
+        { label: "Avg. sales cycle", value: "38 days", note: "Lead created → won" }
+      ],
+      funnel: funnelRows,
+      activityFeed: [
+        { when: "11:42", who: "Lina Haddad", what: "replied on the pilot scope thread" },
+        { when: "11:05", who: "Administrator", what: "logged a 14m call with Aurora Freight" },
+        { when: "09:18", who: "Tomas Weber", what: "asked for pricing clarification" },
+        { when: "Yesterday", who: "Sarah Connor", what: "moved Meridian Health to Negotiation" },
+        { when: "Yesterday", who: "Automation", what: "created 3 follow-up reminders" }
+      ],
+      todaySchedule: [
+        { time: "09:30", title: "Standup — pipeline review", kind: "Meeting", with: "Enterprise — EMEA" },
+        { time: "13:00", title: "Aurora Freight pilot scope", kind: "Meeting", with: "Lina Haddad" },
+        { time: "16:00", title: "Send security questionnaire", kind: "Reminder", with: "Meridian Health" }
+      ],
+      slaRisk: [
+        { name: "Globex Industries", due: "Overdue 2d" },
+        { name: "Rheinwerk GmbH", due: "Due in 4h" },
+        { name: "Maq Malak", due: "Due in 9h" }
+      ],
+      weekdays, weeks,
+      dayPanelTitle: "September " + s.day + " · " + dayEvents.length + " activities",
+      dayPanelEvents: dayEvents.map((e) => ({ title: e.title, time: e.time, kind: e.kind, link: e.link })),
+      schedType: s.sched.type, setSchedType: (e) => this.setState({ sched: Object.assign({}, s.sched, { type: e.target.value }) }),
+      schedDate: s.sched.date, setSchedDate: (e) => this.setState({ sched: Object.assign({}, s.sched, { date: e.target.value }) }),
+      schedTime: s.sched.time, setSchedTime: (e) => this.setState({ sched: Object.assign({}, s.sched, { time: e.target.value }) }),
+      schedLink: s.sched.link, setSchedLink: (e) => this.setState({ sched: Object.assign({}, s.sched, { link: e.target.value }) }),
+      schedNote: s.sched.note, setSchedNote: (e) => this.setState({ sched: Object.assign({}, s.sched, { note: e.target.value }) }),
+      linkTargets: ["CRM-DEAL-2026-00024 · Aurora Freight", "CRM-DEAL-2026-00019 · Meridian Health", "CRM-LEAD-2026-00041 · Emma Williams", "CRM-LEAD-2026-00055 · Grace Park", "CRM-QTN-2026-00087 · Aurora Freight"],
+      addSchedule: () => {
+        const day = parseInt(s.sched.date.slice(-2), 10) || s.day;
+        const ev = { d: day, time: s.sched.time, title: s.sched.note || s.sched.type + " — " + s.sched.link.split(" · ")[1], kind: s.sched.type, link: s.sched.link };
+        this.setState({ extraEvents: s.extraEvents.concat(ev), day, sched: Object.assign({}, s.sched, { note: "" }) });
+        this.flash(s.sched.type + " scheduled for " + s.sched.date + " " + s.sched.time);
+      },
+      leadOpen: !!lead, lead: leadVals, leadStatuses: stages, detailTabs, timeline,
+      setLeadStatus: (e) => { this.setState({ statusOverrides: Object.assign({}, s.statusOverrides, { [lead.id]: e.target.value }) }); this.flash(lead.name + " → " + e.target.value); },
+      convertLead: () => { this.setState({ leadId: null, route: "deals", viewType: "table" }); this.flash("Lead converted · deal and contact created"); },
+      closeLead: () => this.setState({ leadId: null }),
+      goCalendar: () => { this.setState({ leadId: null, route: "calendar" }); },
+      comment: s.comment, setComment: (e) => this.setState({ comment: e.target.value }),
+      postComment: () => { this.setState({ comment: "" }); this.flash("Comment added to " + leadVals.id); },
+      emails: EMAILS.map((m, i) => ({ from: m.from, subject: m.subject, preview: m.preview, when: m.when, active: i === s.emailIdx, inactive: i !== s.emailIdx, open: () => this.setState({ emailIdx: i }) })),
+      openEmail, reply: () => this.flash("Reply drafted · linked to " + openEmail.link),
+      toast: s.toast
+    };
+  }
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "id": "/pos/terminal",
+  "name": "MicroMax POS",
+  "short_name": "MicroMax POS",
+  "description": "Point of sale for MicroMax ERP — sell, take payments, print receipts and close shifts, online or offline.",
+  "start_url": "/pos/terminal",
+  "scope": "/pos/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#0b1220",
+  "theme_color": "#0d9488",
+  "categories": ["business", "finance", "productivity"],
+  "icons": [
+    { "src": "/pos/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/pos/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/pos/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Terminal", "short_name": "Terminal", "url": "/pos/terminal", "icons": [{ "src": "/pos/icon-192.png", "sizes": "192x192" }] },
+    { "name": "POS Dashboard", "short_name": "Dashboard", "url": "/pos", "icons": [{ "src": "/pos/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Cash in / out", "short_name": "Cash", "url": "/pos/cash", "icons": [{ "src": "/pos/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Receive stock", "short_name": "Stock", "url": "/pos/stock", "icons": [{ "src": "/pos/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

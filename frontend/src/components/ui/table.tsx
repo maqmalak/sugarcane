@@ -1,13 +1,20 @@
 import { type ComponentProps } from "react";
 import { cn } from "@/utils/cn";
 
-/** Table primitives styled like Card / Badge / Button. `Table` is a horizontally scrollable wrapper around a real
- * <table>; extra props go to the <table>. */
-function Table({ className, ...props }: ComponentProps<"table">) {
+/**
+ * Minimal, dependency-free table primitives — the codebase only ships a few
+ * of these (no `ui/table.tsx` existed), so master pages and reports get a
+ * typed set that matches the styling of Card / Badge / Button.
+ *
+ * `Table` forwards extra div props (className, onClick, ...) onto the
+ * outer scrollable wrapper so callers can size and style it directly.
+ */
+function Table({ className, ...props }: ComponentProps<"div">) {
   return (
-    <div className="w-full overflow-x-auto">
-      <table className={cn("w-full border-collapse text-sm", className)} {...props} />
-    </div>
+    <div
+      className={cn("w-full overflow-x-auto", className)}
+      {...props}
+    />
   );
 }
 

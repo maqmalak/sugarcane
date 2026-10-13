@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  body { margin: 0; background: #f4f6f9; }
+  a { color: #1478bd; text-decoration: none; }
+  a:hover { color: #0f5d95; }
+  input, select { font-family: inherit; }
+</style>
+</helmet>
+<div style="min-height:100vh;padding:0 0 60px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#25303c;font-size:13.5px">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px 28px;background:#fff;border-bottom:1px solid #e2e7ee;position:sticky;top:0;z-index:30">
+    <div style="display:flex;align-items:center;gap:9px;color:#7b8796">
+      <i data-lucide="home" width="15" height="15" stroke-width="1.8"></i>
+      <span>/</span>
+      <a href="#">Payments</a>
+      <span>/</span>
+      <span style="color:#1d2836;font-weight:700">General Ledger</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button style="display:flex;align-items:center;gap:7px;padding:8px 13px;border:1px solid #d7dde5;background:#fff;border-radius:7px;font:inherit;font-size:13px;color:#3a4653;cursor:pointer" style-hover="border-color:#1478bd;color:#1478bd">
+        <i data-lucide="refresh-cw" width="14" height="14" stroke-width="1.8"></i>
+        Refresh
+      </button>
+      <button style="display:flex;align-items:center;gap:7px;padding:8px 13px;border:1px solid #1478bd;background:#1478bd;border-radius:7px;font:inherit;font-size:13px;color:#fff;cursor:pointer" style-hover="background:#0f5d95">
+        Actions
+        <i data-lucide="chevron-down" width="14" height="14" stroke-width="1.8" color="#ffffff"></i>
+      </button>
+    </div>
+  </div>
+
+  <div style="max-width:1400px;margin:0 auto;padding:24px 28px 0">
+
+    <div style="background:#fff;border:1px solid #e2e7ee;border-radius:10px;box-shadow:0 1px 2px rgba(16,32,48,0.04);overflow:hidden;margin-bottom:16px">
+      <div onClick="{{ toggleFilters }}" style="display:flex;align-items:center;justify-content:space-between;padding:13px 18px;cursor:pointer;border-bottom:1px solid #eef2f7" style-hover="background:#fafbfd">
+        <div style="display:flex;align-items:center;gap:10px;font-weight:700;color:#1d2836">
+          <i data-lucide="sliders-horizontal" width="15" height="15" stroke-width="1.8" color="#1478bd"></i>
+          Filters
+          <span style="padding:2px 8px;border-radius:999px;background:#eaf3fb;color:#1478bd;font-size:11.5px;font-weight:700">{{ activeCount }} active</span>
+        </div>
+        <span style="color:#8a95a2;font-size:12px">{{ filterCaret }}</span>
+      </div>
+
+      <sc-if value="{{ filtersOpen }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:18px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px">
+            <label style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:11.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7b8796">Company</span>
+              <input value="{{ f.company }}" onChange="{{ set.company }}" style="padding:9px 11px;border:1px solid #d7dde5;border-radius:7px;font-size:13.5px;color:#25303c;outline:none" style-focus="border-color:#1478bd;box-shadow:0 0 0 3px rgba(20,120,189,0.12)" />
+            </label>
+            <label style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:11.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7b8796">Finance Book</span>
+              <input placeholder="All books" value="{{ f.financeBook }}" onChange="{{ set.financeBook }}" style="padding:9px 11px;border:1px solid #d7dde5;border-radius:7px;font-size:13.5px;color:#25303c;outline:none" style-focus="border-color:#1478bd;box-shadow:0 0 0 3px rgba(20,120,189,0.12)" />
+            </label>
+            <label style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:11.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7b8796">From Date</span>
+              <input type="date" value="{{ f.from }}" onChange="{{ set.from }}" style="padding:9px 11px;border:1px solid #d7dde5;border-radius:7px;font-size:13.5px;color:#25303c;outline:none" style-focus="border-color:#1478bd;box-shadow:0 0 0 3px rgba(20,120,189,0.12)" />
+            </label>
+            <label style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:11.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7b8796">To Date</span>
+              <input type="date" value="{{ f.to }}" onChange="{{ set.to }}" style="padding:9px 11px;border:1px solid #d7dde5;border-radius:7px;font-size:13.5px;color:#25303c;outline:none" style-focus="border-color:#1478bd;box-shadow:0 0 0 3px rgba(20,120,189,0.12)" />
+            </label>
+            <label style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:11.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7b8796">Account</span>
+              <select value="{{ f.account }}" onChange="{{ set.account }}" style="padding:9px 11px;border:1px solid #d7dde5;border-radius:7px;font-size:13.5px;color:#25303c;background:#fff;outline:none" style-focus="border-color:#1478bd">
+                <option value="">All accounts</option>
+                <sc-for list="{{ accountOptions }}" as="a" hint-placeholder-count="4">
+                  <option value="{{ a }}">{{ a }}</option>
+                </sc-for>
+              </select>
+            </label>
+            <label style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:11.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7b8796">Voucher Type</span>
+              <select value="{{ f.voucherType }}" onChange="{{ set.voucherType }}" style="padding:9px 11px;border:1px solid #d7dde5;border-radius:7px;font-size:13.5px;color:#25303c;background:#fff;outline:none" style-focus="border-color:#1478bd">
+                <option value="">All types</option>
+                <sc-for list="{{ voucherTypeOptions }}" as="v" hint-placeholder-count="4">
+                  <option value="{{ v }}">{{ v }}</option>
+                </sc-for>
+              </select>
+            </label>
+            <label style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:11.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7b8796">Party</span>
+              <input placeholder="Any party" value="{{ f.party }}" onChange="{{ set.party }}" style="padding:9px 11px;border:1px solid #d7dde5;border-radius:7px;font-size:13.5px;color:#25303c;outline:none" style-focus="border-color:#1478bd;box-shadow:0 0 0 3px rgba(20,120,189,0.12)" />
+            </label>
+            <label style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:11.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7b8796">Cost Center</span>
+              <input placeholder="All cost centers" value="{{ f.costCenter }}" onChange="{{ set.costCenter }}" style="padding:9px 11px;border:1px solid #d7dde5;border-radius:7px;font-size:13.5px;color:#25303c;outline:none" style-focus="border-color:#1478bd;box-shadow:0 0 0 3px rgba(20,120,189,0.12)" />
+            </label>
+            <label style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:11.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7b8796">Project</span>
+              <input placeholder="All projects" value="{{ f.project }}" onChange="{{ set.project }}" style="padding:9px 11px;border:1px solid #d7dde5;border-radius:7px;font-size:13.5px;color:#25303c;outline:none" style-focus="border-color:#1478bd;box-shadow:0 0 0 3px rgba(20,120,189,0.12)" />
+            </label>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:11px 22px;margin-top:18px;padding-top:16px;border-top:1px solid #eef2f7">
+            <sc-for list="{{ options }}" as="o" hint-placeholder-count="8">
+              <label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer;color:#3a4653;line-height:1.4">
+                <input type="checkbox" checked="{{ o.on }}" onChange="{{ o.toggle }}" style="margin:1px 0 0;width:15px;height:15px;accent-color:#1478bd;cursor:pointer" />
+                <span>{{ o.label }}</span>
+              </label>
+            </sc-for>
+          </div>
+
+          <div style="display:flex;gap:9px;margin-top:18px">
+            <button onClick="{{ clearFilters }}" style="padding:9px 15px;border:1px solid #d7dde5;background:#fff;border-radius:7px;font:inherit;font-size:13px;color:#3a4653;cursor:pointer" style-hover="border-color:#c2ccd8">Clear all</button>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px">
+      <div style="position:relative;flex:1 1 320px;max-width:420px">
+        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);display:flex;color:#8a95a2">
+          <i data-lucide="search" width="15" height="15" stroke-width="1.8"></i>
+        </span>
+        <input placeholder="Search account, voucher, party, remarks" value="{{ search }}" onChange="{{ setSearch }}" style="width:100%;box-sizing:border-box;padding:10px 12px 10px 36px;border:1px solid #d7dde5;border-radius:8px;background:#fff;font-size:13.5px;color:#25303c;outline:none" style-focus="border-color:#1478bd;box-shadow:0 0 0 3px rgba(20,120,189,0.12)" />
+      </div>
+
+      <div style="display:flex;align-items:center;gap:9px">
+        <span style="font-size:12.5px;color:#7b8796">{{ rowCountLabel }}</span>
+        <div style="position:relative">
+          <button onClick="{{ toggleColMenu }}" style="display:flex;align-items:center;gap:8px;padding:9px 13px;border:1px solid #d7dde5;background:#fff;border-radius:8px;font:inherit;font-size:13px;color:#3a4653;cursor:pointer" style-hover="border-color:#1478bd;color:#1478bd">
+            <i data-lucide="columns-3" width="14" height="14" stroke-width="1.8"></i>
+            Columns
+            <span style="padding:1px 7px;border-radius:999px;background:#eef2f7;font-size:11.5px;font-weight:700;color:#5b6674">{{ visibleCount }}</span>
+          </button>
+          <sc-if value="{{ colMenuOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;right:0;top:calc(100% + 8px);width:262px;background:#fff;border:1px solid #e2e7ee;border-radius:10px;box-shadow:0 12px 32px rgba(16,32,48,0.14);padding:8px;z-index:20;max-height:360px;overflow:auto">
+              <div style="display:flex;justify-content:space-between;padding:6px 8px 9px;border-bottom:1px solid #eef2f7;margin-bottom:5px">
+                <button onClick="{{ selectAllCols }}" style="border:0;background:none;font:inherit;font-size:12.5px;color:#1478bd;cursor:pointer;padding:0">Select all</button>
+                <button onClick="{{ resetCols }}" style="border:0;background:none;font:inherit;font-size:12.5px;color:#7b8796;cursor:pointer;padding:0">Reset</button>
+              </div>
+              <sc-for list="{{ allColumns }}" as="c" hint-placeholder-count="8">
+                <label style="display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:6px;cursor:pointer;color:#3a4653" style-hover="background:#f4f8fc">
+                  <input type="checkbox" checked="{{ c.on }}" onChange="{{ c.toggle }}" style="width:15px;height:15px;accent-color:#1478bd;cursor:pointer" />
+                  {{ c.label }}
+                </label>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+      <div style="flex:1 1 180px;background:#fff;border:1px solid #e2e7ee;border-radius:9px;padding:13px 16px">
+        <div style="font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:#7b8796;font-weight:700">Total debit</div>
+        <div style="margin-top:6px;font-size:19px;font-weight:700;font-variant-numeric:tabular-nums">{{ sum.debit }}</div>
+      </div>
+      <div style="flex:1 1 180px;background:#fff;border:1px solid #e2e7ee;border-radius:9px;padding:13px 16px">
+        <div style="font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:#7b8796;font-weight:700">Total credit</div>
+        <div style="margin-top:6px;font-size:19px;font-weight:700;font-variant-numeric:tabular-nums">{{ sum.credit }}</div>
+      </div>
+      <div style="flex:1 1 180px;background:#fff;border:1px solid #e2e7ee;border-radius:9px;padding:13px 16px">
+        <div style="font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:#7b8796;font-weight:700">Closing balance</div>
+        <div style="margin-top:6px;font-size:19px;font-weight:700;color:#1478bd;font-variant-numeric:tabular-nums">{{ sum.closing }}</div>
+      </div>
+    </div>
+
+    <div style="background:#fff;border:1px solid #e2e7ee;border-radius:10px;box-shadow:0 1px 2px rgba(16,32,48,0.04);overflow:auto;max-height:620px">
+      <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap">
+        <thead>
+          <tr>
+            <th style="position:sticky;top:0;z-index:10;background:#f7f9fc;text-align:right;padding:11px 12px;font-size:11.5px;letter-spacing:0.05em;text-transform:uppercase;color:#6d7986;font-weight:700;border-bottom:1px solid #e2e7ee;width:46px">#</th>
+            <sc-for list="{{ columns }}" as="c" hint-placeholder-count="7">
+              <th onClick="{{ c.sort }}" style="position:sticky;top:0;z-index:10;background:#f7f9fc;padding:11px 14px;font-size:11.5px;letter-spacing:0.05em;text-transform:uppercase;color:#6d7986;font-weight:700;border-bottom:1px solid #e2e7ee;border-left:1px solid #edf1f6;cursor:pointer;text-align:{{ c.align }}" style-hover="color:#1478bd">
+                {{ c.label }}{{ c.arrow }}
+              </th>
+            </sc-for>
+          </tr>
+        </thead>
+        <tbody>
+          <sc-for list="{{ rows }}" as="r" hint-placeholder-count="8">
+            <tr style="background:{{ r.bg }}" style-hover="background:#f6f9fc">
+              <td style="padding:9px 12px;border-bottom:1px solid #f3f6fa;text-align:right;color:#95a0ac;font-size:12px">{{ r.n }}</td>
+              <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="7">
+                <td style="padding:9px 14px;border-bottom:1px solid #f3f6fa;border-left:1px solid #f6f8fb;color:#2b3644;text-align:{{ c.align }};font-weight:{{ c.weight }}">{{ c.v }}</td>
+              </sc-for>
+            </tr>
+          </sc-for>
+        </tbody>
+      </table>
+    </div>
+
+    <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:14px;padding:34px;text-align:center;color:#7b8796;background:#fff;border:1px dashed #d7dde5;border-radius:10px">
+        No ledger entries match the current filters.
+      </div>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{}">
+const ENTRIES = [
+  { date: "2026-08-04", account: "1410 - Stock In Hand", debit: 400, credit: 0, voucherType: "Purchase Receipt", subtype: "Purchase Receipt", voucherNo: "MAT-PRE-2026-00012", against: "2210 - Stock Received Not Billed", partyType: "Supplier", party: "Steel Traders Ltd", project: "Tower A", costCenter: "Main - SSG", remarks: "GRN against PO-0042" },
+  { date: "2026-08-04", account: "2210 - Stock Received Not Billed", debit: 0, credit: 400, voucherType: "Purchase Receipt", subtype: "Purchase Receipt", voucherNo: "MAT-PRE-2026-00012", against: "1410 - Stock In Hand", partyType: "Supplier", party: "Steel Traders Ltd", project: "Tower A", costCenter: "Main - SSG", remarks: "GRN against PO-0042" },
+  { date: "2026-08-09", account: "1310 - Debtors", debit: 186500, credit: 0, voucherType: "Sales Invoice", subtype: "Sales Invoice", voucherNo: "ACC-SINV-2026-00087", against: "4110 - Sales", partyType: "Customer", party: "Meezan Builders", project: "Tower A", costCenter: "Sales - SSG", remarks: "Invoice for Aug milestone" },
+  { date: "2026-08-09", account: "4110 - Sales", debit: 0, credit: 186500, voucherType: "Sales Invoice", subtype: "Sales Invoice", voucherNo: "ACC-SINV-2026-00087", against: "1310 - Debtors", partyType: "Customer", party: "Meezan Builders", project: "Tower A", costCenter: "Sales - SSG", remarks: "Invoice for Aug milestone" },
+  { date: "2026-08-14", account: "1210 - Bank Account", debit: 150000, credit: 0, voucherType: "Payment Entry", subtype: "Receive", voucherNo: "ACC-PAY-2026-00051", against: "1310 - Debtors", partyType: "Customer", party: "Meezan Builders", project: "Tower A", costCenter: "Main - SSG", remarks: "Part receipt" },
+  { date: "2026-08-14", account: "1310 - Debtors", debit: 0, credit: 150000, voucherType: "Payment Entry", subtype: "Receive", voucherNo: "ACC-PAY-2026-00051", against: "1210 - Bank Account", partyType: "Customer", party: "Meezan Builders", project: "Tower A", costCenter: "Main - SSG", remarks: "Part receipt" },
+  { date: "2026-08-18", account: "5210 - Salary Expense", debit: 92000, credit: 0, voucherType: "Journal Entry", subtype: "Salary", voucherNo: "ACC-JV-2026-00019", against: "2310 - Salary Payable", partyType: "", party: "", project: "", costCenter: "Admin - SSG", remarks: "July payroll accrual" },
+  { date: "2026-08-18", account: "2310 - Salary Payable", debit: 0, credit: 92000, voucherType: "Journal Entry", subtype: "Salary", voucherNo: "ACC-JV-2026-00019", against: "5210 - Salary Expense", partyType: "", party: "", project: "", costCenter: "Admin - SSG", remarks: "July payroll accrual" },
+  { date: "2026-08-25", account: "5310 - Rent Expense", debit: 45000, credit: 0, voucherType: "Purchase Invoice", subtype: "Purchase Invoice", voucherNo: "ACC-PINV-2026-00063", against: "2110 - Creditors", partyType: "Supplier", party: "City Estates", project: "", costCenter: "Admin - SSG", remarks: "Site office rent" },
+  { date: "2026-08-25", account: "2110 - Creditors", debit: 0, credit: 45000, voucherType: "Purchase Invoice", subtype: "Purchase Invoice", voucherNo: "ACC-PINV-2026-00063", against: "5310 - Rent Expense", partyType: "Supplier", party: "City Estates", project: "", costCenter: "Admin - SSG", remarks: "Site office rent" },
+  { date: "2026-09-01", account: "1210 - Bank Account", debit: 0, credit: 45000, voucherType: "Payment Entry", subtype: "Pay", voucherNo: "ACC-PAY-2026-00058", against: "2110 - Creditors", partyType: "Supplier", party: "City Estates", project: "", costCenter: "Main - SSG", remarks: "Rent settled" },
+  { date: "2026-09-01", account: "2110 - Creditors", debit: 45000, credit: 0, voucherType: "Payment Entry", subtype: "Pay", voucherNo: "ACC-PAY-2026-00058", against: "1210 - Bank Account", partyType: "Supplier", party: "City Estates", project: "", costCenter: "Main - SSG", remarks: "Rent settled" },
+];
+
+const COLS = [
+  { key: "date", label: "Posting Date", align: "left" },
+  { key: "account", label: "Account", align: "left" },
+  { key: "debit", label: "Debit (PKR)", align: "right", num: true },
+  { key: "credit", label: "Credit (PKR)", align: "right", num: true },
+  { key: "balance", label: "Balance (PKR)", align: "right", num: true },
+  { key: "voucherType", label: "Voucher Type", align: "left" },
+  { key: "subtype", label: "Voucher Subtype", align: "left" },
+  { key: "voucherNo", label: "Voucher No", align: "left" },
+  { key: "against", label: "Against Account", align: "left" },
+  { key: "partyType", label: "Party Type", align: "left" },
+  { key: "party", label: "Party", align: "left" },
+  { key: "project", label: "Project", align: "left" },
+  { key: "costCenter", label: "Cost Center", align: "left" },
+  { key: "remarks", label: "Remarks", align: "left" },
+];
+
+const DEFAULT_COLS = ["date","account","debit","credit","balance","voucherType","subtype","voucherNo","against"];
+
+const OPTIONS = [
+  ["dimensions", "Consider accounting dimensions", true],
+  ["noOpening", "Disable opening balance calculation", false],
+  ["openingEntries", "Show opening entries", true],
+  ["defaultFb", "Include default FB entries", true],
+  ["cancelled", "Show cancelled entries", false],
+  ["netParty", "Show net values in party account", false],
+  ["companyCurrency", "Show credit / debit in company currency", false],
+  ["txnCurrency", "Add columns in transaction currency", false],
+  ["remarks", "Show remarks", false],
+  ["ignoreFx", "Ignore exchange rate revaluation journals", false],
+  ["ignoreNotes", "Ignore system generated credit / debit notes", false],
+];
+
+const money = (n) => "Rs " + (n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const dmy = (s) => s ? s.split("-").reverse().join("-") : "";
+
+class Component extends DCLogic {
+  state = {
+    filtersOpen: true,
+    colMenuOpen: false,
+    search: "",
+    sortKey: "date",
+    sortDir: 1,
+    cols: Object.fromEntries(COLS.map(c => [c.key, DEFAULT_COLS.includes(c.key)])),
+    opts: Object.fromEntries(OPTIONS.map(o => [o[0], o[2]])),
+    f: { company: "Silver Star Group (Demo)", financeBook: "", from: "2026-08-04", to: "2026-09-04",
+         account: "", voucherType: "", party: "", costCenter: "", project: "" },
+  };
+
+  componentDidMount() { this.icons(); }
+  componentDidUpdate() { this.icons(); }
+  icons() {
+    const go = () => window.lucide && window.lucide.createIcons();
+    go();
+    if (!window.lucide) setTimeout(go, 400);
+    setTimeout(go, 1200);
+  }
+
+  setF(k) { return (e) => { const v = e.target.value; this.setState(p => ({ f: { ...p.f, [k]: v } })); }; }
+
+  renderVals() {
+    const st = this.state, f = st.f;
+    const q = st.search.trim().toLowerCase();
+
+    let list = ENTRIES.filter(r => {
+      if (f.from && r.date < f.from) return false;
+      if (f.to && r.date > f.to) return false;
+      if (f.account && r.account !== f.account) return false;
+      if (f.voucherType && r.voucherType !== f.voucherType) return false;
+      if (f.party && !r.party.toLowerCase().includes(f.party.toLowerCase())) return false;
+      if (f.costCenter && !r.costCenter.toLowerCase().includes(f.costCenter.toLowerCase())) return false;
+      if (f.project && !r.project.toLowerCase().includes(f.project.toLowerCase())) return false;
+      if (q) {
+        const hay = [r.account, r.voucherNo, r.party, r.remarks, r.voucherType, r.against].join(" ").toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+
+    const sk = st.sortKey, dir = st.sortDir;
+    if (sk && sk !== "balance") {
+      list = [...list].sort((a, b) => {
+        const x = a[sk], y = b[sk];
+        if (typeof x === "number") return (x - y) * dir;
+        return String(x).localeCompare(String(y)) * dir;
+      });
+    }
+
+    let bal = 0, td = 0, tc = 0;
+    const body = list.map(r => {
+      bal += r.debit - r.credit; td += r.debit; tc += r.credit;
+      return { ...r, balance: bal };
+    });
+
+    const visible = COLS.filter(c => st.cols[c.key]);
+    const cell = (c, r, weight) => {
+      let v = "";
+      if (c.key === "date") v = dmy(r.date);
+      else if (c.num) v = money(r[c.key]);
+      else v = r[c.key] || "";
+      return { v, align: c.align, weight: weight || "400" };
+    };
+
+    const specialRow = (label, vals, bg, weight) => ({
+      n: "", bg, cells: visible.map(c => {
+        if (c.key === "account") return { v: label, align: "left", weight };
+        if (c.num) return { v: vals[c.key] === undefined ? "" : money(vals[c.key]), align: "right", weight };
+        return { v: "", align: c.align, weight };
+      })
+    });
+
+    const rows = [];
+    if (st.opts.openingEntries && !st.opts.noOpening) {
+      rows.push(specialRow("Opening", { debit: 0, credit: 0, balance: 0 }, "#fbfcfe", "700"));
+    }
+    body.forEach((r, i) => {
+      rows.push({ n: i + 1, bg: "#ffffff", cells: visible.map(c => cell(c, r)) });
+    });
+    rows.push(specialRow("Total", { debit: td, credit: tc, balance: bal }, "#f5f8fc", "700"));
+    rows.push(specialRow("Closing (Opening + Total)", { debit: td, credit: tc, balance: bal }, "#eef4fa", "700"));
+
+    const columns = visible.map(c => ({
+      label: c.label, align: c.align,
+      arrow: st.sortKey === c.key ? (dir > 0 ? "  \u2191" : "  \u2193") : "",
+      sort: () => this.setState(p => ({ sortKey: c.key, sortDir: p.sortKey === c.key ? -p.sortDir : 1 })),
+    }));
+
+    const activeCount = [f.financeBook, f.account, f.voucherType, f.party, f.costCenter, f.project]
+      .filter(Boolean).length + 2;
+
+    return {
+      filtersOpen: st.filtersOpen,
+      filterCaret: st.filtersOpen ? "\u25b4" : "\u25be",
+      toggleFilters: () => this.setState(p => ({ filtersOpen: !p.filtersOpen })),
+      activeCount,
+      f,
+      set: Object.fromEntries(Object.keys(f).map(k => [k, this.setF(k)])),
+      accountOptions: [...new Set(ENTRIES.map(r => r.account))].sort(),
+      voucherTypeOptions: [...new Set(ENTRIES.map(r => r.voucherType))].sort(),
+      options: OPTIONS.map(([k, label]) => ({
+        label, on: !!st.opts[k],
+        toggle: () => this.setState(p => ({ opts: { ...p.opts, [k]: !p.opts[k] } })),
+      })),
+      clearFilters: () => this.setState(p => ({
+        search: "",
+        f: { ...p.f, financeBook: "", account: "", voucherType: "", party: "", costCenter: "", project: "" },
+      })),
+      search: st.search,
+      setSearch: (e) => { const v = e.target.value; this.setState({ search: v }); },
+      colMenuOpen: st.colMenuOpen,
+      toggleColMenu: () => this.setState(p => ({ colMenuOpen: !p.colMenuOpen })),
+      allColumns: COLS.map(c => ({
+        label: c.label, on: !!st.cols[c.key],
+        toggle: () => this.setState(p => ({ cols: { ...p.cols, [c.key]: !p.cols[c.key] } })),
+      })),
+      selectAllCols: () => this.setState({ cols: Object.fromEntries(COLS.map(c => [c.key, true])) }),
+      resetCols: () => this.setState({ cols: Object.fromEntries(COLS.map(c => [c.key, DEFAULT_COLS.includes(c.key)])) }),
+      visibleCount: visible.length + " / " + COLS.length,
+      rowCountLabel: body.length + " entries",
+      columns, rows,
+      empty: body.length === 0,
+      sum: { debit: money(td), credit: money(tc), closing: money(bal) },
+    };
+  }
+}
+</script>
+</body>
+</html>

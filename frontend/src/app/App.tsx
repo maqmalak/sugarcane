@@ -1,65 +1,39 @@
-import { FrappeProvider } from "frappe-react-sdk";
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { Toaster } from "sonner";
-import { SessionProvider, useSession } from "@/lib/session";
-import { AppShell } from "@/components/layout/AppShell";
-import { Spinner } from "@/components/ui/spinner";
-import { LoginPage } from "@/pages/LoginPage";
-import { HomePage } from "@/pages/HomePage";
-import { GrowersPage } from "@/pages/GrowersPage";
-import { ComingSoonPage } from "@/pages/ComingSoonPage";
-import { NotFoundPage } from "@/pages/NotFoundPage";
-import { SurveyMapPage } from "@/pages/SurveyMapPage";
-import { SurveyDashboardPage } from "@/pages/SurveyDashboardPage";
-import { AreaMapPage } from "@/pages/AreaMapPage";
-import { FieldForcePage } from "@/pages/FieldForcePage";
-import { BUILT_PHASE, NAVIGATION } from "@/app/navigation";
+import { Navigate, useLocation } from "react-router-dom";
+import { AppProviders } from "./providers";
+import { AppRoutes } from "./routes";
+import { useAuth } from "@/hooks/useAuth";
+import { FullPageLoader } from "@/pages/common/ComingSoonPage";
 
-const SITE = window.sugar_site && !window.sugar_site.startsWith("{{") ? window.sugar_site : "sugarcane.local";
+/** Redirects unauthenticated visitors to the login screen. */
+function RequireAuth({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth();
+  const location = useLocation();
 
-export function App() {
-  return (
-    <FrappeProvider url="" siteName={SITE} enableSocket={false} swrConfig={{ revalidateOnFocus: false }}>
-      <SessionProvider>
-        <BrowserRouter basename="/sugar">
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/*" element={<RequireLogin />} />
-          </Routes>
-        </BrowserRouter>
-        <Toaster richColors position="top-right" />
-      </SessionProvider>
-    </FrappeProvider>
-  );
+  if (isLoading) return <FullPageLoader />;
+  // Public pages (login, marketing site) render as-is instead of redirecting
+  // to ourselves — redirecting here would cause an infinite navigation loop.
+  if (!isAuthenticated && !PUBLIC_PATHS.includes(location.pathname)) {
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  }
+  return <>{children}</>;
 }
 
-function RequireLogin() {
-  const { boot, isLoading } = useSession();
-  const location = useLocation();
-  if (isLoading && !boot) {
-    return (
-      <div className="flex h-full items-center justify-center text-muted-foreground">
-        <Spinner size={22} />
-      </div>
-    );
-  }
-  if (!boot?.user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
-  if (!boot.is_staff) return <NotFoundPage title="No access" message="Your account has no sugar mill role yet. Ask the Cane Admin to add one." />;
-  const later = NAVIGATION.flatMap((g) => g.items).filter((i) => i.phase > BUILT_PHASE);
+/**
+ * Application root.
+ *
+ * Frappe/ERPNext remains the system of record: authentication, permissions,
+ * business logic and storage all live on the server. This React app is the
+ * modern presentation layer over the REST/RPC/Socket.IO APIs.
+ */
+/** Paths that render without a session (login, and the public website). */
+const PUBLIC_PATHS = ["/login"];
+
+export default function App() {
   return (
-    <AppShell>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/growers" element={<GrowersPage />} />
-        <Route path="/survey" element={<SurveyMapPage />} />
-        <Route path="/survey/dashboard" element={<SurveyDashboardPage />} />
-        <Route path="/geo" element={<AreaMapPage />} />
-        <Route path="/field-force" element={<FieldForcePage />} />
-        {later.map((item) => (
-          <Route key={item.path} path={item.path} element={<ComingSoonPage item={item} />} />
-        ))}
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </AppShell>
+    <AppProviders>
+      <RequireAuth>
+        <AppRoutes />
+      </RequireAuth>
+    </AppProviders>
   );
 }

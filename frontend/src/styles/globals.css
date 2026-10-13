@@ -329,6 +329,3 @@
   }
   .frappe-form label { @apply text-[12px] font-medium text-foreground/80; }
 }
-
-/* Sugarcane additions: Urdu right-to-left text */
-[dir="rtl"] body { font-family: "Noto Nastaliq Urdu", serif; }

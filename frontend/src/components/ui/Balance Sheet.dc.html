@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  body { margin: 0; background: #f4f6f9; }
+  a { color: #1478bd; text-decoration: none; }
+  a:hover { color: #0f5d95; }
+  input, select { font-family: inherit; }
+</style>
+</helmet>
+<div style="min-height:100vh;padding:0 0 64px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#25303c;font-size:13.5px">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px 28px;background:#fff;border-bottom:1px solid #e2e7ee;position:sticky;top:0;z-index:30">
+    <div style="display:flex;align-items:center;gap:9px;color:#7b8796">
+      <a href="#">Accounting</a>
+      <span>/</span>
+      <a href="#">Reports</a>
+      <span>/</span>
+      <span style="color:#1d2836;font-weight:700">Balance Sheet</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button style="display:flex;align-items:center;gap:7px;padding:8px 13px;border:1px solid #d7dde5;background:#fff;border-radius:7px;font:inherit;font-size:13px;color:#3a4653;cursor:pointer" style-hover="border-color:#1478bd;color:#1478bd">
+        <i data-lucide="file-text" width="14" height="14" stroke-width="1.8"></i>
+        Financial Statements
+      </button>
+      <button style="display:flex;align-items:center;gap:7px;padding:8px 13px;border:1px solid #d7dde5;background:#fff;border-radius:7px;font:inherit;font-size:13px;color:#3a4653;cursor:pointer" style-hover="border-color:#1478bd;color:#1478bd">
+        <i data-lucide="refresh-cw" width="14" height="14" stroke-width="1.8"></i>
+      </button>
+      <button style="display:flex;align-items:center;gap:7px;padding:8px 13px;border:1px solid #1478bd;background:#1478bd;border-radius:7px;font:inherit;font-size:13px;color:#fff;cursor:pointer" style-hover="background:#0f5d95">
+        <i data-lucide="download" width="14" height="14" stroke-width="1.8" color="#ffffff"></i>
+        Export
+      </button>
+    </div>
+  </div>
+
+  <div style="max-width:1180px;margin:0 auto;padding:30px 28px 0">
+
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:22px;flex-wrap:wrap">
+      <div>
+        <h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">Balance Sheet</h1>
+        <div style="margin-top:9px;font-size:13.5px;color:#67737f">Silver Star Group (Demo) &middot; Fiscal Year 2026-2027 &middot; Yearly &middot; PKR</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#8a95a2">
+        <i data-lucide="clock" width="13" height="13" stroke-width="1.8"></i>
+        Generated 2 minutes ago
+      </div>
+    </div>
+
+    <div style="margin-top:22px;background:#fff;border:1px solid #e2e7ee;border-radius:12px;box-shadow:0 1px 2px rgba(16,32,48,0.04);padding:16px 18px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px">
+        <label style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:11.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7b8796">Fiscal Year</span>
+          <select value="{{ f.fiscalYear }}" onChange="{{ set.fiscalYear }}" style="padding:9px 11px;border:1px solid #d7dde5;border-radius:7px;font-size:13.5px;color:#25303c;background:#fff;outline:none" style-focus="border-color:#1478bd">
+            <option value="2026-2027">2026-2027</option>
+            <option value="2025-2026">2025-2026</option>
+          </select>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:11.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7b8796">Periodicity</span>
+          <select value="{{ f.periodicity }}" onChange="{{ set.periodicity }}" style="padding:9px 11px;border:1px solid #d7dde5;border-radius:7px;font-size:13.5px;color:#25303c;background:#fff;outline:none" style-focus="border-color:#1478bd">
+            <option value="Yearly">Yearly</option>
+            <option value="Half-Yearly">Half-Yearly</option>
+            <option value="Quarterly">Quarterly</option>
+            <option value="Monthly">Monthly</option>
+          </select>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:11.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7b8796">Finance Book</span>
+          <input placeholder="All books" value="{{ f.financeBook }}" onChange="{{ set.financeBook }}" style="padding:9px 11px;border:1px solid #d7dde5;border-radius:7px;font-size:13.5px;color:#25303c;outline:none" style-focus="border-color:#1478bd;box-shadow:0 0 0 3px rgba(20,120,189,0.12)" />
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:11.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7b8796">Cost Center</span>
+          <input placeholder="All cost centers" value="{{ f.costCenter }}" onChange="{{ set.costCenter }}" style="padding:9px 11px;border:1px solid #d7dde5;border-radius:7px;font-size:13.5px;color:#25303c;outline:none" style-focus="border-color:#1478bd;box-shadow:0 0 0 3px rgba(20,120,189,0.12)" />
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:11.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7b8796">Project</span>
+          <input placeholder="All projects" value="{{ f.project }}" onChange="{{ set.project }}" style="padding:9px 11px;border:1px solid #d7dde5;border-radius:7px;font-size:13.5px;color:#25303c;outline:none" style-focus="border-color:#1478bd;box-shadow:0 0 0 3px rgba(20,120,189,0.12)" />
+        </label>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:11px 24px;margin-top:15px;padding-top:14px;border-top:1px solid #eef2f7">
+        <sc-for list="{{ options }}" as="o" hint-placeholder-count="4">
+          <label style="display:flex;align-items:center;gap:9px;cursor:pointer;color:#3a4653">
+            <input type="checkbox" checked="{{ o.on }}" onChange="{{ o.toggle }}" style="width:15px;height:15px;accent-color:#1478bd;cursor:pointer" />
+            <span>{{ o.label }}</span>
+          </label>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:16px">
+      <div style="background:#fff;border:1px solid #e2e7ee;border-radius:12px;padding:18px 20px">
+        <div style="font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:#7b8796;font-weight:700">Total Asset</div>
+        <div style="margin-top:9px;font-size:24px;font-weight:700;letter-spacing:-0.015em;font-variant-numeric:tabular-nums">{{ kpi.assets }}</div>
+      </div>
+      <div style="background:#fff;border:1px solid #e2e7ee;border-radius:12px;padding:18px 20px">
+        <div style="font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:#7b8796;font-weight:700">Total Liability</div>
+        <div style="margin-top:9px;font-size:24px;font-weight:700;letter-spacing:-0.015em;font-variant-numeric:tabular-nums">{{ kpi.liabilities }}</div>
+      </div>
+      <div style="background:#fff;border:1px solid #e2e7ee;border-radius:12px;padding:18px 20px">
+        <div style="font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:#7b8796;font-weight:700">Total Equity</div>
+        <div style="margin-top:9px;font-size:24px;font-weight:700;letter-spacing:-0.015em;font-variant-numeric:tabular-nums">{{ kpi.equity }}</div>
+      </div>
+      <div style="background:#fff;border:1px solid #dfe9e3;border-radius:12px;padding:18px 20px">
+        <div style="font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:#7b8796;font-weight:700">Provisional Profit / Loss (Credit)</div>
+        <div style="margin-top:9px;font-size:24px;font-weight:700;letter-spacing:-0.015em;color:#2f8f5b;font-variant-numeric:tabular-nums">{{ kpi.profit }}</div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;background:#fff;border:1px solid #e2e7ee;border-radius:12px;padding:20px 22px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px">
+        <div style="font-weight:700;color:#1d2836">Composition</div>
+        <div style="display:flex;gap:18px;font-size:12.5px;color:#67737f">
+          <span style="display:flex;align-items:center;gap:7px"><span style="width:9px;height:9px;border-radius:2px;background:#1478bd"></span>Assets</span>
+          <span style="display:flex;align-items:center;gap:7px"><span style="width:9px;height:9px;border-radius:2px;background:#8fbfe0"></span>Liabilities</span>
+          <span style="display:flex;align-items:center;gap:7px"><span style="width:9px;height:9px;border-radius:2px;background:#59a97c"></span>Equity + P/L</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;margin-top:18px">
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#5b6674;margin-bottom:7px">
+            <span>Assets</span><span style="font-variant-numeric:tabular-nums">{{ kpi.assets }}</span>
+          </div>
+          <div style="height:12px;border-radius:6px;background:#eef2f7;overflow:hidden">
+            <div style="height:100%;width:100%;background:#1478bd;border-radius:6px"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#5b6674;margin-bottom:7px">
+            <span>Liabilities + Equity + P/L</span><span style="font-variant-numeric:tabular-nums">{{ kpi.assets }}</span>
+          </div>
+          <div style="display:flex;height:12px;border-radius:6px;background:#eef2f7;overflow:hidden">
+            <div style="height:100%;background:#8fbfe0;width:{{ bar.liabPct }}"></div>
+            <div style="height:100%;background:#59a97c;width:{{ bar.eqPct }}"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin:26px 0 12px">
+      <div style="font-size:12.5px;color:#7b8796">Amounts in PKR &middot; Fiscal Year {{ f.fiscalYear }}</div>
+      <div style="display:flex;gap:8px">
+        <button onClick="{{ expandAll }}" style="padding:8px 13px;border:1px solid #d7dde5;background:#fff;border-radius:7px;font:inherit;font-size:12.5px;color:#3a4653;cursor:pointer" style-hover="border-color:#1478bd;color:#1478bd">Expand all</button>
+        <button onClick="{{ collapseAll }}" style="padding:8px 13px;border:1px solid #d7dde5;background:#fff;border-radius:7px;font:inherit;font-size:12.5px;color:#3a4653;cursor:pointer" style-hover="border-color:#1478bd;color:#1478bd">Collapse all</button>
+      </div>
+    </div>
+
+    <div style="background:#fff;border:1px solid #e2e7ee;border-radius:12px;box-shadow:0 1px 2px rgba(16,32,48,0.04);overflow:hidden">
+      <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:13.5px;font-variant-numeric:tabular-nums">
+        <thead>
+          <tr style="background:#f7f9fc">
+            <th style="text-align:left;padding:13px 22px;font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:#6d7986;font-weight:700;border-bottom:1px solid #e2e7ee">Account</th>
+            <th style="text-align:right;padding:13px 22px;font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:#6d7986;font-weight:700;border-bottom:1px solid #e2e7ee;width:190px">{{ f.fiscalYear }}</th>
+            <th style="text-align:right;padding:13px 22px;font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:#6d7986;font-weight:700;border-bottom:1px solid #e2e7ee;width:150px">Share</th>
+          </tr>
+        </thead>
+        <tbody>
+          <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
+            <tr onClick="{{ r.toggle }}" style="background:{{ r.bg }};cursor:{{ r.cursor }}" style-hover="background:#f6f9fc">
+              <td style="padding:{{ r.pad }};border-bottom:1px solid #f1f5f9;color:#1d2836;font-weight:{{ r.weight }};font-size:{{ r.size }}">
+                <span style="display:inline-flex;align-items:center;gap:9px">
+                  <span style="display:inline-flex;width:12px;color:#a3aeba;font-size:10px">{{ r.caret }}</span>
+                  {{ r.name }}
+                </span>
+              </td>
+              <td style="padding:{{ r.padY }} 22px;border-bottom:1px solid #f1f5f9;text-align:right;color:{{ r.color }};font-weight:{{ r.weight }};font-size:{{ r.size }}">{{ r.value }}</td>
+              <td style="padding:{{ r.padY }} 22px;border-bottom:1px solid #f1f5f9">
+                <div style="display:flex;align-items:center;gap:9px;justify-content:flex-end">
+                  <div style="width:64px;height:6px;border-radius:3px;background:#eef2f7;overflow:hidden">
+                    <div style="height:100%;border-radius:3px;background:{{ r.barColor }};width:{{ r.share }}"></div>
+                  </div>
+                  <span style="font-size:12px;color:#8a95a2;width:38px;text-align:right">{{ r.sharePct }}</span>
+                </div>
+              </td>
+            </tr>
+          </sc-for>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:9px;margin-top:16px;font-size:13px;color:#2f8f5b">
+      <i data-lucide="check-circle-2" width="15" height="15" stroke-width="1.8" color="#2f8f5b"></i>
+      Assets equal liabilities plus equity and provisional profit.
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;showCardIcons&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Summary cards&quot; },
+  &quot;accentColor&quot;: { &quot;editor&quot;: &quot;color&quot;, &quot;default&quot;: &quot;#1478bd&quot;, &quot;options&quot;: [&quot;#1478bd&quot;, &quot;#3f5fa8&quot;, &quot;#2f8f5b&quot;, &quot;#7a5ea8&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Summary cards&quot; },
+  &quot;showComposition&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Layout&quot; }
+}">
+const TREE = [
+  { key: "assets", name: "Assets", total: 315212.12, children: [
+    { key: "ca", name: "Current Assets", total: 315212.12, children: [
+      { name: "Accounts Receivable - Debtors", total: 186500 },
+      { name: "Bank Accounts - Meezan Current", total: 105000 },
+      { name: "Cash - Petty Cash", total: 0 },
+      { name: "Stock Assets - Stock In Hand", total: 400 },
+      { name: "Tax Assets - Input Tax", total: 23312.12 },
+    ]},
+    { key: "fa", name: "Fixed Assets", total: 0, children: [
+      { name: "Plant and Machinery", total: 0 },
+      { name: "Accumulated Depreciation", total: 0 },
+    ]},
+  ]},
+  { key: "liabilities", name: "Liabilities", total: 184693, children: [
+    { key: "cl", name: "Current Liabilities", total: 184693, children: [
+      { name: "Accounts Payable - Creditors", total: 61000 },
+      { name: "Duties and Taxes - Output Tax", total: 31693 },
+      { name: "Stock Liabilities - Stock Received Not Billed", total: 400 },
+      { name: "Payroll Payable - Salary Payable", total: 91600 },
+    ]},
+  ]},
+  { key: "equity", name: "Equity", total: 0, children: [
+    { name: "Capital Stock", total: 0 },
+    { name: "Retained Earnings", total: 0 },
+  ]},
+  { key: "pl", name: "Provisional Profit / Loss (Credit)", total: 130519.12, children: [] },
+];
+
+const OPTIONS = [
+  ["zero", "Show zero values", false],
+  ["accumulated", "Accumulated values", true],
+  ["defaultFb", "Include default FB entries", true],
+  ["dimensions", "Consider accounting dimensions", false],
+];
+
+const money = (n) => "Rs " + (n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+class Component extends DCLogic {
+  state = {
+    open: { assets: true, ca: true, liabilities: true, cl: true, equity: false, fa: false },
+    opts: Object.fromEntries(OPTIONS.map(o => [o[0], o[2]])),
+    f: { fiscalYear: "2026-2027", periodicity: "Yearly", financeBook: "", costCenter: "", project: "" },
+  };
+
+  componentDidMount() { this.icons(); }
+  componentDidUpdate() { this.icons(); }
+  icons() {
+    const go = () => window.lucide && window.lucide.createIcons();
+    go();
+    if (!window.lucide) setTimeout(go, 400);
+    setTimeout(go, 1200);
+  }
+
+  setF(k) { return (e) => { const v = e.target.value; this.setState(p => ({ f: { ...p.f, [k]: v } })); }; }
+
+  flatten(nodes, depth, out, base) {
+    const st = this.state;
+    nodes.forEach(n => {
+      if (!n.total && !st.opts.zero && depth > 0) return;
+      const kids = n.children || [];
+      const hasKids = kids.length > 0;
+      const open = n.key ? !!st.open[n.key] : false;
+      const share = base ? Math.min(100, Math.abs(n.total) / base * 100) : 0;
+      out.push({
+        name: n.name,
+        value: money(n.total),
+        caret: hasKids ? (open ? "\u25be" : "\u25b8") : "",
+        cursor: hasKids ? "pointer" : "default",
+        toggle: hasKids && n.key ? () => this.setState(p => ({ open: { ...p.open, [n.key]: !p.open[n.key] } })) : undefined,
+        bg: depth === 0 ? "#fbfcfe" : "#ffffff",
+        weight: depth === 0 ? "700" : depth === 1 ? "600" : "400",
+        size: depth === 0 ? "14.5px" : "13.5px",
+        color: depth === 0 ? "#0f2233" : "#2b3644",
+        pad: (depth === 0 ? "14px" : "11px") + " 22px " + (depth === 0 ? "14px" : "11px") + " " + (22 + depth * 26) + "px",
+        padY: depth === 0 ? "14px" : "11px",
+        share: share.toFixed(1) + "%",
+        sharePct: share >= 0.05 ? share.toFixed(0) + "%" : "-",
+        barColor: depth === 0 ? "#1478bd" : "#9dc6e4",
+      });
+      if (hasKids && open) this.flatten(kids, depth + 1, out, base);
+    });
+  }
+
+  renderVals() {
+    const st = this.state;
+    const base = 315212.12;
+    const rows = [];
+    this.flatten(TREE, 0, rows, base);
+
+    const liabPct = (184693 / base * 100).toFixed(2) + "%";
+    const eqPct = (130519.12 / base * 100).toFixed(2) + "%";
+
+    const accent = this.props.accentColor ?? "#1478bd";
+    return {
+      accent,
+      accentSoft: accent + "18",
+      showCardIcons: this.props.showCardIcons ?? true,
+      showComposition: this.props.showComposition ?? true,
+      f: st.f,
+      set: Object.fromEntries(Object.keys(st.f).map(k => [k, this.setF(k)])),
+      options: OPTIONS.map(([k, label]) => ({
+        label, on: !!st.opts[k],
+        toggle: () => this.setState(p => ({ opts: { ...p.opts, [k]: !p.opts[k] } })),
+      })),
+      kpi: { assets: money(315212.12), liabilities: money(184693), equity: money(0), profit: money(130519.12) },
+      bar: { liabPct, eqPct },
+      rows,
+      expandAll: () => this.setState({ open: { assets: true, ca: true, fa: true, liabilities: true, cl: true, equity: true } }),
+      collapseAll: () => this.setState({ open: {} }),
+    };
+  }
+}
+</script>
+</body>
+</html>

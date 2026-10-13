@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  body { margin: 0; background: #f4f6f9; }
+  a { color: #1478bd; text-decoration: none; }
+  a:hover { color: #0f5d95; }
+</style>
+</helmet>
+<div style="min-height:100vh;padding:36px 40px 60px;box-sizing:border-box;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#25303c">
+  <div style="max-width:1180px;margin:0 auto">
+
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:22px">
+      <div>
+        <div style="font-size:12px;letter-spacing:0.09em;text-transform:uppercase;color:#7b8796;font-weight:600">Accounting</div>
+        <h1 style="margin:9px 0 0;font-size:27px;font-weight:700;letter-spacing:-0.015em">Trial Balance</h1>
+        <div style="margin-top:8px;font-size:13.5px;color:#67737f">1 Jan 2026 - 31 Aug 2026 &middot; All cost centers &middot; Accrual basis</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onClick="{{ expandAll }}" style="display:flex;align-items:center;gap:7px;padding:9px 14px;border:1px solid #d7dde5;background:#fff;border-radius:7px;font:inherit;font-size:13px;color:#3a4653;cursor:pointer" style-hover="border-color:#1478bd;color:#1478bd">
+          <i data-lucide="chevrons-up-down" width="14" height="14" stroke-width="1.8"></i>
+          Expand all
+        </button>
+        <button onClick="{{ collapseAll }}" style="display:flex;align-items:center;gap:7px;padding:9px 14px;border:1px solid #d7dde5;background:#fff;border-radius:7px;font:inherit;font-size:13px;color:#3a4653;cursor:pointer" style-hover="border-color:#1478bd;color:#1478bd">
+          <i data-lucide="chevrons-down-up" width="14" height="14" stroke-width="1.8"></i>
+          Collapse all
+        </button>
+        <button style="display:flex;align-items:center;gap:7px;padding:9px 14px;border:1px solid #1478bd;background:#1478bd;border-radius:7px;font:inherit;font-size:13px;color:#fff;cursor:pointer" style-hover="background:#0f5d95;border-color:#0f5d95">
+          <i data-lucide="download" width="14" height="14" stroke-width="1.8" color="#ffffff"></i>
+          Export
+        </button>
+      </div>
+    </div>
+
+    <div style="background:#fff;border:1px solid #e2e7ee;border-radius:10px;overflow:hidden;box-shadow:0 1px 2px rgba(16,32,48,0.04)">
+      <table style="width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums">
+        <thead>
+          <tr style="background:#f7f9fc">
+            <th rowspan="2" style="text-align:left;padding:13px 18px;font-size:11.5px;letter-spacing:0.07em;text-transform:uppercase;color:#6d7986;font-weight:700;border-bottom:1px solid #e2e7ee;vertical-align:bottom">Account</th>
+            <th colspan="2" style="padding:9px 18px 5px;font-size:11.5px;letter-spacing:0.07em;text-transform:uppercase;color:#6d7986;font-weight:700;border-left:1px solid #edf1f6">Opening</th>
+            <th colspan="2" style="padding:9px 18px 5px;font-size:11.5px;letter-spacing:0.07em;text-transform:uppercase;color:#6d7986;font-weight:700;border-left:1px solid #edf1f6">Activity</th>
+            <th colspan="2" style="padding:9px 18px 5px;font-size:11.5px;letter-spacing:0.07em;text-transform:uppercase;color:#6d7986;font-weight:700;border-left:1px solid #edf1f6">Closing</th>
+          </tr>
+          <tr style="background:#f7f9fc">
+            <th style="text-align:right;padding:2px 18px 11px;font-size:11px;color:#8a95a2;font-weight:600;border-bottom:1px solid #e2e7ee;border-left:1px solid #edf1f6">Debit</th>
+            <th style="text-align:right;padding:2px 18px 11px;font-size:11px;color:#8a95a2;font-weight:600;border-bottom:1px solid #e2e7ee">Credit</th>
+            <th style="text-align:right;padding:2px 18px 11px;font-size:11px;color:#8a95a2;font-weight:600;border-bottom:1px solid #e2e7ee;border-left:1px solid #edf1f6">Debit</th>
+            <th style="text-align:right;padding:2px 18px 11px;font-size:11px;color:#8a95a2;font-weight:600;border-bottom:1px solid #e2e7ee">Credit</th>
+            <th style="text-align:right;padding:2px 18px 11px;font-size:11px;color:#8a95a2;font-weight:600;border-bottom:1px solid #e2e7ee;border-left:1px solid #edf1f6">Debit</th>
+            <th style="text-align:right;padding:2px 18px 11px;font-size:11px;color:#8a95a2;font-weight:600;border-bottom:1px solid #e2e7ee">Credit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <sc-for list="{{ groups }}" as="g" hint-placeholder-count="5">
+            <tr onClick="{{ g.toggle }}" style="cursor:pointer;background:#fbfcfe" style-hover="background:#f2f6fb">
+              <td style="padding:12px 18px;border-bottom:1px solid #eef2f7;font-weight:700;color:#1d2836">
+                <span style="display:inline-flex;align-items:center;gap:9px">
+                  <span style="display:inline-flex;width:16px;color:#8a95a2;font-size:11px">{{ g.caret }}</span>
+                  <span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:#7b8796;font-weight:600">{{ g.code }}</span>
+                  {{ g.name }}
+                </span>
+              </td>
+              <td style="padding:12px 18px;border-bottom:1px solid #eef2f7;text-align:right;font-weight:700;border-left:1px solid #f2f5f9">{{ g.openDr }}</td>
+              <td style="padding:12px 18px;border-bottom:1px solid #eef2f7;text-align:right;font-weight:700">{{ g.openCr }}</td>
+              <td style="padding:12px 18px;border-bottom:1px solid #eef2f7;text-align:right;font-weight:700;border-left:1px solid #f2f5f9">{{ g.debit }}</td>
+              <td style="padding:12px 18px;border-bottom:1px solid #eef2f7;text-align:right;font-weight:700">{{ g.credit }}</td>
+              <td style="padding:12px 18px;border-bottom:1px solid #eef2f7;text-align:right;font-weight:700;border-left:1px solid #f2f5f9">{{ g.closeDr }}</td>
+              <td style="padding:12px 18px;border-bottom:1px solid #eef2f7;text-align:right;font-weight:700">{{ g.closeCr }}</td>
+            </tr>
+            <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="3">
+              <tr style="background:#fff" style-hover="background:#f8fafc">
+                <td style="padding:10px 18px 10px 61px;border-bottom:1px solid #f3f6fa;color:#3a4653">
+                  <span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:#95a0ac;margin-right:11px">{{ r.code }}</span>
+                  {{ r.name }}
+                </td>
+                <td style="padding:10px 18px;border-bottom:1px solid #f3f6fa;text-align:right;color:#3a4653;border-left:1px solid #f6f8fb">{{ r.openDr }}</td>
+                <td style="padding:10px 18px;border-bottom:1px solid #f3f6fa;text-align:right;color:#3a4653">{{ r.openCr }}</td>
+                <td style="padding:10px 18px;border-bottom:1px solid #f3f6fa;text-align:right;color:#3a4653;border-left:1px solid #f6f8fb">{{ r.debit }}</td>
+                <td style="padding:10px 18px;border-bottom:1px solid #f3f6fa;text-align:right;color:#3a4653">{{ r.credit }}</td>
+                <td style="padding:10px 18px;border-bottom:1px solid #f3f6fa;text-align:right;color:#1d2836;font-weight:600;border-left:1px solid #f6f8fb">{{ r.closeDr }}</td>
+                <td style="padding:10px 18px;border-bottom:1px solid #f3f6fa;text-align:right;color:#1d2836;font-weight:600">{{ r.closeCr }}</td>
+              </tr>
+            </sc-for>
+          </sc-for>
+        </tbody>
+        <tfoot>
+          <tr style="background:#eef4fa">
+            <td style="padding:15px 18px;font-weight:700;color:#0f2233;border-top:2px solid #cfdbe7">Total</td>
+            <td style="padding:15px 18px;text-align:right;font-weight:700;color:#0f2233;border-top:2px solid #cfdbe7;border-left:1px solid #dfe7f0">{{ totals.openDr }}</td>
+            <td style="padding:15px 18px;text-align:right;font-weight:700;color:#0f2233;border-top:2px solid #cfdbe7">{{ totals.openCr }}</td>
+            <td style="padding:15px 18px;text-align:right;font-weight:700;color:#0f2233;border-top:2px solid #cfdbe7;border-left:1px solid #dfe7f0">{{ totals.debit }}</td>
+            <td style="padding:15px 18px;text-align:right;font-weight:700;color:#0f2233;border-top:2px solid #cfdbe7">{{ totals.credit }}</td>
+            <td style="padding:15px 18px;text-align:right;font-weight:700;color:#0f2233;border-top:2px solid #cfdbe7;border-left:1px solid #dfe7f0">{{ totals.closeDr }}</td>
+            <td style="padding:15px 18px;text-align:right;font-weight:700;color:#0f2233;border-top:2px solid #cfdbe7">{{ totals.closeCr }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:9px;margin-top:16px;font-size:13px;color:#4d8f5f">
+      <i data-lucide="check-circle-2" width="15" height="15" stroke-width="1.8" color="#4d8f5f"></i>
+      Balanced - debits equal credits in all three columns.
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{}">
+const DATA = [
+  { code: "1000", name: "Assets", rows: [
+    { code: "1010", name: "Cash on hand", openDr: 45000, debit: 128500, credit: 96200 },
+    { code: "1020", name: "Bank - operating account", openDr: 312000, debit: 486000, credit: 402750 },
+    { code: "1100", name: "Accounts receivable", openDr: 188400, debit: 254000, credit: 231600 },
+    { code: "1200", name: "Inventory", openDr: 96500, debit: 142300, credit: 118900 },
+  ]},
+  { code: "2000", name: "Liabilities", rows: [
+    { code: "2010", name: "Accounts payable", openCr: 142300, debit: 96400, credit: 128700 },
+    { code: "2050", name: "Tax payable", openCr: 38600, debit: 24000, credit: 31500 },
+  ]},
+  { code: "3000", name: "Equity", rows: [
+    { code: "3010", name: "Share capital", openCr: 400000 },
+    { code: "3090", name: "Retained earnings", openCr: 61000 },
+  ]},
+  { code: "4000", name: "Income", rows: [
+    { code: "4010", name: "Sales revenue", debit: 12000, credit: 742000 },
+    { code: "4090", name: "Other income", credit: 18400 },
+  ]},
+  { code: "5000", name: "Expenses", rows: [
+    { code: "5010", name: "Purchases", debit: 386000, credit: 6500 },
+    { code: "5100", name: "Salaries and wages", debit: 168000 },
+    { code: "5200", name: "Rent", debit: 54000 },
+    { code: "5300", name: "Utilities", debit: 25350 },
+  ]},
+];
+
+const F = (n) => n ? n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "-";
+
+class Component extends DCLogic {
+  state = { open: { "1000": true, "2000": true, "3000": true, "4000": true, "5000": true } };
+
+  componentDidMount() { this.icons(); }
+  componentDidUpdate() { this.icons(); }
+  icons() {
+    const go = () => window.lucide && window.lucide.createIcons();
+    go();
+    if (!window.lucide) setTimeout(go, 400);
+    setTimeout(go, 1200);
+  }
+
+  renderVals() {
+    const t = { openDr: 0, openCr: 0, debit: 0, credit: 0, closeDr: 0, closeCr: 0 };
+    const groups = DATA.map(g => {
+      const s = { openDr: 0, openCr: 0, debit: 0, credit: 0, closeDr: 0, closeCr: 0 };
+      const rows = g.rows.map(r => {
+        const openDr = r.openDr || 0, openCr = r.openCr || 0;
+        const debit = r.debit || 0, credit = r.credit || 0;
+        const net = openDr - openCr + debit - credit;
+        const closeDr = net > 0 ? net : 0, closeCr = net < 0 ? -net : 0;
+        s.openDr += openDr; s.openCr += openCr; s.debit += debit;
+        s.credit += credit; s.closeDr += closeDr; s.closeCr += closeCr;
+        return { code: r.code, name: r.name, openDr: F(openDr), openCr: F(openCr),
+                 debit: F(debit), credit: F(credit), closeDr: F(closeDr), closeCr: F(closeCr) };
+      });
+      Object.keys(t).forEach(k => { t[k] += s[k]; });
+      const open = !!this.state.open[g.code];
+      return {
+        code: g.code, name: g.name, caret: open ? "\u25be" : "\u25b8",
+        rows: open ? rows : [],
+        toggle: () => this.setState(p => ({ open: { ...p.open, [g.code]: !p.open[g.code] } })),
+        openDr: F(s.openDr), openCr: F(s.openCr), debit: F(s.debit),
+        credit: F(s.credit), closeDr: F(s.closeDr), closeCr: F(s.closeCr),
+      };
+    });
+    const all = (v) => () => this.setState({ open: Object.fromEntries(DATA.map(g => [g.code, v])) });
+    const totals = {};
+    Object.keys(t).forEach(k => { totals[k] = F(t[k]); });
+    return { groups, totals, expandAll: all(true), collapseAll: all(false) };
+  }
+}
+</script>
+</body>
+</html>

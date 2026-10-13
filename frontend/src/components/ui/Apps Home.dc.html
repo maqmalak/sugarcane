@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap">
+<style>body{margin:0;background:#0a101c;font-family:Archivo,system-ui,sans-serif;color:#e6ebf2}a{color:#5eead4;text-decoration:none}a:hover{color:#99f6e4}*{box-sizing:border-box}button{font-family:inherit}</style>
+</helmet>
+<div style="min-height:100vh;background:radial-gradient(1200px 520px at 75% -12%,#14223d 0%,#0a101c 62%);padding-bottom:40px">
+  <header style="display:flex;align-items:center;gap:20px;padding:12px 28px;border-bottom:1px solid rgba(255,255,255,.07);flex-wrap:wrap;background:rgba(10,16,28,.6)">
+    <div style="display:flex;align-items:center;gap:10px;flex:none">
+      <img src="assets/mark-clear.png" alt="" style="width:28px;height:28px;object-fit:contain">
+      <div style="font-weight:700;font-size:15px;white-space:nowrap">MicroMax <span style="color:#5eead4">ERP</span></div>
+    </div>
+    <div style="flex:1 1 260px;max-width:480px;display:flex;align-items:center;gap:10px;height:36px;padding:0 12px;border:1px solid rgba(255,255,255,.09);border-radius:9px;background:rgba(255,255,255,.03);color:#8b97a8;font-size:13px">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="flex:none"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+      <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Search apps, documents, parties…</span>
+      <span style="font-size:11px;padding:2px 6px;border:1px solid rgba(255,255,255,.12);border-radius:5px;white-space:nowrap;flex:none">Ctrl K</span>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:12px;flex:none">
+      <div style="font-size:12px;color:#8b97a8;white-space:nowrap">{{ today }}</div>
+      <div style="width:32px;height:32px;border-radius:50%;background:#134e4a;color:#5eead4;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">GM</div>
+    </div>
+  </header>
+
+  <div style="max-width:1360px;margin:0 auto;padding:24px 28px 0;display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">
+    <main style="flex:999 1 640px;min-width:0;display:flex;flex-direction:column;gap:26px">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:22px;font-weight:600;letter-spacing:-.01em">Good morning, Ghulam</div>
+          <div style="font-size:13px;color:#8b97a8;margin-top:4px">6 documents are waiting for your approval.</div>
+        </div>
+      </div>
+
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px">
+        <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="6">
+          <div style="padding:14px 14px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(17,26,42,.72);display:flex;flex-direction:column;gap:8px;min-width:0">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+              <div style="font-size:11.5px;color:#8b97a8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ k.label }}</div>
+              <span style="flex:none;font-size:10.5px;font-weight:600;padding:1px 6px;border-radius:8px;background:{{ k.dbg }};color:{{ k.dfg }}">{{ k.delta }}</span>
+            </div>
+            <div style="font-size:20px;font-weight:600;letter-spacing:-.01em;white-space:nowrap">{{ k.value }}</div>
+            <div style="display:flex;align-items:flex-end;gap:2px;height:22px">
+              <sc-for list="{{ k.bars }}" as="b" hint-placeholder-count="12"><div style="flex:1;height:{{ b.h }};border-radius:2px;background:{{ b.bg }}"></div></sc-for>
+            </div>
+            <div style="font-size:11px;color:#6b7686;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ k.note }}</div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <div style="font-size:11.5px;font-weight:600;letter-spacing:.14em;color:#8b97a8;white-space:nowrap;flex:none">NEEDS ATTENTION</div>
+          <div style="font-size:11px;color:#fcd34d;padding:1px 7px;border-radius:10px;background:rgba(251,191,36,.12)">{{ alertCount }}</div>
+          <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.12),transparent)"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">
+          <sc-for list="{{ alerts }}" as="al" hint-placeholder-count="4">
+            <a href="#" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;border:1px solid {{ al.ring }};background:{{ al.tint }};color:#e6ebf2" style-hover="background:{{ al.ring }};color:#fff">
+              <div style="font-size:20px;font-weight:600;color:{{ al.color }};min-width:28px">{{ al.n }}</div>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:13px;font-weight:500">{{ al.label }}</div>
+                <div style="font-size:11px;color:#8b97a8;margin-top:2px">{{ al.meta }}</div>
+              </div>
+            </a>
+          </sc-for>
+        </div>
+      </div>
+
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <div style="font-size:11.5px;font-weight:600;letter-spacing:.14em;color:#8b97a8;white-space:nowrap;flex:none">QUICK LINKS</div>
+          <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.12),transparent)"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">
+          <sc-for list="{{ quick }}" as="q" hint-placeholder-count="8">
+            <a href="#" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.07);background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.01));color:#e6ebf2;transition:border-color .15s,background .15s" style-hover="border-color:{{ q.ring }};background:{{ q.tint }};color:#fff">
+              <div style="width:32px;height:32px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;background:{{ q.tint }};color:{{ q.color }}">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+              </div>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ q.label }}</div>
+                <div style="font-size:11px;color:#8b97a8;margin-top:2px">{{ q.app }}</div>
+              </div>
+              <div style="font-size:10.5px;color:#8b97a8;padding:2px 6px;border:1px solid rgba(255,255,255,.1);border-radius:5px;white-space:nowrap;flex:none">{{ q.key }}</div>
+            </a>
+          </sc-for>
+        </div>
+      </div>
+
+      <sc-for list="{{ groups }}" as="g" hint-placeholder-count="5">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div style="font-size:11.5px;font-weight:600;letter-spacing:.14em;color:#8b97a8;white-space:nowrap;flex:none">{{ g.title }}</div>
+            <div style="font-size:11px;color:#8b97a8;padding:1px 7px;border-radius:10px;background:rgba(255,255,255,.06)">{{ g.count }}</div>
+            <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.12),transparent)"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px">
+            <sc-for list="{{ g.apps }}" as="app" hint-placeholder-count="3">
+              <a href="#" style="display:flex;align-items:center;gap:12px;padding:{{ tilePad }};border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(17,26,42,.72);color:#e6ebf2;transition:border-color .15s,background .15s,transform .15s" style-hover="border-color:{{ app.ring }};background:rgba(23,34,54,.92);transform:translateY(-1px);color:#e6ebf2">
+                <div style="width:40px;height:40px;flex:none;border-radius:10px;display:flex;align-items:center;justify-content:center;background:{{ app.tint }};border:1px solid {{ app.ring }};color:{{ app.color }}">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><sc-for list="{{ app.paths }}" as="d"><path d="{{ d }}"></path></sc-for></svg>
+                </div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:14px;font-weight:600;line-height:1.2">{{ app.name }}</div>
+                  <sc-if value="{{ showSub }}" hint-placeholder-val="{{ true }}">
+                    <div style="font-size:10.5px;font-weight:600;letter-spacing:.05em;line-height:1.3;color:{{ app.color }};margin-top:3px;text-wrap:pretty">{{ app.sub }}</div>
+                  </sc-if>
+                  <div style="display:flex;align-items:baseline;gap:5px;margin-top:6px;font-size:11.5px;color:#8b97a8"><span style="font-weight:600;color:#e6ebf2">{{ app.stat }}</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ app.statLabel }}</span></div>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5b6676" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+              </a>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </main>
+
+    <sc-if value="{{ showActivity }}" hint-placeholder-val="{{ true }}">
+      <aside style="flex:1 1 340px;max-width:none;border:1px solid rgba(255,255,255,.08);border-radius:16px;background:rgba(15,23,38,.82);overflow:hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px 12px">
+          <div style="font-size:11.5px;font-weight:600;letter-spacing:.14em;color:#8b97a8;white-space:nowrap;flex:none">RECENT ACTIVITY</div>
+          <a href="#" style="font-size:12px">View all</a>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:0 18px">
+          <sc-for list="{{ stats }}" as="s" hint-placeholder-count="3">
+            <div style="padding:10px 10px 9px;border-radius:10px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06)">
+              <div style="font-size:18px;font-weight:600;color:{{ s.color }}">{{ s.value }}</div>
+              <div style="font-size:11px;color:#8b97a8;margin-top:2px">{{ s.label }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="padding:16px 18px 4px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:#8b97a8;margin-bottom:8px"><span>Entries per hour, today</span><span>Peak 11:00</span></div>
+          <div style="display:flex;align-items:flex-end;gap:4px;height:48px">
+            <sc-for list="{{ hours }}" as="h" hint-placeholder-count="12">
+              <div style="flex:1;height:{{ h.pct }};border-radius:3px 3px 1px 1px;background:{{ h.bg }}"></div>
+            </sc-for>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#5b6676;margin-top:4px"><span>08</span><span>11</span><span>14</span><span>17</span><span>19</span></div>
+        </div>
+
+        <div style="padding:14px 18px 4px">
+          <div style="font-size:11px;color:#8b97a8;margin-bottom:8px">Share by module</div>
+          <div style="display:flex;height:6px;border-radius:3px;overflow:hidden;gap:2px">
+            <sc-for list="{{ mix }}" as="m" hint-placeholder-count="5"><div style="width:{{ m.pct }};background:{{ m.color }}"></div></sc-for>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:8px">
+            <sc-for list="{{ mix }}" as="m" hint-placeholder-count="5">
+              <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#b6c0cd"><span style="width:7px;height:7px;border-radius:2px;background:{{ m.color }}"></span>{{ m.name }} <span style="color:#6b7686">{{ m.pct }}</span></div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:4px;padding:16px 18px 10px;border-bottom:1px solid rgba(255,255,255,.07)">
+          <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
+            <button onClick="{{ t.onClick }}" style="height:28px;padding:0 10px;border-radius:7px;border:1px solid {{ t.border }};background:{{ t.bg }};color:{{ t.fg }};font-size:12px;cursor:pointer;white-space:nowrap">{{ t.label }}</button>
+          </sc-for>
+        </div>
+
+        <div style="max-height:520px;overflow-y:auto;overflow-x:hidden;scrollbar-color:rgba(255,255,255,.15) transparent;scrollbar-width:thin">
+          <sc-for list="{{ days }}" as="day" hint-placeholder-count="2">
+            <div>
+              <div style="padding:10px 18px 4px;font-size:10.5px;font-weight:600;letter-spacing:.12em;color:#6b7686">{{ day.label }}</div>
+              <sc-for list="{{ day.items }}" as="ev" hint-placeholder-count="4">
+                <div style="display:flex;gap:12px;padding:10px 18px;border-bottom:1px solid rgba(255,255,255,.045)" style-hover="background:rgba(255,255,255,.025)">
+                  <div style="width:30px;height:30px;flex:none;border-radius:8px;display:flex;align-items:center;justify-content:center;background:{{ ev.tint }};color:{{ ev.color }}">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><sc-for list="{{ ev.paths }}" as="d"><path d="{{ d }}"></path></sc-for></svg>
+                  </div>
+                  <div style="min-width:0;flex:1">
+                    <div style="display:flex;align-items:baseline;gap:8px">
+                      <div style="flex:1;min-width:0;font-size:13px;line-height:1.35;text-wrap:pretty">{{ ev.title }}</div>
+                      <div style="font-size:11px;color:#6b7686;white-space:nowrap">{{ ev.time }}</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-top:5px;min-width:0">
+                      <span style="flex:none;white-space:nowrap;font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:9px;background:{{ ev.st.bg }};color:{{ ev.st.fg }}">{{ ev.status }}</span>
+                      <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11.5px;color:#8b97a8">{{ ev.meta }}</span>
+                      <span style="flex:none;width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.07);color:#b6c0cd;font-size:9px;font-weight:600;display:flex;align-items:center;justify-content:center">{{ ev.by }}</span>
+                    </div>
+                    <sc-if value="{{ ev.pending }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;gap:6px;margin-top:8px">
+                        <button style="height:26px;padding:0 12px;border-radius:6px;border:0;background:#2dd4bf;color:#04201d;font-size:11.5px;font-weight:600;cursor:pointer">Approve</button>
+                        <button style="height:26px;padding:0 12px;border-radius:6px;border:1px solid rgba(255,255,255,.14);background:transparent;color:#cfd7e2;font-size:11.5px;cursor:pointer">Review</button>
+                      </div>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+      </aside>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;density&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;compact&quot;,&quot;comfortable&quot;],&quot;default&quot;:&quot;compact&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showSubtitles&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showActivity&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const I={
+dash:["M3 3h7v9H3z","M14 3h7v5h-7z","M14 12h7v9h-7z","M3 16h7v5H3z"],
+chart:["M3 3v16a2 2 0 0 0 2 2h16","m19 9-5 5-4-4-3 3"],
+file:["M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z","M14 2v4a2 2 0 0 0 2 2h4","M16 13H8","M16 17H8","M10 9H8"],
+calc:["M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z","M8 6h8","M16 14v4","M8 10h.01","M12 10h.01","M16 10h.01","M8 14h.01","M12 14h.01","M8 18h.01","M12 18h.01"],
+bank:["M3 22h18","M6 18v-7","M10 18v-7","M14 18v-7","M18 18v-7","M12 2 20 7H4z"],
+building:["M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z","M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2","M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2","M10 6h4","M10 10h4","M10 14h4","M10 18h4"],
+cart:["M8 20a1 1 0 1 0 0 2a1 1 0 1 0 0-2z","M19 20a1 1 0 1 0 0 2a1 1 0 1 0 0-2z","M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"],
+bag:["M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z","M3 6h18","M16 10a4 4 0 0 1-8 0"],
+target:["M12 2a10 10 0 1 0 0 20a10 10 0 1 0 0-20z","M12 6a6 6 0 1 0 0 12a6 6 0 1 0 0-12z","M12 10a2 2 0 1 0 0 4a2 2 0 1 0 0-4z"],
+card:["M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z","M2 10h20","M6 15h4"],
+factory:["M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z","M17 18h1","M12 18h1","M7 18h1"],
+warehouse:["M22 8.35V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.35A2 2 0 0 1 3.26 6.5l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35Z","M6 18h12","M6 14h12","M6 10h12"],
+shield:["M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z","m9 12 2 2 4-4"],
+kanban:["M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z","M8 10v4","M12 10v2","M16 10v6"],
+users:["M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2","M9 3a4 4 0 1 0 0 8a4 4 0 1 0 0-8z","M22 21v-2a4 4 0 0 0-3-3.87","M16 3.13a4 4 0 0 1 0 7.75"],
+wallet:["M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1","M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"],
+sliders:["M20 7h-9","M14 17H5","M17 14a3 3 0 1 0 0 6a3 3 0 1 0 0-6z","M7 4a3 3 0 1 0 0 6a3 3 0 1 0 0-6z"],
+gear:["M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z","M12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z"],
+lock:["M5 11h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2z","M7 11V7a5 5 0 0 1 10 0v4"]};
+const C={teal:"#2dd4bf",red:"#f87171",yellow:"#facc15",green:"#4ade80",orange:"#fb923c",blue:"#60a5fa",violet:"#a78bfa",pink:"#f472b6",cyan:"#22d3ee",lime:"#a3e635",amber:"#fbbf24",indigo:"#818cf8",slate:"#94a3b8",rose:"#fb7185",sky:"#38bdf8"};
+const rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)).join(",");
+const deco=o=>({...o,color:C[o.c],tint:`rgba(${rgb(C[o.c])},.12)`,ring:`rgba(${rgb(C[o.c])},.32)`,paths:I[o.i]});
+const S={"Dashboards":["14","live widgets"],"Analytics":["9","saved views"],"Reports":["126","reports"],"Accounting":["38","vouchers today"],"Banking":["5","to reconcile"],"Assets":["412","assets · Rs 86M"],"Buying":["12","open POs"],"Selling":["23","open orders"],"CRM":["47","active leads"],"POS":["Rs 182K","sold today"],"Production":["6","batches running"],"Stock":["1,840","SKUs · 9 low"],"Quality":["3","tests pending"],"Project":["8","tasks due"],"HR":["214","staff · 197 present"],"Payroll":["Oct","run due in 26 days"],"Setup":["2,316","masters"],"Settings":["19","modules"],"Administration":["31","users · 2 requests"]};
+const A=(name,sub,i,c)=>deco({name,sub:sub.toUpperCase(),i,c,stat:S[name][0],statLabel:S[name][1]});
+const GROUPS=[
+["INSIGHTS",[A("Dashboards","KPIs & scorecards","dash","blue"),A("Analytics","Trends & insights","chart","violet"),A("Reports","Ledgers & registers","file","cyan")]],
+["FINANCE",[A("Accounting","Books, tax & statements","calc","red"),A("Banking","Payments & reconciliation","bank","lime"),A("Assets","Capitalization to depreciation and disposal","building","indigo")]],
+["OPERATIONS",[A("Buying","Procure to pay","cart","yellow"),A("Selling","Order to cash","bag","green"),A("CRM","Leads to repeat orders","target","rose"),A("POS","Counter billing","card","sky"),A("Production","Plan, spin & cost","factory","orange"),A("Stock","Inventory & warehouse","warehouse","teal"),A("Quality","Inspections & lab","shield","green"),A("Project","Tasks & delivery","kanban","amber")]],
+["PEOPLE",[A("HR","People & attendance","users","pink"),A("Payroll","Salary & statutory","wallet","violet")]],
+["SYSTEM",[A("Setup","Masters & company defaults","sliders","teal"),A("Settings","Module preferences","gear","slate"),A("Administration","Users & access","lock","blue")]]
+].map(([title,apps])=>({title,apps,count:apps.length}));
+const QUICK=[["New sales invoice","Selling","Alt S","green"],["New purchase order","Buying","Alt P","yellow"],["Journal entry","Accounting","Alt J","red"],["Receive payment","Banking","Alt R","lime"],["Stock transfer","Stock","Alt T","teal"],["New lead","CRM","Alt L","rose"],["Mark attendance","HR","Alt A","pink"],["A/C ledger","Accounting","Alt G","red"],["Stock ledger","Stock","Alt K","teal"]].map(([label,app,key,c])=>({label,app,key,color:C[c],tint:`rgba(${rgb(C[c])},.12)`,ring:`rgba(${rgb(C[c])},.35)`}));
+const ST={Posted:{bg:"rgba(74,222,128,.12)",fg:"#86efac"},Approved:{bg:"rgba(45,212,191,.12)",fg:"#5eead4"},Pending:{bg:"rgba(251,191,36,.14)",fg:"#fcd34d"},Closed:{bg:"rgba(148,163,184,.14)",fg:"#cbd5e1"}};
+const ACT=[
+{day:0,cat:"approvals",title:"Purchase order PO-0941 needs approval",meta:"Rs 2,140,000",status:"Pending",by:"JM",time:"2m",i:"cart",c:"yellow"},
+{day:0,cat:"ops",title:"Sales invoice SI-0412 to Al-Noor Textiles",meta:"Rs 1,284,500",status:"Posted",by:"JM",time:"4m",i:"bag",c:"green"},
+{day:0,cat:"finance",title:"Bank payment BPV-2207 reconciled",meta:"Meezan Bank",status:"Approved",by:"MH",time:"42m",i:"bank",c:"lime"},
+{day:0,cat:"approvals",title:"Leave request from Imran Saeed",meta:"3 days · HR",status:"Pending",by:"IS",time:"1h",i:"users",c:"pink"},
+{day:0,cat:"ops",title:"Production batch PB-117 closed",meta:"Ring frame 4 · 2,450 kg",status:"Closed",by:"GM",time:"1h",i:"factory",c:"orange"},
+{day:0,cat:"ops",title:"Stock transfer ST-0551 to Warehouse B",meta:"320 bags",status:"Posted",by:"AR",time:"2h",i:"warehouse",c:"teal"},
+{day:0,cat:"finance",title:"Depreciation run for September",meta:"Assets · 64 items",status:"Posted",by:"MH",time:"3h",i:"building",c:"indigo"},
+{day:1,cat:"finance",title:"September payroll processed",meta:"214 employees",status:"Approved",by:"MH",time:"16:40",i:"wallet",c:"violet"},
+{day:1,cat:"ops",title:"New lead: Sapphire Fibres",meta:"CRM · Yarn 40s",status:"Posted",by:"JM",time:"12:15",i:"target",c:"rose"},
+{day:1,cat:"approvals",title:"User role change for Ali Raza",meta:"Administration",status:"Pending",by:"GM",time:"10:02",i:"lock",c:"blue"}
+].map(e=>({...deco(e),st:ST[e.status],pending:e.status==="Pending"}));
+const spark=(arr,c)=>{const m=Math.max(...arr);return arr.map((v,i)=>({h:Math.max(8,Math.round(v/m*100))+"%",bg:i===arr.length-1?c:`rgba(${rgb(c)},.3)`}));};
+const KPIS=[
+{label:"Sales, month to date",value:"Rs 38.6M",delta:"+12.4%",up:true,note:"vs Rs 34.3M last October",c:"green",d:[5,6,5,7,8,7,9,8,10,9,11,12]},
+{label:"Receivables",value:"Rs 21.2M",delta:"+3.1%",up:false,note:"Rs 6.4M overdue over 60 days",c:"amber",d:[8,8,9,9,10,9,10,11,10,11,11,12]},
+{label:"Payables",value:"Rs 14.8M",delta:"−4.6%",up:true,note:"Rs 3.1M due this week",c:"red",d:[12,11,12,11,10,11,10,10,9,10,9,9]},
+{label:"Cash & bank",value:"Rs 9.7M",delta:"+1.8%",up:true,note:"Across 4 bank accounts",c:"lime",d:[7,8,7,8,9,8,8,9,9,10,9,10]},
+{label:"Stock value",value:"Rs 52.3M",delta:"+0.9%",up:true,note:"1,840 SKUs in 3 warehouses",c:"teal",d:[9,9,10,10,10,11,10,11,11,11,12,12]},
+{label:"Production today",value:"18,420 kg",delta:"+6.2%",up:true,note:"Efficiency 91% · 6 batches",c:"orange",d:[6,8,7,9,8,9,10,9,11,10,11,12]}
+].map(k=>({...k,bars:spark(k.d,C[k.c]),dbg:k.up?"rgba(74,222,128,.12)":"rgba(251,113,133,.12)",dfg:k.up?"#86efac":"#fda4af"}));
+const ALERTS=[
+{n:"14",label:"Overdue invoices",meta:"Rs 6.4M · Selling",c:"rose"},
+{n:"9",label:"Items below reorder level",meta:"Stock · 3 warehouses",c:"amber"},
+{n:"6",label:"Approvals waiting",meta:"POs, leave, user roles",c:"yellow"},
+{n:"5",label:"Bank lines unreconciled",meta:"Banking · Meezan, HBL",c:"sky"}
+].map(a=>({...a,color:C[a.c],tint:`rgba(${rgb(C[a.c])},.07)`,ring:`rgba(${rgb(C[a.c])},.24)`}));
+const HRS=[4,9,14,22,18,12,8,15,19,11,6,3];
+const MIX=[["Selling",34,"green"],["Buying",22,"yellow"],["Finance",20,"red"],["Production",14,"orange"],["Other",10,"slate"]].map(([name,p,c])=>({name,pct:p+"%",color:C[c]}));
+const TABS=[["all","All"],["approvals","Approvals"],["finance","Finance"],["ops","Operations"]];
+class Component extends DCLogic {
+  state={tab:"all"};
+  renderVals(){
+    const dense=(this.props.density??"compact")==="compact";
+    const tab=this.state.tab;
+    const list=ACT.filter(e=>tab==="all"||e.cat===tab);
+    const days=[["TODAY",0],["YESTERDAY",1]].map(([label,d])=>({label,items:list.filter(e=>e.day===d)})).filter(d=>d.items.length);
+    const max=Math.max(...HRS);
+    return {kpis:KPIS,alerts:ALERTS,alertCount:ALERTS.length,groups:GROUPS,quick:QUICK,days,mix:MIX,
+      hours:HRS.map((v,i)=>({pct:Math.round(v/max*100)+"%",bg:v===max?"#2dd4bf":"rgba(45,212,191,.28)"})),
+      stats:[{value:"48",label:"Entries today",color:"#e6ebf2"},{value:"6",label:"Pending",color:"#fcd34d"},{value:"Rs 4.8M",label:"Value posted",color:"#5eead4"}],
+      tabs:TABS.map(([k,label])=>{const on=k===tab;const n=k==="approvals"?" · "+ACT.filter(e=>e.pending).length:"";return {label:label+n,onClick:()=>this.setState({tab:k}),bg:on?"rgba(45,212,191,.14)":"transparent",border:on?"rgba(45,212,191,.4)":"rgba(255,255,255,.08)",fg:on?"#5eead4":"#a5b0be"};}),
+      tilePad:dense?"10px 12px":"16px 16px",
+      showSub:this.props.showSubtitles??true,
+      showActivity:this.props.showActivity??true,
+      today:new Date().toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"})};
+  }
+}
+</script>
+</body>
+</html>

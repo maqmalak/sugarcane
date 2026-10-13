@@ -542,3 +542,23 @@ class TestRecheckOverlaps(IntegrationTestCase):
 				recheck_season(_season())
 		finally:
 			frappe.set_user("Administrator")
+
+
+class TestFieldSizeGuard(IntegrationTestCase):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		from sugarcane.setup.company import ensure_company
+
+		ensure_company()
+		_make_hierarchy()
+
+	def test_huge_boundary_cannot_be_submitted(self):
+		frappe.db.set_single_value("Sugar Settings", "max_field_acres", 100)
+		doc = _survey("91101-0000050-1", square(LAT + 0.08, LNG, 1000), submit=False, acres=2)  # ~247 acres drawn for 2
+		self.assertGreater(doc.calc_area_acres, 200)
+		with self.assertRaises(frappe.ValidationError):
+			doc.submit()
+		ok = _survey("91101-0000051-1", square(LAT + 0.09, LNG, 100), submit=False, acres=2.5)
+		ok.submit()  # a normal field still goes through
+		self.assertEqual(ok.docstatus, 1)

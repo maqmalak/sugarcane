@@ -156,6 +156,11 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         if (s.surveyFor == "Competitor" && s.competitorMill.isNullOrBlank()) add("Choose the competitor mill")
         if (s.variety == null) add("Choose the variety")
         if (s.polygon == null || s.measuredAcres <= 0) add("Capture the field boundary (at least 3 corners)")
+        // a boundary far bigger than the land is almost always corners tapped with the map zoomed out
+        if (s.measuredAcres > MAX_FIELD_ACRES) add("The boundary measures %.0f acres — more than %.0f. Check the corners.".format(s.measuredAcres, MAX_FIELD_ACRES))
+        val land = maxOf(s.totalAcres ?: 0.0, s.cropAcres ?: 0.0)
+        if (land > 0 && s.measuredAcres > 3 * land && s.measuredAcres - land > 2)
+            add("The boundary measures %.1f acres but the land is %.1f acres. Check the corners.".format(s.measuredAcres, land))
         val total = s.totalAcres ?: 0.0
         if (total > 0 && (s.cropAcres ?: 0.0) + (s.emptyAcres ?: 0.0) > total + 0.05) add("Cane + empty land is more than the total land")
     }
@@ -177,5 +182,6 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     companion object {
         const val LOCK_AFTER_MS = 2 * 60 * 1000L
+        const val MAX_FIELD_ACRES = 100.0
     }
 }

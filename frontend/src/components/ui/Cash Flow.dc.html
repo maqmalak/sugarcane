@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  body { margin: 0; background: #06121a; }
+  a { color: #2fbf9f; text-decoration: none; }
+  a:hover { color: #6fd9c1; }
+  input, select { font-family: inherit; }
+  ::selection { background: rgba(47,191,159,0.28); }
+</style>
+</helmet>
+<div style="min-height:100vh;background:#06121a;color:#e6edf5;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:13.5px;padding:0 0 64px">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:20px;padding:13px 28px;background:#0a1a23;border-bottom:1px solid #142a33;position:sticky;top:0;z-index:40">
+    <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:#7f97a3">
+      <a href="#">Financial Reports</a>
+      <i data-lucide="chevron-right" width="13" height="13" stroke-width="2"></i>
+      <span style="color:#e6edf5;font-weight:600">Cash Flow</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="padding:5px 11px;border-radius:999px;background:#0f2129;border:1px solid #1b333d;font-size:12px;color:#8fa7b2">MicroMax Solution</span>
+      <button style="display:flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid #1b333d;background:#0f2129;border-radius:9px;font:inherit;font-size:13px;color:#cfdde5;cursor:pointer" style-hover="border-color:#2b4d59">
+        <i data-lucide="refresh-cw" width="14" height="14" stroke-width="1.8"></i>
+        Rebuild
+      </button>
+      <div style="display:flex;align-items:center;justify-content:center;width:31px;height:31px;border-radius:999px;background:rgba(47,191,159,0.14);color:#2fbf9f;font-weight:700;font-size:12.5px">A</div>
+    </div>
+  </div>
+
+  <div style="max-width:1420px;margin:0 auto;padding:34px 28px 0">
+
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:26px;flex-wrap:wrap">
+      <div>
+        <h1 style="margin:0;font-size:26px;font-weight:700;letter-spacing:-0.02em">Cash Flow</h1>
+        <div style="margin-top:9px;font-size:13.5px;color:#8fa7b2">Operating, investing and financing movement for the fiscal year.</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px;font-size:12.5px;color:#7f97a3">
+        <span style="width:7px;height:7px;border-radius:50%;background:#e0b25f"></span>
+        Generated 3 minutes ago
+      </div>
+    </div>
+
+    <div style="margin-top:22px;border:1px solid rgba(47,191,159,0.28);border-radius:14px;background:#0b1c25;overflow:hidden">
+      <div onClick="{{ toggleFilters }}" style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;cursor:pointer;border-bottom:1px solid #142a33" style-hover="background:#0e222c">
+        <div style="display:flex;align-items:center;gap:11px;font-weight:600;color:#eaf2f7">
+          <i data-lucide="sliders-horizontal" width="15" height="15" stroke-width="1.8" color="#2fbf9f"></i>
+          Filters
+          <span style="padding:2px 9px;border-radius:999px;background:rgba(47,191,159,0.14);color:#2fbf9f;font-size:11.5px;font-weight:700">{{ activeCount }} active</span>
+        </div>
+        <i data-lucide="{{ filterCaret }}" width="15" height="15" stroke-width="1.8" color="#7f97a3"></i>
+      </div>
+
+      <sc-if value="{{ filtersOpen }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:20px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(214px,1fr));gap:16px">
+            <label style="display:flex;flex-direction:column;gap:7px">
+              <span style="font-size:12px;color:#8fa7b2">Company</span>
+              <input value="{{ f.company }}" onChange="{{ set.company }}" style="padding:10px 12px;border:1px solid #1b333d;border-radius:9px;background:#081821;color:#e6edf5;font-size:13.5px;outline:none" style-focus="border-color:#2fbf9f;box-shadow:0 0 0 3px rgba(47,191,159,0.15)" />
+            </label>
+            <label style="display:flex;flex-direction:column;gap:7px">
+              <span style="font-size:12px;color:#8fa7b2">Finance Book</span>
+              <input placeholder="All books" value="{{ f.financeBook }}" onChange="{{ set.financeBook }}" style="padding:10px 12px;border:1px solid #1b333d;border-radius:9px;background:#081821;color:#e6edf5;font-size:13.5px;outline:none" style-focus="border-color:#2fbf9f;box-shadow:0 0 0 3px rgba(47,191,159,0.15)" />
+            </label>
+            <label style="display:flex;flex-direction:column;gap:7px">
+              <span style="font-size:12px;color:#8fa7b2">Filter Based On</span>
+              <select value="{{ f.basis }}" onChange="{{ set.basis }}" style="padding:10px 12px;border:1px solid #1b333d;border-radius:9px;background:#081821;color:#e6edf5;font-size:13.5px;outline:none" style-focus="border-color:#2fbf9f">
+                <option value="Fiscal Year">Fiscal Year</option>
+                <option value="Date Range">Date Range</option>
+              </select>
+            </label>
+            <label style="display:flex;flex-direction:column;gap:7px">
+              <span style="font-size:12px;color:#8fa7b2">From Fiscal Year</span>
+              <select value="{{ f.fromFy }}" onChange="{{ set.fromFy }}" style="padding:10px 12px;border:1px solid #1b333d;border-radius:9px;background:#081821;color:#e6edf5;font-size:13.5px;outline:none" style-focus="border-color:#2fbf9f">
+                <option value="2025-2026">2025-2026</option>
+                <option value="2024-2025">2024-2025</option>
+              </select>
+            </label>
+            <label style="display:flex;flex-direction:column;gap:7px">
+              <span style="font-size:12px;color:#8fa7b2">To Fiscal Year</span>
+              <select value="{{ f.toFy }}" onChange="{{ set.toFy }}" style="padding:10px 12px;border:1px solid #1b333d;border-radius:9px;background:#081821;color:#e6edf5;font-size:13.5px;outline:none" style-focus="border-color:#2fbf9f">
+                <option value="2025-2026">2025-2026</option>
+                <option value="2024-2025">2024-2025</option>
+              </select>
+            </label>
+            <label style="display:flex;flex-direction:column;gap:7px">
+              <span style="font-size:12px;color:#8fa7b2">Periodicity</span>
+              <select value="{{ f.periodicity }}" onChange="{{ set.periodicity }}" style="padding:10px 12px;border:1px solid #1b333d;border-radius:9px;background:#081821;color:#e6edf5;font-size:13.5px;outline:none" style-focus="border-color:#2fbf9f">
+                <option value="Yearly">Yearly</option>
+                <option value="Half-Yearly">Half-Yearly</option>
+                <option value="Quarterly">Quarterly</option>
+                <option value="Monthly">Monthly</option>
+              </select>
+            </label>
+            <label style="display:flex;flex-direction:column;gap:7px">
+              <span style="font-size:12px;color:#8fa7b2">Cost Center</span>
+              <input placeholder="All cost centers" value="{{ f.costCenter }}" onChange="{{ set.costCenter }}" style="padding:10px 12px;border:1px solid #1b333d;border-radius:9px;background:#081821;color:#e6edf5;font-size:13.5px;outline:none" style-focus="border-color:#2fbf9f;box-shadow:0 0 0 3px rgba(47,191,159,0.15)" />
+            </label>
+            <label style="display:flex;flex-direction:column;gap:7px">
+              <span style="font-size:12px;color:#8fa7b2">Project</span>
+              <input placeholder="All projects" value="{{ f.project }}" onChange="{{ set.project }}" style="padding:10px 12px;border:1px solid #1b333d;border-radius:9px;background:#081821;color:#e6edf5;font-size:13.5px;outline:none" style-focus="border-color:#2fbf9f;box-shadow:0 0 0 3px rgba(47,191,159,0.15)" />
+            </label>
+            <label style="display:flex;flex-direction:column;gap:7px">
+              <span style="font-size:12px;color:#8fa7b2">Report Template</span>
+              <input placeholder="Standard" value="{{ f.template }}" onChange="{{ set.template }}" style="padding:10px 12px;border:1px solid #1b333d;border-radius:9px;background:#081821;color:#e6edf5;font-size:13.5px;outline:none" style-focus="border-color:#2fbf9f;box-shadow:0 0 0 3px rgba(47,191,159,0.15)" />
+            </label>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:13px 26px;margin-top:22px;padding-top:20px;border-top:1px solid #142a33">
+            <sc-for list="{{ options }}" as="o" hint-placeholder-count="5">
+              <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;color:#c3d4dd;line-height:1.4;font-size:13px">
+                <input type="checkbox" checked="{{ o.on }}" onChange="{{ o.toggle }}" style="margin:1px 0 0;width:15px;height:15px;accent-color:#2fbf9f;cursor:pointer" />
+                <span>{{ o.label }}</span>
+              </label>
+            </sc-for>
+          </div>
+
+          <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:22px">
+            <button onClick="{{ clearFilters }}" style="padding:10px 16px;border:1px solid #1b333d;background:#0f2129;border-radius:9px;font:inherit;font-size:13px;color:#cfdde5;cursor:pointer" style-hover="border-color:#2b4d59">Clear all</button>
+            <button style="display:flex;align-items:center;gap:8px;padding:10px 18px;border:0;border-radius:9px;background:#2fbf9f;font:inherit;font-size:13px;color:#06121a;font-weight:700;cursor:pointer" style-hover="background:#4fd4b6">
+              <i data-lucide="play" width="14" height="14" stroke-width="2" color="#06121a"></i>
+              Generate Report
+            </button>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-top:18px">
+      <sc-for list="{{ cards }}" as="c" hint-placeholder-count="4">
+        <div style="background:#0b1c25;border:1px solid {{ c.border }};border-radius:14px;padding:18px 20px">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+            <span style="font-size:12.5px;color:#8fa7b2;line-height:1.35">{{ c.label }}</span>
+            <div style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;background:{{ c.tint }};flex:0 0 auto">
+              <i data-lucide="{{ c.icon }}" width="15" height="15" stroke-width="1.8" color="{{ c.color }}"></i>
+            </div>
+          </div>
+          <div style="margin-top:14px;font-size:22px;font-weight:700;letter-spacing:-0.015em;color:{{ c.valueColor }};font-variant-numeric:tabular-nums">{{ c.value }}</div>
+          <div style="margin-top:8px;font-size:12px;color:#7f97a3">{{ c.note }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{ showChart }}" hint-placeholder-val="{{ true }}">
+    <div style="margin-top:18px;background:#0b1c25;border:1px solid #142a33;border-radius:14px;padding:22px 24px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:15px;font-weight:700">Section movement</div>
+          <div style="margin-top:5px;font-size:12.5px;color:#7f97a3">Fiscal year {{ f.fromFy }} &middot; PKR crore</div>
+        </div>
+        <div style="display:flex;gap:18px;font-size:12.5px;color:#8fa7b2">
+          <span style="display:flex;align-items:center;gap:7px"><span style="width:9px;height:9px;border-radius:2px;background:#2fbf9f"></span>Inflow</span>
+          <span style="display:flex;align-items:center;gap:7px"><span style="width:9px;height:9px;border-radius:2px;background:#e0778f"></span>Outflow</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:14px;margin-top:20px">
+        <div style="display:flex;flex-direction:column;justify-content:space-between;height:250px;font-size:11px;color:#5f7683;text-align:right;min-width:34px">
+          <sc-for list="{{ chart.yLabels }}" as="y" hint-placeholder-count="5">
+            <span>{{ y }}</span>
+          </sc-for>
+        </div>
+        <div style="flex:1">
+          <div style="position:relative;height:250px">
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none">
+              <div style="border-top:1px solid #12262f"></div>
+              <div style="border-top:1px solid #12262f"></div>
+              <div style="border-top:1px solid #1e3d47"></div>
+              <div style="border-top:1px solid #12262f"></div>
+              <div style="border-top:1px solid #12262f"></div>
+            </div>
+            <div style="position:absolute;inset:0;display:flex;gap:22px">
+              <sc-for list="{{ chart.bars }}" as="b" hint-placeholder-count="4">
+                <div style="flex:1;position:relative">
+                  <div title="{{ b.tip }}" style="position:absolute;left:50%;transform:translateX(-50%);width:64%;max-width:120px;top:{{ b.top }};height:{{ b.height }};background:{{ b.color }};border-radius:{{ b.radius }};cursor:pointer;transition:filter .15s ease,transform .15s ease" style-hover="filter:brightness(1.2);transform:translateX(-50%) scaleY(1.02)"></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:flex;gap:22px;margin-top:12px">
+            <sc-for list="{{ chart.bars }}" as="b" hint-placeholder-count="4">
+              <div style="flex:1;text-align:center">
+                <div style="font-size:12px;color:#c3d4dd">{{ b.label }}</div>
+                <div style="margin-top:4px;font-size:11.5px;color:#5f7683;font-variant-numeric:tabular-nums">{{ b.amount }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:30px 0 14px">
+      <div>
+        <div style="font-size:16px;font-weight:700">Statement</div>
+        <div style="margin-top:5px;font-size:12.5px;color:#7f97a3">{{ rowCount }} rows shown &middot; amounts in PKR</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:9px">
+          <span style="font-size:12.5px;color:#8fa7b2">Level</span>
+          <div style="display:flex;gap:4px;padding:4px;background:#0f2129;border:1px solid #1b333d;border-radius:9px">
+            <sc-for list="{{ levels }}" as="l" hint-placeholder-count="3">
+              <button onClick="{{ l.pick }}" style="padding:6px 13px;border:0;border-radius:6px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;background:{{ l.bg }};color:{{ l.color }}">{{ l.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <button onClick="{{ expandAll }}" style="padding:9px 14px;border:1px solid #1b333d;background:#0f2129;border-radius:9px;font:inherit;font-size:12.5px;color:#cfdde5;cursor:pointer" style-hover="border-color:#2b4d59">Expand all</button>
+        <button onClick="{{ collapseAll }}" style="padding:9px 14px;border:1px solid #1b333d;background:#0f2129;border-radius:9px;font:inherit;font-size:12.5px;color:#cfdde5;cursor:pointer" style-hover="border-color:#2b4d59">Collapse all</button>
+      </div>
+    </div>
+
+    <div style="background:#0b1c25;border:1px solid #142a33;border-radius:14px;overflow:hidden">
+      <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:13.5px;font-variant-numeric:tabular-nums">
+        <thead>
+          <tr>
+            <th style="background:#0f2129;text-align:right;padding:12px 14px;font-size:11.5px;letter-spacing:0.05em;text-transform:uppercase;color:#7f97a3;font-weight:700;border-bottom:1px solid #1b333d;width:48px">#</th>
+            <th style="background:#0f2129;text-align:left;padding:12px 18px;font-size:11.5px;letter-spacing:0.05em;text-transform:uppercase;color:#7f97a3;font-weight:700;border-bottom:1px solid #1b333d">Section</th>
+            <th style="background:#0f2129;text-align:right;padding:12px 18px;font-size:11.5px;letter-spacing:0.05em;text-transform:uppercase;color:#7f97a3;font-weight:700;border-bottom:1px solid #1b333d;width:210px">{{ f.fromFy }}</th>
+            <th style="background:#0f2129;text-align:right;padding:12px 18px;font-size:11.5px;letter-spacing:0.05em;text-transform:uppercase;color:#7f97a3;font-weight:700;border-bottom:1px solid #1b333d;width:170px">Share</th>
+          </tr>
+        </thead>
+        <tbody>
+          <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
+            <tr onClick="{{ r.toggle }}" style="background:{{ r.bg }};cursor:{{ r.cursor }};transition:background .12s ease" style-hover="background:#122a34">
+              <td style="padding:{{ r.padY }} 14px;border-bottom:1px solid #12262f;text-align:right;color:#5f7683;font-size:12px">{{ r.n }}</td>
+              <td style="padding:{{ r.padY }} 18px {{ r.padY }} {{ r.indent }};border-bottom:1px solid #12262f;color:{{ r.nameColor }};font-weight:{{ r.weight }};font-size:{{ r.size }}">
+                <span style="display:inline-flex;align-items:center;gap:10px">
+                  <span style="display:inline-flex;width:12px;color:#5f7683;font-size:10px">{{ r.caret }}</span>
+                  {{ r.name }}
+                </span>
+              </td>
+              <td style="padding:{{ r.padY }} 18px;border-bottom:1px solid #12262f;text-align:right;color:{{ r.valueColor }};font-weight:{{ r.weight }};font-size:{{ r.size }}">{{ r.value }}</td>
+              <td style="padding:{{ r.padY }} 18px;border-bottom:1px solid #12262f">
+                <div style="display:flex;align-items:center;gap:10px;justify-content:flex-end">
+                  <div style="width:70px;height:6px;border-radius:3px;background:#122a34;overflow:hidden">
+                    <div style="height:100%;border-radius:3px;background:{{ r.barColor }};width:{{ r.share }}"></div>
+                  </div>
+                  <span style="font-size:12px;color:#5f7683;width:40px;text-align:right">{{ r.sharePct }}</span>
+                </div>
+              </td>
+            </tr>
+          </sc-for>
+        </tbody>
+        <tfoot>
+          <tr style="background:#10262d">
+            <td style="padding:15px 14px;border-top:2px solid #1e3d47"></td>
+            <td style="padding:15px 18px;border-top:2px solid #1e3d47;font-weight:700;color:#eaf2f7">Net Change in Cash</td>
+            <td style="padding:15px 18px;border-top:2px solid #1e3d47;text-align:right;font-weight:700;color:#2fbf9f">{{ netChange }}</td>
+            <td style="padding:15px 18px;border-top:2px solid #1e3d47"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;showChart&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Layout&quot; },
+  &quot;defaultLevel&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;], &quot;default&quot;: &quot;2&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Tree&quot; }
+}">
+const TREE = [
+  { key: "ops", name: "Cash Flow from Operations", total: 64252874.74, children: [
+    { name: "Profit for the year", total: 203368039.81 },
+    { name: "Depreciation", total: 0 },
+    { key: "wc", name: "Net Change in Working Capital", total: -139115165.07, children: [
+      { name: "Net Change in Accounts Receivable", total: -29524161.72 },
+      { name: "Net Change in Accounts Payable", total: 70698740.65 },
+      { name: "Net Change in Inventory", total: -120000000 },
+      { name: "Net Change in Other Working Capital", total: -60289744 },
+    ]},
+  ]},
+  { key: "inv", name: "Cash Flow from Investing", total: -77957416.78, children: [
+    { name: "Net Change in Fixed Asset", total: -77957416.78 },
+    { name: "Net Change in Investments", total: 0 },
+  ]},
+  { key: "fin", name: "Cash Flow from Financing", total: 83086200, children: [
+    { name: "Net Change in Equity", total: 0 },
+    { name: "Net Change in Borrowings", total: 83086200 },
+  ]},
+];
+
+const OPTIONS = [
+  ["accumulated", "Accumulated Values", true],
+  ["defaultFb", "Include Default FB Entries", false],
+  ["zero", "Show zero values", false],
+  ["accountDetails", "Show account details", false],
+  ["openClose", "Show Opening and Closing Balance", false],
+];
+
+const NET_CHANGE = 69381657.96;
+
+const money = (n) => "Rs " + (n < 0 ? "-" : "") + Math.abs(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const cr = (n) => (n / 10000000).toFixed(2) + " Cr";
+
+class Component extends DCLogic {
+  state = {
+    filtersOpen: true,
+    level: null,
+    open: { ops: true, inv: true, fin: true, wc: false },
+    opts: Object.fromEntries(OPTIONS.map(o => [o[0], o[2]])),
+    f: { company: "MicroMax Solution", financeBook: "", basis: "Fiscal Year", fromFy: "2025-2026",
+         toFy: "2025-2026", periodicity: "Yearly", costCenter: "", project: "", template: "" },
+  };
+
+  componentDidMount() { this.icons(); }
+  componentDidUpdate() { this.icons(); }
+  icons() {
+    const go = () => window.lucide && window.lucide.createIcons();
+    go();
+    if (!window.lucide) setTimeout(go, 400);
+    setTimeout(go, 1200);
+  }
+
+  setF(k) { return (e) => { const v = e.target.value; this.setState(p => ({ f: { ...p.f, [k]: v } })); }; }
+
+  lvl() { return this.state.level ?? +(this.props.defaultLevel ?? 2); }
+
+  flatten(nodes, depth, out, base, counter) {
+    const st = this.state;
+    const level = this.lvl();
+    nodes.forEach(n => {
+      if (!n.total && !st.opts.zero && depth > 0) return;
+      const kids = n.children || [];
+      const hasKids = kids.length > 0;
+      const withinLevel = depth + 1 < level;
+      const open = hasKids && n.key ? (!!st.open[n.key] && withinLevel) : false;
+      const share = base ? Math.min(100, Math.abs(n.total) / base * 100) : 0;
+      const negative = n.total < 0;
+      out.push({
+        n: ++counter.i,
+        name: n.name,
+        value: money(n.total),
+        caret: hasKids ? (open ? "\u25be" : "\u25b8") : "",
+        cursor: hasKids ? "pointer" : "default",
+        toggle: hasKids && n.key ? () => this.setState(p => ({
+          level: Math.max(this.lvl(), depth + 2),
+          open: { ...p.open, [n.key]: !p.open[n.key] },
+        })) : undefined,
+        bg: depth === 0 ? "#0f2129" : "#0b1c25",
+        weight: depth === 0 ? "700" : depth === 1 && hasKids ? "600" : "400",
+        size: depth === 0 ? "14px" : "13.5px",
+        nameColor: depth === 0 ? "#eaf2f7" : "#c3d4dd",
+        valueColor: negative ? "#f0aab8" : depth === 0 ? "#eaf2f7" : "#8fd3f4",
+        indent: (18 + depth * 26) + "px",
+        padY: depth === 0 ? "14px" : "11px",
+        share: share.toFixed(1) + "%",
+        sharePct: share >= 0.05 ? share.toFixed(0) + "%" : "\u2014",
+        barColor: negative ? "#e0778f" : depth === 0 ? "#2fbf9f" : "#4fb8e8",
+      });
+      if (open) this.flatten(kids, depth + 1, out, base, counter);
+    });
+  }
+
+  renderVals() {
+    const st = this.state, f = st.f;
+    const base = 203368039.81;
+    const rows = [];
+    this.flatten(TREE, 0, rows, base, { i: 0 });
+
+    const sections = [
+      { label: "Net Cash from Operations", value: 64252874.74, icon: "repeat", note: "Profit plus working-capital movement" },
+      { label: "Net Cash from Investing", value: -77957416.78, icon: "building-2", note: "Mainly fixed asset additions" },
+      { label: "Net Cash from Financing", value: 83086200, icon: "landmark", note: "Net borrowings raised" },
+      { label: "Net Change in Cash", value: NET_CHANGE, icon: "wallet", note: "Closing less opening cash" },
+    ];
+
+    const cards = sections.map((s, i) => {
+      const neg = s.value < 0;
+      const last = i === 3;
+      return {
+        label: s.label, icon: s.icon, note: s.note,
+        value: money(s.value),
+        valueColor: last ? "#2fbf9f" : neg ? "#f0aab8" : "#eaf2f7",
+        color: last ? "#2fbf9f" : neg ? "#e0778f" : "#4fb8e8",
+        tint: last ? "rgba(47,191,159,0.14)" : neg ? "rgba(224,119,143,0.13)" : "rgba(79,184,232,0.13)",
+        border: last ? "rgba(47,191,159,0.3)" : "#142a33",
+      };
+    });
+
+    const max = 9e7;
+    const bars = sections.map(s => {
+      const h = Math.min(50, Math.abs(s.value) / max * 50);
+      const neg = s.value < 0;
+      return {
+        label: s.label.replace("Net Cash from ", "").replace("Net Change in Cash", "Net Change"),
+        amount: cr(s.value),
+        tip: s.label + " " + money(s.value),
+        top: neg ? "50%" : (50 - h) + "%",
+        height: h + "%",
+        color: neg ? "#e0778f" : "#2fbf9f",
+        radius: neg ? "0 0 4px 4px" : "4px 4px 0 0",
+      };
+    });
+
+    const activeCount = [f.financeBook, f.costCenter, f.project, f.template].filter(Boolean).length + 3;
+
+    return {
+      showChart: this.props.showChart ?? true,
+      filtersOpen: st.filtersOpen,
+      filterCaret: st.filtersOpen ? "chevron-up" : "chevron-down",
+      toggleFilters: () => this.setState(p => ({ filtersOpen: !p.filtersOpen })),
+      activeCount,
+      f,
+      set: Object.fromEntries(Object.keys(f).map(k => [k, this.setF(k)])),
+      options: OPTIONS.map(([k, label]) => ({
+        label, on: !!st.opts[k],
+        toggle: () => this.setState(p => ({ opts: { ...p.opts, [k]: !p.opts[k] } })),
+      })),
+      clearFilters: () => this.setState(p => ({
+        f: { ...p.f, financeBook: "", costCenter: "", project: "", template: "" },
+      })),
+      cards,
+      chart: { bars, yLabels: ["9 Cr", "4.5 Cr", "0", "-4.5 Cr", "-9 Cr"] },
+      levels: [1, 2, 3].map(l => ({
+        label: "L" + l,
+        pick: () => this.setState({ level: l }),
+        bg: this.lvl() === l ? "#2fbf9f" : "transparent",
+        color: this.lvl() === l ? "#06121a" : "#8fa7b2",
+      })),
+      expandAll: () => this.setState({ level: 3, open: { ops: true, inv: true, fin: true, wc: true } }),
+      collapseAll: () => this.setState({ level: 1, open: {} }),
+      rows,
+      rowCount: rows.length,
+      netChange: money(NET_CHANGE),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  body { margin: 0; background: #f4f6f9; }
+  a { color: #1478bd; text-decoration: none; }
+  a:hover { color: #0f5d95; }
+  input, select { font-family: inherit; }
+</style>
+</helmet>
+<div style="min-height:100vh;padding:0 0 64px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#25303c;font-size:13.5px">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px 28px;background:#fff;border-bottom:1px solid #e2e7ee;position:sticky;top:0;z-index:30">
+    <div style="display:flex;align-items:center;gap:9px;color:#7b8796">
+      <a href="#">Accounting</a>
+      <span>/</span>
+      <a href="#">Reports</a>
+      <span>/</span>
+      <span style="color:#1d2836;font-weight:700">Profit and Loss Statement</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button style="display:flex;align-items:center;gap:7px;padding:8px 13px;border:1px solid #d7dde5;background:#fff;border-radius:7px;font:inherit;font-size:13px;color:#3a4653;cursor:pointer" style-hover="border-color:#1478bd;color:#1478bd">
+        <i data-lucide="file-text" width="14" height="14" stroke-width="1.8"></i>
+        Financial Statements
+      </button>
+      <button style="display:flex;align-items:center;gap:7px;padding:8px 13px;border:1px solid #1478bd;background:#1478bd;border-radius:7px;font:inherit;font-size:13px;color:#fff;cursor:pointer" style-hover="background:#0f5d95">
+        <i data-lucide="download" width="14" height="14" stroke-width="1.8" color="#ffffff"></i>
+        Export
+      </button>
+    </div>
+  </div>
+
+  <div style="max-width:1180px;margin:0 auto;padding:30px 28px 0">
+
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:22px;flex-wrap:wrap">
+      <div>
+        <h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">Profit and Loss Statement</h1>
+        <div style="margin-top:9px;font-size:13.5px;color:#67737f">Silver Star Group (Demo) &middot; Fiscal Year 2026-2027 &middot; Yearly &middot; PKR</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#8a95a2">
+        <i data-lucide="clock" width="13" height="13" stroke-width="1.8"></i>
+        Generated 2 minutes ago
+      </div>
+    </div>
+
+    <div style="margin-top:22px;background:#fff;border:1px solid #e2e7ee;border-radius:12px;box-shadow:0 1px 2px rgba(16,32,48,0.04);padding:16px 18px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px">
+        <label style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:11.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7b8796">Fiscal Year</span>
+          <select value="{{ f.fiscalYear }}" onChange="{{ set.fiscalYear }}" style="padding:9px 11px;border:1px solid #d7dde5;border-radius:7px;font-size:13.5px;color:#25303c;background:#fff;outline:none" style-focus="border-color:#1478bd">
+            <option value="2026-2027">2026-2027</option>
+            <option value="2025-2026">2025-2026</option>
+          </select>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:11.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7b8796">Periodicity</span>
+          <select value="{{ f.periodicity }}" onChange="{{ set.periodicity }}" style="padding:9px 11px;border:1px solid #d7dde5;border-radius:7px;font-size:13.5px;color:#25303c;background:#fff;outline:none" style-focus="border-color:#1478bd">
+            <option value="Yearly">Yearly</option>
+            <option value="Half-Yearly">Half-Yearly</option>
+            <option value="Quarterly">Quarterly</option>
+            <option value="Monthly">Monthly</option>
+          </select>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:11.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7b8796">Finance Book</span>
+          <input placeholder="All books" value="{{ f.financeBook }}" onChange="{{ set.financeBook }}" style="padding:9px 11px;border:1px solid #d7dde5;border-radius:7px;font-size:13.5px;color:#25303c;outline:none" style-focus="border-color:#1478bd;box-shadow:0 0 0 3px rgba(20,120,189,0.12)" />
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:11.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7b8796">Cost Center</span>
+          <input placeholder="All cost centers" value="{{ f.costCenter }}" onChange="{{ set.costCenter }}" style="padding:9px 11px;border:1px solid #d7dde5;border-radius:7px;font-size:13.5px;color:#25303c;outline:none" style-focus="border-color:#1478bd;box-shadow:0 0 0 3px rgba(20,120,189,0.12)" />
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:11.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7b8796">Project</span>
+          <input placeholder="All projects" value="{{ f.project }}" onChange="{{ set.project }}" style="padding:9px 11px;border:1px solid #d7dde5;border-radius:7px;font-size:13.5px;color:#25303c;outline:none" style-focus="border-color:#1478bd;box-shadow:0 0 0 3px rgba(20,120,189,0.12)" />
+        </label>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:11px 24px;margin-top:15px;padding-top:14px;border-top:1px solid #eef2f7">
+        <sc-for list="{{ options }}" as="o" hint-placeholder-count="4">
+          <label style="display:flex;align-items:center;gap:9px;cursor:pointer;color:#3a4653">
+            <input type="checkbox" checked="{{ o.on }}" onChange="{{ o.toggle }}" style="width:15px;height:15px;accent-color:#1478bd;cursor:pointer" />
+            <span>{{ o.label }}</span>
+          </label>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:16px">
+      <div style="background:#fff;border:1px solid #e2e7ee;border-radius:12px;padding:18px 20px">
+        <sc-if value="{{ showCardIcons }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;margin-bottom:13px;background:{{ accentSoft }}">
+            <i data-lucide="arrow-down-left" width="17" height="17" stroke-width="1.8" color="{{ accent }}"></i>
+          </div>
+        </sc-if>
+        <div style="font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:#7b8796;font-weight:700">Total Income This Year</div>
+        <div style="margin-top:9px;font-size:24px;font-weight:700;letter-spacing:-0.015em;font-variant-numeric:tabular-nums">{{ kpi.income }}</div>
+      </div>
+      <div style="background:#fff;border:1px solid #e2e7ee;border-radius:12px;padding:18px 20px">
+        <sc-if value="{{ showCardIcons }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;margin-bottom:13px;background:{{ accentSoft }}">
+            <i data-lucide="arrow-up-right" width="17" height="17" stroke-width="1.8" color="{{ accent }}"></i>
+          </div>
+        </sc-if>
+        <div style="font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:#7b8796;font-weight:700">Total Expense This Year</div>
+        <div style="margin-top:9px;font-size:24px;font-weight:700;letter-spacing:-0.015em;font-variant-numeric:tabular-nums">{{ kpi.expense }}</div>
+      </div>
+      <div style="background:#fff;border:1px solid #dfe9e3;border-radius:12px;padding:18px 20px">
+        <sc-if value="{{ showCardIcons }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;margin-bottom:13px;background:rgba(47,143,91,0.1)">
+            <i data-lucide="trending-up" width="17" height="17" stroke-width="1.8" color="#2f8f5b"></i>
+          </div>
+        </sc-if>
+        <div style="font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:#7b8796;font-weight:700">Profit This Year</div>
+        <div style="margin-top:9px;font-size:24px;font-weight:700;letter-spacing:-0.015em;color:#2f8f5b;font-variant-numeric:tabular-nums">{{ kpi.profit }}</div>
+      </div>
+      <div style="background:#fff;border:1px solid #e2e7ee;border-radius:12px;padding:18px 20px">
+        <sc-if value="{{ showCardIcons }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;margin-bottom:13px;background:{{ accentSoft }}">
+            <i data-lucide="percent" width="17" height="17" stroke-width="1.8" color="{{ accent }}"></i>
+          </div>
+        </sc-if>
+        <div style="font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:#7b8796;font-weight:700">Net Margin</div>
+        <div style="margin-top:9px;font-size:24px;font-weight:700;letter-spacing:-0.015em;font-variant-numeric:tabular-nums">{{ kpi.margin }}</div>
+      </div>
+    </div>
+
+    <sc-if value="{{ showComposition }}" hint-placeholder-val="{{ true }}">
+      <div style="margin-top:16px;background:#fff;border:1px solid #e2e7ee;border-radius:12px;padding:20px 22px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px">
+          <div style="font-weight:700;color:#1d2836">Income vs expense</div>
+          <div style="display:flex;gap:18px;font-size:12.5px;color:#67737f">
+            <span style="display:flex;align-items:center;gap:7px"><span style="width:9px;height:9px;border-radius:2px;background:{{ accent }}"></span>Income</span>
+            <span style="display:flex;align-items:center;gap:7px"><span style="width:9px;height:9px;border-radius:2px;background:#8fbfe0"></span>Expense</span>
+            <span style="display:flex;align-items:center;gap:7px"><span style="width:9px;height:9px;border-radius:2px;background:#59a97c"></span>Net profit</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:15px;margin-top:18px">
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#5b6674;margin-bottom:7px">
+              <span>Income</span><span style="font-variant-numeric:tabular-nums">{{ kpi.income }}</span>
+            </div>
+            <div style="height:12px;border-radius:6px;background:#eef2f7;overflow:hidden">
+              <div style="height:100%;width:100%;border-radius:6px;background:{{ accent }}"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#5b6674;margin-bottom:7px">
+              <span>Expense</span><span style="font-variant-numeric:tabular-nums">{{ kpi.expense }}</span>
+            </div>
+            <div style="height:12px;border-radius:6px;background:#eef2f7;overflow:hidden">
+              <div style="height:100%;border-radius:6px;background:#8fbfe0;width:{{ bar.expense }}"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#5b6674;margin-bottom:7px">
+              <span>Net profit / loss</span><span style="font-variant-numeric:tabular-nums">{{ kpi.profit }}</span>
+            </div>
+            <div style="height:12px;border-radius:6px;background:#eef2f7;overflow:hidden">
+              <div style="height:100%;border-radius:6px;background:#59a97c;width:{{ bar.profit }}"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <div style="margin-top:16px;background:#fff;border:1px solid #e2e7ee;border-radius:12px;padding:20px 22px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <div>
+          <div style="font-weight:700;color:#1d2836">Monthly income vs expense</div>
+          <div style="margin-top:5px;font-size:12.5px;color:#7b8796">Fiscal year {{ f.fiscalYear }} &middot; PKR thousands</div>
+        </div>
+        <div style="display:flex;gap:6px;padding:4px;background:#f2f5f9;border-radius:8px">
+          <button onClick="{{ chart.setBars }}" style="padding:7px 13px;border:0;border-radius:6px;font:inherit;font-size:12.5px;cursor:pointer;background:{{ chart.barsBg }};color:{{ chart.barsColor }};font-weight:600">Bars</button>
+          <button onClick="{{ chart.setTrend }}" style="padding:7px 13px;border:0;border-radius:6px;font:inherit;font-size:12.5px;cursor:pointer;background:{{ chart.trendBg }};color:{{ chart.trendColor }};font-weight:600">Trend</button>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:18px;margin-top:16px;font-size:12.5px;color:#67737f">
+        <span style="display:flex;align-items:center;gap:7px"><span style="width:9px;height:9px;border-radius:2px;background:{{ accent }}"></span>Income</span>
+        <span style="display:flex;align-items:center;gap:7px"><span style="width:9px;height:9px;border-radius:2px;background:#8fbfe0"></span>Expense</span>
+        <span style="display:flex;align-items:center;gap:7px"><span style="width:9px;height:9px;border-radius:2px;background:#59a97c"></span>Net profit</span>
+      </div>
+
+      <sc-if value="{{ chart.showBars }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;gap:12px;margin-top:18px">
+          <div style="display:flex;flex-direction:column;justify-content:space-between;height:212px;font-size:11px;color:#a3aeba;text-align:right;min-width:34px">
+            <sc-for list="{{ chart.yLabels }}" as="y" hint-placeholder-count="5">
+              <span>{{ y }}</span>
+            </sc-for>
+          </div>
+          <div style="flex:1;position:relative">
+            <div style="position:absolute;inset:0 0 24px;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none">
+              <div style="border-top:1px solid #eef2f7"></div>
+              <div style="border-top:1px solid #eef2f7"></div>
+              <div style="border-top:1px solid #eef2f7"></div>
+              <div style="border-top:1px solid #eef2f7"></div>
+              <div style="border-top:1px solid #e2e7ee"></div>
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:4px;height:188px;position:relative">
+              <sc-for list="{{ chart.months }}" as="m" hint-placeholder-count="12">
+                <div style="flex:1;display:flex;align-items:flex-end;justify-content:center;gap:5px;height:100%;border-radius:6px 6px 0 0;transition:background .15s ease" style-hover="background:#f5f8fc">
+                  <div title="{{ m.incomeTip }}" style="width:19px;border-radius:4px 4px 0 0;background:{{ accent }};height:{{ m.incomeH }};transition:height .2s ease,filter .15s ease,transform .15s ease;transform-origin:bottom;cursor:pointer" style-hover="filter:brightness(1.12) saturate(1.05);transform:scaleY(1.03);box-shadow:0 -2px 10px rgba(16,32,48,0.18)"></div>
+                  <div title="{{ m.expenseTip }}" style="width:19px;border-radius:4px 4px 0 0;background:#8fbfe0;height:{{ m.expenseH }};transition:height .2s ease,filter .15s ease,transform .15s ease;transform-origin:bottom;cursor:pointer" style-hover="filter:brightness(1.08);transform:scaleY(1.03);box-shadow:0 -2px 10px rgba(16,32,48,0.14)"></div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;gap:4px;margin-top:8px">
+              <sc-for list="{{ chart.months }}" as="m" hint-placeholder-count="12">
+                <div style="flex:1;text-align:center;font-size:11px;color:#8a95a2">{{ m.label }}</div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ chart.showTrend }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:12px;margin-top:18px">
+          <div style="display:flex;flex-direction:column;justify-content:space-between;height:190px;font-size:11px;color:#a3aeba;text-align:right;min-width:34px">
+            <sc-for list="{{ chart.yLabels }}" as="y" hint-placeholder-count="5">
+              <span>{{ y }}</span>
+            </sc-for>
+          </div>
+          <div style="flex:1">
+            <svg viewBox="0 0 720 190" preserveAspectRatio="none" style="width:100%;height:190px;display:block;overflow:visible">
+              <line x1="0" y1="0" x2="720" y2="0" stroke="#eef2f7" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+              <line x1="0" y1="47.5" x2="720" y2="47.5" stroke="#eef2f7" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+              <line x1="0" y1="95" x2="720" y2="95" stroke="#eef2f7" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+              <line x1="0" y1="142.5" x2="720" y2="142.5" stroke="#eef2f7" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+              <line x1="0" y1="190" x2="720" y2="190" stroke="#e2e7ee" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+              <polyline points="{{ chart.incomePts }}" fill="none" stroke="{{ accent }}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></polyline>
+              <polyline points="{{ chart.expensePts }}" fill="none" stroke="#8fbfe0" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></polyline>
+              <polyline points="{{ chart.netPts }}" fill="none" stroke="#59a97c" stroke-width="2.5" stroke-dasharray="6 5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></polyline>
+              <sc-for list="{{ chart.months }}" as="m" hint-placeholder-count="12">
+                <circle cx="{{ m.x }}" cy="{{ m.iy }}" r="6" fill="{{ accent }}" stroke="#ffffff" stroke-width="2.5" style="cursor:pointer;transition:r .15s ease" style-hover="r:9">
+                  <title>{{ m.incomeTip }}</title>
+                </circle>
+              </sc-for>
+              <sc-for list="{{ chart.months }}" as="m" hint-placeholder-count="12">
+                <circle cx="{{ m.x }}" cy="{{ m.ey }}" r="6" fill="#8fbfe0" stroke="#ffffff" stroke-width="2.5" style="cursor:pointer;transition:r .15s ease" style-hover="r:9">
+                  <title>{{ m.expenseTip }}</title>
+                </circle>
+              </sc-for>
+              <sc-for list="{{ chart.months }}" as="m" hint-placeholder-count="12">
+                <circle cx="{{ m.x }}" cy="{{ m.ny }}" r="5.5" fill="#59a97c" stroke="#ffffff" stroke-width="2.5" style="cursor:pointer;transition:r .15s ease" style-hover="r:8.5">
+                  <title>{{ m.netTip }}</title>
+                </circle>
+              </sc-for>
+            </svg>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <sc-for list="{{ chart.months }}" as="m" hint-placeholder-count="12">
+                <div style="flex:1;text-align:center;font-size:11px;color:#8a95a2">{{ m.label }}</div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="display:flex;flex-wrap:wrap;gap:26px;margin-top:18px;padding-top:15px;border-top:1px solid #eef2f7;font-size:12.5px;color:#5b6674">
+        <div>Best month <strong style="color:#1d2836">{{ chart.bestMonth }}</strong></div>
+        <div>Highest expense <strong style="color:#1d2836">{{ chart.worstMonth }}</strong></div>
+        <div>Average monthly profit <strong style="color:#1d2836">{{ chart.avgProfit }}</strong></div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin:26px 0 12px">
+      <div style="font-size:12.5px;color:#7b8796">Amounts in PKR &middot; Fiscal Year {{ f.fiscalYear }}</div>
+      <div style="display:flex;gap:8px">
+        <button onClick="{{ expandAll }}" style="padding:8px 13px;border:1px solid #d7dde5;background:#fff;border-radius:7px;font:inherit;font-size:12.5px;color:#3a4653;cursor:pointer" style-hover="border-color:#1478bd;color:#1478bd">Expand all</button>
+        <button onClick="{{ collapseAll }}" style="padding:8px 13px;border:1px solid #d7dde5;background:#fff;border-radius:7px;font:inherit;font-size:12.5px;color:#3a4653;cursor:pointer" style-hover="border-color:#1478bd;color:#1478bd">Collapse all</button>
+      </div>
+    </div>
+
+    <div style="background:#fff;border:1px solid #e2e7ee;border-radius:12px;box-shadow:0 1px 2px rgba(16,32,48,0.04);overflow:hidden">
+      <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:13.5px;font-variant-numeric:tabular-nums">
+        <thead>
+          <tr style="background:#f7f9fc">
+            <th style="text-align:left;padding:13px 22px;font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:#6d7986;font-weight:700;border-bottom:1px solid #e2e7ee">Account</th>
+            <th style="text-align:right;padding:13px 22px;font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:#6d7986;font-weight:700;border-bottom:1px solid #e2e7ee;width:190px">{{ f.fiscalYear }}</th>
+            <th style="text-align:right;padding:13px 22px;font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:#6d7986;font-weight:700;border-bottom:1px solid #e2e7ee;width:150px">Share of income</th>
+          </tr>
+        </thead>
+        <tbody>
+          <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
+            <tr onClick="{{ r.toggle }}" style="background:{{ r.bg }};cursor:{{ r.cursor }}" style-hover="background:#f6f9fc">
+              <td style="padding:{{ r.pad }};border-bottom:1px solid #f1f5f9;color:#1d2836;font-weight:{{ r.weight }};font-size:{{ r.size }}">
+                <span style="display:inline-flex;align-items:center;gap:9px">
+                  <span style="display:inline-flex;width:12px;color:#a3aeba;font-size:10px">{{ r.caret }}</span>
+                  {{ r.name }}
+                </span>
+              </td>
+              <td style="padding:{{ r.padY }} 22px;border-bottom:1px solid #f1f5f9;text-align:right;color:{{ r.color }};font-weight:{{ r.weight }};font-size:{{ r.size }}">{{ r.value }}</td>
+              <td style="padding:{{ r.padY }} 22px;border-bottom:1px solid #f1f5f9">
+                <div style="display:flex;align-items:center;gap:9px;justify-content:flex-end">
+                  <div style="width:64px;height:6px;border-radius:3px;background:#eef2f7;overflow:hidden">
+                    <div style="height:100%;border-radius:3px;background:{{ r.barColor }};width:{{ r.share }}"></div>
+                  </div>
+                  <span style="font-size:12px;color:#8a95a2;width:38px;text-align:right">{{ r.sharePct }}</span>
+                </div>
+              </td>
+            </tr>
+          </sc-for>
+        </tbody>
+        <tfoot>
+          <tr style="background:#eef4fa">
+            <td style="padding:15px 22px;font-weight:700;color:#0f2233;border-top:2px solid #cfdbe7">Net Profit / Loss</td>
+            <td style="padding:15px 22px;text-align:right;font-weight:700;color:#2f8f5b;border-top:2px solid #cfdbe7">{{ kpi.profit }}</td>
+            <td style="padding:15px 22px;text-align:right;font-weight:700;color:#5b6674;border-top:2px solid #cfdbe7">{{ kpi.margin }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;showCardIcons&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Summary cards&quot; },
+  &quot;accentColor&quot;: { &quot;editor&quot;: &quot;color&quot;, &quot;default&quot;: &quot;#1478bd&quot;, &quot;options&quot;: [&quot;#1478bd&quot;, &quot;#3f5fa8&quot;, &quot;#2f8f5b&quot;, &quot;#7a5ea8&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Summary cards&quot; },
+  &quot;showComposition&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Layout&quot; },
+  &quot;defaultChart&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;Bars&quot;, &quot;Trend&quot;], &quot;default&quot;: &quot;Bars&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Layout&quot; }
+}">
+const INCOME = 363000, EXPENSE = 232480.88, PROFIT = 130519.12;
+
+const TREE = [
+  { key: "income", name: "4000 - Income", total: INCOME, children: [
+    { key: "direct-income", name: "4100 - Direct Income", total: INCOME, children: [
+      { name: "4110 - Sales", total: 186500 },
+      { name: "4120 - Service Revenue", total: 176500 },
+    ]},
+    { key: "indirect-income", name: "4200 - Indirect Income", total: 0, children: [
+      { name: "4210 - Other Income", total: 0 },
+    ]},
+  ]},
+  { key: "expense", name: "5000 - Expenses", total: EXPENSE, children: [
+    { key: "direct-exp", name: "5100 - Direct Expenses", total: 45400, children: [
+      { name: "5110 - Purchases", total: 45000 },
+      { name: "5120 - Stock Adjustment", total: 400 },
+    ]},
+    { key: "indirect-exp", name: "5200 - Indirect Expenses", total: 187080.88, children: [
+      { name: "5210 - Salary and Wages", total: 91600 },
+      { name: "5220 - Rent", total: 45000 },
+      { name: "5230 - Utilities", total: 18480.88 },
+      { name: "5240 - Depreciation", total: 32000 },
+    ]},
+  ]},
+];
+
+const OPTIONS = [
+  ["zero", "Show zero values", false],
+  ["accumulated", "Accumulated values", true],
+  ["defaultFb", "Include default FB entries", true],
+  ["dimensions", "Consider accounting dimensions", false],
+];
+
+const money = (n) => "Rs " + (n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+const MONTHS = [
+  ["Jul", 18000, 14200], ["Aug", 24500, 16800], ["Sep", 31000, 19400],
+  ["Oct", 27500, 18100], ["Nov", 35000, 22300], ["Dec", 42000, 26900],
+  ["Jan", 29500, 19800], ["Feb", 33000, 21200], ["Mar", 38500, 24600],
+  ["Apr", 26000, 15900.88], ["May", 30000, 17300], ["Jun", 28000, 15980],
+];
+
+class Component extends DCLogic {
+  state = {
+    chartMode: null,
+    open: { income: true, "direct-income": true, expense: true, "direct-exp": true, "indirect-exp": true },
+    opts: Object.fromEntries(OPTIONS.map(o => [o[0], o[2]])),
+    f: { fiscalYear: "2026-2027", periodicity: "Yearly", financeBook: "", costCenter: "", project: "" },
+  };
+
+  componentDidMount() { this.icons(); }
+  componentDidUpdate() { this.icons(); }
+  icons() {
+    const go = () => window.lucide && window.lucide.createIcons();
+    go();
+    if (!window.lucide) setTimeout(go, 400);
+    setTimeout(go, 1200);
+  }
+
+  setF(k) { return (e) => { const v = e.target.value; this.setState(p => ({ f: { ...p.f, [k]: v } })); }; }
+
+  flatten(nodes, depth, out, accent) {
+    const st = this.state;
+    nodes.forEach(n => {
+      if (!n.total && !st.opts.zero && depth > 0) return;
+      const kids = n.children || [];
+      const hasKids = kids.length > 0;
+      const open = n.key ? !!st.open[n.key] : false;
+      const share = Math.min(100, Math.abs(n.total) / INCOME * 100);
+      out.push({
+        name: n.name,
+        value: money(n.total),
+        caret: hasKids ? (open ? "\u25be" : "\u25b8") : "",
+        cursor: hasKids ? "pointer" : "default",
+        toggle: hasKids && n.key ? () => this.setState(p => ({ open: { ...p.open, [n.key]: !p.open[n.key] } })) : undefined,
+        bg: depth === 0 ? "#fbfcfe" : "#ffffff",
+        weight: depth === 0 ? "700" : depth === 1 ? "600" : "400",
+        size: depth === 0 ? "14.5px" : "13.5px",
+        color: depth === 0 ? "#0f2233" : "#2b3644",
+        pad: (depth === 0 ? "14px" : "11px") + " 22px " + (depth === 0 ? "14px" : "11px") + " " + (22 + depth * 26) + "px",
+        padY: depth === 0 ? "14px" : "11px",
+        share: share.toFixed(1) + "%",
+        sharePct: share >= 0.05 ? share.toFixed(0) + "%" : "-",
+        barColor: depth === 0 ? accent : "#9dc6e4",
+      });
+      if (hasKids && open) this.flatten(kids, depth + 1, out, accent);
+    });
+  }
+
+  chart(accent) {
+    const mode = this.state.chartMode ?? (this.props.defaultChart ?? "Bars");
+    const max = 45000;
+    const months = MONTHS.map(([label, income, expense]) => ({
+      label, income, expense, net: income - expense,
+      incomeH: (income / max * 100).toFixed(1) + "%",
+      expenseH: (expense / max * 100).toFixed(1) + "%",
+      incomeTip: label + " income " + money(income),
+      expenseTip: label + " expense " + money(expense),
+      netTip: label + " net " + money(income - expense),
+    }));
+    months.forEach((m, i) => {
+      m.x = +(i * 720 / (months.length - 1)).toFixed(1);
+      m.iy = +(190 - m.income / max * 190).toFixed(1);
+      m.ey = +(190 - m.expense / max * 190).toFixed(1);
+      m.ny = +(190 - m.net / max * 190).toFixed(1);
+    });
+    const pts = (key) => months.map((m, i) => {
+      const x = (i * 720 / (months.length - 1)).toFixed(1);
+      const y = (190 - m[key] / max * 190).toFixed(1);
+      return x + "," + y;
+    }).join(" ");
+    const best = months.reduce((a, b) => (b.net > a.net ? b : a));
+    const worst = months.reduce((a, b) => (b.expense > a.expense ? b : a));
+    const avg = months.reduce((s, m) => s + m.net, 0) / months.length;
+    const on = "#ffffff", off = "transparent";
+    return {
+      months,
+      yLabels: ["45k", "34k", "23k", "11k", "0"],
+      incomePts: pts("income"), expensePts: pts("expense"), netPts: pts("net"),
+      showBars: mode === "Bars", showTrend: mode === "Trend",
+      barsBg: mode === "Bars" ? on : off, barsColor: mode === "Bars" ? accent : "#7b8796",
+      trendBg: mode === "Trend" ? on : off, trendColor: mode === "Trend" ? accent : "#7b8796",
+      setBars: () => this.setState({ chartMode: "Bars" }),
+      setTrend: () => this.setState({ chartMode: "Trend" }),
+      bestMonth: best.label + " (" + money(best.net) + ")",
+      worstMonth: worst.label + " (" + money(worst.expense) + ")",
+      avgProfit: money(avg),
+    };
+  }
+
+  renderVals() {
+    const st = this.state;
+    const accent = this.props.accentColor ?? "#1478bd";
+    const rows = [];
+    this.flatten(TREE, 0, rows, accent);
+    return {
+      accent,
+      accentSoft: accent + "18",
+      showCardIcons: this.props.showCardIcons ?? true,
+      showComposition: this.props.showComposition ?? true,
+      f: st.f,
+      set: Object.fromEntries(Object.keys(st.f).map(k => [k, this.setF(k)])),
+      options: OPTIONS.map(([k, label]) => ({
+        label, on: !!st.opts[k],
+        toggle: () => this.setState(p => ({ opts: { ...p.opts, [k]: !p.opts[k] } })),
+      })),
+      kpi: {
+        income: money(INCOME), expense: money(EXPENSE), profit: money(PROFIT),
+        margin: (PROFIT / INCOME * 100).toFixed(1) + "%",
+      },
+      chart: this.chart(accent),
+      bar: { expense: (EXPENSE / INCOME * 100).toFixed(2) + "%", profit: (PROFIT / INCOME * 100).toFixed(2) + "%" },
+      rows,
+      expandAll: () => this.setState({ open: { income: true, "direct-income": true, "indirect-income": true, expense: true, "direct-exp": true, "indirect-exp": true } }),
+      collapseAll: () => this.setState({ open: {} }),
+    };
+  }
+}
+</script>
+</body>
+</html>

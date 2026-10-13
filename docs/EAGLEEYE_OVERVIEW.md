@@ -9,7 +9,7 @@ benchmarking. It has two parts:
 
 | Feature | Web portal | Android app |
 |---|---|---|
-| Users management, dashboards, reporting | **Field Force** (`/sugar/field-force`): add surveyors and circle officers, assign circles, enable or disable logins, approve or block phones. **Survey Dashboard** (`/sugar/survey/dashboard`). 10 reports on the desk (EagleEye Survey workspace) | — |
+| Users management, dashboards, reporting | **Field Force** (`/sugar/field-force` insights, `/sugar/field-force/users`): add surveyors and circle officers, assign circles, enable or disable logins, approve or block phones. **Survey Insights** (`/sugar/survey`). 10 reports in the React **Report Centre** (`/sugar/reports`, Excel / PDF) and on the desk | — |
 | Field force tracking | Survey Map → *Attendance* + *GPS tracks* layers (pick a day); Field Force → today's status, last GPS time | Foreground service records the route every *tracking interval* while checked in |
 | Crop surveys and grower data | Survey Map drawer; desk `Cane Survey` | Survey form (grower search, land, crop, boundary, photos) |
 | Offline surveys and grower data import on the phone | — | Masters (growers, villages with boundaries, varieties, diseases, competitor mills, targets) are downloaded to the phone; surveys are saved offline and sent when there is internet |
@@ -17,7 +17,7 @@ benchmarking. It has two parts:
 | Surveyor targets | `Surveyor Target` (acres / fields per circle); Field Force and Dashboard show target vs done; *Surveyor Performance* report | Home → season target progress |
 | Land area from geo-coordinates | Measured on the server (geodesic, WGS84) in acres and kanal; declared vs measured % | Live area while capturing corners (GPS walk or tap on satellite map) |
 | Crop types and varieties, crop diseases | `Cane Variety` (map colour, yield), `Crop Disease`; colour the map by variety or disease | Variety, plant/ratoon (+ ratoon no.), condition, disease + % |
-| Survey area overlapping controls | `Survey Overlap Review` opened automatically above the tolerance (5 %); Accept both / Reject one | Overlap status shown on each survey after sync |
+| Survey area overlapping controls | `Survey Overlap Review` opened automatically above Sugar Settings → overlap tolerance (default 5 %); *Re-check overlaps* on the lists; Accept both / Reject one | Overlap status shown on each survey after sync |
 | Attendance with photos and time in/out coordinates on maps | Survey Map → *Attendance* layer: click a check-in / check-out point for the selfie, time, coordinates and geofence result | Check in / out = selfie + averaged GPS; geofence check against the target circles |
 | Role-based access and authentication | 15 roles; circle scoping by User Permission (web and phone); device approval | Email + password sign-in, approved device only, app PIN lock |
 
@@ -55,7 +55,7 @@ benchmarking. It has two parts:
     - photos with GPS and time
 
     The desk form `Cane Survey` holds the same details.
-11. **Survey Map, a bird's-eye view.** `/sugar/survey`, with:
+11. **Survey Map, a bird's-eye view.** `/sugar/survey/map`, with:
     - satellite / streets
     - hierarchy layers
     - company and competitor fields and mills

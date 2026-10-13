@@ -1,80 +1,141 @@
+/**
+ * Sidebar navigation per app (first URL segment) for the MicroMax Sugar Mills app. Same shape as the real-estate /
+ * MicroMax shell it was forked from: APP_NAVIGATION[segment] → groups shown in the sidebar for that app.
+ */
 import {
-  Banknote, BarChart3, Beaker, ClipboardList, Factory, Gauge, Home, LayoutDashboard, Map, MapPinned, Receipt, ScrollText, Ticket,
-  Truck, UserCog, Users, Warehouse, Weight, type LucideIcon,
+  BarChart3, Boxes, ClipboardList, FileSpreadsheet, Gauge, LayoutDashboard, Leaf, Map as MapIcon, MapPinned, Receipt,
+  Sparkles, Ticket, Truck, UserCog, Users, Warehouse, Weight, Beaker, Factory, Banknote, type LucideIcon,
 } from "lucide-react";
+import { SC_DOCS, docBase, type ScApp } from "@/sc/registry";
 
 export interface NavItem {
   label: string;
-  path: string;
-  icon: LucideIcon;
-  /** Any of these roles shows the item (System Manager always sees it). Empty = every staff user. */
-  roles: string[];
-  /** Phase the screen arrives in; later phases show a "coming" page. */
-  phase: number;
+  to: string;
+  icon?: LucideIcon;
+  /** Roles allowed to see this entry. Empty = everyone (server still enforces). */
+  roles?: string[];
 }
-
 export interface NavGroup {
-  label: string;
+  /** Group heading; omitted for standalone links. */
+  title?: string;
   items: NavItem[];
 }
 
 const MANAGERS = ["Cane Manager", "Cane Admin"];
+const SURVEY_ROLES = [...MANAGERS, "Circle Officer", "Surveyor", "MIS Viewer"];
+const FF_ROLES = [...MANAGERS, "Circle Officer"];
 
-export const NAVIGATION: NavGroup[] = [
-  {
-    label: "Overview",
-    items: [
-      { label: "Home", path: "/", icon: Home, roles: [], phase: 0 },
-      { label: "MIS Dashboard", path: "/mis", icon: LayoutDashboard, roles: [...MANAGERS, "MIS Viewer"], phase: 8 },
-    ],
-  },
-  {
-    label: "Growers & Survey",
-    items: [
-      { label: "Growers", path: "/growers", icon: Users,
-        roles: [...MANAGERS, "Circle Officer", "Cane Accountant", "MIS Viewer"], phase: 0 },
-      { label: "Survey Map", path: "/survey", icon: Map, roles: [...MANAGERS, "Circle Officer", "Surveyor", "MIS Viewer"], phase: 1 },
-      { label: "Survey Dashboard", path: "/survey/dashboard", icon: BarChart3, roles: [...MANAGERS, "Circle Officer", "Surveyor", "MIS Viewer"], phase: 1 },
-      { label: "Area Map", path: "/geo", icon: MapPinned, roles: [...MANAGERS, "Circle Officer"], phase: 1 },
-      { label: "Field Force", path: "/field-force", icon: UserCog, roles: [...MANAGERS, "Circle Officer"], phase: 1 },
-      { label: "Indents", path: "/indents", icon: ClipboardList, roles: [...MANAGERS, "Indent Clerk", "Circle Officer"], phase: 2 },
-    ],
-  },
-  {
-    label: "Mill Gate",
-    items: [
-      { label: "Token Issue", path: "/tokens", icon: Ticket, roles: [...MANAGERS, "Token Clerk"], phase: 3 },
-      { label: "Yard Board", path: "/yard", icon: Warehouse, roles: [...MANAGERS, "Yard Supervisor", "MIS Viewer"], phase: 3 },
-      { label: "Weighbridge", path: "/weighbridge", icon: Weight, roles: [...MANAGERS, "Gross Weighman", "Tare Weighman"], phase: 3 },
-      { label: "CPRs", path: "/cpr", icon: Receipt, roles: [...MANAGERS, "Cane Accountant", "Cane Cashier"], phase: 3 },
-      { label: "Bilty Cash Counter", path: "/bilty", icon: Truck, roles: [...MANAGERS, "Cane Cashier"], phase: 3 },
-    ],
-  },
-  {
-    label: "Accounts",
-    items: [
-      { label: "Payment Scrolls", path: "/payments", icon: Banknote, roles: [...MANAGERS, "Cane Accountant"], phase: 6 },
-      { label: "Grower Ledgers", path: "/ledgers", icon: ScrollText, roles: [...MANAGERS, "Cane Accountant"], phase: 6 },
-    ],
-  },
-  {
-    label: "Plant",
-    items: [
-      { label: "Lab Hourly Entry", path: "/lab", icon: Beaker, roles: [...MANAGERS, "Lab Chemist"], phase: 5 },
-      { label: "Production", path: "/production", icon: Factory, roles: [...MANAGERS, "Production Manager"], phase: 5 },
-      { label: "Plant Levels", path: "/plant", icon: Gauge, roles: [...MANAGERS, "Production Manager", "MIS Viewer"], phase: 5 },
-    ],
-  },
-];
-
-/** Phases whose screens are built; later items show a "coming in phase N" page. */
-export const BUILT_PHASE = 1;
-
-export function visibleNavigation(hasRole: (...roles: string[]) => boolean): NavGroup[] {
-  return NAVIGATION.map((g) => ({ ...g, items: g.items.filter((i) => i.roles.length === 0 || hasRole(...i.roles)) }))
-    .filter((g) => g.items.length > 0);
+/** Generated list pages for an app's DocTypes, grouped as in the registry. */
+function docGroups(app: ScApp, roles?: string[]): NavGroup[] {
+  const groups = new Map<string, NavItem[]>();
+  for (const d of SC_DOCS.filter((x) => x.app === app)) {
+    groups.set(d.group, [...(groups.get(d.group) ?? []), { label: d.label, to: docBase(d.doctype), icon: d.icon, roles }]);
+  }
+  return [...groups.entries()].map(([title, items]) => ({ title, items }));
 }
 
-export function findNavItem(path: string): NavItem | undefined {
-  return NAVIGATION.flatMap((g) => g.items).find((i) => i.path === path);
+export const APP_NAVIGATION: Record<string, NavGroup[]> = {
+  home: [
+    {
+      title: "Sugar mill",
+      items: [
+        { label: "EagleEye Survey", to: "/survey", icon: Leaf, roles: SURVEY_ROLES },
+        { label: "Field Force", to: "/field-force", icon: UserCog, roles: FF_ROLES },
+        { label: "Setup", to: "/setup", icon: Boxes, roles: MANAGERS },
+        { label: "Report Centre", to: "/reports", icon: FileSpreadsheet },
+      ],
+    },
+  ],
+  survey: [
+    {
+      title: "EagleEye Survey",
+      items: [
+        { label: "Insights", to: "/survey", icon: Sparkles, roles: SURVEY_ROLES },
+        { label: "Survey Map", to: "/survey/map", icon: MapIcon, roles: SURVEY_ROLES },
+        { label: "Area Map", to: "/survey/geo", icon: MapPinned, roles: [...MANAGERS, "Circle Officer"] },
+        { label: "Growers", to: "/survey/growers", icon: Users, roles: [...MANAGERS, "Circle Officer", "Cane Accountant", "MIS Viewer"] },
+      ],
+    },
+    ...docGroups("survey", SURVEY_ROLES),
+    { title: "Reports", items: [{ label: "Survey reports", to: "/reports?g=Crop%20Survey", icon: BarChart3 }] },
+  ],
+  "field-force": [
+    {
+      title: "Field Force",
+      items: [
+        { label: "Insights", to: "/field-force", icon: Sparkles, roles: FF_ROLES },
+        { label: "Users & devices", to: "/field-force/users", icon: UserCog, roles: FF_ROLES },
+        { label: "Attendance on map", to: "/survey/map?layers=attendance", icon: MapPinned, roles: FF_ROLES },
+      ],
+    },
+    ...docGroups("field-force", FF_ROLES),
+  ],
+  setup: [
+    { title: "Setup", items: [{ label: "Overview", to: "/setup", icon: LayoutDashboard, roles: MANAGERS }] },
+    ...docGroups("setup"),
+  ],
+  reports: [{ title: "Reports", items: [{ label: "Report Centre", to: "/reports", icon: FileSpreadsheet }] }],
+  mill: [
+    {
+      title: "Coming in later phases",
+      items: [
+        { label: "Indenting (Phase 2)", to: "/mill/indenting", icon: ClipboardList },
+        { label: "Token issue (Phase 3)", to: "/mill/tokens", icon: Ticket },
+        { label: "Yard board (Phase 3)", to: "/mill/yard", icon: Warehouse },
+        { label: "Weighbridge (Phase 3)", to: "/mill/weighbridge", icon: Weight },
+        { label: "CPR & Bilty (Phase 3)", to: "/mill/cpr", icon: Receipt },
+        { label: "Depot & vehicle tracking (Phase 4)", to: "/mill/depots", icon: Truck },
+        { label: "Laboratory & production (Phase 5)", to: "/mill/lab", icon: Beaker },
+        { label: "Cane accounts & loans (Phase 6)", to: "/mill/accounts", icon: Banknote },
+        { label: "MIS (Phase 8)", to: "/mill/mis", icon: Gauge },
+        { label: "Plant (Phase 5)", to: "/mill/plant", icon: Factory },
+      ],
+    },
+  ],
+};
+
+/** Route segment -> human label for the sidebar's app header. */
+export const APP_LABELS: Record<string, string> = {
+  home: "Apps",
+  survey: "EagleEye Survey",
+  "field-force": "Field Force",
+  setup: "Sugar Setup",
+  reports: "Report Centre",
+  mill: "Mill Operations",
+  account: "My Account",
+};
+
+/** First path segment (`"/survey/map"` -> `"survey"`, `"/"` -> `""`). */
+export function appSegmentForPath(pathname: string): string {
+  return pathname.split("/").filter(Boolean)[0] ?? "";
+}
+
+/** All sidebar nav groups flattened (the home sidebar only re-lists the apps, so it isn't counted). */
+export const NAVIGATION: NavGroup[] = Object.entries(APP_NAVIGATION)
+  .filter(([segment]) => segment !== "home")
+  .flatMap(([, groups]) => groups);
+
+/** Human-readable breadcrumb segments for a pathname. */
+export const ROUTE_TITLES: Record<string, string> = {
+  "": "Desktop",
+  home: "Desktop",
+  d: "Records",
+  survey: "EagleEye Survey",
+  "field-force": "Field Force",
+  setup: "Setup",
+  reports: "Report Centre",
+  geo: "Area Map",
+  map: "Survey Map",
+  users: "Users & Devices",
+  mill: "Mill Operations",
+};
+
+export function titleForSegment(segment: string): string {
+  return (
+    ROUTE_TITLES[segment] ??
+    segment
+      .split("-")
+      .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+      .join(" ")
+  );
 }

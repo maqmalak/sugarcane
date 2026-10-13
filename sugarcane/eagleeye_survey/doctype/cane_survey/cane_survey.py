@@ -78,6 +78,10 @@ class CaneSurvey(Document):
 		self.area_variance_pct = flt(100 * (self.calc_area_acres - declared) / declared, 2) if declared else 0
 		village_poly = geo.cached_polygon(frappe.db.get_value("Cane Village", self.village, "polygon"))
 		self.inside_village = 1 if village_poly is not None and geo.share_inside(poly, village_poly) >= 50 else 0
+		land = max(flt(self.total_acres), declared)
+		if land and self.calc_area_acres > 2 * land and self.calc_area_acres - land > 2:
+			frappe.msgprint(_("The boundary measures {0} acres but the land is {1} acres — check the corners.").format(
+				self.calc_area_acres, land), indicator="orange", alert=True)
 
 	def set_expected_production(self):
 		area = flt(self.calc_area_acres) or flt(self.crop_land_acres)
@@ -87,6 +91,10 @@ class CaneSurvey(Document):
 	def before_submit(self):
 		if not self.polygon or not flt(self.calc_area_acres):
 			frappe.throw(_("Draw or walk the field boundary before submitting"))
+		limit = flt(frappe.db.get_single_value("Sugar Settings", "max_field_acres")) or 100
+		if flt(self.calc_area_acres) > limit:
+			frappe.throw(_("The field boundary measures {0} acres, more than the largest field allowed ({1} acres). "
+				"Check the corners — they were probably tapped with the map zoomed out.").format(flt(self.calc_area_acres, 1), limit))
 		if self.survey_for == "Company" and not self.grower:
 			self.register_grower()
 

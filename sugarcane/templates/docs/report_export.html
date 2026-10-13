@@ -1,0 +1,28 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+body{font-family:Helvetica,Arial,sans-serif;font-size:10px;color:#1f2937;margin:0}
+h2{font-size:15px;margin:8px 0 2px;text-transform:uppercase;letter-spacing:.5px}
+.sub{color:#6b7280;margin-bottom:8px}
+table.data{width:100%;border-collapse:collapse}
+table.data th{background:#f0fdfa;border:1px solid #d1d5db;padding:4px 5px;text-align:left}
+table.data td{border:1px solid #e5e7eb;padding:3px 5px;vertical-align:top}
+table.data tr:nth-child(even) td{background:#fafafa}
+.r{text-align:right}
+.nw{white-space:nowrap}
+.foot{margin-top:10px;color:#6b7280}
+</style></head><body>
+{% if letter_head %}<div class="re-lh">{{ letter_head }}</div>{% endif %}
+<h2>{{ title }}</h2>
+<div class="sub">
+  {% for k, v in filters.items() %}{{ k.replace("_", " ").title() }}: {{ frappe.utils.formatdate(v) if k.endswith("date") else v }}{% if not loop.last %} · {% endif %}{% endfor %}
+  {% if filters %} · {% endif %}{{ rows|length }} rows
+</div>
+<table class="data">
+  <thead><tr>{% for c in columns %}<th class="{{ 'r' if numeric[loop.index0] }}">{{ c.label }}</th>{% endfor %}</tr></thead>
+  <tbody>
+  {% for row in rows %}<tr>{% for v in row %}<td class="{{ 'r' if numeric[loop.index0] }} {{ 'nw' if nowrap[loop.index0] }}">{{ v }}</td>{% endfor %}</tr>{% endfor %}
+  </tbody>
+</table>
+<div class="foot">Generated {{ frappe.utils.format_datetime(generated, "dd MMM yyyy HH:mm") }} by {{ user }}</div>
+</body></html>

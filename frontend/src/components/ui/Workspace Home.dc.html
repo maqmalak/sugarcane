@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  body { margin: 0; background: #0b1118; }
+  a { color: #4fb8e8; text-decoration: none; }
+  a:hover { color: #7fcdf0; }
+  input { font-family: inherit; }
+  ::selection { background: rgba(47,191,159,0.3); }
+</style>
+</helmet>
+<div style="min-height:100vh;background:#0b1118;color:#e6edf5;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:13.5px;padding-bottom:60px">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:20px;padding:11px 24px;background:#101a24;border-bottom:1px solid #1c2836;position:sticky;top:0;z-index:30">
+    <div style="display:flex;align-items:center;gap:26px">
+      <div style="display:flex;align-items:center;gap:11px">
+        <div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:{{ accent }}">
+          <i data-lucide="layers" width="16" height="16" stroke-width="2" color="#06121a"></i>
+        </div>
+        <span style="font-weight:700;letter-spacing:-0.01em;font-size:14.5px">Silver Star ERP</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:18px;font-size:13px;color:#8fa0b3">
+        <a href="#" style="color:#e6edf5;font-weight:600">Home</a>
+        <a href="#">Workspaces</a>
+        <a href="#">Reports</a>
+        <a href="#">Help</a>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="position:relative;width:280px">
+        <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);display:flex;color:#7b8d9f">
+          <i data-lucide="search" width="14" height="14" stroke-width="1.8"></i>
+        </span>
+        <input placeholder="Search..." value="{{ search }}" onChange="{{ setSearch }}" style="width:100%;box-sizing:border-box;padding:8px 58px 8px 33px;border:1px solid #22303f;border-radius:8px;background:#0d151d;color:#e6edf5;font-size:13px;outline:none" style-focus="border-color:#2f7fa8;box-shadow:0 0 0 3px rgba(47,127,168,0.18)" />
+        <span style="position:absolute;right:9px;top:50%;transform:translateY(-50%);padding:2px 6px;border:1px solid #263646;border-radius:5px;font-size:10.5px;color:#7b8d9f;font-family:ui-monospace,Menlo,Consolas,monospace">Ctrl K</span>
+      </div>
+      <div style="position:relative;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;background:#0d151d;border:1px solid #22303f;cursor:pointer" style-hover="border-color:#33475c">
+        <i data-lucide="bell" width="15" height="15" stroke-width="1.8" color="#a8b8c9"></i>
+        <span style="position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;border-radius:999px;background:#e05b5b;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 4px">1</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;background:#0d151d;border:1px solid #22303f;cursor:pointer" style-hover="border-color:#33475c">
+        <i data-lucide="sun" width="15" height="15" stroke-width="1.8" color="#e0b25f"></i>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:999px;background:{{ accentSoft }};color:{{ accent }};font-weight:700;font-size:13px;cursor:pointer">A</div>
+    </div>
+  </div>
+
+  <div style="max-width:1360px;margin:0 auto;padding:36px 24px 0">
+
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:28px;flex-wrap:wrap">
+      <div style="display:flex;align-items:flex-start;gap:18px">
+        <div style="display:flex;align-items:center;justify-content:center;width:58px;height:58px;border-radius:16px;background:{{ accentSoft }};border:1px solid {{ accentBorder }}">
+          <i data-lucide="layers" width="27" height="27" stroke-width="1.7" color="{{ accent }}"></i>
+        </div>
+        <div>
+          <h1 style="margin:0;font-size:27px;font-weight:700;letter-spacing:-0.02em">Silver Star ERP</h1>
+          <div style="margin-top:8px;font-size:14px;color:#93a4b7">Good morning, Administrator. Choose a workspace to get started.</div>
+          <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+            <span style="display:flex;align-items:center;gap:7px;padding:5px 11px;border-radius:999px;background:rgba(47,191,159,0.12);border:1px solid rgba(47,191,159,0.3);font-size:12px;color:#6fd9c1">
+              <span style="width:6px;height:6px;border-radius:50%;background:#2fbf9f"></span>
+              All services operational
+            </span>
+            <span style="padding:5px 11px;border-radius:999px;background:#121c26;border:1px solid #22303f;font-size:12px;color:#93a4b7">Fiscal Year 2026-2027</span>
+            <span style="padding:5px 11px;border-radius:999px;background:#121c26;border:1px solid #22303f;font-size:12px;color:#93a4b7">v4.2.1</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:9px">
+        <button style="display:flex;align-items:center;gap:8px;padding:10px 15px;border:1px solid #22303f;background:#121c26;border-radius:8px;font:inherit;font-size:13px;color:#cbd8e5;cursor:pointer" style-hover="border-color:#33475c">
+          <i data-lucide="book-open" width="14" height="14" stroke-width="1.8"></i>
+          Documentation
+        </button>
+        <button style="display:flex;align-items:center;gap:8px;padding:10px 15px;border:1px solid {{ accentBorder }};background:{{ accentSoft }};border-radius:8px;font:inherit;font-size:13px;color:{{ accent }};font-weight:600;cursor:pointer" style-hover="filter:brightness(1.15)">
+          <i data-lucide="plus" width="14" height="14" stroke-width="2" color="{{ accent }}"></i>
+          New transaction
+        </button>
+      </div>
+    </div>
+
+    <sc-if value="{{ showQuickStats }}" hint-placeholder-val="{{ true }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:30px">
+        <div style="background:#111b25;border:1px solid #1c2836;border-radius:12px;padding:16px 18px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:#7f92a6;font-weight:700">Open sales orders</span>
+            <i data-lucide="shopping-cart" width="15" height="15" stroke-width="1.8" color="#7f92a6"></i>
+          </div>
+          <div style="margin-top:10px;font-size:23px;font-weight:700;font-variant-numeric:tabular-nums">42</div>
+          <div style="margin-top:6px;font-size:12px;color:#6fd9c1">+8 this week</div>
+        </div>
+        <div style="background:#111b25;border:1px solid #1c2836;border-radius:12px;padding:16px 18px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:#7f92a6;font-weight:700">Pending approvals</span>
+            <i data-lucide="clock" width="15" height="15" stroke-width="1.8" color="#7f92a6"></i>
+          </div>
+          <div style="margin-top:10px;font-size:23px;font-weight:700;font-variant-numeric:tabular-nums">7</div>
+          <div style="margin-top:6px;font-size:12px;color:#e0b25f">3 older than 48h</div>
+        </div>
+        <div style="background:#111b25;border:1px solid #1c2836;border-radius:12px;padding:16px 18px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:#7f92a6;font-weight:700">Receivables due</span>
+            <i data-lucide="banknote" width="15" height="15" stroke-width="1.8" color="#7f92a6"></i>
+          </div>
+          <div style="margin-top:10px;font-size:23px;font-weight:700;font-variant-numeric:tabular-nums">Rs 186,500</div>
+          <div style="margin-top:6px;font-size:12px;color:#93a4b7">Across 4 customers</div>
+        </div>
+        <div style="background:#111b25;border:1px solid #1c2836;border-radius:12px;padding:16px 18px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:#7f92a6;font-weight:700">Low stock items</span>
+            <i data-lucide="triangle-alert" width="15" height="15" stroke-width="1.8" color="#7f92a6"></i>
+          </div>
+          <div style="margin-top:10px;font-size:23px;font-weight:700;font-variant-numeric:tabular-nums">12</div>
+          <div style="margin-top:6px;font-size:12px;color:#e08f8f">2 below safety level</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:34px 0 14px">
+      <div>
+        <div style="font-size:16px;font-weight:700">Workspaces</div>
+        <div style="margin-top:5px;font-size:12.5px;color:#7f92a6">{{ moduleCount }} modules available</div>
+      </div>
+      <div style="position:relative;width:260px">
+        <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);display:flex;color:#7b8d9f">
+          <i data-lucide="filter" width="14" height="14" stroke-width="1.8"></i>
+        </span>
+        <input placeholder="Filter workspaces" value="{{ search }}" onChange="{{ setSearch }}" style="width:100%;box-sizing:border-box;padding:8px 12px 8px 33px;border:1px solid #22303f;border-radius:8px;background:#0d151d;color:#e6edf5;font-size:13px;outline:none" style-focus="border-color:#2f7fa8;box-shadow:0 0 0 3px rgba(47,127,168,0.18)" />
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
+      <sc-for list="{{ modules }}" as="m" hint-placeholder-count="12">
+        <div style="position:relative;background:#111b25;border:1px solid #1c2836;border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .16s ease,transform .16s ease,box-shadow .16s ease" style-hover="border-color:#2fbf9f;transform:translateY(-2px);box-shadow:0 10px 26px rgba(0,0,0,0.35)">
+          <div style="display:flex;align-items:center;gap:11px;padding:12px 16px;background:#0e1821;border-bottom:1px solid #1c2836">
+            <div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:{{ m.tint }};flex:0 0 auto">
+              <i data-lucide="{{ m.icon }}" width="15" height="15" stroke-width="1.8" color="{{ m.color }}"></i>
+            </div>
+            <div style="flex:1;font-size:14.5px;font-weight:700;color:#eef4fa;letter-spacing:-0.01em">{{ m.name }}</div>
+            <i data-lucide="arrow-right" width="15" height="15" stroke-width="1.8" color="#5c6f83"></i>
+          </div>
+          <div style="padding:16px">
+            <div style="font-size:13px;line-height:1.55;color:#8ea0b4;text-wrap:pretty">{{ m.desc }}</div>
+            <div style="display:flex;flex-direction:column;gap:7px;margin-top:14px">
+              <sc-for list="{{ m.features }}" as="ft" hint-placeholder-count="3">
+                <div style="display:flex;align-items:flex-start;gap:9px;font-size:12.5px;line-height:1.45;color:#a4b4c6">
+                  <span style="width:5px;height:5px;border-radius:50%;background:{{ m.color }};margin-top:6px;flex:0 0 auto"></span>
+                  <span>{{ ft }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:15px;padding-top:12px;border-top:1px solid #18232f;font-size:11.5px;color:#6b7d90">
+              <span>{{ m.docCount }} doctypes</span>
+              <span>{{ m.reportCount }} reports</span>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{ showActivity }}" hint-placeholder-val="{{ true }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-top:34px">
+        <div style="background:#111b25;border:1px solid #1c2836;border-radius:12px;padding:20px 22px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="font-size:15px;font-weight:700">Recent activity</div>
+            <a href="#" style="font-size:12.5px">View all</a>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px;margin-top:14px">
+            <sc-for list="{{ activity }}" as="a" hint-placeholder-count="5">
+              <div style="display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid #18232f">
+                <div style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;background:#16212c;flex:0 0 auto">
+                  <i data-lucide="{{ a.icon }}" width="14" height="14" stroke-width="1.8" color="#8ea0b4"></i>
+                </div>
+                <div style="flex:1">
+                  <div style="font-size:13.5px;color:#dce6f0">{{ a.title }}</div>
+                  <div style="margin-top:4px;font-size:12px;color:#7f92a6">{{ a.meta }}</div>
+                </div>
+                <div style="font-size:12px;color:#6b7d90;white-space:nowrap">{{ a.time }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:#111b25;border:1px solid #1c2836;border-radius:12px;padding:20px 22px">
+          <div style="font-size:15px;font-weight:700">Quick actions</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
+            <sc-for list="{{ quickActions }}" as="q" hint-placeholder-count="6">
+              <div style="display:flex;align-items:center;gap:10px;padding:12px 13px;border:1px solid #1c2836;border-radius:9px;background:#0e1821;cursor:pointer;transition:border-color .15s ease" style-hover="border-color:#2fbf9f">
+                <i data-lucide="{{ q.icon }}" width="15" height="15" stroke-width="1.8" color="{{ accent }}"></i>
+                <span style="font-size:13px;color:#dce6f0">{{ q.label }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-top:18px;padding-top:16px;border-top:1px solid #18232f;display:flex;gap:24px;font-size:12.5px;color:#7f92a6">
+            <div>Last login <strong style="color:#dce6f0;font-weight:600">Today 00:12</strong></div>
+            <div>Role <strong style="color:#dce6f0;font-weight:600">System Manager</strong></div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;accentColor&quot;: { &quot;editor&quot;: &quot;color&quot;, &quot;default&quot;: &quot;#2fbf9f&quot;, &quot;options&quot;: [&quot;#2fbf9f&quot;, &quot;#4fb8e8&quot;, &quot;#8f7fe0&quot;, &quot;#e0b25f&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Theme&quot; },
+  &quot;showQuickStats&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Sections&quot; },
+  &quot;showActivity&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Sections&quot; }
+}">
+const MODULES = [
+  ["Dashboard", "Executive KPIs, charts and trends", "layout-dashboard", "#4fb8e8"],
+  ["Import", "Purchase orders, import shipments, cost sheets", "shopping-cart", "#4fb8e8"],
+  ["Purchase", "Receipts, invoices, landed cost vouchers", "package", "#e0b25f"],
+  ["Export", "LC Proforma, orders, packing, shipments", "ship", "#2fbf9f"],
+  ["Production", "Work orders and production status", "factory", "#e0778f"],
+  ["Inventory", "Stock balances and material movement", "boxes", "#4fb8e8"],
+  ["Reports", "Import, export, shipment and LC reports", "bar-chart-3", "#8f7fe0"],
+  ["Masters", "Items, customers and suppliers", "layers-3", "#2fbf9f"],
+  ["Accounting", "Chart of accounts, journal entries, ledgers and financial statements", "landmark", "#e0778f"],
+  ["Selling", "Quotations, sales orders and customers", "tag", "#2fbf9f"],
+  ["CRM", "Leads, opportunities and customer engagement", "heart-handshake", "#e0778f"],
+  ["Stock", "Warehouses, stock levels and stock entries", "warehouse", "#4fb8e8"],
+  ["Subcontracting", "Subcontracting orders and receipts", "settings-2", "#8f7fe0"],
+  ["Assets", "Fixed asset register, depreciation and maintenance", "building-2", "#93a4b7"],
+  ["Support", "Issues and customer support tickets", "life-buoy", "#4fb8e8"],
+  ["HR", "Employee records, attendance and leave", "users", "#8f7fe0"],
+  ["Payroll", "Salary structures, slips and payroll entries", "wallet", "#e0b25f"],
+  ["Administration", "Users, roles and access control", "shield-check", "#e0778f"],
+  ["Settings", "Company defaults, preferences and notifications", "settings", "#93a4b7"],
+  ["My Account", "Your profile, roles and security", "user-circle", "#2fbf9f"],
+];
+
+const FEATURES = {};
+[
+  ["Dashboard", ["Number cards and charts on one canvas", "Drill down from KPI to source document", "Per-role dashboard layouts"], 12, 6],
+  ["Import", ["Purchase orders with supplier quotations", "Import shipment and landed cost sheets", "Duty, freight and clearing allocation"], 14, 7],
+  ["Purchase", ["Purchase receipts and invoices", "Landed cost vouchers on receipts", "Supplier scorecards and price lists"], 16, 9],
+  ["Export", ["LC proforma, sales orders and packing", "Delivery notes and shipment tracking", "Export documentation set"], 13, 8],
+  ["Production", ["BOM, work orders and job cards", "Material request from production plan", "Operation-wise capacity planning"], 15, 7],
+  ["Inventory", ["Item-wise stock balance and ageing", "Material transfers between warehouses", "Batch and serial number tracking"], 18, 11],
+  ["Reports", ["Query and script report builder", "Saved filters and scheduled email", "Export to Excel, CSV and PDF"], 9, 24],
+  ["Masters", ["Item, customer and supplier records", "Item groups, UOMs and price lists", "Address, contact and tax templates"], 20, 6],
+  ["Accounting", ["Chart of accounts and journal entries", "General ledger and trial balance", "Balance sheet, P&L and cash flow"], 22, 18],
+  ["Selling", ["Quotations to sales orders", "Customer-wise pricing rules", "Sales analytics and order pipeline"], 14, 10],
+  ["CRM", ["Leads, opportunities and quotations", "Communication and call log timeline", "Sales funnel and conversion view"], 11, 7],
+  ["Stock", ["Stock entries, receipts and issues", "Reorder levels and stock projections", "Stock reconciliation and valuation"], 17, 12],
+  ["Subcontracting", ["Subcontracting orders and receipts", "Supplied raw material tracking", "Service item and job costing"], 8, 4],
+  ["Assets", ["Fixed asset register by category", "Automated depreciation schedules", "Asset movement, repair and scrap"], 10, 5],
+  ["Support", ["Tickets with SLA and priority", "Issue types and assignment rules", "Response and resolution analytics"], 7, 4],
+  ["HR", ["Employee records and org structure", "Attendance, shifts and leave policy", "Appraisal and onboarding workflows"], 19, 9],
+  ["Payroll", ["Salary structures and components", "Salary slips and payment entries", "Tax slabs and statutory deductions"], 12, 6],
+  ["Administration", ["Users, roles and permission rules", "Workflow and approval chains", "Audit trail and login activity"], 15, 5],
+  ["Settings", ["Company defaults and fiscal years", "Naming series and print formats", "Email, notification and alert setup"], 13, 3],
+  ["My Account", ["Profile, password and 2FA", "Assigned roles and permissions", "Session and API key management"], 5, 2],
+].forEach(([name, features, docs, reports]) => { FEATURES[name] = { features, docs, reports }; });
+
+const ACTIVITY = [
+  ["file-text", "Sales Invoice ACC-SINV-2026-00087 submitted", "Meezan Builders - Rs 186,500.00", "12m ago"],
+  ["package-check", "Purchase Receipt MAT-PRE-2026-00012 completed", "Steel Traders Ltd - 40 units", "48m ago"],
+  ["banknote", "Payment Entry ACC-PAY-2026-00058 paid", "City Estates - Rs 45,000.00", "2h ago"],
+  ["users", "3 leave applications awaiting approval", "HR - Site team", "5h ago"],
+  ["triangle-alert", "Stock level below reorder point", "Item 1410 - Stock In Hand", "Yesterday"],
+];
+
+const QUICK = [
+  ["Sales invoice", "file-plus-2"],
+  ["Purchase order", "clipboard-list"],
+  ["Journal entry", "book"],
+  ["Stock entry", "boxes"],
+  ["New customer", "user-plus"],
+  ["Run payroll", "wallet"],
+];
+
+class Component extends DCLogic {
+  state = { search: "" };
+
+  componentDidMount() { this.icons(); }
+  componentDidUpdate() { this.icons(); }
+  icons() {
+    const go = () => window.lucide && window.lucide.createIcons();
+    go();
+    if (!window.lucide) setTimeout(go, 400);
+    setTimeout(go, 1200);
+  }
+
+  renderVals() {
+    const accent = this.props.accentColor ?? "#2fbf9f";
+    const q = this.state.search.trim().toLowerCase();
+    const modules = MODULES
+      .filter(([name, desc]) => !q || (name + " " + desc).toLowerCase().includes(q))
+      .map(([name, desc, icon, color]) => {
+        const extra = FEATURES[name] || { features: [], docs: 0, reports: 0 };
+        return { name, desc, icon, color, tint: color + "1f",
+                 features: extra.features, docCount: extra.docs, reportCount: extra.reports };
+      });
+
+    return {
+      accent,
+      accentSoft: accent + "1f",
+      accentBorder: accent + "4d",
+      showQuickStats: this.props.showQuickStats ?? true,
+      showActivity: this.props.showActivity ?? true,
+      search: this.state.search,
+      setSearch: (e) => { const v = e.target.value; this.setState({ search: v }); },
+      modules,
+      moduleCount: modules.length,
+      activity: ACTIVITY.map(([icon, title, meta, time]) => ({ icon, title, meta, time })),
+      quickActions: QUICK.map(([label, icon]) => ({ label, icon })),
+    };
+  }
+}
+</script>
+</body>
+</html>

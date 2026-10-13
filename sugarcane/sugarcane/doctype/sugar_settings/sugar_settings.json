@@ -19,6 +19,7 @@
   "sb_survey",
   "overlap_tolerance_pct",
   "min_gps_accuracy_m",
+  "max_field_acres",
   "cb_survey",
   "geofence_radius_m",
   "tracking_interval_s",
@@ -133,6 +134,13 @@
    "fieldname": "min_gps_accuracy_m",
    "fieldtype": "Float",
    "label": "Minimum GPS Accuracy (m)"
+  },
+  {
+   "default": "100",
+   "description": "A survey boundary bigger than this can't be submitted (usually corners tapped with the map zoomed out)",
+   "fieldname": "max_field_acres",
+   "fieldtype": "Float",
+   "label": "Largest Field Allowed (acres)"
   },
   {
    "fieldname": "cb_survey",

@@ -27,7 +27,7 @@ interface Meta {
   centre: { lat: number; lng: number; zoom: number };
 }
 type ColourBy = "variety" | "disease" | "crop_type" | "overlap_status" | "survey_for" | "competitor_mill" | "grower_category";
-type LayerKey = "mills" | "Sugar Zone" | "Cane Circle" | "Cane Sector" | "Cane Village" | "company" | "competitor" | "attendance" | "tracks";
+type LayerKey = "mills" | "sources" | "Sugar Zone" | "Cane Circle" | "Cane Sector" | "Cane Village" | "company" | "competitor" | "attendance" | "tracks";
 
 const BOUNDARY_STYLE: Record<string, { color: string; width: number; dash?: number[] }> = {
   "Sugar Division": { color: "#be4bdb", width: 3 },
@@ -38,7 +38,7 @@ const BOUNDARY_STYLE: Record<string, { color: string; width: number; dash?: numb
   "Cane Village": { color: "#ffffff", width: 0.8 },
 };
 const LAYERS: { key: LayerKey; label: string }[] = [
-  { key: "mills", label: "Mills" }, { key: "Sugar Zone", label: "Zones" }, { key: "Cane Circle", label: "Circles" }, { key: "Cane Sector", label: "Sectors" },
+  { key: "mills", label: "Mills" }, { key: "sources", label: "Depots & check posts" }, { key: "Sugar Zone", label: "Zones" }, { key: "Cane Circle", label: "Circles" }, { key: "Cane Sector", label: "Sectors" },
   { key: "Cane Village", label: "Villages" }, { key: "company", label: "Company fields" }, { key: "competitor", label: "Competitor fields" },
   { key: "attendance", label: "Attendance" }, { key: "tracks", label: "GPS tracks" },
 ];
@@ -57,7 +57,7 @@ export function SurveyMapPage() {
   const [colourBy, setColourBy] = useState<ColourBy>("variety");
   // ?layers=attendance,tracks adds layers to the defaults (used by the Field Force links)
   const [layers, setLayers] = useState<Set<LayerKey>>(() => new Set([
-    "mills", "Sugar Zone", "Cane Circle", "Cane Village", "company", "competitor",
+    "mills", "sources", "Sugar Zone", "Cane Circle", "Cane Village", "company", "competitor",
     ...((params.get("layers") || "").split(",").filter(Boolean) as LayerKey[]),
   ]));
   const [trackDate, setTrackDate] = useState(() => new Date(Date.now() - 864e5).toISOString().slice(0, 10));
@@ -67,6 +67,7 @@ export function SurveyMapPage() {
 
   const { data: bData } = useFrappeGetCall<{ message: Record<string, FeatureCollection> }>("sugarcane.api.v1.survey_map.boundaries", undefined, "survey-boundaries");
   const { data: mData } = useFrappeGetCall<{ message: FeatureCollection }>("sugarcane.api.v1.survey_map.mills", undefined, "survey-mills");
+  const { data: srcData } = useFrappeGetCall<{ message: FeatureCollection }>("sugarcane.journey.sources_map", undefined, "sc-sources-map");
   const surveyArgs = useMemo(() => Object.fromEntries(Object.entries(filters).filter(([, v]) => v)), [filters]);
   const { data: sData, isLoading: sLoading } = useFrappeGetCall<{ message: FeatureCollection & { totals: Record<string, number>; count: number } }>(
     "sugarcane.api.v1.survey_map.surveys", surveyArgs);
@@ -101,7 +102,7 @@ export function SurveyMapPage() {
 
   return (
     <div className="relative -m-4 h-[calc(100vh-3.5rem)] md:-m-6">
-      <SurveyMap base={base} boundaries={bData?.message} mills={mData?.message} surveys={surveys} tracks={tData?.message} layers={layers} colourBy={colourBy}
+      <SurveyMap base={base} boundaries={bData?.message} mills={mData?.message} sources={srcData?.message} surveys={surveys} tracks={tData?.message} layers={layers} colourBy={colourBy}
         palette={palette} centre={meta?.centre} focus={selected} onSelect={(name) => setParams(keepFrom(params, name ? { focus: name } : {}))} />
 
       <div className="pointer-events-none absolute inset-x-3 top-3 flex flex-wrap items-start gap-2">
@@ -259,8 +260,8 @@ function Stat({ label, value, tone }: { label: string; value: string; tone?: str
 }
 
 // ------------------------------------------------------------------ map
-function SurveyMap({ base, boundaries, mills, surveys, tracks, layers, colourBy, palette, centre, focus, onSelect }: {
-  base: BaseLayer; boundaries?: Record<string, FeatureCollection>; mills?: FeatureCollection; surveys?: FeatureCollection; layers: Set<LayerKey>;
+function SurveyMap({ base, boundaries, mills, sources, surveys, tracks, layers, colourBy, palette, centre, focus, onSelect }: {
+  base: BaseLayer; boundaries?: Record<string, FeatureCollection>; mills?: FeatureCollection; sources?: FeatureCollection; surveys?: FeatureCollection; layers: Set<LayerKey>;
   tracks?: { attendance: FeatureCollection; tracks: FeatureCollection }; colourBy: ColourBy; palette: Record<string, string>;
   centre?: { lat: number; lng: number; zoom: number }; focus: string | null; onSelect: (name: string | null) => void;
 }) {
@@ -292,6 +293,12 @@ function SurveyMap({ base, boundaries, mills, surveys, tracks, layers, colourBy,
       "circle-radius": ["case", ["==", ["get", "kind"], "company"], 11, 8],
       "circle-color": ["case", ["==", ["get", "kind"], "company"], "#1c7ed6", ["coalesce", ["get", "color"], "#e03131"]],
       "circle-stroke-color": "#ffffff", "circle-stroke-width": 3 } });
+    m.addSource("sources", { type: "geojson", data: emptyFC() });
+    m.addLayer({ id: "sources-route", type: "line", source: "sources", filter: ["==", ["geometry-type"], "LineString"],
+      paint: { "line-color": "#fab005", "line-width": 2.5, "line-opacity": 0.8 }, layout: { "line-cap": "round", "line-join": "round" } });
+    m.addLayer({ id: "sources-pin", type: "circle", source: "sources", filter: ["==", ["geometry-type"], "Point"], paint: {
+      "circle-radius": 7, "circle-color": ["match", ["get", "kind"], "Depot", "#ae3ec9", "Cane Depot", "#ae3ec9", "Check Post", "#f76707", "Factory Gate", "#228be6", "Loading Point", "#12b886", "#868e96"],
+      "circle-stroke-color": "#ffffff", "circle-stroke-width": 2 } });
     m.addSource("attendance", { type: "geojson", data: emptyFC() });
     m.addLayer({ id: "attendance-pin", type: "circle", source: "attendance", paint: {
       "circle-radius": 7, "circle-color": ["match", ["get", "kind"], "in", "#be4bdb", "#495057"],
@@ -311,8 +318,18 @@ function SurveyMap({ base, boundaries, mills, surveys, tracks, layers, colourBy,
       m.on("mouseenter", layer, () => { m.getCanvas().style.cursor = "pointer"; });
       m.on("mouseleave", layer, () => { m.getCanvas().style.cursor = ""; });
     };
-    ["surveys-fill", "surveys-pin", "attendance-pin", "mills-pin", "Cane Village-fill", "Cane Circle-fill"].forEach(hover);
+    ["surveys-fill", "surveys-pin", "attendance-pin", "mills-pin", "sources-pin", "sources-route", "Cane Village-fill", "Cane Sector-fill", "Cane Circle-fill", "Sugar Zone-fill"].forEach(hover);
     m.on("click", (e) => {
+      const src = m.queryRenderedFeatures(e.point, { layers: ["sources-pin", "sources-route"].filter((l) => m.getLayer(l)) })[0];
+      if (src) {
+        const p = src.properties ?? {};
+        const mins = (v: unknown) => { const n = Math.round(Number(v) || 0); return n >= 60 ? `${Math.floor(n / 60)} h ${String(n % 60).padStart(2, "0")} min` : `${n} min`; };
+        popup.current?.remove();
+        popup.current = new maplibregl.Popup({ closeButton: true, maxWidth: "260px" }).setLngLat(e.lngLat)
+          .setHTML(`<b>${esc(p.title)}</b><br/>${esc(p.kind)}${p.circle ? ` · ${esc(p.circle)}` : ""}${p.distance_km ? `<br/>${Number(p.distance_km).toFixed(1)} km by road${p.basis ? ` (${esc(String(p.basis).toLowerCase())})` : ""}` : ""}${p.to_mill ? `<br/>To mill ${mins(p.to_mill)} · back ${mins(p.back)}<br/>Round trip ${mins(p.round_trip)}` : ""}`)
+          .addTo(m);
+        return;
+      }
       const hit = m.queryRenderedFeatures(e.point, { layers: ["surveys-fill", "surveys-pin", "attendance-pin", "mills-pin", "mills-fill"] });
       if (hit.length) {
         const a = hit.find((h) => h.layer.id === "attendance-pin");
@@ -327,7 +344,7 @@ function SurveyMap({ base, boundaries, mills, surveys, tracks, layers, colourBy,
         } else if (mill && !hit.some((h) => h.layer.id.startsWith("surveys"))) {
           const p = mill.properties ?? {};
           popup.current = new maplibregl.Popup({ closeButton: false }).setLngLat(e.lngLat)
-            .setHTML(`<b>${p.name}</b><br/>${p.kind === "company" ? "Our mill" : `Competitor${p.tcd ? ` · ${Number(p.tcd).toLocaleString()} TCD` : ""}`}`)
+            .setHTML(`<b>${esc(p.name)}</b><br/>${p.kind === "company" ? "Our mill" : `Competitor${p.tcd ? ` · ${Number(p.tcd).toLocaleString()} TCD` : ""}`}`)
             .addTo(m);
         }
         return;
@@ -337,7 +354,7 @@ function SurveyMap({ base, boundaries, mills, surveys, tracks, layers, colourBy,
       if (area) {
         const p = area.properties ?? {};
         popup.current = new maplibregl.Popup({ closeButton: false }).setLngLat(e.lngLat)
-          .setHTML(`<b>${p.title ?? p.name}</b><br/>${String(p.doctype ?? "").replace("Cane ", "").replace("Sugar ", "")}${p.code ? ` · ${p.code}` : ""}${p.area_acres ? `<br/>${Math.round(p.area_acres).toLocaleString()} acres` : ""}`)
+          .setHTML(`<b>${esc(p.title ?? p.name)}</b><br/>${String(p.doctype ?? "").replace("Cane ", "").replace("Sugar ", "")}${p.code ? ` · ${p.code}` : ""}${p.area_acres ? `<br/>${Math.round(p.area_acres).toLocaleString()} acres` : ""}`)
           .addTo(m);
       }
     });
@@ -380,6 +397,12 @@ function SurveyMap({ base, boundaries, mills, surveys, tracks, layers, colourBy,
   useEffect(() => {
     const m = map.current;
     if (!m || !ready) return;
+    (m.getSource("sources") as GeoJSONSource).setData(sources ?? emptyFC());
+  }, [sources, ready]);
+
+  useEffect(() => {
+    const m = map.current;
+    if (!m || !ready) return;
     (m.getSource("tracks") as GeoJSONSource).setData(tracks?.tracks ?? emptyFC());
     (m.getSource("attendance") as GeoJSONSource).setData(tracks?.attendance ?? emptyFC());
   }, [tracks, ready]);
@@ -404,6 +427,7 @@ function SurveyMap({ base, boundaries, mills, surveys, tracks, layers, colourBy,
     m.setLayoutProperty("tracks-line", "visibility", layers.has("tracks") ? "visible" : "none");
     for (const id of ["mills-fill", "mills-pin"]) m.setLayoutProperty(id, "visibility", layers.has("mills") ? "visible" : "none");
     m.setLayoutProperty("attendance-pin", "visibility", layers.has("attendance") ? "visible" : "none");
+    for (const id of ["sources-pin", "sources-route"]) m.setLayoutProperty(id, "visibility", layers.has("sources") ? "visible" : "none");
   }, [colourBy, palette, layers, ready]);
 
   // focus a survey (from the drawer, the desk or a link)
@@ -547,3 +571,5 @@ function SurveyDrawer({ name, onClose }: { name: string | null; onClose: () => v
     </Sheet>
   );
 }
+
+const esc = (v: unknown) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);

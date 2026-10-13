@@ -194,6 +194,9 @@ override_whitelisted_methods = {
 	"mm_core.connections.get_connections": "sugarcane.api.v1.connections.get_connections",
 	# the Desktop's Needs Attention, Recent Activity and app tiles show cane work instead of selling / buying
 	"mm_core.home.get_home": "sugarcane.api.v1.home.get_home",
+	# the approvals inbox also lists open overlap reviews (accept both / reject one)
+	"mm_core.approvals.get_inbox": "sugarcane.api.v1.approvals.get_inbox",
+	"mm_core.approvals.act": "sugarcane.api.v1.approvals.act",
 }
 #
 # each overriding function accepts a `data` argument;

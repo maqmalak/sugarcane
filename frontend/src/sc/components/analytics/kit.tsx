@@ -6,7 +6,7 @@
 import { ArrowDownRight, ArrowUpRight, Check, ChevronDown, ChevronUp, ChevronsUpDown, Info, Lightbulb, Minus, TrendingDown, TrendingUp, TriangleAlert, type LucideIcon } from "lucide-react";
 import { cloneElement, useEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { Area, AreaChart, Cell, Legend, Pie, PieChart, PolarAngleAxis, RadialBar, RadialBarChart, ResponsiveContainer, Tooltip, type TooltipProps } from "recharts";
+import { Area, AreaChart, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, type TooltipProps } from "recharts";
 import { money, num } from "@/sc/lib/format";
 import { cn } from "@/sc/lib/utils";
 
@@ -150,12 +150,23 @@ export interface Slice { name: string; value: number; color?: string; hint?: str
 export function Donut({ data, centerLabel, centerValue, fmt = num, height = 220, legendFmt }: {
   data: Slice[]; centerLabel: string; centerValue?: string; fmt?: (v: number) => string; height?: number; legendFmt?: (s: Slice) => string;
 }) {
+  // the centre figure is sized to the ring's hole (66% of the radius), so it never spills over the ring
+  const box = useRef<HTMLDivElement>(null);
+  const [hole, setHole] = useState(120);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setHole(Math.min(e.contentRect.width, e.contentRect.height) * 0.92 * 0.66 * 0.9));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const fit = (text: string) => Math.max(11, Math.min(20, hole / Math.max(text.length * 0.62, 1)));
   const total = data.reduce((a, s) => a + s.value, 0);
   const [hover, setHover] = useState<number | null>(null);
   const shown = hover !== null ? data[hover] : null;
   return (
     <div className="grid h-full items-center gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-      <div className="relative" style={{ height }}>
+      <div className="relative" style={{ height }} ref={box}>
         <ResponsiveContainer>
           <PieChart>
             <Pie data={data} dataKey="value" nameKey="name" innerRadius="66%" outerRadius="92%" paddingAngle={2} stroke="none"
@@ -166,8 +177,9 @@ export function Donut({ data, centerLabel, centerValue, fmt = num, height = 220,
         </ResponsiveContainer>
         <div className="pointer-events-none absolute inset-0 grid place-items-center text-center">
           <div>
-            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{shown ? shown.name : centerLabel}</p>
-            <p className="text-xl font-bold tabular-nums">{shown ? fmt(shown.value) : centerValue ?? fmt(total)}</p>
+            <p className="mx-auto truncate text-[11px] uppercase tracking-wide text-muted-foreground" style={{ maxWidth: hole }}>{shown ? shown.name : centerLabel}</p>
+            <p className="font-bold leading-tight tabular-nums" style={{ fontSize: fit(shown ? fmt(shown.value) : centerValue ?? fmt(total)) }}>
+              {shown ? fmt(shown.value) : centerValue ?? fmt(total)}</p>
             {shown && total > 0 && <p className="text-xs text-muted-foreground">{((shown.value * 100) / total).toFixed(1)}%</p>}
           </div>
         </div>
@@ -190,21 +202,27 @@ export function Donut({ data, centerLabel, centerValue, fmt = num, height = 220,
 }
 
 // ------------------------------------------------------------------ gauge
-export function Gauge({ value, label, sub, color }: { value: number; label: string; sub?: string; color?: string }) {
-  const tone = color ?? (value >= 80 ? C.green : value >= 60 ? C.amber : C.red);
+/** Half-ring gauge (220° arc) drawn as SVG, so it scales with its box and the figure always sits inside the ring.
+ *  `label` is the figure shown in the middle (default: the rounded value); `sub` goes underneath. */
+export function Gauge({ value, label, sub, color }: { value: number; label?: string; sub?: string; color?: string }) {
+  const v = Math.max(0, Math.min(Number(value) || 0, 100));
+  const tone = color ?? (v >= 80 ? C.green : v >= 60 ? C.amber : C.red);
+  const cx = 100, cy = 100, r = 80, start = 200, sweep = 220;
+  const pt = (deg: number) => [cx + r * Math.cos((deg * Math.PI) / 180), cy - r * Math.sin((deg * Math.PI) / 180)];
+  const arc = (from: number, to: number) => {
+    const [x1, y1] = pt(from), [x2, y2] = pt(to);
+    return `M ${x1} ${y1} A ${r} ${r} 0 ${from - to > 180 ? 1 : 0} 1 ${x2} ${y2}`;
+  };
+  const text = label ?? `${Math.round(v)}%`;
   return (
-    <div className="flex h-full flex-col items-center">
-      <div className="relative aspect-[2/1.25] w-full max-w-64">
-        <ResponsiveContainer>
-          <RadialBarChart data={[{ v: Math.min(value, 100) }]} cx="50%" cy="72%" innerRadius="105%" outerRadius="135%" startAngle={200} endAngle={-20}>
-            <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
-            <RadialBar dataKey="v" cornerRadius={10} fill={tone} background={{ fill: "hsl(var(--muted))" }} isAnimationActive={false} />
-          </RadialBarChart>
-        </ResponsiveContainer>
-        <p className="pointer-events-none absolute inset-x-0 top-[48%] text-center text-4xl font-bold tabular-nums" style={{ color: tone }}>{value.toFixed(0)}%</p>
-      </div>
-      <p className="-mt-1 text-sm font-medium">{label}</p>
-      {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
+    <div className="flex flex-col items-center">
+      <svg viewBox="0 0 200 150" className="w-full max-w-56" role="img" aria-label={`${text}${sub ? ` ${sub}` : ""}`}>
+        <path d={arc(start, start - sweep)} fill="none" stroke="hsl(var(--muted))" strokeWidth={16} strokeLinecap="round" />
+        {v > 0 && <path d={arc(start, start - (sweep * v) / 100)} fill="none" stroke={tone} strokeWidth={16} strokeLinecap="round" />}
+        <text x={cx} y={cy + 4} textAnchor="middle" dominantBaseline="middle" fill={tone}
+          style={{ fontSize: text.length > 6 ? 30 : 38, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{text}</text>
+      </svg>
+      {sub && <p className="-mt-6 text-center text-xs text-muted-foreground">{sub}</p>}
     </div>
   );
 }

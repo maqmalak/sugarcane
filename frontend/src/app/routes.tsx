@@ -8,6 +8,7 @@ import { ScProviders } from "@/sc/ScProviders";
 // Heavier / less-frequently visited pages are code-split.
 const DesktopPage = lazy(() => import("@/pages/Desktop/DesktopPage").then((m) => ({ default: m.DesktopPage })));
 const SurveyInsightsPage = lazy(() => import("@/sc/pages/SurveyInsightsPage").then((m) => ({ default: m.SurveyInsightsPage })));
+const ApprovalsInboxPage = lazy(() => import("@/sc/pages/ApprovalsInboxPage").then((m) => ({ default: m.ApprovalsInboxPage })));
 const SeasonQuotaPage = lazy(() => import("@/sc/pages/SeasonQuotaPage").then((m) => ({ default: m.SeasonQuotaPage })));
 const FieldForceInsightsPage = lazy(() => import("@/sc/pages/FieldForceInsightsPage").then((m) => ({ default: m.FieldForceInsightsPage })));
 const SurveyMapPage = lazy(() => import("@/sc/pages/SurveyMapPage").then((m) => ({ default: m.SurveyMapPage })));
@@ -76,6 +77,8 @@ export function AppRoutes() {
         <Route path="survey/dashboard" element={<Navigate to="/survey" replace />} />
         <Route path="geo" element={<Navigate to="/survey/geo" replace />} />
         <Route path="growers" element={<Navigate to="/survey/growers" replace />} />
+        <Route path="approvals" element={<Navigate to="/approvals/inbox" replace />} />
+        <Route path="approvals/inbox" element={sugar(<ApprovalsInboxPage />)} />
         <Route path="*" element={<Navigate to="/home" replace />} />
       </Route>
     </Routes>

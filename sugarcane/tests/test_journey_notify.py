@@ -131,3 +131,46 @@ class TestHome(IntegrationTestCase):
 		self.assertEqual(len(out["days"]), 7)
 		self.assertTrue(all(a["key"].startswith("sc_") or a["key"] == "approvals" for a in out["alerts"]))
 		self.assertTrue(all(a["category"] in ("survey", "field", "masters", "finance") for a in out["activity"]))
+
+
+class TestInbox(IntegrationTestCase):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		from sugarcane.setup.company import ensure_company
+
+		ensure_company()
+		_make_hierarchy()
+
+	def _pair(self, offset):
+		from sugarcane.tests.test_survey import LAT, LNG, _survey, m_lng, square
+
+		base = LAT + offset
+		a = _survey(f"91101-00000{int(offset * 100):02d}-1", square(base, LNG, 100))
+		b = _survey(f"91101-00000{int(offset * 100):02d}-2", square(base, LNG + 50 * m_lng(), 100))
+		return a, b, frappe.get_value("Survey Overlap Review", {"survey": b.name}, "name")
+
+	def test_open_overlap_is_in_the_inbox(self):
+		from sugarcane.api.v1.approvals import get_inbox
+
+		_a, b, review = self._pair(0.14)
+		item = next(p for p in get_inbox()["pending"] if p["name"] == review)
+		self.assertEqual(item["category"], "overlap")
+		self.assertIn("Accept both", item["actions"])
+		self.assertIn(f"Reject {b.name}", item["actions"])
+
+	def test_accept_and_reject_from_the_inbox(self):
+		from sugarcane.api.v1.approvals import act, get_inbox
+
+		a, b, review = self._pair(0.16)
+		act("Survey Overlap Review", review, f"Reject {b.name}")
+		self.assertEqual(frappe.db.get_value("Survey Overlap Review", review, "status"), "Rejected Survey")
+		self.assertEqual(frappe.db.get_value("Cane Survey", b.name, "docstatus"), 2)  # the rejected survey is cancelled
+		self.assertFalse(any(p["name"] == review for p in get_inbox()["pending"]))
+		self.assertTrue(any(r["name"] == review and r["category"] == "overlap" for r in get_inbox()["recent"]))
+		with self.assertRaises(frappe.ValidationError):
+			act("Survey Overlap Review", review, "Accept both")  # already decided
+
+		_a2, _b2, review2 = self._pair(0.18)
+		act("Survey Overlap Review", review2, "Accept both")
+		self.assertEqual(frappe.db.get_value("Survey Overlap Review", review2, "status"), "Accepted")

@@ -4,7 +4,7 @@
  */
 import {
   BarChart3, Boxes, ClipboardList, FileSpreadsheet, Gauge, LayoutDashboard, Leaf, Map as MapIcon, MapPinned, Receipt,
-  Sparkles, Target, Ticket, Truck, UserCog, Users, Warehouse, Weight, Beaker, Factory, Banknote, type LucideIcon,
+  Sparkles, Target, Ticket, Inbox, Layers, Truck, UserCog, Users, Warehouse, Weight, Beaker, Factory, Banknote, type LucideIcon,
 } from "lucide-react";
 import { SC_DOCS, docBase, type ScApp } from "@/sc/registry";
 
@@ -51,6 +51,7 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
       title: "EagleEye Survey",
       items: [
         { label: "Insights", to: "/survey", icon: Sparkles, roles: SURVEY_ROLES },
+        { label: "Approvals inbox", to: "/approvals/inbox", icon: Inbox, roles: [...MANAGERS, "Circle Officer"] },
         { label: "Survey Map", to: "/survey/map", icon: MapIcon, roles: SURVEY_ROLES },
         { label: "Season Quotas", to: "/survey/quota", icon: Target, roles: [...MANAGERS, "Circle Officer", "MIS Viewer"] },
         { label: "Area Map", to: "/survey/geo", icon: MapPinned, roles: [...MANAGERS, "Circle Officer"] },
@@ -79,6 +80,7 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
       : g),
   ],
   reports: [{ title: "Reports", items: [{ label: "Report Centre", to: "/reports", icon: FileSpreadsheet }] }],
+  approvals: [{ title: "Approvals", items: [{ label: "Inbox", to: "/approvals/inbox", icon: Inbox }, { label: "Overlap reviews", to: "/survey/d/survey-overlap-review", icon: Layers }] }],
   mill: [
     {
       title: "Coming in later phases",
@@ -102,6 +104,7 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
 export const APP_LABELS: Record<string, string> = {
   home: "Apps",
   survey: "EagleEye Survey",
+  approvals: "Approvals",
   "field-force": "Field Force",
   setup: "Sugar Setup",
   reports: "Report Centre",
@@ -132,6 +135,8 @@ export const ROUTE_TITLES: Record<string, string> = {
   map: "Survey Map",
   quota: "Season Quotas",
   "area-map": "Area Map",
+  approvals: "Approvals",
+  inbox: "Inbox",
   users: "Users & Devices",
   mill: "Mill Operations",
 };

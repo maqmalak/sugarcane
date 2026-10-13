@@ -4,7 +4,7 @@
  */
 import {
   BarChart3, Boxes, ClipboardList, FileSpreadsheet, Gauge, LayoutDashboard, Leaf, Map as MapIcon, MapPinned, Receipt,
-  Sparkles, Ticket, Truck, UserCog, Users, Warehouse, Weight, Beaker, Factory, Banknote, type LucideIcon,
+  Sparkles, Target, Ticket, Truck, UserCog, Users, Warehouse, Weight, Beaker, Factory, Banknote, type LucideIcon,
 } from "lucide-react";
 import { SC_DOCS, docBase, type ScApp } from "@/sc/registry";
 
@@ -52,6 +52,7 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
       items: [
         { label: "Insights", to: "/survey", icon: Sparkles, roles: SURVEY_ROLES },
         { label: "Survey Map", to: "/survey/map", icon: MapIcon, roles: SURVEY_ROLES },
+        { label: "Season Quotas", to: "/survey/quota", icon: Target, roles: [...MANAGERS, "Circle Officer", "MIS Viewer"] },
         { label: "Area Map", to: "/survey/geo", icon: MapPinned, roles: [...MANAGERS, "Circle Officer"] },
         { label: "Growers", to: "/survey/growers", icon: Users, roles: [...MANAGERS, "Circle Officer", "Cane Accountant", "MIS Viewer"] },
       ],
@@ -126,6 +127,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   reports: "Report Centre",
   geo: "Area Map",
   map: "Survey Map",
+  quota: "Season Quotas",
   users: "Users & Devices",
   mill: "Mill Operations",
 };

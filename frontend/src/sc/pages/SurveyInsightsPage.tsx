@@ -118,6 +118,7 @@ export function SurveyInsightsPage() {
             </ResponsiveContainer>
           </ChartCard>
           <ChartCard title="Season quota" sub="Expected cane against the circles' quotas" bodyClass="h-auto"
+            actions={<Link to="/survey/quota" className="text-xs font-semibold text-primary hover:underline">Adjust quotas →</Link>}
             insight={k.quota_cover < 100 ? `${num(Math.round((k.quota - k.expected) / 1000))}k maund still to find.` : "Survey covers the full quota."}>
             <div className="flex flex-col items-center gap-3 py-2">
               <Gauge value={Math.min(k.quota_cover, 100)} label={`${k.quota_cover}%`} sub="of quota surveyed" color={k.quota_cover >= 90 ? C.green : C.amber} />

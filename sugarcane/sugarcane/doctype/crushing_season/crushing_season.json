@@ -30,6 +30,8 @@
   "molasses_nrv_per_kg",
   "bagasse_nrv_per_kg",
   "press_mud_nrv_per_kg",
+  "sb_quotas",
+  "circle_quotas",
   "is_demo"
  ],
  "fields": [
@@ -188,6 +190,19 @@
    "options": "Company:company:default_currency"
   },
   {
+   "fieldname": "sb_quotas",
+   "fieldtype": "Section Break",
+   "label": "Circle Quotas",
+   "collapsible": 1,
+   "description": "Cane quota of each circle for this season. A circle without a row uses the quota on the circle."
+  },
+  {
+   "fieldname": "circle_quotas",
+   "fieldtype": "Table",
+   "label": "Circle Quotas",
+   "options": "Season Circle Quota"
+  },
+  {
    "default": "0",
    "fieldname": "is_demo",
    "fieldtype": "Check",
@@ -199,7 +214,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-10-13 12:00:00.000000",
+ "modified": "2026-10-14 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Sugarcane",
  "name": "Crushing Season",

@@ -20,6 +20,13 @@ class CrushingSeason(Document):
 			if other:
 				frappe.throw(_("Season {0} is already open for {1}. Close it first.").format(
 					frappe.bold(other), frappe.bold(self.company)))
+		seen = set()
+		for row in self.get("circle_quotas") or []:
+			if row.circle in seen:
+				frappe.throw(_("Row {0}: circle {1} has more than one quota").format(row.idx, frappe.bold(row.circle)))
+			seen.add(row.circle)
+			if (row.quota_maund or 0) < 0:
+				frappe.throw(_("Row {0}: the quota cannot be negative").format(row.idx))
 
 	def on_update(self):
 		settings = frappe.get_single("Sugar Settings")

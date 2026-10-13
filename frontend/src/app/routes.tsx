@@ -8,6 +8,7 @@ import { ScProviders } from "@/sc/ScProviders";
 // Heavier / less-frequently visited pages are code-split.
 const DesktopPage = lazy(() => import("@/pages/Desktop/DesktopPage").then((m) => ({ default: m.DesktopPage })));
 const SurveyInsightsPage = lazy(() => import("@/sc/pages/SurveyInsightsPage").then((m) => ({ default: m.SurveyInsightsPage })));
+const SeasonQuotaPage = lazy(() => import("@/sc/pages/SeasonQuotaPage").then((m) => ({ default: m.SeasonQuotaPage })));
 const FieldForceInsightsPage = lazy(() => import("@/sc/pages/FieldForceInsightsPage").then((m) => ({ default: m.FieldForceInsightsPage })));
 const SurveyMapPage = lazy(() => import("@/sc/pages/SurveyMapPage").then((m) => ({ default: m.SurveyMapPage })));
 const AreaMapPage = lazy(() => import("@/sc/pages/AreaMapPage").then((m) => ({ default: m.AreaMapPage })));
@@ -45,6 +46,7 @@ export function AppRoutes() {
         {/* EagleEye Survey */}
         <Route path="survey" element={sugar(<SurveyInsightsPage />)} />
         <Route path="survey/map" element={sugar(<SurveyMapPage />)} />
+        <Route path="survey/quota" element={sugar(<SeasonQuotaPage />)} />
         <Route path="survey/geo" element={sugar(<AreaMapPage />)} />
         <Route path="survey/growers" element={sugar(<GrowersPage />)} />
         <Route path="survey/d/:slug" element={sugar(<MetaDocPage mode="list" />)} />

@@ -1,0 +1,1 @@
+const n=new Intl.NumberFormat("en-PK"),o=t=>t==null?"—":n.format(Math.round(t));function r(t){return t?new Date(`${t}T00:00:00`).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}):"—"}export{r as a,o as f};

@@ -7,6 +7,8 @@ import frappe
 from frappe import _
 from frappe.utils import add_days, cint, flt, get_datetime, getdate, nowdate
 
+from sugarcane.quota import season_quotas
+
 SURVEY_FIELDS = ["name", "survey_date", "survey_for", "competitor_mill", "grower", "grower_category", "circle", "village",
 	"variety", "crop_type", "crop_condition", "disease", "disease_pct", "calc_area_acres", "crop_land_acres",
 	"expected_production_maund", "overlap_status", "surveyor"]
@@ -86,6 +88,7 @@ def survey(season: str | None = None) -> dict:
 
 	circles = {c.name: c for c in frappe.get_list("Cane Circle", fields=["name", "circle_code", "zone", "quota_maund",
 		"affiliation", "area_acres"], limit_page_length=0)}
+	quotas = season_quotas(season)
 	comp_by_circle = defaultdict(float)
 	for r in competitor:
 		comp_by_circle[r.circle] += flt(r.calc_area_acres)
@@ -94,8 +97,8 @@ def survey(season: str | None = None) -> dict:
 		c = circles.get(k) or frappe._dict()
 		ours, theirs = d["acres"], comp_by_circle.get(k, 0.0)
 		by_circle.append({"name": k, "code": c.circle_code, "zone": c.zone, "affiliation": c.affiliation, "fields": d["fields"],
-			"growers": d["growers"], "acres": round(ours, 1), "expected": round(d["expected"]), "quota": flt(c.quota_maund),
-			"quota_cover": _pct(d["expected"], flt(c.quota_maund)), "competitor_acres": round(theirs, 1),
+			"growers": d["growers"], "acres": round(ours, 1), "expected": round(d["expected"]), "quota": quotas.get(k, 0.0),
+			"quota_cover": _pct(d["expected"], quotas.get(k, 0.0)), "competitor_acres": round(theirs, 1),
 			"competitor_share": _pct(theirs, ours + theirs)})
 
 	diseases = defaultdict(lambda: {"fields": 0, "acres": 0.0, "pct": 0.0})

@@ -128,14 +128,23 @@ LINKED_TABLES = (  # rows that point at a record by (doctype field, name field);
 	("Version", "ref_doctype", "docname"), ("Comment", "reference_doctype", "reference_name"),
 	("DocShare", "share_doctype", "share_name"), ("ToDo", "reference_type", "reference_name"),
 	("View Log", "reference_doctype", "reference_name"), ("Document Follow", "ref_doctype", "ref_docname"),
-	("Activity Log", "reference_doctype", "reference_name"), ("File", "attached_to_doctype", "attached_to_name"),
+	("Activity Log", "reference_doctype", "reference_name"),
 )
 
 
 def _purge(doctype, names):
-	"""Delete records and everything hanging off them in bulk (no per-record delete jobs)."""
+	"""Delete records and everything hanging off them in bulk (no per-record delete jobs), including their files."""
 	if not names:
 		return
+	import os
+
+	for f in frappe.get_all("File", filters={"attached_to_doctype": doctype, "attached_to_name": ["in", names]},
+			fields=["name", "file_url", "is_private"]):
+		path = frappe.get_site_path(f.file_url.lstrip("/")) if f.file_url and f.is_private else (
+			frappe.get_site_path("public", f.file_url.lstrip("/")) if f.file_url else None)
+		if path and os.path.exists(path):
+			os.remove(path)
+	frappe.db.delete("File", {"attached_to_doctype": doctype, "attached_to_name": ["in", names]})
 	for i in range(0, len(names), 500):
 		chunk = names[i:i + 500]
 		for df in frappe.get_meta(doctype).get_table_fields():

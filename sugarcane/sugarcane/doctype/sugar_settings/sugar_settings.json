@@ -11,6 +11,11 @@
   "cb_general",
   "maund_kg",
   "crushing_day_start_hour",
+  "sb_mill",
+  "mill_latitude",
+  "mill_longitude",
+  "cb_mill",
+  "mill_boundary",
   "sb_survey",
   "overlap_tolerance_pct",
   "min_gps_accuracy_m",
@@ -84,6 +89,33 @@
    "fieldname": "crushing_day_start_hour",
    "fieldtype": "Int",
    "label": "Crushing Day Starts At (hour)"
+  },
+  {
+   "description": "Shown on the survey maps; set it here or in React → Area Map → Company",
+   "fieldname": "sb_mill",
+   "fieldtype": "Section Break",
+   "label": "Mill Location"
+  },
+  {
+   "fieldname": "mill_latitude",
+   "fieldtype": "Float",
+   "label": "Mill Latitude",
+   "precision": "6"
+  },
+  {
+   "fieldname": "mill_longitude",
+   "fieldtype": "Float",
+   "label": "Mill Longitude",
+   "precision": "6"
+  },
+  {
+   "fieldname": "cb_mill",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "mill_boundary",
+   "fieldtype": "Geolocation",
+   "label": "Mill Premises"
   },
   {
    "fieldname": "sb_survey",

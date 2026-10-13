@@ -12,6 +12,7 @@ import { NotFoundPage } from "@/pages/NotFoundPage";
 import { SurveyMapPage } from "@/pages/SurveyMapPage";
 import { SurveyDashboardPage } from "@/pages/SurveyDashboardPage";
 import { AreaMapPage } from "@/pages/AreaMapPage";
+import { FieldForcePage } from "@/pages/FieldForcePage";
 import { BUILT_PHASE, NAVIGATION } from "@/app/navigation";
 
 const SITE = window.sugar_site && !window.sugar_site.startsWith("{{") ? window.sugar_site : "sugarcane.local";
@@ -53,6 +54,7 @@ function RequireLogin() {
         <Route path="/survey" element={<SurveyMapPage />} />
         <Route path="/survey/dashboard" element={<SurveyDashboardPage />} />
         <Route path="/geo" element={<AreaMapPage />} />
+        <Route path="/field-force" element={<FieldForcePage />} />
         {later.map((item) => (
           <Route key={item.path} path={item.path} element={<ComingSoonPage item={item} />} />
         ))}

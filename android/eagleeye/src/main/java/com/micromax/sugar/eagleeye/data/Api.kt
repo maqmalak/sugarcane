@@ -53,6 +53,7 @@ data class Masters(
     val varieties: List<MVariety> = emptyList(),
     val diseases: List<MDisease> = emptyList(),
     val growers: List<MGrower> = emptyList(),
+    @SerialName("competitor_mills") val competitorMills: List<MCompetitorMill> = emptyList(),
     val targets: List<MTarget> = emptyList(),
     @SerialName("my_surveys") val mySurveys: List<MSurvey> = emptyList(),
 )
@@ -65,6 +66,9 @@ data class MasterSettings(
     @SerialName("min_gps_accuracy_m") val minGpsAccuracyM: Double = 20.0,
     @SerialName("max_photo_mb") val maxPhotoMb: Double = 5.0,
     @SerialName("overlap_tolerance_pct") val overlapTolerancePct: Double = 5.0,
+    val company: String? = null,
+    @SerialName("mill_latitude") val millLatitude: Double? = null,
+    @SerialName("mill_longitude") val millLongitude: Double? = null,
 )
 
 @Serializable data class MCircle(val name: String, @SerialName("circle_code") val code: String? = null, val zone: String? = null,
@@ -77,7 +81,9 @@ data class MasterSettings(
 @Serializable data class MDisease(val name: String, val severity: String? = null)
 @Serializable data class MGrower(val name: String, @SerialName("grower_name") val growerName: String, @SerialName("father_name") val fatherName: String? = null,
     val cnic: String? = null, @SerialName("passbook_no") val passbookNo: String? = null, val mobile: String? = null,
-    val circle: String, val village: String, val disabled: Int = 0)
+    val circle: String, val village: String, val disabled: Int = 0, @SerialName("grower_photo") val growerPhoto: String? = null)
+@Serializable data class MCompetitorMill(val name: String, @SerialName("short_name") val shortName: String? = null,
+    val latitude: Double? = null, val longitude: Double? = null, @SerialName("is_active") val isActive: Int = 1)
 @Serializable data class MTarget(val name: String, val circle: String? = null, @SerialName("target_acres") val targetAcres: Double = 0.0,
     @SerialName("target_surveys") val targetSurveys: Int = 0)
 @Serializable data class MSurvey(val name: String, @SerialName("survey_uuid") val uuid: String? = null,

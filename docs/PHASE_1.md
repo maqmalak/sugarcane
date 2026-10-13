@@ -97,10 +97,25 @@ a correct total row (averages are recomputed, not summed).
 - 13 days of attendance (today = checked in, not out) with about 6,600 GPS points.
 - The reset deletes in bulk (no per-record background jobs).
 
+### Additions after the EagleEye overview (2026-10-13)
+See `docs/EAGLEEYE_OVERVIEW.md` for the feature-by-feature map.
+- **Company mill location:** Sugar Settings → Mill Location (pin and premises), also editable on the Area Map. Shown on the Survey Map *Mills* layer.
+- **Competitor Mill** master: pin, premises, capacity in TCD, colour. Competitor fields link to it; the map can filter and colour by it. Demo mills are fictional.
+- **Non-passbook growers (CNIC-based survey):** *Grower Type* on the survey. The CNIC and name are checked. An existing grower with that CNIC is linked; otherwise a grower is registered without a passbook on submit. The phone has a *No passbook (CNIC)* option.
+- **Grower photo** on the survey, with its coordinates and time. The first one becomes the grower's profile photo (`Grower.grower_photo`). It shows in the drawer, the Growers list and on the phone.
+- **Field Force** page (`/sugar/field-force`):
+  - field users with circles, today's attendance, last GPS point and target progress
+  - add a field user, assign circles, enable or disable a login (disabling also blocks their phones)
+  - approve or block devices
+- **Demo:** about one field in three has geo-stamped photos and a grower photo; every attendance day has selfies; 25 non-passbook surveys; 3 competitor mills.
+- **Android database v2** (Room auto-migration, tested on the emulator over v1 data). Two fixes found on the emulator:
+  - the CNIC field now uses a display mask; inserting the dashes while typing moved the cursor and scrambled digits
+  - camera and GPS callbacks now update the latest form state; an old copy used to wipe the grower photo
+
 ## How to test
 
 ```bash
-bench --site sugarcane.local run-tests --app sugarcane        # 59 tests (27 unit + 32 integration)
+bench --site sugarcane.local run-tests --app sugarcane        # 67 tests (27 unit + 40 integration)
 bench --site sugarcane.local sc-reset-demo                     # fresh demo, ~20 s
 cd apps/sugarcane/android && ./gradlew :core:testDebugUnitTest :eagleeye:assembleDebug
 ```

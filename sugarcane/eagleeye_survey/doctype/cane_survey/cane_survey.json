@@ -13,11 +13,24 @@
   "surveyor",
   "survey_for",
   "competitor_mill",
+  "grower_category",
   "cb_top",
   "grower",
   "grower_name",
   "cnic",
   "passbook_no",
+  "sb_np",
+  "np_cnic",
+  "np_grower_name",
+  "cb_np",
+  "np_father_name",
+  "np_mobile",
+  "sb_grower_photo",
+  "grower_photo",
+  "cb_gp",
+  "grower_photo_latitude",
+  "grower_photo_longitude",
+  "grower_photo_taken_at",
   "sb_location",
   "circle",
   "village",
@@ -126,19 +139,33 @@
   {
    "depends_on": "eval:doc.survey_for=='Competitor'",
    "fieldname": "competitor_mill",
-   "fieldtype": "Data",
-   "label": "Competitor Mill"
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Competitor Mill",
+   "mandatory_depends_on": "eval:doc.survey_for=='Competitor'",
+   "options": "Competitor Mill"
+  },
+  {
+   "default": "Passbook Grower",
+   "depends_on": "eval:doc.survey_for=='Company'",
+   "fieldname": "grower_category",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Grower Type",
+   "options": "Passbook Grower\nNon-Passbook Grower"
   },
   {
    "fieldname": "cb_top",
    "fieldtype": "Column Break"
   },
   {
+   "depends_on": "eval:doc.survey_for=='Company'",
+   "description": "Passbook grower from the registry. A non-passbook grower is registered from the CNIC on submit.",
    "fieldname": "grower",
    "fieldtype": "Link",
    "in_standard_filter": 1,
    "label": "Grower",
-   "mandatory_depends_on": "eval:doc.survey_for=='Company'",
+   "mandatory_depends_on": "eval:doc.survey_for=='Company' && doc.grower_category!='Non-Passbook Grower'",
    "options": "Grower"
   },
   {
@@ -161,6 +188,76 @@
    "fieldname": "passbook_no",
    "fieldtype": "Data",
    "label": "Passbook No.",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.survey_for=='Company' && doc.grower_category=='Non-Passbook Grower' && !doc.grower",
+   "description": "CNIC-based survey for a grower without a passbook. An existing grower with this CNIC is linked; otherwise one is registered when the survey is submitted.",
+   "fieldname": "sb_np",
+   "fieldtype": "Section Break",
+   "label": "Non-Passbook Grower"
+  },
+  {
+   "fieldname": "np_cnic",
+   "fieldtype": "Data",
+   "label": "Grower CNIC",
+   "mandatory_depends_on": "eval:doc.survey_for=='Company' && doc.grower_category=='Non-Passbook Grower' && !doc.grower"
+  },
+  {
+   "fieldname": "np_grower_name",
+   "fieldtype": "Data",
+   "label": "Grower Name",
+   "mandatory_depends_on": "eval:doc.survey_for=='Company' && doc.grower_category=='Non-Passbook Grower' && !doc.grower"
+  },
+  {
+   "fieldname": "cb_np",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "np_father_name",
+   "fieldtype": "Data",
+   "label": "Father / Husband Name"
+  },
+  {
+   "fieldname": "np_mobile",
+   "fieldtype": "Data",
+   "label": "Mobile",
+   "options": "Phone"
+  },
+  {
+   "depends_on": "eval:doc.survey_for=='Company'",
+   "fieldname": "sb_grower_photo",
+   "fieldtype": "Section Break",
+   "label": "Grower Photo"
+  },
+  {
+   "description": "Photo of the grower at the field; the first one also becomes the grower's profile photo",
+   "fieldname": "grower_photo",
+   "fieldtype": "Attach Image",
+   "label": "Grower Photo"
+  },
+  {
+   "fieldname": "cb_gp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "grower_photo_latitude",
+   "fieldtype": "Float",
+   "label": "Photo Latitude",
+   "precision": "6",
+   "read_only": 1
+  },
+  {
+   "fieldname": "grower_photo_longitude",
+   "fieldtype": "Float",
+   "label": "Photo Longitude",
+   "precision": "6",
+   "read_only": 1
+  },
+  {
+   "fieldname": "grower_photo_taken_at",
+   "fieldtype": "Datetime",
+   "label": "Photo Taken At",
    "read_only": 1
   },
   {
@@ -524,6 +621,7 @@
    "read_only": 1
   }
  ],
+ "image_field": "grower_photo",
  "index_web_pages_for_search": 0,
  "is_submittable": 1,
  "links": [],

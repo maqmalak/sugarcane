@@ -82,7 +82,7 @@ fun HomeScreen(vm: AppViewModel, openSurvey: (String) -> Unit, openSettings: () 
                 title = { Column { Text("EagleEye", fontWeight = FontWeight.SemiBold); Text(vm.repo.session.fullName ?: "", style = MaterialTheme.typography.labelSmall) } },
                 actions = {
                     if (syncing) CircularProgressIndicator(Modifier.size(22.dp), color = Color.White, strokeWidth = 2.dp)
-                    else BadgedBox(badge = { if (pending + (if (points > 0) 1 else 0) > 0) Badge { Text("${pending}") } }) {
+                    else BadgedBox(badge = { if (pending > 0) Badge { Text("$pending") } else if (points > 0) Badge() }) {
                         IconButton(onClick = { vm.syncNow() }) { Icon(Icons.Default.CloudUpload, "Sync now") }
                     }
                     IconButton(onClick = openSettings) { Icon(Icons.Default.Settings, "Settings") }

@@ -16,6 +16,18 @@ class SugarSettings(Document):
 				"Crushing Season", self.active_season, "company") != self.company:
 			frappe.throw(_("Season {0} belongs to another company").format(frappe.bold(self.active_season)))
 
+		self.set_mill_pin()
+
+	def set_mill_pin(self):
+		from sugarcane.calc import geo
+
+		try:
+			poly = geo.polygon_of(self.mill_boundary)
+		except (geo.GeoError, ValueError, TypeError, KeyError) as e:
+			frappe.throw(_("The mill premises are not a valid polygon: {0}").format(e))
+		if poly is not None and not (self.mill_latitude and self.mill_longitude):
+			self.mill_latitude, self.mill_longitude = (round(v, 6) for v in geo.centroid(poly))
+
 	def on_update(self):
 		frappe.clear_document_cache("Sugar Settings", "Sugar Settings")
 

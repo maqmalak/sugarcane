@@ -1,6 +1,6 @@
 import {
   Banknote, BarChart3, Beaker, ClipboardList, Factory, Gauge, Home, LayoutDashboard, Map, MapPinned, Receipt, ScrollText, Ticket,
-  Truck, Users, Warehouse, Weight, type LucideIcon,
+  Truck, UserCog, Users, Warehouse, Weight, type LucideIcon,
 } from "lucide-react";
 
 export interface NavItem {
@@ -36,6 +36,7 @@ export const NAVIGATION: NavGroup[] = [
       { label: "Survey Map", path: "/survey", icon: Map, roles: [...MANAGERS, "Circle Officer", "Surveyor", "MIS Viewer"], phase: 1 },
       { label: "Survey Dashboard", path: "/survey/dashboard", icon: BarChart3, roles: [...MANAGERS, "Circle Officer", "Surveyor", "MIS Viewer"], phase: 1 },
       { label: "Area Map", path: "/geo", icon: MapPinned, roles: [...MANAGERS, "Circle Officer"], phase: 1 },
+      { label: "Field Force", path: "/field-force", icon: UserCog, roles: [...MANAGERS, "Circle Officer"], phase: 1 },
       { label: "Indents", path: "/indents", icon: ClipboardList, roles: [...MANAGERS, "Indent Clerk", "Circle Officer"], phase: 2 },
     ],
   },

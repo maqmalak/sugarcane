@@ -64,6 +64,7 @@ class Repository(private val context: Context) {
         dao.villages(m.villages.filter { it.isActive == 1 }.map { VillageE(it.name, it.title, it.code, it.circle, it.sector, it.latitude, it.longitude, it.polygon) })
         dao.varieties(m.varieties.filter { it.isActive == 1 }.map { VarietyE(it.name, it.expectedYield, it.color) })
         dao.diseases(m.diseases.map { DiseaseE(it.name, it.severity) })
+        dao.competitorMills(m.competitorMills.filter { it.isActive == 1 }.map { CompetitorMillE(it.name, it.shortName, it.latitude, it.longitude) })
         dao.growers(m.growers.filter { it.disabled == 0 }.map { GrowerE(it.name, it.growerName, it.fatherName, it.cnic, it.passbookNo, it.mobile, it.circle, it.village) })
         m.growers.filter { it.disabled == 1 }.map { it.name }.takeIf { it.isNotEmpty() }?.let { dao.deleteGrowers(it) }
         dao.clearTargets()
@@ -123,7 +124,21 @@ class Repository(private val context: Context) {
         settings.season?.let { put("season", it) }
         put("survey_for", s.surveyFor)
         s.competitorMill?.let { put("competitor_mill", it) }
+        if (s.surveyFor == "Company") {
+            put("grower_category", s.growerCategory)
+            if (s.grower == null) {
+                s.npCnic?.let { put("np_cnic", it) }; s.npName?.let { put("np_grower_name", it) }
+                s.npFather?.let { put("np_father_name", it) }; s.npMobile?.let { put("np_mobile", it) }
+            }
+        }
         s.grower?.let { put("grower", it) }
+        s.growerPhotoPath?.let { path -> File(path).takeIf { it.exists() }?.let { f ->
+            put("grower_photo", buildJsonObject {
+                put("filename", f.name); put("data", Photos.base64(f))
+                s.growerPhotoLat?.let { put("latitude", it) }; s.growerPhotoLng?.let { put("longitude", it) }
+                s.growerPhotoAt?.let { put("taken_at", it) }
+            })
+        } }
         put("circle", s.circle); put("village", s.village)
         s.murabbaNo?.let { put("murabba_no", it) }; s.killaNo?.let { put("killa_no", it) }
         s.totalAcres?.let { put("total_acres", it) }; s.emptyAcres?.let { put("empty_land_acres", it) }

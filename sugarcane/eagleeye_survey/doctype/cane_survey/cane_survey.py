@@ -8,6 +8,7 @@ from frappe.utils import flt, now_datetime
 
 from sugarcane.calc import geo
 from sugarcane.eagleeye_survey import overlaps
+from sugarcane.utils import clean_cnic
 
 AREA_TOLERANCE_ACRES = 0.05  # empty + cane may exceed the total by rounding only
 
@@ -30,8 +31,19 @@ class CaneSurvey(Document):
 				frappe.bold(self.village), frappe.bold(village_circle), frappe.bold(self.circle)))
 		if self.survey_for == "Competitor":
 			if not self.competitor_mill:
-				frappe.throw(_("Enter the competitor mill"))
-		elif self.grower:
+				frappe.throw(_("Choose the competitor mill"))
+			self.grower = None
+			return
+		self.competitor_mill = None
+		if self.grower_category == "Non-Passbook Grower" and not self.grower:
+			self.np_cnic = clean_cnic(self.np_cnic, _("Grower CNIC"))
+			if not (self.np_grower_name or "").strip():
+				frappe.throw(_("Enter the grower's name"))
+			# a grower already registered with this CNIC (e.g. surveyed before) is linked, not duplicated
+			self.grower = frappe.db.get_value("Grower", {"cnic": self.np_cnic}, "name")
+		if not self.grower and self.grower_category != "Non-Passbook Grower":
+			frappe.throw(_("Choose the grower, or switch Grower Type to Non-Passbook Grower"))
+		if self.grower:
 			grower_circle = frappe.db.get_value("Grower", self.grower, "circle")
 			if grower_circle != self.circle:
 				frappe.msgprint(_("Grower {0} is registered in {1}; this field is in {2}").format(
@@ -75,8 +87,25 @@ class CaneSurvey(Document):
 	def before_submit(self):
 		if not self.polygon or not flt(self.calc_area_acres):
 			frappe.throw(_("Draw or walk the field boundary before submitting"))
+		if self.survey_for == "Company" and not self.grower:
+			self.register_grower()
+
+	def register_grower(self):
+		"""CNIC-based survey of a grower without a passbook: register the grower (no passbook) in the survey's village."""
+		grower = frappe.get_doc({"doctype": "Grower", "grower_name": self.np_grower_name.strip(), "father_name": self.np_father_name,
+			"cnic": self.np_cnic, "mobile": self.np_mobile, "circle": self.circle, "village": self.village,
+			"grower_photo": self.grower_photo,
+			"is_demo": self.get("is_demo") or 0})
+		grower.flags.ignore_permissions = True
+		grower.insert()
+		grower.add_comment("Comment", _("Registered from non-passbook survey {0}").format(self.name))
+		self.grower = grower.name
+		self.grower_name = grower.grower_name
+		self.cnic = grower.cnic
 
 	def on_submit(self):
+		if self.grower and self.grower_photo and not frappe.db.get_value("Grower", self.grower, "grower_photo"):
+			frappe.db.set_value("Grower", self.grower, "grower_photo", self.grower_photo)  # first survey photo → profile
 		if not self.synced_at and self.survey_uuid:
 			self.db_set("synced_at", now_datetime(), update_modified=False)
 		overlaps.detect(self)

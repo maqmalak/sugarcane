@@ -24,10 +24,16 @@ SURVEYORS = (  # prefix, first, last, circles
 	("surveyor.shorkot", "Qasim", "Riaz", ("Shorkot", "Ahmedpur Sial")),
 	("surveyor.athara", "Waqas", "Nadeem", ("Athara Hazari", "Chiniot Road")),
 )
-COMPETITORS = ("Al-Noor Sugar Mills", "Shakarganj Sugar", "Hamza Sugar Mills")
+COMPETITORS = (  # fictional mills: name, short, district, capacity TCD, (lat, lng), colour
+	("Chenab Valley Sugar Mills", "CVSM", "Sargodha", 9000, (32.215, 73.115), "#e03131"),
+	("Thal Agro Sugar Industries", "TASI", "Khushab", 7500, (32.255, 72.180), "#f76707"),
+	("Jhang Riverside Sugar", "JRS", "Jhang", 11000, (31.020, 72.180), "#c2255c"),
+)
+MILL = (32.083, 72.671)  # the company mill, near Sargodha
 SURVEY_FROM, SURVEY_TO = "2026-08-15", "2026-10-12"
 PHASE1_DOCTYPES = ("Survey Overlap Review", "Cane Survey", "Surveyor Attendance", "Surveyor Location Log",
-	"Surveyor Target", "Survey Device")
+	"Surveyor Target", "Survey Device", "Competitor Mill")
+NON_PASSBOOK = 25
 
 
 def _fc(geom):
@@ -75,6 +81,25 @@ def hierarchy_geo():
 			save("Sugar Division", d, unary_union(polys).convex_hull.buffer(0.01))
 
 
+def mills():
+	"""The company mill's pin and premises (Sugar Settings) and the competitor mills."""
+	settings = frappe.get_single("Sugar Settings")
+	if not settings.mill_latitude:
+		settings.mill_latitude, settings.mill_longitude = MILL
+		ring = [(MILL[1] - 0.004, MILL[0] - 0.003), (MILL[1] + 0.004, MILL[0] - 0.003), (MILL[1] + 0.004, MILL[0] + 0.003),
+			(MILL[1] - 0.004, MILL[0] + 0.003)]
+		settings.mill_boundary = _fc(Polygon(ring))
+		settings.flags.ignore_permissions = True
+		settings.save()
+	for name, short, district, tcd, (lat, lng), colour in COMPETITORS:
+		if not frappe.db.exists("Competitor Mill", name):
+			ring = [(lng - 0.003, lat - 0.002), (lng + 0.003, lat - 0.002), (lng + 0.003, lat + 0.002), (lng - 0.003, lat + 0.002)]
+			frappe.get_doc({"doctype": "Competitor Mill", "mill_name": name, "short_name": short,
+				"district": district if frappe.db.exists("Sugar District", district) else None, "crushing_capacity_tcd": tcd,
+				"latitude": lat, "longitude": lng, "polygon": _fc(Polygon(ring)), "map_color": colour, "is_demo": 1}
+			).insert(ignore_permissions=True)
+
+
 # ---------------------------------------------------------------- people and devices
 def surveyors(password=None):
 	from frappe.utils.password import update_password
@@ -107,6 +132,58 @@ def surveyors(password=None):
 				"os_version": "14", "registered_on": "2026-08-10 09:00:00", "is_demo": 1}).insert(ignore_permissions=True)
 		out.append((email, circles, frappe.db.get_value("Survey Device", {"android_id": android_id}, "name")))
 	return out
+
+
+# ---------------------------------------------------------------- demo photos (geo-stamped, like a field camera)
+def _jpeg(rnd, lines, kind="field"):
+	import io
+
+	from PIL import Image, ImageDraw, ImageFont
+
+	w, h = 960, 720
+	img = Image.new("RGB", (w, h))
+	d = ImageDraw.Draw(img)
+	if kind == "field":  # sky, then rows of cane
+		d.rectangle([0, 0, w, 200], fill=(150 + rnd.randint(0, 40), 190 + rnd.randint(0, 30), 230))
+		for y in range(200, h, 14):
+			g = 90 + rnd.randint(0, 80)
+			d.rectangle([0, y, w, y + 14], fill=(30 + rnd.randint(0, 30), g, 30 + rnd.randint(0, 20)))
+		for x in range(0, w, 22):
+			d.line([x, h, x + rnd.randint(-40, 40), 190 + rnd.randint(0, 60)], fill=(40, 130 + rnd.randint(0, 60), 40), width=3)
+	else:  # selfie: face circle on a wall
+		d.rectangle([0, 0, w, h], fill=(200, 205 + rnd.randint(0, 30), 210))
+		d.ellipse([330, 140, 630, 470], fill=(196, 150, 120))
+		d.rectangle([260, 470, 700, h], fill=(rnd.randint(20, 90), rnd.randint(60, 120), rnd.randint(90, 160)))
+	try:
+		font = ImageFont.truetype("DejaVuSans-Bold.ttf", 28)
+	except OSError:
+		font = ImageFont.load_default()
+	d.rectangle([0, h - 40 * len(lines) - 20, w, h], fill=(0, 0, 0))
+	for i, line in enumerate(lines):
+		d.text((20, h - 40 * len(lines) - 10 + i * 40), line, fill=(255, 255, 255), font=font)
+	buf = io.BytesIO()
+	img.save(buf, format="JPEG", quality=70)
+	return buf.getvalue()
+
+
+def _attach(doctype, name, filename, content):
+	f = frappe.get_doc({"doctype": "File", "file_name": filename, "content": content, "attached_to_doctype": doctype,
+		"attached_to_name": name, "is_private": 1})
+	f.flags.ignore_permissions = True
+	f.insert()
+	return f.file_url
+
+
+def add_field_photos(rnd, doc, poly, when):
+	lat, lng = poly.centroid.y, poly.centroid.x
+	for k, caption in enumerate(("Field view", "Crop close-up")[: rnd.choice((1, 2))]):
+		plat, plng = lat + rnd.uniform(-0.0003, 0.0003), lng + rnd.uniform(-0.0003, 0.0003)
+		stamp = f"{when} {9 + k:02d}:{rnd.randint(0, 59):02d}"
+		jpeg = _jpeg(rnd, [f"{doc.grower_name or doc.competitor_mill} · {doc.village_name or doc.village}",
+			f"{plat:.6f}, {plng:.6f} · ±{rnd.choice((3, 4, 5, 6))} m", f"{stamp} · {caption}"])
+		doc.append("photos", {"photo": _attach("Cane Survey", doc.name, f"{doc.name}-{k + 1}.jpg", jpeg), "caption": caption,
+			"latitude": round(plat, 6), "longitude": round(plng, 6), "taken_at": f"{stamp}:00",
+			"photo_uuid": frappe.generate_hash(length=20)})
 
 
 # ---------------------------------------------------------------- surveys
@@ -172,6 +249,15 @@ def surveys(rnd, people):
 			})
 			doc.flags.ignore_permissions = True
 			doc.insert()
+			if len(made) % 3 == 0:  # a third of the fields carry geo-stamped photos and a grower photo
+				add_field_photos(rnd, doc, poly, doc.survey_date)
+				lat, lng = poly.centroid.y, poly.centroid.x
+				stamp = f"{doc.survey_date} 09:{rnd.randint(0, 59):02d}"
+				doc.grower_photo = _attach("Cane Survey", doc.name, f"{doc.name}-grower.jpg", _jpeg(rnd,
+					[f"{doc.grower_name} · {doc.grower}", f"{lat:.6f}, {lng:.6f} · ±4 m", stamp], "selfie"))
+				doc.grower_photo_latitude, doc.grower_photo_longitude = round(lat, 6), round(lng, 6)
+				doc.grower_photo_taken_at = f"{stamp}:00"
+				doc.save()
 			doc.submit()
 			made.append(doc)
 		if n % 50 == 49:
@@ -199,11 +285,39 @@ def surveys(rnd, people):
 		taken[vname].append(poly)
 		circle = villages[vname].circle
 		surveyor, device = by_circle.get(circle, (None, None))
+		vlat, vlng = poly.centroid.y, poly.centroid.x
+		nearest = min(COMPETITORS, key=lambda c: (c[4][0] - vlat) ** 2 + (c[4][1] - vlng) ** 2)[0]
 		doc = frappe.get_doc({"doctype": "Cane Survey", "season": SEASON, "survey_for": "Competitor",
-			"competitor_mill": rnd.choice(COMPETITORS), "circle": circle, "village": vname,
+			"competitor_mill": nearest, "circle": circle, "village": vname,
 			"survey_date": add_days(start, rnd.randint(0, days)), "surveyor": surveyor or "Administrator", "device": device,
 			"crop_land_acres": round(geo.area_acres(poly), 2), "variety": rnd.choice(varieties), "crop_type": "Plant",
 			"polygon": _fc(poly), "survey_uuid": frappe.generate_hash(length=24), "is_demo": 1})
+		doc.flags.ignore_permissions = True
+		doc.insert()
+		doc.submit()
+	# CNIC-based surveys of growers without a passbook: the grower is registered on submit
+	from sugarcane.setup.demo import FIRST, LAST, NAMES
+
+	used = set(frappe.get_all("Grower", pluck="cnic"))
+	for n in range(NON_PASSBOOK):
+		vname = rnd.choice(list(villages))
+		poly = _field(rnd, village_poly[vname], rnd.choice((1, 1.5, 2, 3)), taken[vname])
+		taken[vname].append(poly)
+		circle = villages[vname].circle
+		surveyor, device = by_circle.get(circle, (None, None))
+		while True:
+			cnic = f"38403-{rnd.randint(1000000, 9999999)}-{rnd.choice('13579')}"
+			if cnic not in used:
+				used.add(cnic)
+				break
+		doc = frappe.get_doc({"doctype": "Cane Survey", "season": SEASON, "survey_for": "Company",
+			"grower_category": "Non-Passbook Grower", "np_cnic": cnic,
+			"np_grower_name": f"{rnd.choice(FIRST)} {rnd.choice(NAMES)} {rnd.choice(LAST)}",
+			"np_father_name": f"{rnd.choice(FIRST)} {rnd.choice(NAMES)}", "np_mobile": f"0301{rnd.randint(1_000_000, 9_999_999)}",
+			"circle": circle, "village": vname, "survey_date": add_days(start, rnd.randint(0, days)),
+			"surveyor": surveyor or "Administrator", "device": device, "crop_land_acres": round(geo.area_acres(poly), 2),
+			"variety": rnd.choices(varieties, weights=weights)[0], "crop_type": "Plant", "polygon": _fc(poly),
+			"survey_uuid": frappe.generate_hash(length=24), "is_demo": 1})
 		doc.flags.ignore_permissions = True
 		doc.insert()
 		doc.submit()
@@ -252,12 +366,20 @@ def attendance(rnd, people, days=12):
 				"circle": circles[d % len(circles)], "attendance_uuid": frappe.generate_hash(length=24), "is_demo": 1})
 			doc.flags.ignore_permissions = True
 			doc.insert()
+			name = frappe.utils.get_fullname(email)
+			doc.selfie_in = _attach("Surveyor Attendance", doc.name, f"{doc.name}-in.jpg", _jpeg(rnd,
+				[f"{name} · check in", f"{lat:.6f}, {lng:.6f} · ±5 m", str(t_in)[:16]], "selfie"))
+			if not still_out:
+				doc.selfie_out = _attach("Surveyor Attendance", doc.name, f"{doc.name}-out.jpg", _jpeg(rnd,
+					[f"{name} · check out", f"{plat:.6f}, {plng:.6f} · ±6 m", str(t_out)[:16]], "selfie"))
+			doc.save()
 			doc.submit()
 		frappe.db.commit()
 
 
 def run(password=None):
 	rnd = random.Random(SEED)
+	mills()
 	hierarchy_geo()
 	people = surveyors(password)
 	surveys(rnd, people)
@@ -271,4 +393,6 @@ def reset():
 
 	for dt in PHASE1_DOCTYPES:
 		_purge(dt, frappe.get_all(dt, filters={"is_demo": 1}, pluck="name"))
+	settings = frappe.get_single("Sugar Settings")
+	settings.db_set({"mill_latitude": None, "mill_longitude": None, "mill_boundary": None})
 	frappe.db.commit()

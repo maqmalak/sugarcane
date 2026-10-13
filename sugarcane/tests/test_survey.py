@@ -305,6 +305,8 @@ class TestSyncAPI(IntegrationTestCase):
 		self.assertEqual(frappe.db.count("Cane Survey", {"survey_uuid": "test-uuid-survey-1"}), 1)
 
 	def test_bad_item_does_not_stop_batch(self):
+		if not frappe.db.exists("Competitor Mill", "Other Mill"):
+			frappe.get_doc({"doctype": "Competitor Mill", "mill_name": "Other Mill"}).insert()
 		good = {"uuid": "test-uuid-survey-2", "season": _season(), "survey_for": "Competitor", "competitor_mill": "Other Mill",
 			"circle": "Test Circle North", "village": "901-001", "variety": _variety(),
 			"polygon": square(LAT + 0.025, LNG, 60)}
@@ -384,3 +386,107 @@ class TestSyncAPI(IntegrationTestCase):
 			delta = survey.masters(since=full["server_time"])
 			self.assertFalse(delta["full"])
 			self.assertFalse(any(v["name"] == "901-001" for v in delta["villages"]))
+
+
+class TestOverviewFeatures(IntegrationTestCase):
+	"""Non-passbook growers, grower photo, competitor mills, mill location, field force management."""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		from sugarcane.setup.company import ensure_company
+
+		ensure_company()
+		_make_hierarchy()
+
+	def _np_survey(self, cnic, lat_off=0.03, **kw):
+		return frappe.get_doc({"doctype": "Cane Survey", "season": _season(), "survey_for": "Company",
+			"grower_category": "Non-Passbook Grower", "np_cnic": cnic, "np_grower_name": kw.pop("name", "No Passbook Grower"),
+			"np_father_name": "Father", "circle": "Test Circle North", "village": "901-001", "variety": _variety(),
+			"polygon": fc(square(LAT + lat_off, LNG, 70)), **kw}).insert()
+
+	def test_non_passbook_registers_grower_on_submit(self):
+		doc = self._np_survey("9110100000301")
+		self.assertIsNone(doc.grower)
+		self.assertEqual(doc.np_cnic, "91101-0000030-1")
+		doc.submit()
+		grower = frappe.get_doc("Grower", doc.grower)
+		self.assertEqual((grower.cnic, grower.grower_name, grower.village, grower.passbook_no),
+			("91101-0000030-1", "No Passbook Grower", "901-001", None))
+		self.assertTrue(grower.name.startswith("901-001-"))
+
+	def test_non_passbook_links_existing_cnic(self):
+		existing = _grower("91101-0000031-1")
+		doc = self._np_survey("91101-0000031-1", lat_off=0.032)
+		self.assertEqual(doc.grower, existing)
+		doc.submit()
+		self.assertEqual(frappe.db.count("Grower", {"cnic": "91101-0000031-1"}), 1)
+
+	def test_non_passbook_needs_cnic_and_name(self):
+		with self.assertRaises(frappe.ValidationError):
+			self._np_survey("12345", lat_off=0.034)
+		with self.assertRaises(frappe.ValidationError):
+			self._np_survey("91101-0000032-1", lat_off=0.035, name="  ")
+
+	def test_passbook_survey_needs_grower(self):
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc({"doctype": "Cane Survey", "season": _season(), "survey_for": "Company",
+				"grower_category": "Passbook Grower", "circle": "Test Circle North", "village": "901-001",
+				"variety": _variety(), "polygon": fc(square(LAT + 0.036, LNG, 50))}).insert()
+
+	def test_grower_photo_becomes_profile(self):
+		g = _grower("91101-0000033-1")
+		f = frappe.get_doc({"doctype": "File", "file_name": "test-grower.jpg", "content": __import__("base64").b64decode(tiny_jpeg_b64()),
+			"is_private": 1}).insert()
+		doc = _survey("91101-0000033-1", square(LAT + 0.038, LNG, 60), submit=False, grower_photo=f.file_url)
+		doc.submit()
+		self.assertEqual(frappe.db.get_value("Grower", g, "grower_photo"), f.file_url)
+
+	def test_competitor_mill_link_and_mills_api(self):
+		if not frappe.db.exists("Competitor Mill", "Test Rival Mill"):
+			frappe.get_doc({"doctype": "Competitor Mill", "mill_name": "Test Rival Mill", "short_name": "TRM",
+				"polygon": fc(square(LAT + 0.05, LNG, 200))}).insert()
+		mill = frappe.get_doc("Competitor Mill", "Test Rival Mill")
+		self.assertTrue(mill.latitude and mill.area_acres)  # pin set inside the premises, area measured
+		doc = frappe.get_doc({"doctype": "Cane Survey", "season": _season(), "survey_for": "Competitor",
+			"competitor_mill": "Test Rival Mill", "grower": _grower("91101-0000034-1"), "circle": "Test Circle North",
+			"village": "901-001", "variety": _variety(), "polygon": fc(square(LAT + 0.04, LNG, 60))}).insert()
+		self.assertIsNone(doc.grower)  # competitor cane is never tied to our grower
+		from sugarcane.api.v1.survey_map import mills
+
+		frappe.db.set_single_value("Sugar Settings", {"mill_latitude": LAT, "mill_longitude": LNG})
+		features = mills()["features"]
+		self.assertTrue(any(f["properties"]["kind"] == "company" for f in features))
+		self.assertTrue(any(f["properties"]["name"] == "Test Rival Mill" for f in features))
+
+	def test_company_mill_on_area_map(self):
+		from sugarcane.api.v1.survey_map import geo_tree, save_geo
+
+		out = save_geo("Sugar Settings", "Sugar Settings", polygon=json.dumps(square(LAT, LNG + 0.05, 300)))
+		self.assertTrue(out["latitude"] and out["polygon"])
+		self.assertTrue(any(n["doctype"] == "Sugar Settings" and n["has_boundary"] for n in geo_tree()))
+
+	def test_field_force_management(self):
+		from sugarcane.api.v1 import field_force
+
+		email = "test.ff.surveyor@micromaxsugar.example"
+		if not frappe.db.exists("User", email):
+			field_force.create_field_user(email=email, first_name="FF", role="Surveyor", circles=["Test Circle North"],
+				password="Test-ff-2026!")
+		self.assertIn("Surveyor", frappe.get_roles(email))
+		self.assertEqual(field_force.set_circles(email, ["Test Circle North", "Test Circle South"]),
+			["Test Circle North", "Test Circle South"])
+		dev = frappe.get_doc({"doctype": "Survey Device", "android_id": "test-ff-device", "assigned_user": email}).insert()
+		self.assertEqual(field_force.set_device_status(dev.name, "Approved")["status"], "Approved")
+		over = field_force.overview()
+		row = next(r for r in over["users"] if r["user"] == email)
+		self.assertEqual(row["circles"], ["Test Circle North", "Test Circle South"])
+		self.assertNotIn("Administrator", [r["user"] for r in over["users"]])
+		field_force.set_enabled(email, 0)
+		self.assertEqual(frappe.db.get_value("Survey Device", dev.name, "status"), "Blocked")
+		frappe.set_user(email)
+		try:
+			with self.assertRaises(frappe.PermissionError):
+				field_force.set_device_status(dev.name, "Approved")
+		finally:
+			frappe.set_user("Administrator")

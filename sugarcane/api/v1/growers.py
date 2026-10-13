@@ -4,7 +4,7 @@ import frappe
 from frappe.utils import cint
 
 FIELDS = ["name", "grower_name", "father_name", "cnic", "mobile", "passbook_no", "circle", "village", "village_name",
-	"filer_status", "bank_name", "iban", "disabled"]
+	"filer_status", "bank_name", "iban", "disabled", "grower_photo"]
 
 
 @frappe.whitelist(methods=["GET"])

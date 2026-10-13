@@ -24,6 +24,7 @@ interface GrowerRow {
   filer_status: string;
   bank_name?: string;
   iban?: string;
+  grower_photo?: string | null;
 }
 
 const PAGE = 25;
@@ -64,9 +65,14 @@ export function GrowersPage() {
     col.accessor("grower_name", {
       header: "Grower",
       cell: (c) => (
-        <div>
-          <div className="font-medium">{c.getValue()}</div>
-          {c.row.original.father_name && <div className="text-xs text-muted-foreground">s/o {c.row.original.father_name}</div>}
+        <div className="flex items-center gap-2.5">
+          {c.row.original.grower_photo
+            ? <a href={c.row.original.grower_photo} target="_blank" rel="noreferrer"><img src={c.row.original.grower_photo} alt="" className="size-9 rounded-full border object-cover" /></a>
+            : <span className="grid size-9 place-items-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">{c.getValue().split(" ").map((w) => w[0]).slice(0, 2).join("")}</span>}
+          <div>
+            <div className="font-medium">{c.getValue()}</div>
+            {c.row.original.father_name && <div className="text-xs text-muted-foreground">s/o {c.row.original.father_name}</div>}
+          </div>
         </div>
       ),
     }),

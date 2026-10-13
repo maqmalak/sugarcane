@@ -285,5 +285,5 @@ website_route_rules = [{"from_route": "/sugar/<path:app_path>", "to_route": "sug
 # pin + boundary + area on every level of the area hierarchy
 doc_events = {
 	dt: {"validate": "sugarcane.geo.validate_geo"}
-	for dt in ("Sugar Division", "Sugar District", "Sugar Zone", "Cane Circle", "Cane Sector", "Cane Village")
+	for dt in ("Sugar Division", "Sugar District", "Sugar Zone", "Cane Circle", "Cane Sector", "Cane Village", "Competitor Mill")
 }

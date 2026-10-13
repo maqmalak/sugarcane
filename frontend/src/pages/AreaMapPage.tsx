@@ -40,10 +40,10 @@ interface Detail {
 }
 
 const LEVEL_LABEL: Record<string, string> = {
-  "Sugar Division": "Division", "Sugar District": "District", "Sugar Zone": "Zone", "Cane Circle": "Circle",
+  "Sugar Settings": "Company mill", "Competitor Mill": "Competitor mill", "Sugar Division": "Division", "Sugar District": "District", "Sugar Zone": "Zone", "Cane Circle": "Circle",
   "Cane Sector": "Sector", "Cane Village": "Village",
 };
-const LEVEL_TONE = { "Sugar Division": "violet", "Sugar District": "blue", "Sugar Zone": "orange", "Cane Circle": "green", "Cane Sector": "amber", "Cane Village": "gray" } as const;
+const LEVEL_TONE = { "Sugar Settings": "blue", "Competitor Mill": "red", "Sugar Division": "violet", "Sugar District": "blue", "Sugar Zone": "orange", "Cane Circle": "green", "Cane Sector": "amber", "Cane Village": "gray" } as const;
 const key = (dt: string, name: string) => `${dt}::${name}`;
 
 export function AreaMapPage() {
@@ -180,7 +180,7 @@ function Editor({ doctype, name, onSaved }: { doctype: string; name: string; onS
         {d.title !== d.name && <span className="font-mono text-xs text-muted-foreground">{d.name}</span>}
         {!!d.area_acres && <span className="text-sm text-muted-foreground">· {fmtAcres(d.area_acres)}</span>}
         <a className="ml-auto inline-flex items-center gap-1 text-sm text-primary hover:underline"
-          href={`/app/${doctype.toLowerCase().replace(/ /g, "-")}/${encodeURIComponent(name)}`}>
+          href={doctype === "Sugar Settings" ? "/app/sugar-settings" : `/app/${doctype.toLowerCase().replace(/ /g, "-")}/${encodeURIComponent(name)}`}>
           <ExternalLink className="size-4" />Open in Desk
         </a>
       </div>

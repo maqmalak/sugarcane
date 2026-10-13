@@ -50,6 +50,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     val circles = db.masters().circles().stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     val varieties = db.masters().varieties().stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     val diseases = db.masters().diseases().stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+    val competitorMills = db.masters().competitorMillList().stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     val today = db.outbox().attendanceFlow(Time.today()).stateIn(viewModelScope, SharingStarted.Eagerly, null)
     val syncRunning = WorkManager.getInstance(app).getWorkInfosForUniqueWorkFlow(SyncWorker.NOW)
         .map { list -> list.any { it.state == WorkInfo.State.RUNNING || it.state == WorkInfo.State.ENQUEUED } }
@@ -145,8 +146,14 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun problems(s: SurveyE): List<String> = buildList {
         if (s.circle == null || s.village == null) add("Choose the circle and village")
-        if (s.surveyFor == "Company" && s.grower == null) add("Choose the grower")
-        if (s.surveyFor == "Competitor" && s.competitorMill.isNullOrBlank()) add("Enter the competitor mill")
+        if (s.surveyFor == "Company" && s.grower == null) {
+            if (s.growerCategory != "Non-Passbook Grower") add("Choose the grower, or switch to No passbook and enter the CNIC")
+            else {
+                if (s.npCnic?.filter(Char::isDigit)?.length != 13) add("Enter the grower's 13-digit CNIC")
+                if (s.npName.isNullOrBlank()) add("Enter the grower's name")
+            }
+        }
+        if (s.surveyFor == "Competitor" && s.competitorMill.isNullOrBlank()) add("Choose the competitor mill")
         if (s.variety == null) add("Choose the variety")
         if (s.polygon == null || s.measuredAcres <= 0) add("Capture the field boundary (at least 3 corners)")
         val total = s.totalAcres ?: 0.0
@@ -158,6 +165,10 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         val file = Photos.save(ctx, jpeg, "survey-$uuid.jpg")
         db.outbox().photo(PhotoE(uuid, surveyUuid, file.absolutePath, caption, fix?.lat, fix?.lng, Time.now(), Photos.sharpness(jpeg)))
     }
+
+    /** The grower's photo, kept as a file next to the survey until it is sent. */
+    fun saveGrowerPhoto(jpeg: ByteArray, surveyUuid: String): String =
+        Photos.save(ctx, jpeg, "grower-$surveyUuid-${System.currentTimeMillis()}.jpg").absolutePath
 
     fun deletePhoto(p: PhotoE) = viewModelScope.launch(Dispatchers.IO) {
         db.outbox().deletePhoto(p.uuid)

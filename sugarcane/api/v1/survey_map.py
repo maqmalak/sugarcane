@@ -23,7 +23,10 @@ LEVEL_FIELDS = {
 	"Cane Village": ["name", "village_name as title", "village_code as code", "circle", "sector", "latitude",
 		"longitude", "polygon", "area_acres"],
 }
-SURVEY_FIELDS = ["name", "grower", "grower_name", "survey_for", "competitor_mill", "circle", "village", "village_name",
+# editable on the Area Map besides the hierarchy (no parent)
+EXTRA_GEO = {"Competitor Mill": ["name", "short_name as title", "latitude", "longitude", "polygon", "area_acres"]}
+SETTINGS_GEO = {"latitude": "mill_latitude", "longitude": "mill_longitude", "polygon": "mill_boundary"}
+SURVEY_FIELDS = ["name", "grower", "grower_name", "survey_for", "competitor_mill", "grower_category", "circle", "village", "village_name",
 	"sector", "variety", "crop_type", "disease", "disease_pct", "crop_condition", "calc_area_acres", "crop_land_acres",
 	"expected_production_maund", "surveyor", "survey_date", "overlap_status", "latitude", "longitude", "polygon"]
 
@@ -47,8 +50,33 @@ def meta() -> dict:
 			limit_page_length=0),
 		"surveyors": frappe.get_all("Has Role", filters={"role": "Surveyor", "parenttype": "User"}, pluck="parent",
 			distinct=True),
+		"competitor_mills": frappe.get_list("Competitor Mill", fields=["name", "short_name", "map_color"],
+			filters={"is_active": 1}, order_by="name"),
 		"centre": _centre(),
 	}
+
+
+@frappe.whitelist(methods=["GET"])
+def mills() -> dict:
+	"""The company mill and competitor mills as map features (pins, plus premises when drawn)."""
+	s = frappe.get_cached_doc("Sugar Settings")
+	features = []
+	if s.mill_latitude and s.mill_longitude:
+		features.append({"type": "Feature", "id": "company", "geometry": {"type": "Point", "coordinates": [s.mill_longitude, s.mill_latitude]},
+			"properties": {"kind": "company", "name": s.company, "title": s.company}})
+	for g in geo.geometries(s.mill_boundary) if s.mill_boundary else []:
+		if g["type"] in ("Polygon", "MultiPolygon"):
+			features.append({"type": "Feature", "geometry": g, "properties": {"kind": "company", "name": s.company, "title": s.company}})
+	for m in frappe.get_list("Competitor Mill", filters={"is_active": 1}, fields=["name", "short_name", "latitude", "longitude",
+			"crushing_capacity_tcd", "map_color", "polygon"], limit_page_length=0):
+		props = {"kind": "competitor", "name": m.name, "title": m.short_name or m.name, "tcd": m.crushing_capacity_tcd,
+			"color": m.map_color or "#e03131"}
+		if m.latitude and m.longitude:
+			features.append({"type": "Feature", "geometry": {"type": "Point", "coordinates": [m.longitude, m.latitude]}, "properties": props})
+		for g in geo.geometries(m.polygon) if m.polygon else []:
+			if g["type"] in ("Polygon", "MultiPolygon"):
+				features.append({"type": "Feature", "geometry": g, "properties": props})
+	return {"type": "FeatureCollection", "features": features}
 
 
 def _centre():
@@ -74,10 +102,12 @@ def boundaries(levels: str | None = None) -> dict:
 
 
 def _survey_filters(season=None, circle=None, village=None, variety=None, disease=None, surveyor=None,
-		from_date=None, to_date=None, crop_type=None, survey_for=None, overlap_status=None):
+		from_date=None, to_date=None, crop_type=None, survey_for=None, overlap_status=None, competitor_mill=None,
+		grower_category=None):
 	f = {"docstatus": 1, "season": season or frappe.db.get_single_value("Sugar Settings", "active_season")}
 	for key, value in (("circle", circle), ("village", village), ("variety", variety), ("surveyor", surveyor),
-			("crop_type", crop_type), ("survey_for", survey_for), ("overlap_status", overlap_status)):
+			("crop_type", crop_type), ("survey_for", survey_for), ("overlap_status", overlap_status),
+			("competitor_mill", competitor_mill), ("grower_category", grower_category)):
 		if value:
 			f[key] = value
 	if disease == "__any__":
@@ -99,7 +129,7 @@ def _survey_filters(season=None, circle=None, village=None, variety=None, diseas
 def surveys(**filters) -> dict:
 	"""Submitted surveys as a FeatureCollection (boundary, or a point when a survey has none) plus totals."""
 	allowed = {"season", "circle", "village", "variety", "disease", "surveyor", "from_date", "to_date", "crop_type",
-		"survey_for", "overlap_status"}
+		"survey_for", "overlap_status", "competitor_mill", "grower_category"}
 	filters = {k: v for k, v in filters.items() if k in allowed and v not in (None, "")}
 	rows = frappe.get_list("Cane Survey", filters=_survey_filters(**filters), fields=SURVEY_FIELDS,
 		limit_page_length=0, order_by="survey_date desc")
@@ -132,7 +162,10 @@ def survey_detail(name: str) -> dict:
 		fields=["name", "survey", "other_survey", "overlap_acres", "overlap_pct", "status"])
 	data = doc.as_dict(no_default_fields=False)
 	data.pop("polygon", None)
-	return {"survey": data, "photos": [p.photo for p in doc.photos], "reviews": reviews,
+	grower_photo = doc.grower_photo or (frappe.db.get_value("Grower", doc.grower, "grower_photo") if doc.grower else None)
+	return {"survey": data, "reviews": reviews, "grower_photo": grower_photo,
+		"photos": [{"url": p.photo, "caption": p.caption, "latitude": p.latitude, "longitude": p.longitude,
+			"taken_at": str(p.taken_at) if p.taken_at else None} for p in doc.photos],
 		"variety_color": frappe.db.get_value("Cane Variety", doc.variety, "map_color")}
 
 
@@ -149,15 +182,17 @@ def tracks(date: str | None = None, surveyor: str | None = None) -> dict:
 		af["surveyor"] = lf["surveyor"] = surveyor
 	att = frappe.get_list("Surveyor Attendance", filters=af, fields=["name", "surveyor", "surveyor_name", "status",
 		"time_in", "time_out", "latitude_in", "longitude_in", "latitude_out", "longitude_out", "inside_geofence_in",
-		"working_hours", "distance_km"], limit_page_length=0)
+		"inside_geofence_out", "working_hours", "distance_km", "selfie_in", "selfie_out"], limit_page_length=0)
 	points = []
 	for a in att:
-		for kind, lat, lng, t in (("in", a.latitude_in, a.longitude_in, a.time_in), ("out", a.latitude_out, a.longitude_out, a.time_out)):
+		for kind, lat, lng, t, selfie, inside in (
+				("in", a.latitude_in, a.longitude_in, a.time_in, a.selfie_in, a.inside_geofence_in),
+				("out", a.latitude_out, a.longitude_out, a.time_out, a.selfie_out, a.inside_geofence_out)):
 			if lat and lng:
 				points.append({"type": "Feature", "geometry": {"type": "Point", "coordinates": [lng, lat]},
 					"properties": {"kind": kind, "surveyor": a.surveyor, "surveyor_name": a.surveyor_name, "status": a.status,
-						"time": str(t) if t else None, "inside": a.inside_geofence_in, "hours": a.working_hours,
-						"km": a.distance_km, "attendance": a.name}})
+						"time": str(t) if t else None, "inside": inside, "hours": a.working_hours, "selfie": selfie,
+						"lat": lat, "lng": lng, "km": a.distance_km, "attendance": a.name}})
 	logs = frappe.get_list("Surveyor Location Log", filters=lf, fields=["surveyor", "latitude", "longitude", "logged_at"],
 		order_by="surveyor asc, logged_at asc", limit_page_length=0)
 	by_user = defaultdict(list)
@@ -227,8 +262,21 @@ def dashboard(season: str | None = None) -> dict:
 # ---------------------------------------------------------------- hierarchy editor
 @frappe.whitelist(methods=["GET"])
 def geo_tree() -> list[dict]:
-	"""Flat list of every hierarchy record with its parent, for the tree in the map editor."""
+	"""Flat list of every hierarchy record with its parent, for the tree in the map editor (plus the mill and the
+	competitor mills at the top)."""
 	out = []
+	settings = frappe.get_cached_doc("Sugar Settings")
+	if frappe.has_permission("Sugar Settings", "read"):
+		out.append({"doctype": "Sugar Settings", "name": "Sugar Settings", "title": settings.company or _("Company mill"),
+			"code": None, "parent_doctype": None, "parent": None, "latitude": settings.mill_latitude,
+			"longitude": settings.mill_longitude, "area_acres": None, "has_boundary": 1 if settings.mill_boundary else 0,
+			"can_write": frappe.has_permission("Sugar Settings", "write")})
+	for dt, fields in EXTRA_GEO.items():
+		if _can_read(dt):
+			for r in frappe.get_list(dt, fields=fields, limit_page_length=0, order_by="name"):
+				out.append({"doctype": dt, "name": r.name, "title": r.get("title") or r.name, "code": None, "parent_doctype": None,
+					"parent": None, "latitude": r.latitude, "longitude": r.longitude, "area_acres": r.area_acres,
+					"has_boundary": 1 if r.polygon else 0, "can_write": frappe.has_permission(dt, "write")})
 	for dt, fields in LEVEL_FIELDS.items():
 		if not _can_read(dt):
 			continue
@@ -247,7 +295,14 @@ def geo_tree() -> list[dict]:
 
 @frappe.whitelist(methods=["GET"])
 def geo_feature(doctype: str, name: str) -> dict:
-	if doctype not in LEVEL_FIELDS:
+	if doctype == "Sugar Settings":
+		doc = frappe.get_doc("Sugar Settings")
+		doc.check_permission("read")
+		return {"doctype": doctype, "name": name, "title": doc.company or _("Company mill"), "latitude": doc.mill_latitude,
+			"longitude": doc.mill_longitude, "polygon": doc.mill_boundary, "area_acres": None,
+			"can_write": frappe.has_permission("Sugar Settings", "write"), "parent": None,
+			"children": boundaries(json.dumps(["Sugar Zone"])).get("Sugar Zone") or {"type": "FeatureCollection", "features": []}}
+	if doctype not in LEVEL_FIELDS and doctype not in EXTRA_GEO:
 		frappe.throw(_("Not a hierarchy level"))
 	doc = frappe.get_doc(doctype, name)
 	doc.check_permission("read")
@@ -270,16 +325,18 @@ def geo_feature(doctype: str, name: str) -> dict:
 @frappe.whitelist(methods=["POST"])
 def save_geo(doctype: str, name: str, latitude: float | None = None, longitude: float | None = None,
 		polygon: str | None = None, clear_polygon: int = 0) -> dict:
-	if doctype not in LEVEL_FIELDS:
+	if doctype not in LEVEL_FIELDS and doctype not in EXTRA_GEO and doctype != "Sugar Settings":
 		frappe.throw(_("Not a hierarchy level"))
-	doc = frappe.get_doc(doctype, name)
+	doc = frappe.get_doc(doctype) if doctype == "Sugar Settings" else frappe.get_doc(doctype, name)
 	doc.check_permission("write")
+	f = SETTINGS_GEO if doctype == "Sugar Settings" else {"latitude": "latitude", "longitude": "longitude", "polygon": "polygon"}
 	if latitude not in (None, "") and longitude not in (None, ""):
-		doc.latitude, doc.longitude = flt(latitude, 6), flt(longitude, 6)
+		doc.set(f["latitude"], flt(latitude, 6))
+		doc.set(f["longitude"], flt(longitude, 6))
 	if cint(clear_polygon):
-		doc.polygon = None
+		doc.set(f["polygon"], None)
 	elif polygon:
-		doc.polygon = hierarchy.as_feature_collection(polygon)
+		doc.set(f["polygon"], hierarchy.as_feature_collection(polygon))
 	doc.save()
-	return {"latitude": doc.latitude, "longitude": doc.longitude, "area_acres": doc.area_acres,
-		"polygon": doc.polygon}
+	return {"latitude": doc.get(f["latitude"]), "longitude": doc.get(f["longitude"]), "area_acres": doc.get("area_acres"),
+		"polygon": doc.get(f["polygon"])}

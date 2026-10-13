@@ -1,6 +1,8 @@
 package com.micromax.sugar.eagleeye.data
 
 import android.content.Context
+import androidx.room.AutoMigration
+import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
@@ -21,6 +23,7 @@ import kotlinx.coroutines.flow.Flow
 @Entity(tableName = "disease") data class DiseaseE(@PrimaryKey val name: String, val severity: String?)
 @Entity(tableName = "grower") data class GrowerE(@PrimaryKey val name: String, val growerName: String, val fatherName: String?, val cnic: String?,
     val passbookNo: String?, val mobile: String?, val circle: String, val village: String)
+@Entity(tableName = "competitor_mill") data class CompetitorMillE(@PrimaryKey val name: String, val shortName: String?, val lat: Double?, val lng: Double?)
 @Entity(tableName = "target") data class TargetE(@PrimaryKey val name: String, val circle: String?, val targetAcres: Double, val targetSurveys: Int)
 
 // ---------------------------------------------------------------- outbox (made on the phone)
@@ -39,6 +42,15 @@ data class SurveyE(
     val error: String? = null,
     val surveyFor: String = "Company",
     val competitorMill: String? = null,
+    @ColumnInfo(defaultValue = "Passbook Grower") val growerCategory: String = "Passbook Grower",
+    val npCnic: String? = null,
+    val npName: String? = null,
+    val npFather: String? = null,
+    val npMobile: String? = null,
+    val growerPhotoPath: String? = null,
+    val growerPhotoLat: Double? = null,
+    val growerPhotoLng: Double? = null,
+    val growerPhotoAt: String? = null,
     val grower: String? = null,
     val growerName: String? = null,
     val circle: String? = null,
@@ -96,6 +108,8 @@ interface MastersDao {
     @Upsert suspend fun varieties(rows: List<VarietyE>)
     @Upsert suspend fun diseases(rows: List<DiseaseE>)
     @Upsert suspend fun growers(rows: List<GrowerE>)
+    @Upsert suspend fun competitorMills(rows: List<CompetitorMillE>)
+    @Query("SELECT * FROM competitor_mill ORDER BY name") fun competitorMillList(): Flow<List<CompetitorMillE>>
     @Query("DELETE FROM target") suspend fun clearTargets()
     @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun targets(rows: List<TargetE>)
     @Query("DELETE FROM grower WHERE name IN (:names)") suspend fun deleteGrowers(names: List<String>)
@@ -148,7 +162,9 @@ interface OutboxDao {
 }
 
 @Database(entities = [CircleE::class, VillageE::class, VarietyE::class, DiseaseE::class, GrowerE::class, TargetE::class,
-    SurveyE::class, PhotoE::class, AttendanceE::class, LocationE::class], version = 1, exportSchema = true)
+    CompetitorMillE::class, SurveyE::class, PhotoE::class, AttendanceE::class, LocationE::class], version = 2, exportSchema = true,
+    // v2: competitor mills, non-passbook growers, grower photo; added without losing the outbox
+    autoMigrations = [AutoMigration(from = 1, to = 2)])
 abstract class EagleEyeDb : RoomDatabase() {
     abstract fun masters(): MastersDao
     abstract fun outbox(): OutboxDao

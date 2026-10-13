@@ -20,7 +20,8 @@ from frappe.utils import cint, flt, get_datetime, now_datetime
 from sugarcane.geo import as_feature_collection
 
 FIELD_ROLES = {"Surveyor", "Circle Officer", "Cane Manager", "Cane Admin", "System Manager"}
-SURVEY_FIELDS = ("season", "survey_date", "survey_for", "competitor_mill", "grower", "circle", "village", "murabba_no",
+SURVEY_FIELDS = ("season", "survey_date", "survey_for", "competitor_mill", "grower_category", "np_cnic", "np_grower_name",
+	"np_father_name", "np_mobile", "grower", "circle", "village", "murabba_no",
 	"killa_no", "total_acres", "empty_land_acres", "crop_land_acres", "variety", "crop_type", "ratoon_no", "sowing_date",
 	"crop_condition", "disease", "disease_pct", "expected_yield", "gps_accuracy_m", "remarks")
 MAX_BATCH = 200
@@ -119,7 +120,9 @@ def masters(since: str | None = None) -> dict:
 			"season": season, "maund_kg": settings.maund_kg, "overlap_tolerance_pct": settings.overlap_tolerance_pct,
 			"geofence_radius_m": settings.geofence_radius_m, "tracking_interval_s": settings.tracking_interval_s,
 			"min_gps_accuracy_m": settings.min_gps_accuracy_m, "max_photo_mb": settings.max_photo_mb or 5,
+			"company": settings.company, "mill_latitude": settings.mill_latitude, "mill_longitude": settings.mill_longitude,
 		},
+		"competitor_mills": rows("Competitor Mill", ["name", "short_name", "latitude", "longitude", "is_active", "modified"]),
 		"circles": rows("Cane Circle", ["name", "circle_code", "zone", "latitude", "longitude", "polygon", "is_active",
 			"modified"]),
 		"sectors": rows("Cane Sector", ["name", "sector_name", "circle", "is_active", "modified"]),
@@ -129,7 +132,7 @@ def masters(since: str | None = None) -> dict:
 			"modified"]),
 		"diseases": rows("Crop Disease", ["name", "severity", "map_color", "modified"]),
 		"growers": rows("Grower", ["name", "grower_name", "father_name", "cnic", "passbook_no", "mobile", "circle",
-			"village", "disabled", "modified"]),
+			"village", "disabled", "grower_photo", "modified"]),
 		"targets": frappe.get_all("Surveyor Target", filters={"surveyor": user, "season": season},
 			fields=["name", "circle", "from_date", "to_date", "target_acres", "target_surveys"]),
 		"my_surveys": frappe.get_all("Cane Survey", filters={"surveyor": user, "season": season, "docstatus": 1, **f},
@@ -194,15 +197,20 @@ def save_survey(item, device):
 	doc.synced_at = now_datetime()
 	doc.polygon = as_feature_collection(item.get("polygon"))
 	doc.insert()
+	gp = item.get("grower_photo")
+	if gp and gp.get("data"):
+		doc.grower_photo = _save_file(gp["data"], gp.get("filename") or f"{item['uuid']}-grower.jpg", "Cane Survey", doc.name)
+		doc.grower_photo_latitude, doc.grower_photo_longitude = gp.get("latitude"), gp.get("longitude")
+		doc.grower_photo_taken_at = get_datetime(gp["taken_at"]) if gp.get("taken_at") else None
 	for p in item.get("photos") or []:
 		url = _save_file(p["data"], p.get("filename") or f"{p.get('uuid', 'photo')}.jpg", "Cane Survey", doc.name)
 		doc.append("photos", {"photo": url, "caption": p.get("caption"), "latitude": p.get("latitude"),
 			"longitude": p.get("longitude"), "taken_at": get_datetime(p["taken_at"]) if p.get("taken_at") else None,
 			"photo_uuid": p.get("uuid")})
+	if doc.photos or doc.grower_photo:
+		doc.save()
 	if item.get("submit", True):
 		doc.submit()
-	elif doc.photos:
-		doc.save()
 	return doc.name, "created"
 
 

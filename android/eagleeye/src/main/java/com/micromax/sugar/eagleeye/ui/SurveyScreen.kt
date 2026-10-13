@@ -50,7 +50,14 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -83,6 +90,7 @@ fun SurveyScreen(vm: AppViewModel, uuid: String, back: () -> Unit) {
     val circles by vm.circles.collectAsState()
     val varieties by vm.varieties.collectAsState()
     val diseases by vm.diseases.collectAsState()
+    val competitorMills by vm.competitorMills.collectAsState()
     val villagesFlow = remember(survey.circle) { survey.circle?.let { vm.repo.db.masters().villages(it) } ?: flowOf(emptyList()) }
     val villages by villagesFlow.collectAsState(initial = emptyList())
     var village by remember { mutableStateOf<VillageE?>(null) }
@@ -96,8 +104,9 @@ fun SurveyScreen(vm: AppViewModel, uuid: String, back: () -> Unit) {
     val acres = Geo.acres(corners)
     val outside = corners.size >= 3 && villageRings.isNotEmpty() && !villageRings.any { Geo.contains(it, Geo.centroid(corners)) }
 
-    fun update(f: (SurveyE) -> SurveyE) { s = f(survey) }
-    fun current(): SurveyE = survey.copy(polygon = if (corners.size >= 3) Geo.polygon(corners).toString() else null,
+    // always build on the latest state: camera and GPS callbacks run after later recompositions
+    fun update(f: (SurveyE) -> SurveyE) { s = f(s ?: survey) }
+    fun current(): SurveyE = (s ?: survey).copy(polygon = if (corners.size >= 3) Geo.polygon(corners).toString() else null,
         measuredAcres = acres, gpsAccuracy = bestAccuracy)
 
     val gps = rememberGps { fix ->
@@ -107,6 +116,24 @@ fun SurveyScreen(vm: AppViewModel, uuid: String, back: () -> Unit) {
         corners.add(LatLng(fix.lat, fix.lng))
         bestAccuracy = minOf(bestAccuracy ?: fix.accuracy.toDouble(), fix.accuracy.toDouble())
         vm.say("Corner ${corners.size} · ±${fix.accuracy.toInt()} m")
+    }
+
+    // grower photo: back camera, stamped with a quick GPS fix
+    var growerCam by remember { mutableStateOf<File?>(null) }
+    val photoGps = rememberGps { fix -> if (fix != null) update { it.copy(growerPhotoLat = fix.lat, growerPhotoLng = fix.lng) } }
+    val growerCamera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok ->
+        val f = growerCam ?: return@rememberLauncherForActivityResult
+        if (!ok) return@rememberLauncherForActivityResult
+        val jpeg = runCatching { Photos.compress(context, Uri.fromFile(f), 1200, 80) }.getOrNull() ?: return@rememberLauncherForActivityResult
+        f.delete()
+        val path = vm.saveGrowerPhoto(jpeg, uuid)
+        update { it.copy(growerPhotoPath = path, growerPhotoAt = Time.now(), growerPhotoLat = lastFix?.lat, growerPhotoLng = lastFix?.lng) }
+        if (lastFix == null) photoGps(3)
+    }
+    fun takeGrowerPhoto() {
+        val (f, u) = cameraUri(context, "grower-${System.currentTimeMillis()}.jpg")
+        growerCam = f
+        growerCamera.launch(u)
     }
 
     // photos with a sharpness check
@@ -161,12 +188,51 @@ fun SurveyScreen(vm: AppViewModel, uuid: String, back: () -> Unit) {
             }
 
             if (survey.surveyFor == "Company") Section("Grower") {
-                GrowerPicker(vm, survey, readOnly) { g ->
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf("Passbook Grower" to "Passbook grower", "Non-Passbook Grower" to "No passbook (CNIC)").forEach { (v, label) ->
+                        FilterChip(selected = survey.growerCategory == v, label = { Text(label) }, onClick = {
+                            if (!readOnly) update { it.copy(growerCategory = v, grower = if (v == "Non-Passbook Grower") null else it.grower,
+                                growerName = if (v == "Non-Passbook Grower") it.npName else it.growerName) }
+                        })
+                    }
+                }
+                if (survey.growerCategory == "Non-Passbook Grower") {
+                    // digits only in the field; the dashes are a display mask, so the cursor never jumps while typing
+                    OutlinedTextField(survey.npCnic?.filter(Char::isDigit) ?: "", { v -> update { it.copy(npCnic = v.filter(Char::isDigit).take(13)) } },
+                        label = { Text("CNIC #####-#######-#") }, singleLine = true, readOnly = readOnly, modifier = Modifier.fillMaxWidth(),
+                        visualTransformation = CnicMask, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+                    OutlinedTextField(survey.npName ?: "", { v -> update { it.copy(npName = v, growerName = v) } }, label = { Text("Grower name") },
+                        singleLine = true, readOnly = readOnly, modifier = Modifier.fillMaxWidth())
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(survey.npFather ?: "", { v -> update { it.copy(npFather = v) } }, label = { Text("Father / husband") },
+                            singleLine = true, readOnly = readOnly, modifier = Modifier.weight(1f))
+                        OutlinedTextField(survey.npMobile ?: "", { v -> update { it.copy(npMobile = v.filter(Char::isDigit).take(11)) } }, label = { Text("Mobile") },
+                            singleLine = true, readOnly = readOnly, modifier = Modifier.weight(1f))
+                    }
+                    Text("The grower is registered from this CNIC when the survey reaches the mill (or linked if already registered).",
+                        style = MaterialTheme.typography.labelSmall)
+                } else GrowerPicker(vm, survey, readOnly) { g ->
                     update { it.copy(grower = g.name.ifBlank { null }, growerName = g.growerName.ifBlank { null },
                         circle = it.circle ?: g.circle.ifBlank { null }, village = it.village ?: g.village.ifBlank { null }) }
                 }
-            } else OutlinedTextField(survey.competitorMill ?: "", { v -> update { it.copy(competitorMill = v) } }, label = { Text("Competitor mill") },
-                singleLine = true, readOnly = readOnly, modifier = Modifier.fillMaxWidth())
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Box(Modifier.size(84.dp).clip(RoundedCornerShape(42.dp)).clickable(enabled = !readOnly) { takeGrowerPhoto() }) {
+                        if (survey.growerPhotoPath != null) AsyncImage(model = File(survey.growerPhotoPath), contentDescription = "Grower photo",
+                            contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+                        else OutlinedButton(onClick = { takeGrowerPhoto() }, enabled = !readOnly, modifier = Modifier.fillMaxSize()) {
+                            Icon(Icons.Default.CameraAlt, "Grower photo")
+                        }
+                    }
+                    Column {
+                        Text(if (survey.growerPhotoPath != null) "Grower photo" else "Take the grower's photo", fontWeight = FontWeight.SemiBold)
+                        Text(survey.growerPhotoLat?.let { "%.6f, %.6f".format(it, survey.growerPhotoLng ?: 0.0) } ?: "Location is stamped when taken",
+                            style = MaterialTheme.typography.bodySmall)
+                        if (survey.growerPhotoPath != null && !readOnly) Text("Tap to retake", style = MaterialTheme.typography.labelSmall)
+                    }
+                }
+            } else Dropdown("Competitor mill", competitorMills, competitorMills.firstOrNull { it.name == survey.competitorMill },
+                { (it.shortName?.let { s -> "$s · " } ?: "") + it.name }, { m -> update { it.copy(competitorMill = m?.name) } },
+                Modifier.fillMaxWidth(), enabled = !readOnly)
 
             Section("Crop") {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -244,6 +310,19 @@ fun SurveyScreen(vm: AppViewModel, uuid: String, back: () -> Unit) {
             text = { Text("Hold the phone still and retake it, or keep this one.") },
             confirmButton = { TextButton(onClick = { blurry = null; takePhoto() }) { Text("Retake") } },
             dismissButton = { TextButton(onClick = { vm.addPhoto(uuid, jpeg, lastFix, "Field"); blurry = null }) { Text("Keep") } })
+    }
+}
+
+/** Shows 13 CNIC digits as #####-#######-# without changing what is stored. */
+private object CnicMask : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        val d = text.text
+        val out = buildString { d.forEachIndexed { i, c -> if (i == 5 || i == 12) append('-'); append(c) } }
+        val map = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int) = offset + (if (offset > 5) 1 else 0) + (if (offset > 12) 1 else 0)
+            override fun transformedToOriginal(offset: Int) = (offset - (if (offset > 5) 1 else 0) - (if (offset > 13) 1 else 0)).coerceIn(0, d.length)
+        }
+        return TransformedText(AnnotatedString(out), map)
     }
 }
 

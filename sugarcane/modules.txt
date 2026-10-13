@@ -1,1 +1,14 @@
 Sugarcane
+EagleEye Survey
+Cane Indenting
+Vehicle Tracking
+Cane Procurement
+Weighbridge
+Depot Purchase
+Cane Accounting
+Grower Loans
+Cane Costing
+Sugar Production
+Cane Laboratory
+SMS Integration
+Sugar MIS

@@ -1,0 +1,252 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:SOR-{#####}",
+ "creation": "2026-10-13 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "survey",
+  "grower",
+  "grower_name",
+  "cb_a",
+  "other_survey",
+  "other_grower",
+  "other_grower_name",
+  "sb_overlap",
+  "season",
+  "circle",
+  "overlap_acres",
+  "cb_overlap",
+  "overlap_pct",
+  "overlap_geojson",
+  "sb_decision",
+  "status",
+  "reviewed_by",
+  "reviewed_on",
+  "cb_decision",
+  "remarks",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "survey",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Survey",
+   "options": "Cane Survey",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "survey.grower",
+   "fieldname": "grower",
+   "fieldtype": "Link",
+   "label": "Grower",
+   "options": "Grower",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "survey.grower_name",
+   "fieldname": "grower_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Grower Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_a",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "other_survey",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Other Survey",
+   "options": "Cane Survey",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "other_survey.grower",
+   "fieldname": "other_grower",
+   "fieldtype": "Link",
+   "label": "Other Grower",
+   "options": "Grower",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "other_survey.grower_name",
+   "fieldname": "other_grower_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Other Grower Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_overlap",
+   "fieldtype": "Section Break",
+   "label": "Overlap"
+  },
+  {
+   "fetch_from": "survey.season",
+   "fieldname": "season",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Season",
+   "options": "Crushing Season",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "survey.circle",
+   "fieldname": "circle",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Circle",
+   "options": "Cane Circle",
+   "read_only": 1
+  },
+  {
+   "fieldname": "overlap_acres",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Overlapping Area (acres)",
+   "precision": "3",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_overlap",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "overlap_pct",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Overlap (% of smaller field)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "overlap_geojson",
+   "fieldtype": "Geolocation",
+   "label": "Overlapping Area",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_decision",
+   "fieldtype": "Section Break",
+   "label": "Decision"
+  },
+  {
+   "default": "Open",
+   "description": "Accepted = both stay (e.g. shared land). Rejecting a survey cancels it.",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Open\nAccepted\nRejected Survey\nRejected Other Survey"
+  },
+  {
+   "fieldname": "reviewed_by",
+   "fieldtype": "Link",
+   "label": "Reviewed By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reviewed_on",
+   "fieldtype": "Datetime",
+   "label": "Reviewed On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_decision",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Demo Record",
+   "no_copy": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "EagleEye Survey",
+ "name": "Survey Overlap Review",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Circle Officer",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Surveyor"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "MIS Viewer"
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -4,7 +4,7 @@ import { useFrappeAuth } from "frappe-react-sdk";
 import { ExternalLink, LogOut, Menu, Moon, Sun, X } from "lucide-react";
 import { useSession } from "@/lib/session";
 import { useTheme } from "@/lib/theme";
-import { visibleNavigation } from "@/app/navigation";
+import { BUILT_PHASE, visibleNavigation } from "@/app/navigation";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu } from "@/components/ui/dropdown-menu";
@@ -51,7 +51,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <NavLink
                   key={item.path}
                   to={item.path}
-                  end={item.path === "/"}
+                  end={item.path === "/" || item.path === "/survey"}
                   onClick={() => setOpen(false)}
                   className={({ isActive }) =>
                     cn(
@@ -62,7 +62,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 >
                   <item.icon className="h-4 w-4 shrink-0" />
                   <span className="flex-1 truncate">{item.label}</span>
-                  {item.phase > 0 && <span className="text-[10px] opacity-50">P{item.phase}</span>}
+                  {item.phase > BUILT_PHASE && <span className="text-[10px] opacity-50">P{item.phase}</span>}
                 </NavLink>
               ))}
             </div>
@@ -82,11 +82,11 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Menu className="h-5 w-5" />
           </button>
           {boot?.season ? (
-            <Badge variant={boot.season.status === "Open" ? "success" : "secondary"} dot>
+            <Badge tone={boot.season.status === "Open" ? "green" : "gray"}>
               Season {boot.season.name} · {boot.season.status}
             </Badge>
           ) : (
-            <Badge variant="warning">No active season</Badge>
+            <Badge tone="amber">No active season</Badge>
           )}
           <div className="ml-auto flex items-center gap-2">
             <button

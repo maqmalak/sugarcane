@@ -96,7 +96,7 @@ export function HomePage() {
                     </TableCell>
                     <TableCell>{c.zone}</TableCell>
                     <TableCell>
-                      <Badge variant={c.affiliation === "Own" ? "success" : c.affiliation === "Free" ? "warning" : "info"}>
+                      <Badge tone={c.affiliation === "Own" ? "green" : c.affiliation === "Free" ? "amber" : "blue"}>
                         {c.affiliation}
                       </Badge>
                     </TableCell>

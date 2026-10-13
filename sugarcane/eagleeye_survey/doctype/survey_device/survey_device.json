@@ -1,0 +1,165 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:DEV-{#####}",
+ "creation": "2026-10-13 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "android_id",
+  "device_name",
+  "app",
+  "status",
+  "cb_main",
+  "assigned_user",
+  "app_version",
+  "os_version",
+  "registered_on",
+  "last_sync",
+  "last_ip",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "android_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Android ID",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "device_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Device"
+  },
+  {
+   "default": "EagleEye",
+   "fieldname": "app",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "App",
+   "options": "EagleEye\nVehicle Tracking\nDepot Purchase"
+  },
+  {
+   "default": "Pending",
+   "description": "Only Approved devices can sign in and sync",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Pending\nApproved\nBlocked"
+  },
+  {
+   "fieldname": "cb_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "The only user who may sign in on this device",
+   "fieldname": "assigned_user",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Assigned User",
+   "options": "User"
+  },
+  {
+   "fieldname": "app_version",
+   "fieldtype": "Data",
+   "label": "App Version",
+   "read_only": 1
+  },
+  {
+   "fieldname": "os_version",
+   "fieldtype": "Data",
+   "label": "Android Version",
+   "read_only": 1
+  },
+  {
+   "fieldname": "registered_on",
+   "fieldtype": "Datetime",
+   "label": "Registered On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_sync",
+   "fieldtype": "Datetime",
+   "label": "Last Sync",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_ip",
+   "fieldtype": "Data",
+   "label": "Last IP",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Demo Record",
+   "no_copy": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "EagleEye Survey",
+ "name": "Survey Device",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Circle Officer"
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "device_name",
+ "track_changes": 1
+}

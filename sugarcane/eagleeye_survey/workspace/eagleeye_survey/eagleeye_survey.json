@@ -1,0 +1,314 @@
+{
+ "app": "sugarcane",
+ "charts": [
+  {
+   "chart_name": "Surveyed Area by Variety",
+   "label": "Surveyed Area by Variety"
+  },
+  {
+   "chart_name": "Surveyed Area by Circle",
+   "label": "Surveyed Area by Circle"
+  },
+  {
+   "chart_name": "Daily Surveys",
+   "label": "Daily Surveys"
+  },
+  {
+   "chart_name": "Plant vs Ratoon",
+   "label": "Plant vs Ratoon"
+  }
+ ],
+ "content": "[{\"id\": \"C3J27XDCG2\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Surveyed Cane Area\", \"col\": 4}}, {\"id\": \"LmlZGEONYl\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Surveyed Fields\", \"col\": 4}}, {\"id\": \"gCtjfIZ4SO\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Competitor Cane Area\", \"col\": 4}}, {\"id\": \"cMz9CPVNPk\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Open Overlap Reviews\", \"col\": 6}}, {\"id\": \"Na1Hedcm4p\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Surveyors Checked In Today\", \"col\": 6}}, {\"id\": \"MbXDuCL1mH\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Surveyed Area by Variety\", \"col\": 6}}, {\"id\": \"oOsFaQfDPr\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Surveyed Area by Circle\", \"col\": 6}}, {\"id\": \"AJ71fTquWo\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Daily Surveys\", \"col\": 6}}, {\"id\": \"GsbeKXgzg2\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Plant vs Ratoon\", \"col\": 6}}, {\"id\": \"sye9b2Rann\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Survey Map\", \"col\": 3}}, {\"id\": \"76dEyTzAeK\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Cane Survey\", \"col\": 3}}, {\"id\": \"OmXRrvftva\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Survey Overlap Review\", \"col\": 3}}, {\"id\": \"9AW7hipTga\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Surveyor Attendance\", \"col\": 3}}, {\"id\": \"dDZFlRJmCG\", \"type\": \"card\", \"data\": {\"card_name\": \"Surveys\", \"col\": 4}}, {\"id\": \"mUXiAPyhzA\", \"type\": \"card\", \"data\": {\"card_name\": \"Field Force\", \"col\": 4}}, {\"id\": \"nar3ZLt4bn\", \"type\": \"card\", \"data\": {\"card_name\": \"Reports\", \"col\": 4}}]",
+ "creation": "2026-10-13 12:00:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "map",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "EagleEye Survey",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Surveys",
+   "link_count": 2,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Cane Survey",
+   "link_count": 0,
+   "link_to": "Cane Survey",
+   "link_type": "DocType",
+   "onboard": 0,
+   "report_ref_doctype": null,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Survey Overlap Review",
+   "link_count": 0,
+   "link_to": "Survey Overlap Review",
+   "link_type": "DocType",
+   "onboard": 0,
+   "report_ref_doctype": null,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Field Force",
+   "link_count": 4,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Surveyor Attendance",
+   "link_count": 0,
+   "link_to": "Surveyor Attendance",
+   "link_type": "DocType",
+   "onboard": 0,
+   "report_ref_doctype": null,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Surveyor Location Log",
+   "link_count": 0,
+   "link_to": "Surveyor Location Log",
+   "link_type": "DocType",
+   "onboard": 0,
+   "report_ref_doctype": null,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Surveyor Target",
+   "link_count": 0,
+   "link_to": "Surveyor Target",
+   "link_type": "DocType",
+   "onboard": 0,
+   "report_ref_doctype": null,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Survey Device",
+   "link_count": 0,
+   "link_to": "Survey Device",
+   "link_type": "DocType",
+   "onboard": 0,
+   "report_ref_doctype": null,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Reports",
+   "link_count": 10,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Cane Survey Detail",
+   "link_count": 0,
+   "link_to": "Cane Survey Detail",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Cane Survey",
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Circle Wise Survey Summary",
+   "link_count": 0,
+   "link_to": "Circle Wise Survey Summary",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Cane Survey",
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Variety Wise Survey Summary",
+   "link_count": 0,
+   "link_to": "Variety Wise Survey Summary",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Cane Survey",
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Grower Wise Survey Summary",
+   "link_count": 0,
+   "link_to": "Grower Wise Survey Summary",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Cane Survey",
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Grower and Circle Wise Survey",
+   "link_count": 0,
+   "link_to": "Grower and Circle Wise Survey",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Cane Survey",
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Circle and Village Wise Survey",
+   "link_count": 0,
+   "link_to": "Circle and Village Wise Survey",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Cane Survey",
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Sector Wise Survey Summary",
+   "link_count": 0,
+   "link_to": "Sector Wise Survey Summary",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Cane Survey",
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Survey vs Actual Yield",
+   "link_count": 0,
+   "link_to": "Survey vs Actual Yield",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Cane Survey",
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Surveyor Attendance Report",
+   "link_count": 0,
+   "link_to": "Surveyor Attendance Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Cane Survey",
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Surveyor Performance",
+   "link_count": 0,
+   "link_to": "Surveyor Performance",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Cane Survey",
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-10-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "EagleEye Survey",
+ "name": "EagleEye Survey",
+ "number_cards": [
+  {
+   "label": "Surveyed Cane Area",
+   "number_card_name": "Surveyed Cane Area"
+  },
+  {
+   "label": "Surveyed Fields",
+   "number_card_name": "Surveyed Fields"
+  },
+  {
+   "label": "Competitor Cane Area",
+   "number_card_name": "Competitor Cane Area"
+  },
+  {
+   "label": "Open Overlap Reviews",
+   "number_card_name": "Open Overlap Reviews"
+  },
+  {
+   "label": "Surveyors Checked In Today",
+   "number_card_name": "Surveyors Checked In Today"
+  }
+ ],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 31.0,
+ "shortcuts": [
+  {
+   "color": "Green",
+   "label": "Survey Map",
+   "type": "URL",
+   "url": "/sugar/survey"
+  },
+  {
+   "color": "Blue",
+   "doc_view": "List",
+   "label": "Cane Survey",
+   "link_to": "Cane Survey",
+   "type": "DocType"
+  },
+  {
+   "color": "Red",
+   "doc_view": "List",
+   "label": "Survey Overlap Review",
+   "link_to": "Survey Overlap Review",
+   "stats_filter": "{\"status\": \"Open\"}",
+   "type": "DocType"
+  },
+  {
+   "color": "Purple",
+   "doc_view": "List",
+   "label": "Surveyor Attendance",
+   "link_to": "Surveyor Attendance",
+   "type": "DocType"
+  }
+ ],
+ "title": "EagleEye Survey",
+ "type": "Workspace"
+}

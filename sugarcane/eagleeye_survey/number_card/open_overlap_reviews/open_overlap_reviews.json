@@ -1,0 +1,21 @@
+{
+ "aggregate_function_based_on": "",
+ "color": "#c92a2a",
+ "creation": "2026-10-13 12:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "document_type": "Survey Overlap Review",
+ "filters_json": "[[\"Survey Overlap Review\", \"status\", \"=\", \"Open\", false]]",
+ "function": "Count",
+ "idx": 0,
+ "is_public": 1,
+ "is_standard": 1,
+ "label": "Open Overlap Reviews",
+ "modified": "2026-10-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "EagleEye Survey",
+ "name": "Open Overlap Reviews",
+ "owner": "Administrator",
+ "show_percentage_stats": 0,
+ "type": "Document Type"
+}

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EagleEye Survey</string>
+    <string name="tracking_channel">Field tracking</string>
+    <string name="tracking_text">Recording your route while you are checked in</string>
+</resources>

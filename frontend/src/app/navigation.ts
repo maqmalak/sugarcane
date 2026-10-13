@@ -1,6 +1,6 @@
 import {
-  Banknote, Beaker, ClipboardList, Factory, Gauge, Home, LayoutDashboard, Map, Receipt, ScrollText, Ticket, Truck,
-  Users, Warehouse, Weight, type LucideIcon,
+  Banknote, BarChart3, Beaker, ClipboardList, Factory, Gauge, Home, LayoutDashboard, Map, MapPinned, Receipt, ScrollText, Ticket,
+  Truck, Users, Warehouse, Weight, type LucideIcon,
 } from "lucide-react";
 
 export interface NavItem {
@@ -34,6 +34,8 @@ export const NAVIGATION: NavGroup[] = [
       { label: "Growers", path: "/growers", icon: Users,
         roles: [...MANAGERS, "Circle Officer", "Cane Accountant", "MIS Viewer"], phase: 0 },
       { label: "Survey Map", path: "/survey", icon: Map, roles: [...MANAGERS, "Circle Officer", "Surveyor", "MIS Viewer"], phase: 1 },
+      { label: "Survey Dashboard", path: "/survey/dashboard", icon: BarChart3, roles: [...MANAGERS, "Circle Officer", "Surveyor", "MIS Viewer"], phase: 1 },
+      { label: "Area Map", path: "/geo", icon: MapPinned, roles: [...MANAGERS, "Circle Officer"], phase: 1 },
       { label: "Indents", path: "/indents", icon: ClipboardList, roles: [...MANAGERS, "Indent Clerk", "Circle Officer"], phase: 2 },
     ],
   },
@@ -63,6 +65,9 @@ export const NAVIGATION: NavGroup[] = [
     ],
   },
 ];
+
+/** Phases whose screens are built; later items show a "coming in phase N" page. */
+export const BUILT_PHASE = 1;
 
 export function visibleNavigation(hasRole: (...roles: string[]) => boolean): NavGroup[] {
   return NAVIGATION.map((g) => ({ ...g, items: g.items.filter((i) => i.roles.length === 0 || hasRole(...i.roles)) }))

@@ -17,6 +17,10 @@
   "cb_survey",
   "geofence_radius_m",
   "tracking_interval_s",
+  "cb_survey2",
+  "auto_approve_devices",
+  "max_photo_mb",
+  "half_day_hours",
   "sb_weighbridge",
   "weighbridge_ip_check",
   "accounts_tab",
@@ -113,6 +117,29 @@
    "fieldname": "tracking_interval_s",
    "fieldtype": "Int",
    "label": "Tracking Interval (seconds)"
+  },
+  {
+   "fieldname": "cb_survey2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Off: a Cane Manager approves each new phone in Survey Device before it can sign in",
+   "fieldname": "auto_approve_devices",
+   "fieldtype": "Check",
+   "label": "Approve New Devices Automatically"
+  },
+  {
+   "default": "5",
+   "fieldname": "max_photo_mb",
+   "fieldtype": "Float",
+   "label": "Max Photo Size (MB)"
+  },
+  {
+   "default": "4",
+   "fieldname": "half_day_hours",
+   "fieldtype": "Float",
+   "label": "Half Day Below (hours)"
   },
   {
    "fieldname": "sb_weighbridge",

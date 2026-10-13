@@ -3,8 +3,7 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useFrappeAuth } from "frappe-react-sdk";
 import { useSession } from "@/lib/session";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Input, Label } from "@/components/ui/input";
 
 export function LoginPage() {
   const { login } = useFrappeAuth();
@@ -57,7 +56,7 @@ export function LoginPage() {
               onChange={(e) => setPassword(e.target.value)} required />
           </div>
           {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
-          <Button type="submit" variant="primary" className="w-full" loading={busy}>Sign in</Button>
+          <Button type="submit" className="w-full" disabled={busy}>{busy ? "Signing in…" : "Sign in"}</Button>
         </div>
       </form>
     </div>

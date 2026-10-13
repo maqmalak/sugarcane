@@ -1,0 +1,21 @@
+{
+ "aggregate_function_based_on": "calc_area_acres",
+ "color": "#e8590c",
+ "creation": "2026-10-13 12:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "document_type": "Cane Survey",
+ "filters_json": "[[\"Cane Survey\", \"docstatus\", \"=\", 1, false], [\"Cane Survey\", \"survey_for\", \"=\", \"Competitor\", false]]",
+ "function": "Sum",
+ "idx": 0,
+ "is_public": 1,
+ "is_standard": 1,
+ "label": "Competitor Cane Area",
+ "modified": "2026-10-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "EagleEye Survey",
+ "name": "Competitor Cane Area",
+ "owner": "Administrator",
+ "show_percentage_stats": 0,
+ "type": "Document Type"
+}

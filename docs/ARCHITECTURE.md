@@ -18,6 +18,9 @@ Status: **approved 2026-10-13** (v3: decisions below). Phase 0 is built; see `do
 | Grower ID | **circle code − village code − serial**, e.g. `001-001-0001` |
 | Android | Source in `android/`; the Android SDK is installed in the user's home when Phase 1 needs a build |
 | Git | `main` on github.com/maqmalak/sugarcane |
+| Maps (Phase 1) | **MapLibre GL** with ESRI World Imagery / OSM, reusing the real-estate app's map code (`LocationCapture`), instead of Leaflet; Android uses **osmdroid** with the same imagery |
+| Hierarchy geo (Phase 1) | Every level — Division, District, Zone, Circle, Sector, Village — has a **pin** (lat/lng), a **boundary** (Geolocation) and a computed **area**; edited on the desk or in React → Area Map |
+| UI style | The React app uses the real-estate app's global CSS and UI kit (`.field` inputs, `.form-card`, cards, sheets, tabs) |
 
 ---
 
@@ -260,7 +263,7 @@ Sugar SMS Template · Sugar SMS Log · SMS Keyword; MIS API + realtime events.
 ## 8. React (`apps/sugarcane/frontend`)
 
 React 18 + TS + Vite + **frappe-react-sdk** (`FrappeProvider`, `useFrappeAuth`, `useFrappeGetDocList`, `useFrappeGetCall`,
-`useFrappePostCall`, `useFrappeEventListener`), Tailwind + shadcn/ui, Recharts, Leaflet, TanStack Table. Build →
+`useFrappePostCall`, `useFrappeEventListener`), Tailwind + the real-estate UI kit, Recharts, MapLibre GL, TanStack Table. Build →
 `sugarcane/public/frontend` + `www/sugar.html`; `website_route_rules` maps `/sugar/<path>` to it. Dev server :5179 (§0).
 Shell (login, layout, theme, role-aware menu) adapted from the realestate frontend, written against frappe-react-sdk.
 

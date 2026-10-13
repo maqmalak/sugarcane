@@ -1,0 +1,350 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:ATT-{YYYY}-{#####}",
+ "creation": "2026-10-13 12:00:00.000000",
+ "description": "Checked in = submitted; checking out updates the submitted record",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "surveyor",
+  "surveyor_name",
+  "attendance_date",
+  "status",
+  "cb_main",
+  "device",
+  "circle",
+  "working_hours",
+  "distance_km",
+  "sb_in",
+  "time_in",
+  "selfie_in",
+  "cb_in",
+  "latitude_in",
+  "longitude_in",
+  "accuracy_in",
+  "inside_geofence_in",
+  "sb_out",
+  "time_out",
+  "selfie_out",
+  "cb_out",
+  "latitude_out",
+  "longitude_out",
+  "accuracy_out",
+  "inside_geofence_out",
+  "sb_sync",
+  "attendance_uuid",
+  "remarks",
+  "amended_from",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "surveyor",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Surveyor",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "surveyor.full_name",
+   "fieldname": "surveyor_name",
+   "fieldtype": "Data",
+   "label": "Surveyor Name",
+   "read_only": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "attendance_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Attendance Date",
+   "reqd": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "Present",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Present\nHalf Day\nOut of Area\nAbsent"
+  },
+  {
+   "fieldname": "cb_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "device",
+   "fieldtype": "Link",
+   "label": "Device",
+   "options": "Survey Device",
+   "read_only": 1
+  },
+  {
+   "fieldname": "circle",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Assigned Circle",
+   "options": "Cane Circle"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "working_hours",
+   "fieldtype": "Float",
+   "label": "Working Hours",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "distance_km",
+   "fieldtype": "Float",
+   "label": "Distance Travelled (km)",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_in",
+   "fieldtype": "Section Break",
+   "label": "Check In"
+  },
+  {
+   "fieldname": "time_in",
+   "fieldtype": "Datetime",
+   "label": "Time In",
+   "reqd": 1
+  },
+  {
+   "fieldname": "selfie_in",
+   "fieldtype": "Attach Image",
+   "label": "Selfie"
+  },
+  {
+   "fieldname": "cb_in",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "latitude_in",
+   "fieldtype": "Float",
+   "label": "Latitude",
+   "precision": "6"
+  },
+  {
+   "fieldname": "longitude_in",
+   "fieldtype": "Float",
+   "label": "Longitude",
+   "precision": "6"
+  },
+  {
+   "fieldname": "accuracy_in",
+   "fieldtype": "Float",
+   "label": "GPS Accuracy (m)",
+   "precision": "1"
+  },
+  {
+   "fieldname": "inside_geofence_in",
+   "fieldtype": "Check",
+   "label": "Inside Geofence",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_out",
+   "fieldtype": "Section Break",
+   "label": "Check Out"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "time_out",
+   "fieldtype": "Datetime",
+   "label": "Time Out"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "selfie_out",
+   "fieldtype": "Attach Image",
+   "label": "Selfie"
+  },
+  {
+   "fieldname": "cb_out",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "latitude_out",
+   "fieldtype": "Float",
+   "label": "Latitude",
+   "precision": "6"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "longitude_out",
+   "fieldtype": "Float",
+   "label": "Longitude",
+   "precision": "6"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "accuracy_out",
+   "fieldtype": "Float",
+   "label": "GPS Accuracy (m)",
+   "precision": "1"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "inside_geofence_out",
+   "fieldtype": "Check",
+   "label": "Inside Geofence",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sb_sync",
+   "fieldtype": "Section Break",
+   "label": "Sync"
+  },
+  {
+   "fieldname": "attendance_uuid",
+   "fieldtype": "Data",
+   "label": "Attendance UUID",
+   "no_copy": 1,
+   "read_only": 1,
+   "unique": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Surveyor Attendance",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Demo Record",
+   "no_copy": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-10-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "EagleEye Survey",
+ "name": "Surveyor Attendance",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Admin",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Circle Officer",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Surveyor",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Accountant"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "MIS Viewer"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Indent Clerk"
+  }
+ ],
+ "sort_field": "attendance_date",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "surveyor_name",
+ "track_changes": 1
+}

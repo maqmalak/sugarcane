@@ -281,3 +281,9 @@ fixtures = [
 
 # React app at /sugar (built into sugarcane/public/frontend, page in www/sugar.html)
 website_route_rules = [{"from_route": "/sugar/<path:app_path>", "to_route": "sugar"}]
+
+# pin + boundary + area on every level of the area hierarchy
+doc_events = {
+	dt: {"validate": "sugarcane.geo.validate_geo"}
+	for dt in ("Sugar Division", "Sugar District", "Sugar Zone", "Cane Circle", "Cane Sector", "Cane Village")
+}

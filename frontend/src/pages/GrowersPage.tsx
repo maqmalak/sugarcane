@@ -5,7 +5,7 @@ import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "
 import { ChevronLeft, ChevronRight, ExternalLink, Search } from "lucide-react";
 import { fmtInt } from "@/lib/format";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Input, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -83,11 +83,11 @@ export function GrowersPage() {
     }),
     col.accessor("bank_name", {
       header: "Bank",
-      cell: (c) => (c.getValue() ? c.getValue() : <Badge variant="warning">No bank</Badge>),
+      cell: (c) => (c.getValue() ? c.getValue() : <Badge tone="amber">No bank</Badge>),
     }),
     col.accessor("filer_status", {
       header: "Tax",
-      cell: (c) => <Badge variant={c.getValue() === "Filer" ? "success" : "secondary"}>{c.getValue()}</Badge>,
+      cell: (c) => <Badge tone={c.getValue() === "Filer" ? "green" : "gray"}>{c.getValue()}</Badge>,
     }),
     col.display({
       id: "open",
@@ -111,12 +111,12 @@ export function GrowersPage() {
           <p className="text-sm text-muted-foreground">{fmtInt(total)} active growers{circle ? ` in ${circle}` : ""}</p>
         </div>
         <div className="relative w-full sm:w-72">
-          <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="pointer-events-none absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
           <Input className="pl-8" placeholder="Name, CNIC, ID, passbook, village" value={text}
             onChange={(e) => setText(e.target.value)} />
         </div>
-        <select
-          className="h-9 rounded-md border border-input bg-card px-2 text-sm"
+        <Select
+          className="w-auto"
           value={circle}
           onChange={(e) => update({ circle: e.target.value || null, start: null })}
           aria-label="Circle"
@@ -125,7 +125,7 @@ export function GrowersPage() {
           {(circles ?? []).map((c) => (
             <option key={c.name} value={c.name}>{c.circle_code} · {c.name}</option>
           ))}
-        </select>
+        </Select>
       </div>
 
       <Card>

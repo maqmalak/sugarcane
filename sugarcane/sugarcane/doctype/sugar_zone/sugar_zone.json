@@ -12,6 +12,12 @@
   "cb_main",
   "is_free_area",
   "zone_manager",
+  "sb_map",
+  "latitude",
+  "longitude",
+  "area_acres",
+  "cb_map",
+  "polygon",
   "is_demo"
  ],
  "fields": [
@@ -56,6 +62,41 @@
    "fieldtype": "Link",
    "label": "Zone Manager",
    "options": "User"
+  },
+  {
+   "fieldname": "sb_map",
+   "fieldtype": "Section Break",
+   "label": "Map: Pin & Boundary"
+  },
+  {
+   "fieldname": "latitude",
+   "fieldtype": "Float",
+   "label": "Latitude",
+   "precision": "6"
+  },
+  {
+   "fieldname": "longitude",
+   "fieldtype": "Float",
+   "label": "Longitude",
+   "precision": "6"
+  },
+  {
+   "description": "Geodesic area of the boundary, calculated on save",
+   "fieldname": "area_acres",
+   "fieldtype": "Float",
+   "label": "Boundary Area (acres)",
+   "no_copy": 1,
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_map",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "polygon",
+   "fieldtype": "Geolocation",
+   "label": "Zone Boundary"
   },
   {
    "default": "0",

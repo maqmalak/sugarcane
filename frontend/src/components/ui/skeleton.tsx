@@ -1,25 +1,15 @@
+import type { HTMLAttributes } from "react";
 import { cn } from "@/utils/cn";
 
-export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      className={cn("animate-pulse rounded-md bg-muted", className)}
-      {...props}
-    />
-  );
+export function Skeleton({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
+  return <div className={cn("animate-pulse rounded-md bg-muted", className)} {...props} />;
 }
 
-export function Spinner({ className, size = 16 }: { className?: string; size?: number }) {
+export function Empty({ title, hint }: { title: string; hint?: string }) {
   return (
-    <svg
-      aria-hidden="true"
-      style={{ width: size, height: size }}
-      className={cn("animate-spin text-current", className)}
-      viewBox="0 0 24 24"
-      fill="none"
-    >
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-    </svg>
+    <div className="flex flex-col items-center justify-center gap-1 rounded-lg border border-dashed p-8 text-center">
+      <p className="font-medium">{title}</p>
+      {hint && <p className="text-sm text-muted-foreground">{hint}</p>}
+    </div>
   );
 }

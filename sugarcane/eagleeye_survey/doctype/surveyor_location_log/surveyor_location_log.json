@@ -1,0 +1,154 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "hash",
+ "creation": "2026-10-13 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "surveyor",
+  "logged_at",
+  "latitude",
+  "longitude",
+  "cb_main",
+  "accuracy_m",
+  "speed_mps",
+  "battery_pct",
+  "device",
+  "log_uuid",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "surveyor",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Surveyor",
+   "options": "User",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "logged_at",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Logged At",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "latitude",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Latitude",
+   "precision": "6",
+   "reqd": 1
+  },
+  {
+   "fieldname": "longitude",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Longitude",
+   "precision": "6",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cb_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "accuracy_m",
+   "fieldtype": "Float",
+   "label": "Accuracy (m)",
+   "precision": "1"
+  },
+  {
+   "fieldname": "speed_mps",
+   "fieldtype": "Float",
+   "label": "Speed (m/s)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "battery_pct",
+   "fieldtype": "Int",
+   "label": "Battery (%)"
+  },
+  {
+   "fieldname": "device",
+   "fieldtype": "Link",
+   "label": "Device",
+   "options": "Survey Device"
+  },
+  {
+   "fieldname": "log_uuid",
+   "fieldtype": "Data",
+   "label": "Log UUID",
+   "unique": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Demo Record",
+   "no_copy": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "EagleEye Survey",
+ "name": "Surveyor Location Log",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Manager"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Circle Officer"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "MIS Viewer"
+  }
+ ],
+ "sort_field": "logged_at",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0
+}

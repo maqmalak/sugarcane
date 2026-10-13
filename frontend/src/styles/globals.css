@@ -1,0 +1,334 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 220 24% 95%; /* soft grey-blue page so white cards stand out */
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 20% 36%; /* ~slate-600: secondary text readable (was 47%) */
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 215 24% 78%; /* card and table edges visible on the light background (was 83%) */
+    /* inputs: own surface + a clearly visible border (requested: visible fields in light and dark) */
+    --input: 215 16% 62%;
+    --input-bg: 0 0% 100%;
+    --success: 142 64% 34%;
+    --warning: 32 95% 44%;
+    --ring: 221 83% 53%;
+    --sidebar: 222 47% 11%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-muted: 217 16% 60%;
+    --radius: 0.5rem;
+
+    color-scheme: light;
+  }
+
+  .dark {
+    /* Deep-navy / teal enterprise theme */
+    --background: 221 66% 6%;
+    --foreground: 220 20% 96%;
+    --card: 218 44% 12.5%;
+    --card-foreground: 220 20% 96%;
+    --popover: 218 48% 12%;
+    --popover-foreground: 220 20% 96%;
+    --primary: 173 80% 40%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 66% 14%;
+    --secondary-foreground: 220 13% 91%;
+    --muted: 218 40% 17%;
+    --muted-foreground: 218 22% 77%;
+    --accent: 220 66% 14%;
+    --accent-foreground: 220 13% 91%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 218 30% 28%;
+    --input: 216 20% 50%;
+    --input-bg: 222 50% 8.5%; /* darker than cards so fields read as inset wells */
+    --success: 142 60% 48%;
+    --warning: 35 92% 55%;
+    --ring: 173 80% 40%;
+    --sidebar: 221 67% 5%;
+    --sidebar-foreground: 220 13% 91%;
+    --sidebar-muted: 218 22% 77%;
+
+    color-scheme: dark;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Ambient teal/indigo/amber glow over the deep-navy base, echoed by the
+     glass panels (Card/Dialog/DropdownMenu) so they read as frosted surfaces
+     floating above it rather than flat rectangles. */
+  .dark body {
+    background-image:
+      radial-gradient(1000px 520px at 18% 0%, rgb(20 184 166 / 0.16), transparent 55%),
+      radial-gradient(920px 520px at 86% 12%, rgb(99 102 241 / 0.1), transparent 50%),
+      radial-gradient(920px 520px at 50% 100%, rgb(245 158 11 / 0.06), transparent 55%);
+    background-attachment: fixed;
+  }
+}
+
+@layer components {
+  /* Dark theme form controls: a filled field surface a step lighter than the card, a clearly visible border
+     that brightens on hover, a teal focus glow, and read-only/disabled values that stay readable (dashed
+     border instead of 50% opacity). Element selectors outrank the `bg-transparent` / `opacity-50`
+     utilities on the shared Input/Select/Textarea components. */
+  .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),
+  .dark select,
+  .dark textarea {
+    background-color: hsl(218 48% 12.5%);
+    border-color: hsl(217 32% 31%);
+    color: hsl(220 20% 94%);
+    transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
+  }
+  .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(:disabled):hover,
+  .dark select:not(:disabled):hover,
+  .dark textarea:not(:disabled):hover {
+    border-color: hsl(215 30% 44%);
+  }
+  .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus-visible,
+  .dark select:focus-visible,
+  .dark textarea:focus-visible {
+    background-color: hsl(218 48% 14.5%);
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.22);
+  }
+  .dark input:disabled,
+  .dark select:disabled,
+  .dark textarea:disabled {
+    opacity: 1;
+    background-color: hsl(218 40% 10%);
+    border-style: dashed;
+    color: hsl(220 18% 78%);
+  }
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: hsl(220 16% 52%);
+  }
+  .dark select option {
+    background-color: hsl(218 48% 12.5%);
+  }
+  /* Native date/time pickers: light calendar icon on the dark field. */
+  .dark input::-webkit-calendar-picker-indicator {
+    filter: invert(0.85);
+  }
+}
+
+@layer components {
+  /* DocPageTabs: while Connections / Activity is open, hide the detail page's own content (its following siblings). */
+  .doc-page-tabs:not([data-active="details"]) ~ * {
+    display: none !important;
+  }
+}
+
+@layer utilities {
+  /* Reusable card-hover patterns (mirrors the reference dashboard's
+     .hover-lift / .hover-outline classes). Put on any Card-based tile:
+     - hover-lift: elevates the whole card (metric/summary tiles you'd
+       plausibly click through to something).
+     - hover-outline: glowing ring + shadow only, no movement (larger
+       panels like chart cards, where a lift would feel like noise). */
+  .hover-lift {
+    transition: transform 250ms ease-out, filter 250ms ease-out;
+    will-change: transform, filter;
+  }
+  .hover-lift:hover {
+    transform: translateY(-6px);
+  }
+  .dark .hover-lift:hover {
+    filter: brightness(1.08);
+  }
+
+  .hover-outline {
+    transition: border-color 250ms ease-out, box-shadow 250ms ease-out;
+  }
+  .hover-outline:hover {
+    border-color: hsl(var(--ring) / 0.4);
+  }
+  .dark .hover-outline:hover {
+    border-color: rgb(255 255 255 / 0.18);
+    box-shadow: 0 0 0 4px hsl(var(--ring) / 0.32), 0 18px 60px rgb(2 6 23 / 0.4);
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-muted;
+  }
+  .dark ::-webkit-scrollbar-thumb {
+    background: rgb(148 163 184 / 0.22);
+    border-radius: 999px;
+  }
+  .dark ::-webkit-scrollbar-track {
+    background: rgb(2 6 23 / 0.35);
+  }
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Quill (RichTextEditor) — theme-matched "snow" toolbar/editor. */
+  .rich-text-editor .ql-toolbar.ql-snow {
+    border-color: hsl(var(--input));
+    border-top-left-radius: calc(var(--radius) - 2px);
+    border-top-right-radius: calc(var(--radius) - 2px);
+    background: hsl(var(--muted) / 0.4);
+  }
+  .rich-text-editor .ql-container.ql-snow {
+    border-color: hsl(var(--input));
+    border-bottom-left-radius: calc(var(--radius) - 2px);
+    border-bottom-right-radius: calc(var(--radius) - 2px);
+    font-family: inherit;
+    font-size: 0.875rem;
+  }
+  .rich-text-editor .ql-editor {
+    min-height: 140px;
+    color: hsl(var(--foreground));
+  }
+  .rich-text-editor .ql-editor.ql-blank::before {
+    color: hsl(var(--muted-foreground));
+    font-style: normal;
+  }
+  .rich-text-editor .ql-snow .ql-stroke {
+    stroke: hsl(var(--muted-foreground));
+  }
+  .rich-text-editor .ql-snow .ql-fill {
+    fill: hsl(var(--muted-foreground));
+  }
+  .rich-text-editor .ql-snow .ql-picker {
+    color: hsl(var(--muted-foreground));
+  }
+  .rich-text-editor .ql-snow.ql-toolbar button:hover .ql-stroke,
+  .rich-text-editor .ql-snow.ql-toolbar button.ql-active .ql-stroke {
+    stroke: hsl(var(--primary));
+  }
+  .rich-text-editor .ql-snow.ql-toolbar button:hover .ql-fill,
+  .rich-text-editor .ql-snow.ql-toolbar button.ql-active .ql-fill {
+    fill: hsl(var(--primary));
+  }
+  .rich-text-editor .ql-snow .ql-picker-options {
+    background: hsl(var(--popover));
+    border-color: hsl(var(--border));
+    color: hsl(var(--popover-foreground));
+  }
+
+  /* Solid inputs inside the Dialog card (were frosted glass; unreadable over a busy page in dark mode) — scoped to dialogs
+     only, so ordinary page inputs (tables, filters, ...) keep their look. */
+  [role="dialog"] input:not([type="checkbox"]):not([type="radio"]),
+  [role="dialog"] select,
+  [role="dialog"] textarea,
+  [role="dialog"] .rich-text-editor .ql-toolbar.ql-snow,
+  [role="dialog"] .rich-text-editor .ql-container.ql-snow {
+    background-color: hsl(var(--background));
+  }
+  /* A dialog's Quill body defaults to Quill's own ~100px min-height, cramped
+     for composing an actual email/template body — give every in-dialog
+     editor (Terms and Conditions, Notes, Email Template, ...) more room. */
+  [role="dialog"] .rich-text-editor .ql-editor {
+    min-height: 260px;
+  }
+  /* `backdrop-filter` promotes `.ql-container` to its own stacking context,
+     which (since it comes after `.ql-toolbar` in DOM order) then paints over
+     the toolbar's heading/format dropdown (`.ql-picker-options`) regardless
+     of Quill's own z-index on it — that z-index only wins within a shared
+     stacking context, and backdrop-filter just took the container out of
+     the one it shared with the toolbar. Giving both an explicit z-index,
+     toolbar higher, restores normal stacking order. */
+  [role="dialog"] .rich-text-editor .ql-toolbar.ql-snow {
+    position: relative;
+    z-index: 2;
+  }
+  [role="dialog"] .rich-text-editor .ql-container.ql-snow {
+    position: relative;
+    z-index: 1;
+  }
+  [role="dialog"] input:not([type="checkbox"]):not([type="radio"]):focus-visible,
+  [role="dialog"] select:focus-visible,
+  [role="dialog"] textarea:focus-visible {
+    background-color: hsl(var(--background) / 0.85);
+  }
+}
+
+/* Real estate pages (src/re): shared high-contrast form field */
+@layer components {
+  .field {
+    @apply flex h-10 w-full rounded-md border-[1.5px] border-input bg-input-bg px-3 py-2 text-sm text-foreground shadow-sm
+      placeholder:text-muted-foreground/80 focus-visible:outline-none focus-visible:border-ring focus-visible:ring-[3px]
+      focus-visible:ring-ring/30 disabled:cursor-not-allowed disabled:bg-muted disabled:opacity-100 disabled:border-dashed;
+  }
+  .field[readonly] { @apply bg-muted border-dashed; }
+}
+.maplibregl-popup-content { background: hsl(var(--popover)); color: hsl(var(--popover-foreground)); border-radius: 0.5rem; padding: 0.75rem; }
+.maplibregl-popup-tip { border-top-color: hsl(var(--popover)) !important; border-bottom-color: hsl(var(--popover)) !important; }
+.dark .maplibregl-ctrl-group { background: hsl(var(--card)); }
+.dark .maplibregl-ctrl-group button .maplibregl-ctrl-icon { filter: invert(1); }
+
+/* Cards: a crisper edge and depth so they read clearly on the page in both themes */
+@layer components {
+  .bg-card.border, .bg-card.rounded-2xl, .bg-card.rounded-xl {
+    box-shadow: 0 1px 2px hsl(220 30% 20% / 0.06), 0 4px 14px -6px hsl(220 30% 20% / 0.14);
+  }
+  .dark .bg-card.border, .dark .bg-card.rounded-2xl, .dark .bg-card.rounded-xl {
+    box-shadow: 0 1px 0 hsl(0 0% 100% / 0.04) inset, 0 6px 18px -8px hsl(0 0% 0% / 0.6);
+  }
+}
+
+/* Entry forms: each section is a card with a tinted header; fields are clearly visible wells in both themes */
+@layer components {
+  .form-card {
+    @apply overflow-hidden rounded-2xl border border-border bg-card;
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 10px 28px -14px rgb(15 23 42 / 0.22);
+  }
+  .dark .form-card { box-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 30px -14px rgb(0 0 0 / 0.6); }
+  .form-card-head {
+    @apply flex items-center gap-2.5 border-b border-border px-4 py-2.5 text-[13px] font-semibold tracking-tight sm:px-5;
+    background: linear-gradient(90deg, hsl(var(--primary) / 0.08), hsl(var(--primary) / 0.02) 45%, transparent);
+  }
+  .form-card-body { @apply p-4 sm:p-5; }
+  .frappe-form input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  .frappe-form select,
+  .frappe-form textarea {
+    @apply border-input text-[13px];
+    background-color: hsl(var(--input-bg));
+    box-shadow: inset 0 1px 2px rgb(15 23 42 / 0.06);
+  }
+  .frappe-form input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  .frappe-form select { @apply h-8; }
+  .frappe-form input:focus-visible, .frappe-form select:focus-visible, .frappe-form textarea:focus-visible {
+    @apply border-ring;
+    box-shadow: 0 0 0 3px hsl(var(--ring) / 0.2);
+  }
+  .frappe-form label { @apply text-[12px] font-medium text-foreground/80; }
+}
+
+/* Sugarcane additions: Urdu right-to-left text */
+[dir="rtl"] body { font-family: "Noto Nastaliq Urdu", serif; }

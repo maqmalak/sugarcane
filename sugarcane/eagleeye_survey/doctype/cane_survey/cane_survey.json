@@ -1,0 +1,636 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-10-13 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "survey_tab",
+  "naming_series",
+  "season",
+  "survey_date",
+  "surveyor",
+  "survey_for",
+  "competitor_mill",
+  "cb_top",
+  "grower",
+  "grower_name",
+  "cnic",
+  "passbook_no",
+  "sb_location",
+  "circle",
+  "village",
+  "village_name",
+  "cb_location",
+  "sector",
+  "zone",
+  "murabba_no",
+  "killa_no",
+  "sb_crop",
+  "total_acres",
+  "empty_land_acres",
+  "crop_land_acres",
+  "cb_crop",
+  "variety",
+  "crop_type",
+  "ratoon_no",
+  "sowing_date",
+  "cb_crop2",
+  "crop_condition",
+  "disease",
+  "disease_pct",
+  "sb_yield",
+  "expected_yield",
+  "cb_yield",
+  "expected_production_maund",
+  "map_tab",
+  "polygon",
+  "sb_measure",
+  "calc_area_acres",
+  "calc_area_kanal",
+  "area_variance_pct",
+  "cb_measure",
+  "latitude",
+  "longitude",
+  "gps_accuracy_m",
+  "inside_village",
+  "cb_measure2",
+  "overlap_status",
+  "overlap_acres",
+  "bbox_min_lat",
+  "bbox_max_lat",
+  "bbox_min_lng",
+  "bbox_max_lng",
+  "photos_tab",
+  "photos",
+  "sb_device",
+  "device",
+  "survey_uuid",
+  "cb_device",
+  "captured_at",
+  "synced_at",
+  "remarks",
+  "amended_from",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "survey_tab",
+   "fieldtype": "Tab Break",
+   "label": "Survey"
+  },
+  {
+   "default": "SRV-.YY.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Naming Series",
+   "options": "SRV-.YY.-.#####"
+  },
+  {
+   "fieldname": "season",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Season",
+   "options": "Crushing Season",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "survey_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Survey Date",
+   "reqd": 1
+  },
+  {
+   "default": "__user",
+   "fieldname": "surveyor",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Surveyor",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "default": "Company",
+   "description": "Competitor = cane committed to another mill (mapped for intelligence, never indented)",
+   "fieldname": "survey_for",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Survey For",
+   "options": "Company\nCompetitor"
+  },
+  {
+   "depends_on": "eval:doc.survey_for=='Competitor'",
+   "fieldname": "competitor_mill",
+   "fieldtype": "Data",
+   "label": "Competitor Mill"
+  },
+  {
+   "fieldname": "cb_top",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "grower",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Grower",
+   "mandatory_depends_on": "eval:doc.survey_for=='Company'",
+   "options": "Grower"
+  },
+  {
+   "fetch_from": "grower.grower_name",
+   "fieldname": "grower_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Grower Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "grower.cnic",
+   "fieldname": "cnic",
+   "fieldtype": "Data",
+   "label": "CNIC",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "grower.passbook_no",
+   "fieldname": "passbook_no",
+   "fieldtype": "Data",
+   "label": "Passbook No.",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_location",
+   "fieldtype": "Section Break",
+   "label": "Location"
+  },
+  {
+   "fieldname": "circle",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Circle",
+   "options": "Cane Circle",
+   "reqd": 1
+  },
+  {
+   "fieldname": "village",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Village",
+   "options": "Cane Village",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "village.village_name",
+   "fieldname": "village_name",
+   "fieldtype": "Data",
+   "label": "Village Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_location",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "village.sector",
+   "fieldname": "sector",
+   "fieldtype": "Link",
+   "label": "Sector",
+   "options": "Cane Sector",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "circle.zone",
+   "fieldname": "zone",
+   "fieldtype": "Link",
+   "label": "Zone",
+   "options": "Sugar Zone",
+   "read_only": 1
+  },
+  {
+   "fieldname": "murabba_no",
+   "fieldtype": "Data",
+   "label": "Murabba No."
+  },
+  {
+   "fieldname": "killa_no",
+   "fieldtype": "Data",
+   "label": "Killa No."
+  },
+  {
+   "fieldname": "sb_crop",
+   "fieldtype": "Section Break",
+   "label": "Crop"
+  },
+  {
+   "fieldname": "total_acres",
+   "fieldtype": "Float",
+   "label": "Total Land (acres)",
+   "non_negative": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "empty_land_acres",
+   "fieldtype": "Float",
+   "label": "Empty Land (acres)",
+   "non_negative": 1,
+   "precision": "3"
+  },
+  {
+   "description": "Declared cane area; the boundary's measured area is on the Map tab",
+   "fieldname": "crop_land_acres",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Cane Area (acres)",
+   "non_negative": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "cb_crop",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "variety",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Variety",
+   "options": "Cane Variety",
+   "reqd": 1
+  },
+  {
+   "default": "Plant",
+   "fieldname": "crop_type",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Plant / Ratoon",
+   "options": "Plant\nRatoon"
+  },
+  {
+   "depends_on": "eval:doc.crop_type=='Ratoon'",
+   "fieldname": "ratoon_no",
+   "fieldtype": "Int",
+   "label": "Ratoon No."
+  },
+  {
+   "fieldname": "sowing_date",
+   "fieldtype": "Date",
+   "label": "Sowing Date"
+  },
+  {
+   "fieldname": "cb_crop2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Good",
+   "fieldname": "crop_condition",
+   "fieldtype": "Select",
+   "label": "Crop Condition",
+   "options": "Good\nAverage\nPoor"
+  },
+  {
+   "fieldname": "disease",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Disease",
+   "options": "Crop Disease"
+  },
+  {
+   "depends_on": "disease",
+   "fieldname": "disease_pct",
+   "fieldtype": "Percent",
+   "label": "Disease (%)"
+  },
+  {
+   "fieldname": "sb_yield",
+   "fieldtype": "Section Break",
+   "label": "Expected Yield"
+  },
+  {
+   "fetch_from": "variety.expected_yield",
+   "fetch_if_empty": 1,
+   "fieldname": "expected_yield",
+   "fieldtype": "Float",
+   "label": "Expected Yield (maund per acre)"
+  },
+  {
+   "fieldname": "cb_yield",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Measured cane area (or declared when no boundary) × yield × (1 − disease %)",
+   "fieldname": "expected_production_maund",
+   "fieldtype": "Float",
+   "label": "Expected Production (maund)",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "map_tab",
+   "fieldtype": "Tab Break",
+   "label": "Map"
+  },
+  {
+   "fieldname": "polygon",
+   "fieldtype": "Geolocation",
+   "label": "Field Boundary"
+  },
+  {
+   "fieldname": "sb_measure",
+   "fieldtype": "Section Break",
+   "label": "Measured"
+  },
+  {
+   "fieldname": "calc_area_acres",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Measured Area (acres)",
+   "precision": "3",
+   "read_only": 1
+  },
+  {
+   "fieldname": "calc_area_kanal",
+   "fieldtype": "Float",
+   "label": "Measured Area (kanal)",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "area_variance_pct",
+   "fieldtype": "Percent",
+   "label": "Declared vs Measured (%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_measure",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "latitude",
+   "fieldtype": "Float",
+   "label": "Latitude",
+   "precision": "6",
+   "read_only": 1
+  },
+  {
+   "fieldname": "longitude",
+   "fieldtype": "Float",
+   "label": "Longitude",
+   "precision": "6",
+   "read_only": 1
+  },
+  {
+   "fieldname": "gps_accuracy_m",
+   "fieldtype": "Float",
+   "label": "GPS Accuracy (m)",
+   "precision": "1"
+  },
+  {
+   "fieldname": "inside_village",
+   "fieldtype": "Check",
+   "label": "Inside Village Boundary",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_measure2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "overlap_status",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Overlap Status",
+   "no_copy": 1,
+   "options": "\nClear\nUnder Review\nAccepted\nRejected",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "overlap_acres",
+   "fieldtype": "Float",
+   "label": "Overlapping Area (acres)",
+   "no_copy": 1,
+   "precision": "3",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bbox_min_lat",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "label": "Bbox Min Lat",
+   "precision": "6",
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "bbox_max_lat",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "label": "Bbox Max Lat",
+   "precision": "6",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bbox_min_lng",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "label": "Bbox Min Lng",
+   "precision": "6",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bbox_max_lng",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "label": "Bbox Max Lng",
+   "precision": "6",
+   "read_only": 1
+  },
+  {
+   "fieldname": "photos_tab",
+   "fieldtype": "Tab Break",
+   "label": "Photos & Device"
+  },
+  {
+   "fieldname": "photos",
+   "fieldtype": "Table",
+   "label": "Photos",
+   "options": "Cane Survey Photo"
+  },
+  {
+   "fieldname": "sb_device",
+   "fieldtype": "Section Break",
+   "label": "Device"
+  },
+  {
+   "fieldname": "device",
+   "fieldtype": "Link",
+   "label": "Device",
+   "options": "Survey Device",
+   "read_only": 1
+  },
+  {
+   "description": "Set by the EagleEye app; the same upload twice never makes two surveys",
+   "fieldname": "survey_uuid",
+   "fieldtype": "Data",
+   "label": "Survey UUID",
+   "no_copy": 1,
+   "read_only": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "cb_device",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "captured_at",
+   "fieldtype": "Datetime",
+   "label": "Captured At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "synced_at",
+   "fieldtype": "Datetime",
+   "label": "Synced At",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Cane Survey",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Demo Record",
+   "no_copy": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-10-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "EagleEye Survey",
+ "name": "Cane Survey",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Admin",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Circle Officer",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Surveyor",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Accountant"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "MIS Viewer"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Indent Clerk"
+  }
+ ],
+ "search_fields": "grower_name,village_name,circle,variety",
+ "show_title_field_in_link": 1,
+ "sort_field": "survey_date",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "grower_name",
+ "track_changes": 1
+}

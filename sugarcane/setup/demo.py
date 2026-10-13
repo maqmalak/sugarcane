@@ -7,7 +7,6 @@ Geography is the Sargodha / Khushab / Jhang cane belt; villages are named in the
 in as <role>@micromaxsugar.example with the password in ~/.sugarcane-site-secrets (STAFF_DEMO_PASSWORD).
 """
 
-import math
 import os
 import random
 
@@ -27,13 +26,13 @@ ZONES = (  # zone, district, division
 	("West Zone", "Khushab", "Sargodha"),
 	("South Zone", "Jhang", "Faisalabad"),
 )
-CIRCLES = (  # name, zone, affiliation, quality, distance
-	("Bhalwal", "North Zone", "Own", "A", 18), ("Phularwan", "North Zone", "Own", "A", 26),
-	("Kot Momin", "North Zone", "Affiliated", "B", 34), ("Midh Ranjha", "North Zone", "Own", "B", 22),
-	("Sillanwali", "West Zone", "Own", "A", 30), ("Sahiwal", "West Zone", "Affiliated", "B", 41),
-	("Jauharabad", "West Zone", "Free", "C", 55), ("Quaidabad", "West Zone", "Affiliated", "C", 62),
-	("Shorkot", "South Zone", "Own", "B", 48), ("Ahmedpur Sial", "South Zone", "Free", "C", 70),
-	("Athara Hazari", "South Zone", "Affiliated", "B", 58), ("Chiniot Road", "South Zone", "Own", "A", 38),
+CIRCLES = (  # name, zone, affiliation, quality, distance, (lat, lng) ≈ the town it is named after
+	("Bhalwal", "North Zone", "Own", "A", 18, (32.265, 72.899)), ("Phularwan", "North Zone", "Own", "A", 26, (32.385, 73.010)),
+	("Kot Momin", "North Zone", "Affiliated", "B", 34, (32.190, 73.030)), ("Midh Ranjha", "North Zone", "Own", "B", 22, (32.330, 73.160)),
+	("Sillanwali", "West Zone", "Own", "A", 30, (31.825, 72.540)), ("Sahiwal", "West Zone", "Affiliated", "B", 41, (31.970, 72.330)),
+	("Jauharabad", "West Zone", "Free", "C", 55, (32.290, 72.280)), ("Quaidabad", "West Zone", "Affiliated", "C", 62, (32.330, 71.910)),
+	("Shorkot", "South Zone", "Own", "B", 48, (30.830, 72.080)), ("Ahmedpur Sial", "South Zone", "Free", "C", 70, (30.680, 71.740)),
+	("Athara Hazari", "South Zone", "Affiliated", "B", 58, (31.150, 72.120)), ("Chiniot Road", "South Zone", "Own", "A", 38, (31.720, 72.980)),
 )
 VARIETIES = (  # name, maturity, yield maund/acre, recovery %, colour
 	("CPF-246", "Early", 950, 10.8, "#2f9e44"), ("CPF-247", "Mid", 900, 10.5, "#1971c2"),
@@ -116,25 +115,53 @@ def run(growers: int = GROWERS):
 	_vehicles(rnd, contractors)
 	_users()
 	frappe.db.commit()
-	counts = {dt: frappe.db.count(dt) for dt in ("Cane Circle", "Cane Village", "Grower", "Grower Passbook", "Sugar Vehicle")}
+	from sugarcane.setup import demo_survey
+
+	demo_survey.run(_staff_password())
+	counts = {dt: frappe.db.count(dt) for dt in ("Cane Circle", "Cane Village", "Grower", "Grower Passbook", "Sugar Vehicle",
+		"Cane Survey", "Survey Overlap Review", "Surveyor Attendance", "Surveyor Location Log")}
 	print("Demo ready:", counts)
 	return counts
 
 
+LINKED_TABLES = (  # rows that point at a record by (doctype field, name field); cleared with the record
+	("Version", "ref_doctype", "docname"), ("Comment", "reference_doctype", "reference_name"),
+	("DocShare", "share_doctype", "share_name"), ("ToDo", "reference_type", "reference_name"),
+	("View Log", "reference_doctype", "reference_name"), ("Document Follow", "ref_doctype", "ref_docname"),
+	("Activity Log", "reference_doctype", "reference_name"), ("File", "attached_to_doctype", "attached_to_name"),
+)
+
+
+def _purge(doctype, names):
+	"""Delete records and everything hanging off them in bulk (no per-record delete jobs)."""
+	if not names:
+		return
+	for i in range(0, len(names), 500):
+		chunk = names[i:i + 500]
+		for df in frappe.get_meta(doctype).get_table_fields():
+			frappe.db.delete(df.options, {"parent": ["in", chunk], "parenttype": doctype})
+		for table, dt_field, name_field in LINKED_TABLES:
+			frappe.db.delete(table, {dt_field: doctype, name_field: ["in", chunk]})
+		frappe.db.delete(doctype, {"name": ["in", chunk]})
+
+
 def reset():
+	from sugarcane.setup import demo_survey
+
+	demo_survey.reset()
 	for dt in DEMO_DOCTYPES:
 		names = frappe.get_all(dt, filters={"is_demo": 1}, pluck="name")
 		if dt == "Grower" and names:
-			for ba in frappe.get_all("Bank Account", filters={"party_type": "Grower", "party": ["in", names]}, pluck="name"):
-				frappe.delete_doc("Bank Account", ba, force=1, ignore_permissions=True)
+			_purge("Bank Account", frappe.get_all("Bank Account",
+				filters={"party_type": "Grower", "party": ["in", names]}, pluck="name"))
 			for prefix in {n.rsplit("-", 1)[0] + "-" for n in names}:
 				frappe.db.delete("Series", {"name": prefix})
-		for name in names:
-			frappe.delete_doc(dt, name, force=1, ignore_permissions=True, delete_permanently=True)
+		_purge(dt, names)
 		frappe.db.commit()
 	settings = frappe.get_single("Sugar Settings")
 	if settings.active_season and not frappe.db.exists("Crushing Season", settings.active_season):
 		settings.db_set("active_season", None)
+	frappe.clear_cache()
 	run()
 
 
@@ -184,9 +211,7 @@ def _hierarchy(rnd):
 			_insert({"doctype": "Sugar Zone", "zone_name": zone, "district": district, "is_free_area": 0})
 
 	chak = 1
-	for i, (name, zone, affiliation, quality, distance) in enumerate(CIRCLES, start=1):
-		angle = 2 * math.pi * i / len(CIRCLES)
-		clat, clng = CENTRE[0] + 0.35 * math.sin(angle), CENTRE[1] + 0.45 * math.cos(angle)
+	for i, (name, zone, affiliation, quality, distance, (clat, clng)) in enumerate(CIRCLES, start=1):
 		code = f"{i:03d}"
 		if not _exists("Cane Circle", name):
 			_insert({"doctype": "Cane Circle", "circle_name": name, "circle_code": code, "zone": zone,
@@ -337,7 +362,7 @@ def _growers(rnd, count):
 
 
 def _vehicles(rnd, contractors):
-	if frappe.db.count("Sugar Vehicle", {"is_demo": 1}) >= 120:
+	if frappe.db.count("Sugar Vehicle", {"is_demo": 1}):
 		return
 	types = [t[0] for t in VEHICLE_TYPES]
 	weights = (55, 10, 15, 12, 8)

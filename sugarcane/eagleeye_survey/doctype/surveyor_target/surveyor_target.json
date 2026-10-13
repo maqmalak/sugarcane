@@ -1,0 +1,166 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:STGT-{season}-{#####}",
+ "creation": "2026-10-13 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "season",
+  "surveyor",
+  "surveyor_name",
+  "circle",
+  "cb_main",
+  "from_date",
+  "to_date",
+  "target_acres",
+  "target_surveys",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "season",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Season",
+   "options": "Crushing Season",
+   "reqd": 1
+  },
+  {
+   "fieldname": "surveyor",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Surveyor",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "surveyor.full_name",
+   "fieldname": "surveyor_name",
+   "fieldtype": "Data",
+   "label": "Surveyor Name",
+   "read_only": 1
+  },
+  {
+   "description": "Also the surveyor's attendance geofence",
+   "fieldname": "circle",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Circle",
+   "options": "Cane Circle"
+  },
+  {
+   "fieldname": "cb_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "From Date"
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "To Date"
+  },
+  {
+   "fieldname": "target_acres",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Target Area (acres)",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "target_surveys",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Target Surveys",
+   "non_negative": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Demo Record",
+   "no_copy": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-13 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "EagleEye Survey",
+ "name": "Surveyor Target",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Circle Officer",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Surveyor"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "MIS Viewer"
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "surveyor_name",
+ "track_changes": 1
+}

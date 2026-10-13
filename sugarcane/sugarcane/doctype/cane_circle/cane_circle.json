@@ -24,6 +24,10 @@
   "subsidy_rate",
   "deduction_pct",
   "sb_map",
+  "latitude",
+  "longitude",
+  "area_acres",
+  "cb_map",
   "polygon",
   "is_demo"
  ],
@@ -145,7 +149,32 @@
   {
    "fieldname": "sb_map",
    "fieldtype": "Section Break",
-   "label": "Boundary"
+   "label": "Map: Pin & Boundary"
+  },
+  {
+   "fieldname": "latitude",
+   "fieldtype": "Float",
+   "label": "Latitude",
+   "precision": "6"
+  },
+  {
+   "fieldname": "longitude",
+   "fieldtype": "Float",
+   "label": "Longitude",
+   "precision": "6"
+  },
+  {
+   "description": "Geodesic area of the boundary, calculated on save",
+   "fieldname": "area_acres",
+   "fieldtype": "Float",
+   "label": "Boundary Area (acres)",
+   "no_copy": 1,
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_map",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "polygon",

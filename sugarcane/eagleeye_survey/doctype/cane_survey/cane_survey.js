@@ -18,6 +18,22 @@ frappe.ui.form.on("Cane Survey", {
 		});
 	},
 	refresh(frm) {
+		if (frm.doc.docstatus === 1 && frappe.user.has_role(["System Manager", "Cane Manager", "Cane Admin", "Circle Officer"])) {
+			frm.add_custom_button(__("Re-check overlaps"), () =>
+				frappe.call({
+					method: "sugarcane.eagleeye_survey.overlaps.recheck_survey",
+					args: { name: frm.doc.name },
+					freeze: true,
+					freeze_message: __("Checking this field against the season's surveys…"),
+				}).then(({ message }) => {
+					const n = (message.new_reviews || []).length;
+					frappe.show_alert({
+						message: n ? __("{0} new overlap review(s) opened", [n]) : __("No new overlaps (status: {0})", [__(message.overlap_status || "Clear")]),
+						indicator: n ? "orange" : "green",
+					});
+					frm.reload_doc();
+				}));
+		}
 		if (!frm.is_new()) {
 			frm.add_custom_button(__("Open on Survey Map"), () =>
 				window.open(`/sugar/survey?focus=${encodeURIComponent(frm.doc.name)}`, "_blank"));

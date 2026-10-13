@@ -1,6 +1,9 @@
 /** EagleEye survey dashboard for the active (or chosen) season. */
-import { useFrappeGetCall } from "frappe-react-sdk";
-import { AlertTriangle, Bug, Factory, Map as MapIcon, Ruler, Sprout, UserCheck, Users } from "lucide-react";
+import { useFrappeGetCall, useFrappePostCall } from "frappe-react-sdk";
+import { AlertTriangle, Bug, Factory, Map as MapIcon, RefreshCw, Ruler, Sprout, UserCheck, Users } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { useSession } from "@/lib/session";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -29,7 +32,19 @@ export function SurveyDashboardPage() {
   const [season, setSeason] = useState("");
   const { data: seasons } = useFrappeGetCall<{ message: { seasons: { name: string; status: string }[]; season: string } }>(
     "sugarcane.api.v1.survey_map.meta", undefined, "survey-meta");
-  const { data, isLoading } = useFrappeGetCall<{ message: Dash }>("sugarcane.api.v1.survey_map.dashboard", season ? { season } : undefined);
+  const { data, isLoading, mutate } = useFrappeGetCall<{ message: Dash }>("sugarcane.api.v1.survey_map.dashboard", season ? { season } : undefined);
+  const { hasRole } = useSession();
+  const { call: recheck, loading: rechecking } = useFrappePostCall<{ message: { checked: number; new_reviews: number; open_reviews: number; tolerance_pct: number } }>(
+    "sugarcane.eagleeye_survey.overlaps.recheck_season");
+  const runRecheck = async () => {
+    try {
+      const { message: m } = await recheck(season ? { season } : {});
+      toast.success(`${m.checked} surveys checked at ${m.tolerance_pct}% tolerance · ${m.new_reviews} new review(s) · ${m.open_reviews} open`);
+      await mutate();
+    } catch (e) {
+      toast.error((e as { message?: string })?.message ?? "Re-check failed");
+    }
+  };
   const d = data?.message;
   const k = d?.kpis ?? {};
   const pct = (a: number, b: number) => (b ? Math.round((100 * a) / b) : 0);
@@ -56,6 +71,11 @@ export function SurveyDashboardPage() {
           <option value="">Active season</option>
           {(seasons?.message.seasons ?? []).map((s) => <option key={s.name} value={s.name}>{s.name} · {s.status}</option>)}
         </Select>
+        {hasRole("Cane Manager", "Cane Admin", "Circle Officer") && (
+          <Button variant="outline" className="h-10" disabled={rechecking} onClick={runRecheck} title="Check every submitted survey again against the current tolerance">
+            <RefreshCw className={rechecking ? "animate-spin" : ""} />{rechecking ? "Re-checking…" : "Re-check overlaps"}
+          </Button>
+        )}
         <Link to="/survey" className="inline-flex h-10 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90">
           <MapIcon className="size-4" />Open survey map
         </Link>

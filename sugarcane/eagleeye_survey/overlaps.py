@@ -35,8 +35,8 @@ def detect(doc) -> list[str]:
 			continue
 		total += ov["acres"]
 		if frappe.db.exists("Survey Overlap Review", {"survey": ["in", [doc.name, other.name]],
-				"other_survey": ["in", [doc.name, other.name]], "status": "Open"}):
-			continue
+				"other_survey": ["in", [doc.name, other.name]]}):
+			continue  # this pair is already under review or decided; a re-check never reopens it
 		shared = poly.intersection(geo.polygon_of(other.polygon))
 		review = frappe.get_doc({
 			"doctype": "Survey Overlap Review", "survey": doc.name, "other_survey": other.name,
@@ -76,3 +76,45 @@ def on_survey_cancel(doc):
 		frappe.db.set_value("Survey Overlap Review", r.name, {"status": status, "reviewed_by": frappe.session.user,
 			"reviewed_on": frappe.utils.now_datetime(), "remarks": "Survey cancelled"})
 		refresh_status(r.other_survey if r.survey == doc.name else r.survey)
+
+
+RECHECK_ROLES = {"System Manager", "Cane Manager", "Cane Admin", "Circle Officer"}
+
+
+def _can_recheck():
+	if not RECHECK_ROLES & set(frappe.get_roles()):
+		frappe.throw(frappe._("Only a Circle Officer or Cane Manager can re-check overlaps"), frappe.PermissionError)
+
+
+@frappe.whitelist(methods=["POST"])
+def recheck_survey(name: str) -> dict:
+	"""Run overlap detection again for one submitted survey (e.g. after the tolerance changed)."""
+	_can_recheck()
+	doc = frappe.get_doc("Cane Survey", name)
+	doc.check_permission("read")
+	if doc.docstatus != 1:
+		frappe.throw(frappe._("Only submitted surveys are checked for overlaps"))
+	created = detect(doc)
+	return {"survey": name, "new_reviews": created, "overlap_status": frappe.db.get_value("Cane Survey", name, "overlap_status")}
+
+
+@frappe.whitelist(methods=["POST"])
+def recheck_season(season: str | None = None, circle: str | None = None) -> dict:
+	"""Re-check every submitted survey of a season (optionally one circle). Pairs already reviewed are skipped,
+	so running it twice opens nothing new."""
+	_can_recheck()
+	season = season or frappe.db.get_single_value("Sugar Settings", "active_season")
+	filters = {"docstatus": 1, "season": season, "polygon": ["is", "set"]}
+	if circle:
+		filters["circle"] = circle
+	names = frappe.get_list("Cane Survey", filters=filters, pluck="name", order_by="creation asc", limit_page_length=0)
+	created = []
+	for i, name in enumerate(names):
+		created += detect(frappe.get_doc("Cane Survey", name))
+		if i % 50 == 0:
+			frappe.publish_progress(100 * (i + 1) / max(len(names), 1), title=frappe._("Re-checking overlaps"),
+				description=f"{i + 1} / {len(names)}")
+	tolerance = frappe.db.get_single_value("Sugar Settings", "overlap_tolerance_pct")
+	return {"season": season, "circle": circle, "checked": len(names), "new_reviews": len(created),
+		"review_names": created[:50], "tolerance_pct": tolerance,
+		"open_reviews": frappe.db.count("Survey Overlap Review", {"status": "Open", "season": season})}

@@ -490,3 +490,55 @@ class TestOverviewFeatures(IntegrationTestCase):
 				field_force.set_device_status(dev.name, "Approved")
 		finally:
 			frappe.set_user("Administrator")
+
+
+class TestRecheckOverlaps(IntegrationTestCase):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		from sugarcane.setup.company import ensure_company
+
+		ensure_company()
+		_make_hierarchy()
+
+	def tearDown(self):
+		frappe.db.set_single_value("Sugar Settings", "overlap_tolerance_pct", 5)
+
+	def test_recheck_after_tolerance_change(self):
+		from sugarcane.eagleeye_survey.overlaps import recheck_season, recheck_survey
+
+		frappe.db.set_single_value("Sugar Settings", "overlap_tolerance_pct", 60)
+		base = LAT + 0.06
+		a = _survey("91101-0000040-1", square(base, LNG, 100))
+		b = _survey("91101-0000041-1", square(base, LNG + 60 * m_lng(), 100))  # 40 % overlap < 60 % tolerance
+		self.assertFalse(frappe.db.exists("Survey Overlap Review", {"survey": b.name}))
+		frappe.db.set_single_value("Sugar Settings", "overlap_tolerance_pct", 5)
+		out = recheck_survey(b.name)
+		self.assertEqual(len(out["new_reviews"]), 1)
+		self.assertEqual(out["overlap_status"], "Under Review")
+		self.assertEqual(frappe.db.get_value("Cane Survey", a.name, "overlap_status"), "Under Review")
+		self.assertEqual(recheck_survey(b.name)["new_reviews"], [])  # running it again opens nothing
+		review = frappe.get_doc("Survey Overlap Review", out["new_reviews"][0])
+		review.status = "Accepted"
+		review.save()
+		res = recheck_season(_season())
+		self.assertGreaterEqual(res["checked"], 2)
+		self.assertFalse(frappe.db.exists("Survey Overlap Review", {"survey": ["in", [a.name, b.name]],
+			"other_survey": ["in", [a.name, b.name]], "status": "Open"}))  # a decided pair is not reopened
+		self.assertEqual(frappe.db.get_value("Cane Survey", b.name, "overlap_status"), "Accepted")
+
+	def test_recheck_needs_reviewer_role(self):
+		from sugarcane.eagleeye_survey.overlaps import recheck_season
+
+		user = "test.surveyor@micromaxsugar.example"
+		if not frappe.db.exists("User", user):
+			u = frappe.get_doc({"doctype": "User", "email": user, "first_name": "Test Surveyor", "send_welcome_email": 0})
+			u.flags.no_welcome_mail = True
+			u.insert()
+		frappe.get_doc("User", user).add_roles("Surveyor")
+		frappe.set_user(user)
+		try:
+			with self.assertRaises(frappe.PermissionError):
+				recheck_season(_season())
+		finally:
+			frappe.set_user("Administrator")

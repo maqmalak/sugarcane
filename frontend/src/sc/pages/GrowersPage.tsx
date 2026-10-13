@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useFrappeGetCall, useFrappeGetDocList } from "frappe-react-sdk";
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { ChevronLeft, ChevronRight, ExternalLink, Search } from "lucide-react";
+import { Camera, ChevronLeft, ChevronRight, ExternalLink, LayoutGrid, List, MapPin, Search } from "lucide-react";
+import { GrowerAvatar } from "@/sc/components/PhotoGallery";
+import { cn } from "@/sc/lib/utils";
 import { fmtInt } from "@/sc/lib/fmt";
 import { Card, CardContent } from "@/sc/components/ui/card";
 import { Input, Select } from "@/sc/components/ui/input";
@@ -27,7 +29,8 @@ interface GrowerRow {
   grower_photo?: string | null;
 }
 
-const PAGE = 25;
+const PAGE = 24;
+const growerUrl = (name: string) => `/setup/d/grower/${encodeURIComponent(name)}`;
 const col = createColumnHelper<GrowerRow>();
 
 export function GrowersPage() {
@@ -36,6 +39,10 @@ export function GrowersPage() {
   const q = params.get("q") ?? "";
   const circle = params.get("circle") ?? "";
   const start = Number(params.get("start") ?? 0);
+  const withPhoto = params.get("photo") === "1";
+  // cards (big photos) or the table; remembered on this browser
+  const [view, setView] = useState<"cards" | "table">(() => { try { return (localStorage.getItem("sc-growers-view") as "cards" | "table") || "cards"; } catch { return "cards"; } });
+  const pick = (v: "cards" | "table") => { setView(v); try { localStorage.setItem("sc-growers-view", v); } catch { /* private window */ } };
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -55,7 +62,7 @@ export function GrowersPage() {
     fields: ["name", "circle_code"], orderBy: { field: "circle_code", order: "asc" }, limit: 500,
   });
   const { data, isLoading } = useFrappeGetCall<{ message: { rows: GrowerRow[]; total: number } }>(
-    "sugarcane.api.v1.growers.search", { q, circle, start, page_length: PAGE },
+    "sugarcane.api.v1.growers.search", { q, circle, start, page_length: PAGE, with_photo: withPhoto ? 1 : 0 },
   );
   const rows = data?.message.rows ?? [];
   const total = data?.message.total ?? 0;
@@ -66,11 +73,9 @@ export function GrowersPage() {
       header: "Grower",
       cell: (c) => (
         <div className="flex items-center gap-2.5">
-          {c.row.original.grower_photo
-            ? <a href={c.row.original.grower_photo} target="_blank" rel="noreferrer"><img src={c.row.original.grower_photo} alt="" className="size-9 rounded-full border object-cover" /></a>
-            : <span className="grid size-9 place-items-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">{c.getValue().split(" ").map((w) => w[0]).slice(0, 2).join("")}</span>}
+          <GrowerAvatar name={c.getValue()} photo={c.row.original.grower_photo} className="size-10" />
           <div>
-            <div className="font-medium">{c.getValue()}</div>
+            <Link to={growerUrl(c.row.original.name)} className="font-medium hover:text-primary hover:underline">{c.getValue()}</Link>
             {c.row.original.father_name && <div className="text-xs text-muted-foreground">s/o {c.row.original.father_name}</div>}
           </div>
         </div>
@@ -99,10 +104,9 @@ export function GrowersPage() {
       id: "open",
       header: "",
       cell: (c) => (
-        <a className="text-muted-foreground hover:text-foreground" href={`/app/grower/${encodeURIComponent(c.row.original.name)}`}
-          title="Open in Desk">
+        <Link className="text-muted-foreground hover:text-foreground" to={growerUrl(c.row.original.name)} title="Open grower (photos, land, surveys)">
           <ExternalLink className="h-4 w-4" />
-        </a>
+        </Link>
       ),
     }),
   ], []);
@@ -132,8 +136,42 @@ export function GrowersPage() {
             <option key={c.name} value={c.name}>{c.circle_code} · {c.name}</option>
           ))}
         </Select>
+        <label className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border bg-card px-3 text-sm">
+          <input type="checkbox" checked={withPhoto} onChange={(e) => update({ photo: e.target.checked ? "1" : null, start: null })} />
+          <Camera className="size-4 text-muted-foreground" />With photo
+        </label>
+        <div className="inline-flex rounded-lg border bg-muted/50 p-0.5" role="radiogroup" aria-label="View">
+          {([["cards", LayoutGrid, "Cards"], ["table", List, "Table"]] as const).map(([v, Icon, label]) => (
+            <button key={v} type="button" role="radio" aria-checked={view === v} onClick={() => pick(v)} title={label}
+              className={cn("inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium", view === v ? "bg-background shadow" : "text-muted-foreground hover:text-foreground")}>
+              <Icon className="size-4" />{label}
+            </button>
+          ))}
+        </div>
       </div>
 
+      {view === "cards" ? (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+          {isLoading && !rows.length && Array.from({ length: 12 }).map((_, i) => <Skeleton key={i} className="aspect-[3/4] rounded-2xl" />)}
+          {rows.map((g) => (
+            <Link key={g.name} to={growerUrl(g.name)}
+              className="group overflow-hidden rounded-2xl border bg-card shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
+              <div className="relative aspect-square bg-muted">
+                <CardPhoto url={g.grower_photo} name={g.grower_name} />
+                <span className="absolute left-2 top-2 rounded-full bg-black/60 px-2 py-0.5 font-mono text-[10px] text-white">{g.name}</span>
+                {!g.passbook_no && <span className="absolute right-2 top-2 rounded-full bg-amber-500/90 px-2 py-0.5 text-[10px] font-semibold text-white">CNIC</span>}
+              </div>
+              <div className="space-y-0.5 p-3">
+                <div className="truncate font-semibold group-hover:text-primary" title={g.grower_name}>{g.grower_name}</div>
+                {g.father_name && <div className="truncate text-xs text-muted-foreground">s/o {g.father_name}</div>}
+                <div className="flex items-center gap-1 truncate text-xs text-muted-foreground"><MapPin className="size-3 shrink-0" />{g.village_name ?? g.village} · {g.circle}</div>
+                <div className="font-mono text-[11px] text-muted-foreground">{g.cnic}</div>
+              </div>
+            </Link>
+          ))}
+          {!isLoading && !rows.length && <p className="col-span-full py-10 text-center text-muted-foreground">No growers found</p>}
+        </div>
+      ) : (
       <Card>
         <CardContent className="overflow-x-auto p-0">
           <Table>
@@ -167,6 +205,7 @@ export function GrowersPage() {
           </Table>
         </CardContent>
       </Card>
+      )}
 
       <div className="flex items-center justify-end gap-2 text-sm">
         <span className="text-muted-foreground">
@@ -183,4 +222,12 @@ export function GrowersPage() {
       </div>
     </div>
   );
+}
+
+/** The card's big photo; initials when there is none or the file is missing. */
+function CardPhoto({ url, name }: { url?: string | null; name: string }) {
+  const [broken, setBroken] = useState(false);
+  return url && !broken
+    ? <img src={url} alt="" loading="lazy" onError={() => setBroken(true)} className="size-full object-cover transition group-hover:scale-[1.03]" />
+    : <div className="grid size-full place-items-center bg-gradient-to-br from-emerald-500/20 to-teal-600/20"><GrowerAvatar name={name} className="size-16 text-lg" /></div>;
 }

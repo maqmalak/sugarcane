@@ -188,3 +188,29 @@ class TestHomeApprovals(TestInbox):
 		self.assertTrue(item["can_approve"])
 		approve("Survey Overlap Review", review)  # the home card's button accepts both
 		self.assertEqual(frappe.db.get_value("Survey Overlap Review", review, "status"), "Accepted")
+
+
+class TestGrowerPhotos(IntegrationTestCase):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		from sugarcane.setup.company import ensure_company
+
+		ensure_company()
+		_make_hierarchy()
+
+	def test_photos_of_a_grower(self):
+		from sugarcane.api.v1.growers import photos, search
+		from sugarcane.tests.test_survey import LAT, LNG, _survey, square
+
+		s = _survey("91101-0000090-1", square(LAT + 0.22, LNG, 60), submit=False)
+		s.append("photos", {"photo": "/files/test-field.jpg", "caption": "Field", "latitude": LAT, "longitude": LNG})
+		s.grower_photo = "/files/test-grower.jpg"
+		s.save()
+		out = photos(s.grower)
+		kinds = sorted(p["kind"] for p in out["photos"])
+		self.assertEqual(kinds, ["field", "grower"])
+		self.assertTrue(all(p["survey"] == s.name for p in out["photos"]))
+		self.assertEqual(out["surveys"], 1)
+		with_photo = search(with_photo=1, page_length=200)["rows"]
+		self.assertTrue(all(r.grower_photo for r in with_photo))

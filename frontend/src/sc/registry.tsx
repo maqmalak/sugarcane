@@ -17,6 +17,8 @@ import { lazy, Suspense, type ReactNode } from "react";
 // Map panels load lazily: they import the app's routes, which import this registry (a static import would be circular).
 const JourneyPanel = lazy(() => import("./components/JourneyPanel").then((m) => ({ default: m.JourneyPanel })));
 const ListMap = lazy(() => import("./components/map/ListMap").then((m) => ({ default: m.ListMap })));
+const SurveyPhotos = lazy(() => import("./components/PhotoGallery").then((m) => ({ default: m.SurveyPhotos })));
+const GrowerPhotos = lazy(() => import("./components/PhotoGallery").then((m) => ({ default: m.GrowerPhotos })));
 const AreaGeoEditor = lazy(() => import("./pages/AreaMapPage").then((m) => ({ default: m.Editor })));
 const later = (node: ReactNode) => <Suspense fallback={<div className="h-24 animate-pulse rounded-2xl border bg-muted/40" />}>{node}</Suspense>;
 
@@ -123,20 +125,27 @@ const withJourney = (doctype: string) => (config: DocConfig): DocConfig => ({
   extra: (c: ExtraContext) => <>{config.extra?.(c)}{later(<JourneyPanel ctx={c} doctype={doctype} />)}</>,
 });
 
+/** Cane Survey form: the grower and field photos below the form. */
+const withPhotos = (config: DocConfig): DocConfig => ({
+  ...config,
+  extra: (c: ExtraContext) => <>{config.extra?.(c)}{!c.isNew && later(<SurveyPhotos name={c.name ?? ""} />)}</>,
+});
+
 export const ENHANCERS: Record<string, Enhancer> = {
   ...Object.fromEntries(GEO.map((dt) => [dt, { extend: withAreaMap(dt) }])),
   ...Object.fromEntries(JOURNEY.map((dt) => [dt, { extend: withJourney(dt) }])),
   "Sugar Settings": { extend: withActions([onAreaMap("Sugar Settings")]) },
+  Grower: { extend: (config) => ({ ...config, extra: (c) => <>{config.extra?.(c)}{!c.isNew && later(<GrowerPhotos name={c.name ?? ""} />)}</> }) },
   "Cane Survey": {
     subtitle: "Field surveys — boundary, variety, disease, photos",
-    extend: withActions([
+    extend: (config) => withPhotos(withActions([
       { label: "Open on Survey Map", icon: Map, show: (c) => !c.isNew, run: (c) => go(`/survey/map?focus=${encodeURIComponent(c.name ?? "")}&from=${here()}`)() },
       {
         label: "Re-check overlaps", icon: RefreshCw, show: (c) => !c.isNew && c.docstatus === 1,
         run: call("sugarcane.eagleeye_survey.overlaps.recheck_survey", (c) => ({ name: c.name }),
           (r) => { const n = (r as { new_reviews?: string[] })?.new_reviews?.length ?? 0; return n ? `${n} new overlap review(s)` : "No new overlaps"; }),
       },
-    ]),
+    ])(config)),
   },
   "Survey Overlap Review": {
     extend: withActions([

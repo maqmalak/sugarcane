@@ -60,6 +60,7 @@ export function AppRoutes() {
 
         {/* Setup */}
         <Route path="setup" element={sugar(<SetupHomePage />)} />
+        <Route path="setup/area-map" element={sugar(<AreaMapPage />)} />
         <Route path="setup/d/:slug" element={sugar(<MetaDocPage mode="list" />)} />
         <Route path="setup/d/:slug/:name" element={sugar(<MetaDocPage mode="form" />)} />
 

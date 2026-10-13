@@ -16,6 +16,11 @@ class SugarSettings(Document):
 				"Crushing Season", self.active_season, "company") != self.company:
 			frappe.throw(_("Season {0} belongs to another company").format(frappe.bold(self.active_season)))
 
+		if self.road_factor and self.road_factor < 1:
+			frappe.throw(_("Road factor must be at least 1 — a road is never shorter than the straight line"))
+		for field in ("loaded_speed_kmph", "empty_speed_kmph"):
+			if self.get(field) is not None and self.get(field) <= 0 and self.road_factor:
+				frappe.throw(_("{0} must be more than 0").format(_(self.meta.get_label(field))))
 		self.set_mill_pin()
 
 	def set_mill_pin(self):
@@ -30,6 +35,13 @@ class SugarSettings(Document):
 
 	def on_update(self):
 		frappe.clear_document_cache("Sugar Settings", "Sugar Settings")
+		before = self.get_doc_before_save()
+		journey = ("mill_latitude", "mill_longitude", "road_factor", "loaded_speed_kmph", "empty_speed_kmph", "journey_allowance_min")
+		if before and any(before.get(f) != self.get(f) for f in journey):
+			from sugarcane.journey import refresh_all
+
+			if n := refresh_all():
+				frappe.msgprint(_("Journey distance and standard time recalculated for {0} source(s)").format(n), alert=True)
 
 
 @frappe.whitelist()

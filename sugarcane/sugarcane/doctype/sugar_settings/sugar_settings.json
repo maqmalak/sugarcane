@@ -16,6 +16,12 @@
   "mill_longitude",
   "cb_mill",
   "mill_boundary",
+  "sb_journey",
+  "road_factor",
+  "journey_allowance_min",
+  "cb_journey",
+  "loaded_speed_kmph",
+  "empty_speed_kmph",
   "sb_survey",
   "overlap_tolerance_pct",
   "min_gps_accuracy_m",
@@ -86,13 +92,13 @@
   },
   {
    "default": "7",
-   "description": "A crushing day runs from this hour to the same hour next day, e.g. 7 = 07:00 → 07:00.",
+   "description": "A crushing day runs from this hour to the same hour next day, e.g. 7 = 07:00 \u2192 07:00.",
    "fieldname": "crushing_day_start_hour",
    "fieldtype": "Int",
    "label": "Crushing Day Starts At (hour)"
   },
   {
-   "description": "Shown on the survey maps; set it here or in React → Area Map → Company",
+   "description": "Shown on the survey maps; set it here or in React \u2192 Area Map \u2192 Company",
    "fieldname": "sb_mill",
    "fieldtype": "Section Break",
    "label": "Mill Location"
@@ -117,6 +123,44 @@
    "fieldname": "mill_boundary",
    "fieldtype": "Geolocation",
    "label": "Mill Premises"
+  },
+  {
+   "fieldname": "sb_journey",
+   "fieldtype": "Section Break",
+   "label": "Cane Journey Standards",
+   "description": "Used for every source, depot and loading point: road km = straight line \u00d7 road factor (unless a route is drawn or a distance entered); time = road km \u00f7 speed + allowance."
+  },
+  {
+   "default": "1.3",
+   "fieldname": "road_factor",
+   "fieldtype": "Float",
+   "label": "Road Factor (road km per straight km)",
+   "precision": "2"
+  },
+  {
+   "default": "15",
+   "fieldname": "journey_allowance_min",
+   "fieldtype": "Int",
+   "label": "Allowance per Loaded Trip (min)",
+   "description": "Check-post halts, loading queue"
+  },
+  {
+   "fieldname": "cb_journey",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "25",
+   "fieldname": "loaded_speed_kmph",
+   "fieldtype": "Float",
+   "label": "Loaded Speed (km/h)",
+   "precision": "1"
+  },
+  {
+   "default": "35",
+   "fieldname": "empty_speed_kmph",
+   "fieldtype": "Float",
+   "label": "Empty Speed, return (km/h)",
+   "precision": "1"
   },
   {
    "fieldname": "sb_survey",
@@ -235,7 +279,7 @@
   {
    "fieldname": "road_cess_payable_account",
    "fieldtype": "Link",
-   "label": "Road Cess Payable – Govt Account",
+   "label": "Road Cess Payable \u2013 Govt Account",
    "options": "Account"
   },
   {
@@ -280,7 +324,7 @@
   {
    "fieldname": "road_cess_expense_account",
    "fieldtype": "Link",
-   "label": "Road Cess – Mill Share Account",
+   "label": "Road Cess \u2013 Mill Share Account",
    "options": "Account"
   },
   {
@@ -327,7 +371,7 @@
  "index_web_pages_for_search": 0,
  "issingle": 1,
  "links": [],
- "modified": "2026-10-13 12:00:00.000000",
+ "modified": "2026-10-14 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Sugarcane",
  "name": "Sugar Settings",

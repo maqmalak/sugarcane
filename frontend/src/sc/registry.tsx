@@ -12,6 +12,13 @@ import toast from "react-hot-toast";
 import type { DocConfig, ExtraContext, FormAction } from "@/components/doc/doc-config";
 import { humanizeError, postCall } from "@/services/frappe";
 import { slugOf, type Enhancer } from "./meta/buildConfig";
+import { lazy, Suspense, type ReactNode } from "react";
+
+// Map panels load lazily: they import the app's routes, which import this registry (a static import would be circular).
+const JourneyPanel = lazy(() => import("./components/JourneyPanel").then((m) => ({ default: m.JourneyPanel })));
+const ListMap = lazy(() => import("./components/map/ListMap").then((m) => ({ default: m.ListMap })));
+const AreaGeoEditor = lazy(() => import("./pages/AreaMapPage").then((m) => ({ default: m.Editor })));
+const later = (node: ReactNode) => <Suspense fallback={<div className="h-24 animate-pulse rounded-2xl border bg-muted/40" />}>{node}</Suspense>;
 
 export type ScApp = "setup" | "survey" | "field-force";
 
@@ -82,22 +89,48 @@ const call = (method: string, args: (c: ExtraContext) => Record<string, unknown>
 
 const withActions = (actions: FormAction[]) => (config: DocConfig): DocConfig => ({ ...config, actions: [...(config.actions ?? []), ...actions] });
 
+/** Where the user is now, so a map opened from here can bring them back (?from=). */
+const here = () => encodeURIComponent(window.location.pathname.replace(/^\/sugar/, "") + window.location.search);
+
 const onAreaMap = (doctype: string): FormAction => ({
-  label: "Pin & boundary on Area Map",
+  label: "Open on Area Map",
   icon: MapPinned,
   show: (c: ExtraContext) => !c.isNew,
-  run: (c: ExtraContext) => go(`/survey/geo?doctype=${encodeURIComponent(doctype)}&name=${encodeURIComponent(c.name ?? "")}`)(),
+  run: (c: ExtraContext) => go(`/setup/area-map?doctype=${encodeURIComponent(doctype)}&name=${encodeURIComponent(c.name ?? "")}&from=${here()}`)(),
 });
 
 const GEO = ["Sugar Division", "Sugar District", "Sugar Zone", "Cane Circle", "Cane Sector", "Cane Village", "Competitor Mill"];
+const JOURNEY = ["Cane Source", "Cane Depot", "Loading Point"];
+
+/** Hierarchy levels: a map above the list, and the pin + boundary editor below the form. */
+const withAreaMap = (doctype: string) => (config: DocConfig): DocConfig => ({
+  ...withActions([onAreaMap(doctype)])(config),
+  listHeaderExtra: later(<ListMap doctype={doctype} base={config.base} />),
+  extra: (c: ExtraContext) => (
+    <>
+      {config.extra?.(c)}
+      {c.isNew
+        ? <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">Save first, then set the pin and draw the boundary here.</p>
+        : <section className="rounded-2xl border bg-card p-4 shadow-sm">{later(<AreaGeoEditor doctype={doctype} name={c.name ?? ""} onSaved={c.reload} />)}</section>}
+    </>
+  ),
+});
+
+/** Sources, depots, loading points: their pins and routes above the list; location, route and journey times in the form. */
+const withJourney = (doctype: string) => (config: DocConfig): DocConfig => ({
+  ...config,
+  listHeaderExtra: later(<ListMap doctype={doctype} base={config.base} />),
+  extra: (c: ExtraContext) => <>{config.extra?.(c)}{later(<JourneyPanel ctx={c} doctype={doctype} />)}</>,
+});
 
 export const ENHANCERS: Record<string, Enhancer> = {
-  ...Object.fromEntries(GEO.map((dt) => [dt, { extend: withActions([onAreaMap(dt)]) }])),
+  ...Object.fromEntries(GEO.map((dt) => [dt, { extend: withAreaMap(dt) }])),
+  ...Object.fromEntries(JOURNEY.map((dt) => [dt, { extend: withJourney(dt) }])),
   "Sugar Settings": { extend: withActions([onAreaMap("Sugar Settings")]) },
   "Cane Survey": {
     subtitle: "Field surveys — boundary, variety, disease, photos",
     extend: withActions([
-      { label: "Open on Survey Map", icon: Map, show: (c) => !c.isNew, run: (c) => go(`/survey/map?focus=${encodeURIComponent(c.name ?? "")}`)() },
+      { label: "Open on Survey Map", icon: Map, show: (c) => !c.isNew, run: (c) => go(`/survey/map?focus=${encodeURIComponent(c.name ?? "")}&from=${here()}`)() },
       {
         label: "Re-check overlaps", icon: RefreshCw, show: (c) => !c.isNew && c.docstatus === 1,
         run: call("sugarcane.eagleeye_survey.overlaps.recheck_survey", (c) => ({ name: c.name }),
@@ -107,7 +140,7 @@ export const ENHANCERS: Record<string, Enhancer> = {
   },
   "Survey Overlap Review": {
     extend: withActions([
-      { label: "Compare on Survey Map", icon: Map, show: (c) => !c.isNew, run: (c) => go(`/survey/map?focus=${encodeURIComponent(String(c.values?.survey ?? ""))}`)() },
+      { label: "Compare on Survey Map", icon: Map, show: (c) => !c.isNew, run: (c) => go(`/survey/map?focus=${encodeURIComponent(String(c.values?.survey ?? ""))}&from=${here()}`)() },
     ]),
   },
   "Survey Device": {

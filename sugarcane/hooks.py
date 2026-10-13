@@ -189,9 +189,12 @@ app_license = "mit"
 # Overriding Methods
 # ------------------------------
 #
-# override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "sugarcane.event.get_events"
-# }
+# The React form's Connections tab calls mm_core; on this app's sites it also finds every sugar DocType linking here
+override_whitelisted_methods = {
+	"mm_core.connections.get_connections": "sugarcane.api.v1.connections.get_connections",
+	# the Desktop's Needs Attention, Recent Activity and app tiles show cane work instead of selling / buying
+	"mm_core.home.get_home": "sugarcane.api.v1.home.get_home",
+}
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
@@ -287,3 +290,11 @@ doc_events = {
 	dt: {"validate": "sugarcane.geo.validate_geo"}
 	for dt in ("Sugar Division", "Sugar District", "Sugar Zone", "Cane Circle", "Cane Sector", "Cane Village", "Competitor Mill")
 }
+# distance and standard journey time to the mill
+doc_events.update({dt: {"validate": "sugarcane.journey.validate_journey"} for dt in ("Cane Source", "Cane Depot", "Loading Point")})
+# bell notifications (sugarcane.notify)
+doc_events.update({
+	"Survey Overlap Review": {"after_insert": "sugarcane.notify.overlap_review_inserted", "on_update": "sugarcane.notify.overlap_review_updated"},
+	"Survey Device": {"after_insert": "sugarcane.notify.device_inserted"},
+	"Surveyor Attendance": {"on_update": "sugarcane.notify.attendance_updated"},
+})

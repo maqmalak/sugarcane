@@ -13,6 +13,7 @@ import { Skeleton } from "@/sc/components/ui/skeleton";
 import { fmtDate, fmtInt } from "@/sc/lib/fmt";
 import { baseStyle, boundsOf, colourFor, emptyFC, matchColour, type BaseLayer } from "@/sc/lib/map";
 import { cn } from "@/sc/lib/utils";
+import { BackLink, keepFrom } from "@/sc/components/BackLink";
 
 interface Meta {
   season: string;
@@ -101,9 +102,10 @@ export function SurveyMapPage() {
   return (
     <div className="relative -m-4 h-[calc(100vh-3.5rem)] md:-m-6">
       <SurveyMap base={base} boundaries={bData?.message} mills={mData?.message} surveys={surveys} tracks={tData?.message} layers={layers} colourBy={colourBy}
-        palette={palette} centre={meta?.centre} focus={selected} onSelect={(name) => setParams(name ? { focus: name } : {})} />
+        palette={palette} centre={meta?.centre} focus={selected} onSelect={(name) => setParams(keepFrom(params, name ? { focus: name } : {}))} />
 
       <div className="pointer-events-none absolute inset-x-3 top-3 flex flex-wrap items-start gap-2">
+        <BackLink className="pointer-events-auto h-[3.25rem] rounded-xl shadow-lg" />
         <div className="pointer-events-auto flex flex-wrap items-center gap-2 rounded-xl border bg-card/95 px-3 py-2 shadow-lg backdrop-blur">
           <Stat label="Company fields" value={fmtInt(totals.company_surveys)} />
           <Stat label="Cane area" value={`${fmtInt(totals.company_acres)} acres`} />
@@ -238,7 +240,7 @@ export function SurveyMapPage() {
         </aside>
       )}
 
-      <SurveyDrawer name={selected} onClose={() => setParams({})} />
+      <SurveyDrawer name={selected} onClose={() => setParams(keepFrom(params, {}))} />
     </div>
   );
 }

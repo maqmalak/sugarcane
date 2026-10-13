@@ -35,7 +35,7 @@ export function SetupHomePage() {
             <p className="text-sm text-muted-foreground">Settings, seasons and every master the mill runs on</p>
           </div>
         </div>
-        <Link to="/survey/geo" className="inline-flex h-9 items-center gap-2 rounded-lg border-[1.5px] border-input bg-input-bg px-3 text-sm font-semibold hover:bg-accent">
+        <Link to="/setup/area-map" className="inline-flex h-9 items-center gap-2 rounded-lg border-[1.5px] border-input bg-input-bg px-3 text-sm font-semibold hover:bg-accent">
           <MapPinned className="size-4" />Pins & boundaries (Area Map)
         </Link>
       </div>

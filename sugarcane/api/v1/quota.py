@@ -133,9 +133,13 @@ def save(season: str, changes: str | list, reason: str | None = None) -> dict:
 		return {"changed": [], **view(season)}
 	doc.save()
 	md = lambda v: fmt_money(v, precision=0)  # noqa: E731
-	doc.add_comment("Info", _("Circle quotas adjusted: {0} circle(s), {1}{2} maund ({3}).{4}").format(
-		len(changed), "+" if delta >= 0 else "−", md(abs(delta)), ", ".join(changed[:8]) + ("…" if len(changed) > 8 else ""),
+	summary = _("{0} circle(s), {1}{2} maund ({3})").format(len(changed), "+" if delta >= 0 else "−", md(abs(delta)),
+		", ".join(changed[:8]) + ("…" if len(changed) > 8 else ""))
+	doc.add_comment("Info", _("Circle quotas adjusted: {0}.{1}").format(summary,
 		f" Reason: {frappe.utils.escape_html(reason)}" if reason else ""))
+	from sugarcane.notify import quotas_adjusted
+
+	quotas_adjusted(season, changed, summary + (f" — {reason}" if reason else ""))
 	return {"changed": changed, **view(season)}
 
 

@@ -36,3 +36,32 @@ The shell also calls `mm_core` (home tiles, search), so **mm_core is installed o
 
 - **Dev server:** `cd frontend && npm run dev` serves port 5179. It proxies to :8006 and works on both sugarcane.local and sugarcane.localhost.
 - **Production build:** `npm run build` writes to `sugarcane/public/frontend` and `sugarcane/www/sugar.html`. The built app is served at `http://sugarcane.local:8006/sugar`.
+
+## Maps on the setup pages
+
+- **Area pages** (Division, District, Zone, Circle, Sector, Village, Competitor Mill):
+  - each list has a map of every record, folded or open as you last left it; click a shape to open that record
+  - each form has the pin and boundary editor, with the parent's outline dashed in yellow
+  - the Area sidebar group opens with **Area Map** (`/setup/area-map`)
+- **Sources, Depots and Loading Points:**
+  - the list map shows each pin and its road route
+  - the form's **Journey to mill** panel sets the location pin and draws the road route from the source to the mill
+  - it shows straight-line km, road km, standard time to the mill (loaded), time back (empty) and the round trip
+  - the server works these out on Save in `sugarcane.journey`, using Sugar Settings → *Cane Journey Standards*: road factor, loaded speed, empty speed and allowance
+  - changing the mill pin or the standards recalculates every source
+- **Back navigation:** links that open the full maps add `?from=`, and a **Back** button returns to the page you came from.
+
+## Desktop, Connections, bell
+
+- **Desktop:** `mm_core.home.get_home` is replaced by `sugarcane.api.v1.home.get_home` on this app's sites.
+  - Needs Attention lists open overlaps, phones to approve, old drafts, surveyors not checked in, check-ins outside the circle, circles below 60% of quota, sources without a pin, and approvals.
+  - Recent Activity and the tiles show cane work.
+- **Connections tab:** `mm_core.connections.get_connections` is replaced by `sugarcane.api.v1.connections.get_connections`, which lists every sugar DocType linking to the record.
+- **Bell:** `sugarcane.notify` writes Notification Logs, straight away rather than through the queue, for:
+  - an overlap review opening (to the circle officer and managers)
+  - an overlap review being decided (to the surveyors)
+  - a phone waiting for approval (to the managers)
+  - a check-in outside the circle (to the circle officer)
+  - season quota changes (to the other managers)
+
+  Demo records never notify. CRM notifications are only read where the CRM app is installed.

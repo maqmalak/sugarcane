@@ -11,6 +11,7 @@ import { Input } from "@/sc/components/ui/input";
 import { Empty, Skeleton } from "@/sc/components/ui/skeleton";
 import { fmtAcres, toGeometries, type LngLat } from "@/sc/lib/map";
 import { cn } from "@/sc/lib/utils";
+import { BackLink, keepFrom } from "@/sc/components/BackLink";
 
 interface Node {
   doctype: string;
@@ -81,7 +82,7 @@ export function AreaMapPage() {
     return by;
   }, [nodes]);
 
-  const select = (n: Node) => setParams({ doctype: n.doctype, name: n.name });
+  const select = (n: Node) => setParams(keepFrom(params, { doctype: n.doctype, name: n.name }));
   const toggle = (k: string) => setOpen((prev) => { const s = new Set(prev); if (s.has(k)) s.delete(k); else s.add(k); return s; });
 
   const renderNode = (n: Node, depth: number) => {
@@ -111,6 +112,7 @@ export function AreaMapPage() {
 
   return (
     <div className="mx-auto grid max-w-[1500px] gap-4 lg:grid-cols-[340px_1fr]">
+      {params.get("from") && <div className="lg:col-span-2"><BackLink /></div>}
       <aside className="form-card flex max-h-[calc(100vh-7.5rem)] flex-col">
         <div className="form-card-head">Area hierarchy</div>
         <div className="space-y-2 border-b p-3">
@@ -149,7 +151,8 @@ export function AreaMapPage() {
   );
 }
 
-function Editor({ doctype, name, onSaved }: { doctype: string; name: string; onSaved: () => void }) {
+/** Pin + boundary editor for one record — on the Area Map, and inside each hierarchy level's form. */
+export function Editor({ doctype, name, onSaved }: { doctype: string; name: string; onSaved: () => void }) {
   const { data, isLoading, mutate } = useFrappeGetCall<{ message: Detail }>("sugarcane.api.v1.survey_map.geo_feature", { doctype, name });
   const { call, loading } = useFrappePostCall("sugarcane.api.v1.survey_map.save_geo");
   const d = data?.message;

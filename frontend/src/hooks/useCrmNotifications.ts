@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { useFrappeGetDocList, useFrappeEventListener, useFrappeUpdateDoc } from "frappe-react-sdk";
+import { useInstalledApps } from "@/hooks/useInstalledApps";
 import { useAuth } from "./useAuth";
 
 export interface CrmNotificationDoc {
@@ -37,6 +38,9 @@ const POLL_INTERVAL_MS = 30_000;
 
 export function useCrmNotifications() {
   const { currentUser } = useAuth();
+  // only where the CRM app is installed (the sugar site has none — the query would fail every poll)
+  const { hasApps } = useInstalledApps();
+  const crm = hasApps(["crm"]);
   const { data, error, isLoading, mutate } = useFrappeGetDocList<CrmNotificationDoc>(
     "CRM Notification",
     {
@@ -45,7 +49,7 @@ export function useCrmNotifications() {
       orderBy: { field: "creation", order: "desc" },
       limit: 30,
     },
-    currentUser ? `micromax.crm.notifications.${currentUser}` : null,
+    currentUser && crm ? `micromax.crm.notifications.${currentUser}` : null,
     { refreshInterval: POLL_INTERVAL_MS },
   );
 

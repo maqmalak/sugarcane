@@ -21,6 +21,7 @@ MODULES = ("Sugarcane", "EagleEye Survey", "Cane Indenting", "Vehicle Tracking",
 		   "Depot Purchase", "Cane Accounting", "Grower Loans", "Cane Costing", "Sugar Production", "Cane Laboratory",
 		   "SMS Integration", "Sugar MIS", "Accounts", "Selling", "Buying", "Stock", "Manufacturing", "Projects", "Assets", "HR",
 		   "Payroll", "Contacts", "Setup", "Support", "Maintenance")
+SUGAR = MODULES[:14]
 SKIP = {"Version", "Comment", "File", "Activity Log", "Access Log", "Communication", "DocShare", "Deleted Document", "Error Log",
 		"Notification Log", "Email Queue", "ToDo", "Tag Link", "Route History", "View Log", "Energy Point Log", "Document Follow",
 		"Repost Item Valuation", "Repost Payment Ledger", "Transaction Deletion Record", "Bulk Transaction Log Detail",
@@ -122,6 +123,8 @@ def get_connections(doctype, name):
 		except Exception:
 			frappe.log_error(title=f"Connections {doctype} → {dt}")
 			continue
+		if not total and frappe.get_meta(dt).module not in SUGAR:
+			continue  # an empty ERPNext group (Unreconcile Payment …) is clutter; empty sugar groups stay so you can add one
 		out.append({"group": group, "doctype": dt, "label": _(dt), "count": int(total),
 					"rows": [{k: (str(v) if v is not None and k == "date" else v) for k, v in r.items()} for r in rows]})
 	return out

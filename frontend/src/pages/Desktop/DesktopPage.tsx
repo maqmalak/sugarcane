@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 import { useFrappeGetCall } from "frappe-react-sdk";
 import toast from "react-hot-toast";
 import {
-  AlertTriangle, Building2, ChevronRight, Inbox, ListTodo, RefreshCw, Truck, Activity, AlertCircle, CheckCircle2, ClipboardList,
+  AlertTriangle, ChevronRight, Inbox, ListTodo, RefreshCw, Truck, Activity, AlertCircle, CheckCircle2, ClipboardList,
   FileCheck2, FileClock, FileWarning, Landmark, PackageMinus, PackageX, PhoneCall, ShoppingCart, BookOpen, CalendarCheck, FileText, HandCoins,
-  Package, Receipt, ShoppingBag, Target, Eye, Flag, type LucideIcon, ArrowRight, BarChart3, Calculator, Cog, Factory, FileBarChart, LayoutGrid,
-  Settings, Users2, Warehouse, Zap,
+  Package, Receipt, ShoppingBag, Target, Eye, Flag, type LucideIcon, ArrowRight, Factory, LayoutGrid,
+  Users2, Zap, Layers, Smartphone, FilePen, UserX, MapPinOff, Leaf, UserCog, MapPinned, Boxes, FileSpreadsheet, Sprout,
 } from "lucide-react";
 import { APPS, APP_GROUPS, type AppTile } from "@/app/apps";
 import { APP_NAVIGATION, appSegmentForPath } from "@/app/navigation";
@@ -41,26 +41,23 @@ interface HomeData {
 
 
 const CATEGORY: Record<string, { label: string; tone: string }> = {
-  finance: { label: "Finance", tone: "red" },
-  ops: { label: "Operations", tone: "teal" },
-  crm: { label: "CRM", tone: "rose" },
-  hr: { label: "HR", tone: "violet" },
+  survey: { label: "Survey", tone: "teal" },
+  field: { label: "Field Force", tone: "violet" },
+  masters: { label: "Masters", tone: "rose" },
+  finance: { label: "Accounts", tone: "red" },
 };
 
 /** Quick links: the main modules as colour cards (gradient, icon, what's inside). */
 const QUICK: { label: string; sub: string; to: string; icon: LucideIcon; bg: string }[] = [
-  { label: "Production", sub: "Work orders, planning & tracking", to: "/production", icon: Factory, bg: "from-orange-500 to-amber-500 shadow-orange-500/30" },
-  { label: "Stock", sub: "Inventory, warehousing & locations", to: "/inventory/stock", icon: Warehouse, bg: "from-sky-500 to-blue-600 shadow-sky-500/30" },
-  { label: "Assets", sub: "Fixed assets & maintenance", to: "/asset-management", icon: Building2, bg: "from-emerald-500 to-teal-600 shadow-emerald-500/30" },
-  { label: "Conversion", sub: "Conversion & subcontracting", to: "/subcontracting", icon: Cog, bg: "from-violet-500 to-purple-600 shadow-violet-500/30" },
-  { label: "Purchase", sub: "PO, suppliers & procurement", to: "/import/purchase-orders", icon: ShoppingCart, bg: "from-pink-500 to-rose-600 shadow-pink-500/30" },
-  { label: "Finance", sub: "GL, balance sheet & reporting", to: "/accounting", icon: Calculator, bg: "from-cyan-500 to-sky-600 shadow-cyan-500/30" },
-  { label: "Sales", sub: "Orders, invoices & customers", to: "/selling/sales-orders", icon: BarChart3, bg: "from-indigo-500 to-violet-600 shadow-indigo-500/30" },
-  { label: "HR & Payroll", sub: "Employees, attendance & payroll", to: "/hr", icon: Users2, bg: "from-teal-500 to-emerald-600 shadow-teal-500/30" },
-  { label: "Logistics", sub: "Shipment & export management", to: "/import/shipments", icon: Truck, bg: "from-indigo-500 to-blue-600 shadow-indigo-500/30" },
-  { label: "Reports", sub: "Dashboards & analytics", to: "/reports", icon: FileBarChart, bg: "from-red-500 to-orange-500 shadow-red-500/30" },
-  { label: "Settings", sub: "System configuration & master data", to: "/settings", icon: Settings, bg: "from-blue-500 to-indigo-600 shadow-blue-500/30" },
-  { label: "More", sub: "Masters, utilities & shortcuts", to: "/masters/items", icon: LayoutGrid, bg: "from-slate-500 to-slate-600 shadow-slate-500/30" },
+  { label: "Survey insights", sub: "Progress, varieties, circles", to: "/survey", icon: Leaf, bg: "from-emerald-500 to-teal-600 shadow-emerald-500/30" },
+  { label: "Survey Map", sub: "Fields, mills & attendance", to: "/survey/map", icon: MapPinned, bg: "from-sky-500 to-blue-600 shadow-sky-500/30" },
+  { label: "Season quotas", sub: "Circle quotas vs survey", to: "/survey/quota", icon: Target, bg: "from-amber-500 to-orange-500 shadow-amber-500/30" },
+  { label: "Field Force", sub: "Attendance & devices", to: "/field-force", icon: UserCog, bg: "from-violet-500 to-purple-600 shadow-violet-500/30" },
+  { label: "Growers", sub: "Registry & passbooks", to: "/survey/growers", icon: Users2, bg: "from-pink-500 to-rose-600 shadow-pink-500/30" },
+  { label: "Area Map", sub: "Pins & boundaries", to: "/setup/area-map", icon: MapPinned, bg: "from-cyan-500 to-sky-600 shadow-cyan-500/30" },
+  { label: "Sources & routes", sub: "Depots, check posts, journey time", to: "/setup/d/cane-source", icon: Truck, bg: "from-indigo-500 to-violet-600 shadow-indigo-500/30" },
+  { label: "Report Centre", sub: "Excel & PDF reports", to: "/reports", icon: FileSpreadsheet, bg: "from-red-500 to-orange-500 shadow-red-500/30" },
+  { label: "Sugar Setup", sub: "Masters & settings", to: "/setup", icon: Boxes, bg: "from-slate-500 to-slate-600 shadow-slate-500/30" },
 ];
 
 
@@ -115,6 +112,17 @@ const ALERT_STYLE: Record<string, { icon: LucideIcon; dot: string; pill: string;
   po_running: { icon: ShoppingCart, dot: "from-sky-500 to-blue-600", pill: "bg-sky-500/15 text-sky-600 ring-sky-500/30 dark:text-sky-300", tag: "Open" },
   bank: { icon: Landmark, dot: "from-cyan-500 to-sky-600", pill: "bg-cyan-500/15 text-cyan-600 ring-cyan-500/30 dark:text-cyan-300", tag: "Reconcile" },
 };
+Object.assign(ALERT_STYLE, {
+  sc_overlaps: { icon: Layers, dot: "from-rose-500 to-red-600", pill: "bg-rose-500/15 text-rose-600 ring-rose-500/30 dark:text-rose-300", tag: "Review", urgent: true },
+  sc_devices: { icon: Smartphone, dot: "from-amber-400 to-orange-500", pill: "bg-amber-500/15 text-amber-700 ring-amber-500/30 dark:text-amber-300", tag: "Approve", urgent: true },
+  sc_drafts: { icon: FilePen, dot: "from-violet-500 to-purple-600", pill: "bg-violet-500/15 text-violet-600 ring-violet-500/30 dark:text-violet-300", tag: "Draft" },
+  sc_absent: { icon: UserX, dot: "from-orange-400 to-orange-600", pill: "bg-orange-500/15 text-orange-600 ring-orange-500/30 dark:text-orange-300", tag: "Absent" },
+  sc_out_of_area: { icon: MapPinOff, dot: "from-red-500 to-rose-600", pill: "bg-red-500/15 text-red-600 ring-red-500/30 dark:text-red-300", tag: "Geofence", urgent: true },
+  sc_quota: { icon: Target, dot: "from-yellow-400 to-amber-500", pill: "bg-yellow-500/15 text-yellow-700 ring-yellow-500/30 dark:text-yellow-300", tag: "Quota" },
+  sc_nopin_cane_source: { icon: MapPinOff, dot: "from-sky-500 to-blue-600", pill: "bg-sky-500/15 text-sky-600 ring-sky-500/30 dark:text-sky-300", tag: "No pin" },
+  sc_nopin_cane_depot: { icon: MapPinOff, dot: "from-sky-500 to-blue-600", pill: "bg-sky-500/15 text-sky-600 ring-sky-500/30 dark:text-sky-300", tag: "No pin" },
+  sc_nopin_loading_point: { icon: MapPinOff, dot: "from-sky-500 to-blue-600", pill: "bg-sky-500/15 text-sky-600 ring-sky-500/30 dark:text-sky-300", tag: "No pin" },
+});
 const alertStyle = (key: string) => ALERT_STYLE[key] ?? { icon: AlertTriangle, dot: "from-slate-500 to-slate-600", pill: "bg-slate-500/15 text-slate-600 ring-slate-500/30 dark:text-slate-300", tag: "Info" };
 
 function NeedsAttentionPanel({ alerts, loading }: { alerts?: Alert[]; loading: boolean }) {
@@ -561,7 +569,7 @@ function ActivityPanel({ home, loading, tab, setTab, onChanged }: { home?: HomeD
             {[
               { v: String(home.stats.entries_today), l: "Entries today", c: "text-foreground", g: "from-sky-500/15" },
               { v: String(home.stats.pending), l: "Pending", c: home.stats.pending ? "text-amber-600 dark:text-amber-400" : "text-foreground", g: "from-amber-500/15" },
-              { v: money(home.stats.posted_today) || "0", l: "Posted today", c: "text-emerald-600 dark:text-emerald-400", g: "from-emerald-500/15" },
+              { v: String(home.stats.posted_today), l: "Submitted today", c: "text-emerald-600 dark:text-emerald-400", g: "from-emerald-500/15" },
             ].map((s) => (
               <div key={s.l} className={cn("rounded-xl border border-border bg-gradient-to-b to-transparent p-2.5 text-center", s.g)}>
                 <div className={cn("text-lg font-bold leading-tight tabular-nums", s.c)}>{s.v}</div>
@@ -697,6 +705,8 @@ const MODULE_STYLE: Record<string, { g: string; icon: LucideIcon }> = {
   Accounts: { g: "from-sky-400 to-blue-600", icon: Landmark }, Stock: { g: "from-teal-400 to-cyan-600", icon: Package },
   Production: { g: "from-amber-400 to-orange-600", icon: Factory }, HR: { g: "from-violet-400 to-purple-600", icon: Users2 },
   CRM: { g: "from-fuchsia-400 to-pink-600", icon: Target }, POS: { g: "from-indigo-400 to-blue-700", icon: Receipt },
+  Survey: { g: "from-emerald-400 to-teal-600", icon: Sprout }, "Field Force": { g: "from-violet-400 to-purple-600", icon: UserCog },
+  Masters: { g: "from-pink-400 to-rose-600", icon: Boxes },
 };
 const PERIODS = [["today", "Today"], ["week", "7 days"], ["month", "30 days"]] as const;
 

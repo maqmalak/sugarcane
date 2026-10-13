@@ -14,11 +14,22 @@ def after_install():
 def after_migrate():
 	ensure_roles()
 	ensure_party_type()
+	ensure_journey_defaults()
 	company = frappe.db.get_single_value("Sugar Settings", "company")
 	if company and frappe.db.exists("Company", company):
 		from sugarcane.setup.accounts import setup_company
 
 		setup_company(company)
+
+
+def ensure_journey_defaults():
+	"""Journey standards get their defaults on sites created before they existed. A road factor of 0 is never valid,
+	so it means the standards were never set (a settings save stores 0 for fields it does not know yet)."""
+	from sugarcane.journey import DEFAULTS
+
+	if not frappe.db.get_single_value("Sugar Settings", "road_factor"):
+		for field, value in DEFAULTS.items():
+			frappe.db.set_single_value("Sugar Settings", field, value)
 
 
 def ensure_party_type():

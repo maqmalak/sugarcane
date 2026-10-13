@@ -73,7 +73,10 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
   ],
   setup: [
     { title: "Setup", items: [{ label: "Overview", to: "/setup", icon: LayoutDashboard, roles: MANAGERS }] },
-    ...docGroups("setup"),
+    // The Area group opens with the map of the whole hierarchy (pins + boundaries), then each level's list
+    ...docGroups("setup").map((g) => g.title === "Area"
+      ? { ...g, items: [{ label: "Area Map", to: "/setup/area-map", icon: MapPinned, roles: [...MANAGERS, "Circle Officer"] }, ...g.items] }
+      : g),
   ],
   reports: [{ title: "Reports", items: [{ label: "Report Centre", to: "/reports", icon: FileSpreadsheet }] }],
   mill: [
@@ -128,6 +131,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   geo: "Area Map",
   map: "Survey Map",
   quota: "Season Quotas",
+  "area-map": "Area Map",
   users: "Users & Devices",
   mill: "Mill Operations",
 };

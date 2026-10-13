@@ -21,6 +21,18 @@
   "geofence_radius_m",
   "sb_fence",
   "geofence",
+  "sb_journey",
+  "straight_km",
+  "distance_km",
+  "road_distance_manual",
+  "distance_basis",
+  "cb_journey",
+  "journey_to_mill_min",
+  "journey_back_min",
+  "round_trip_min",
+  "journey_time_manual",
+  "sb_route",
+  "route",
   "is_demo"
  ],
  "fields": [
@@ -117,6 +129,82 @@
    "label": "Geofence"
   },
   {
+   "fieldname": "sb_journey",
+   "fieldtype": "Section Break",
+   "label": "Journey to Mill",
+   "description": "Measured from the mill pin (Sugar Settings). Road distance comes from the drawn route, or the distance you enter, or the straight line \u00d7 road factor. Standard times use the loaded / empty speeds in Sugar Settings unless entered by hand."
+  },
+  {
+   "fieldname": "straight_km",
+   "fieldtype": "Float",
+   "label": "Straight Line to Mill (km)",
+   "read_only": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "distance_km",
+   "fieldtype": "Float",
+   "label": "Road Distance to Mill (km)",
+   "precision": "2",
+   "non_negative": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "road_distance_manual",
+   "fieldtype": "Check",
+   "label": "Road distance entered by hand"
+  },
+  {
+   "fieldname": "distance_basis",
+   "fieldtype": "Select",
+   "label": "Road Distance From",
+   "options": "\nEstimated\nEntered\nDrawn route",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_journey",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "journey_to_mill_min",
+   "fieldtype": "Int",
+   "label": "Standard Time to Mill, loaded (min)",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "journey_back_min",
+   "fieldtype": "Int",
+   "label": "Standard Time Back, empty (min)",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "round_trip_min",
+   "fieldtype": "Int",
+   "label": "Standard Round Trip (min)",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "journey_time_manual",
+   "fieldtype": "Check",
+   "label": "Standard times entered by hand"
+  },
+  {
+   "fieldname": "sb_route",
+   "fieldtype": "Section Break",
+   "label": "Route",
+   "collapsible": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "route",
+   "fieldtype": "Code",
+   "label": "Route (GeoJSON line, source \u2192 mill)",
+   "options": "JSON",
+   "description": "Draw it on the map in the React app; its length becomes the road distance.",
+   "hidden": 1
+  },
+  {
    "default": "0",
    "fieldname": "is_demo",
    "fieldtype": "Check",
@@ -128,7 +216,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-10-13 12:00:00.000000",
+ "modified": "2026-10-14 13:00:00.000000",
  "modified_by": "Administrator",
  "module": "Sugarcane",
  "name": "Loading Point",

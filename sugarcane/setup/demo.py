@@ -118,8 +118,11 @@ def run(growers: int = GROWERS):
 	from sugarcane.setup import demo_survey
 
 	demo_survey.run(_staff_password())
+	from sugarcane.setup import demo_indent
+
+	demo_indent.run()
 	counts = {dt: frappe.db.count(dt) for dt in ("Cane Circle", "Cane Village", "Grower", "Grower Passbook", "Sugar Vehicle",
-		"Cane Survey", "Survey Overlap Review", "Surveyor Attendance", "Surveyor Location Log")}
+		"Cane Survey", "Survey Overlap Review", "Surveyor Attendance", "Surveyor Location Log", "Indent Batch", "Cane Indent")}
 	print("Demo ready:", counts)
 	return counts
 
@@ -155,8 +158,9 @@ def _purge(doctype, names):
 
 
 def reset():
-	from sugarcane.setup import demo_survey
+	from sugarcane.setup import demo_indent, demo_survey
 
+	demo_indent.reset()
 	demo_survey.reset()
 	for dt in DEMO_DOCTYPES:
 		names = frappe.get_all(dt, filters={"is_demo": 1}, pluck="name")

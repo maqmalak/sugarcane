@@ -1,7 +1,7 @@
 # MicroMax Sugar Mills Ltd. — Sugar ERP Architecture (Phase 0, for approval)
 
 App `sugarcane` · site `sugarcane` · Frappe 16.34 / ERPNext 16.35 / HRMS · Python 3.14 · Node 24 · MariaDB
-Status: **approved 2026-10-13** (v3: decisions below). Phase 0 is built; see `docs/PHASE_0.md`.
+Status: **approved 2026-10-13** (v3: decisions below). Phases 0–2 are built; see `docs/PHASE_0.md`, `PHASE_1.md`, `PHASE_2.md`.
 
 ### Decisions (2026-10-13)
 
@@ -206,8 +206,8 @@ disease %, polygon, calc area, photos T, device, GPS accuracy, overlap status) �
 Attendance (S) · Surveyor Location Log · Surveyor Target · Survey Device.
 
 ### Phase 2 — Cane Indenting
-Indent Range · Cane Indent (S, W: Draft → Authorized → Printed → Used/Expired/Cancelled) · Indent Quota Rule ·
-Indent Generation Tool (enqueued).
+Indent Range · Cane Indent (S: Draft → Authorized → Printed → Used/Expired/Cancelled) · Indent Quota Rule ·
+Indent Batch (S; authorizing the batch authorizes its indents) · generation from the React *Generate* screen (built: see `PHASE_2.md`).
 
 ### Phase 3 — Procurement / Weighbridge
 | DocType | Key fields |

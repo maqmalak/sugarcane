@@ -30,6 +30,13 @@
   "molasses_nrv_per_kg",
   "bagasse_nrv_per_kg",
   "press_mud_nrv_per_kg",
+  "sb_indent",
+  "indent_load_maund",
+  "indent_validity_days",
+  "indent_partial_load_pct",
+  "cb_indent",
+  "daily_intake_maund",
+  "indent_start_date",
   "sb_quotas",
   "circle_quotas",
   "is_demo"
@@ -190,6 +197,54 @@
    "options": "Company:company:default_currency"
   },
   {
+   "fieldname": "sb_indent",
+   "fieldtype": "Section Break",
+   "label": "Indenting",
+   "collapsible": 1,
+   "description": "How surveyed cane becomes indents (permits, one vehicle load each). Quota % and supply windows come from the Indent Quota Rules of this season."
+  },
+  {
+   "default": "200",
+   "fieldname": "indent_load_maund",
+   "fieldtype": "Float",
+   "label": "Load per Indent (maund)",
+   "precision": "0",
+   "non_negative": 1
+  },
+  {
+   "default": "3",
+   "fieldname": "indent_validity_days",
+   "fieldtype": "Int",
+   "label": "Indent Valid For (days)",
+   "non_negative": 1,
+   "description": "From the supply date; unused indents expire after the last day"
+  },
+  {
+   "default": "50",
+   "fieldname": "indent_partial_load_pct",
+   "fieldtype": "Percent",
+   "label": "Count a Part Load From (%)",
+   "description": "A grower's last part load gets an indent when it is at least this share of a full load"
+  },
+  {
+   "fieldname": "cb_indent",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "daily_intake_maund",
+   "fieldtype": "Float",
+   "label": "Daily Cane Intake (maund)",
+   "precision": "0",
+   "non_negative": 1,
+   "description": "Indents per day are capped at intake \u00f7 load. Empty = crushing target \u00f7 season days"
+  },
+  {
+   "fieldname": "indent_start_date",
+   "fieldtype": "Date",
+   "label": "Indenting Starts On",
+   "description": "Empty = the season start date"
+  },
+  {
    "fieldname": "sb_quotas",
    "fieldtype": "Section Break",
    "label": "Circle Quotas",
@@ -214,7 +269,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-10-14 10:00:00.000000",
+ "modified": "2026-10-17 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Sugarcane",
  "name": "Crushing Season",

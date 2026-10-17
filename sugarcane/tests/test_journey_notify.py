@@ -130,7 +130,7 @@ class TestHome(IntegrationTestCase):
 			self.assertIn(key, out)
 		self.assertEqual(len(out["days"]), 7)
 		self.assertTrue(all(a["key"].startswith("sc_") or a["key"] == "approvals" for a in out["alerts"]))
-		self.assertTrue(all(a["category"] in ("survey", "field", "masters", "finance") for a in out["activity"]))
+		self.assertTrue(all(a["category"] in ("survey", "field", "indent", "masters", "finance") for a in out["activity"]))
 
 
 class TestInbox(IntegrationTestCase):

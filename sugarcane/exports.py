@@ -19,6 +19,10 @@ FILTERS = {  # report -> filters it accepts (default by module below)
 	"Surveyor Attendance Report": ["from_date", "to_date", "surveyor", "circle", "attendance_status"],
 	"Surveyor Performance": ["season", "circle"],
 	"Survey vs Actual Yield": ["season", "circle", "variety"],
+	"Indent Register": ["season", "from_date", "to_date", "circle", "village", "indent_status"],
+	"Daily Indent Schedule": ["season", "from_date", "to_date", "circle"],
+	"Circle Wise Indent Summary": ["season", "circle"],
+	"Grower Indent Balance": ["season", "circle", "village"],
 }
 MODULE_FILTERS = {"EagleEye Survey": SURVEY}
 DESCRIPTIONS = {
@@ -32,6 +36,10 @@ DESCRIPTIONS = {
 	"Survey vs Actual Yield": "Expected cane from the survey against cane received (CPRs) by variety",
 	"Surveyor Attendance Report": "Check-in / check-out, hours, km, geofence and fields surveyed per day",
 	"Surveyor Performance": "Each surveyor's target against acres and fields surveyed",
+	"Indent Register": "Every indent: grower, supply date, validity, load, delivery point, batch, prints and token",
+	"Circle Wise Indent Summary": "Surveyed and entitled cane, loads, and indents issued / used / expired per circle",
+	"Grower Indent Balance": "Each grower's entitled loads against indents issued, used, expired and still to issue",
+	"Daily Indent Schedule": "Indents per supply day against the mill's daily intake capacity",
 }
 # filter key -> (label, kind, source); kind: date | select | link; the report receives `param` (or the key)
 FILTER_DEFS = {
@@ -45,6 +53,8 @@ FILTER_DEFS = {
 	"crop_type": {"label": "Plant / Ratoon", "kind": "select", "options": ["Plant", "Ratoon"]},
 	"survey_for": {"label": "Survey For", "kind": "select", "options": ["Company", "Competitor", "All"]},
 	"attendance_status": {"label": "Status", "kind": "select", "options": ["Present", "Half Day", "Out of Area", "Absent"],
+		"param": "status"},
+	"indent_status": {"label": "Status", "kind": "select", "options": ["Draft", "Authorized", "Printed", "Used", "Expired", "Cancelled"],
 		"param": "status"},
 }
 MAX_PREVIEW = 300

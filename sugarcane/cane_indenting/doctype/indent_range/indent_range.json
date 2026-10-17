@@ -1,0 +1,189 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-17 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "season",
+  "circle",
+  "prefix",
+  "digits",
+  "cb1",
+  "from_no",
+  "to_no",
+  "next_no",
+  "remaining",
+  "status",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "season",
+   "fieldtype": "Link",
+   "label": "Season",
+   "options": "Crushing Season",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "circle",
+   "fieldtype": "Link",
+   "label": "Circle",
+   "options": "Cane Circle",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "description": "Empty = mill-wide range, used for circles without their own"
+  },
+  {
+   "fieldname": "prefix",
+   "fieldtype": "Data",
+   "label": "Prefix",
+   "description": "e.g. 26-001- \u2192 26-001-100001"
+  },
+  {
+   "fieldname": "digits",
+   "fieldtype": "Int",
+   "label": "Digits",
+   "default": "6"
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "from_no",
+   "fieldtype": "Int",
+   "label": "From No.",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "to_no",
+   "fieldtype": "Int",
+   "label": "To No.",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "next_no",
+   "fieldtype": "Int",
+   "label": "Next No.",
+   "read_only": 1,
+   "no_copy": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "remaining",
+   "fieldtype": "Int",
+   "label": "Remaining",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Active\nExhausted\nClosed",
+   "default": "Active",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "label": "Demo Record",
+   "default": "0",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-17 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cane Indenting",
+ "name": "Indent Range",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "role": "System Manager"
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "role": "Cane Manager"
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "role": "Cane Admin"
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "export": 1,
+   "report": 1,
+   "role": "Indent Clerk"
+  },
+  {
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "role": "Circle Officer"
+  },
+  {
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "role": "Token Clerk"
+  },
+  {
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "role": "Cane Accountant"
+  },
+  {
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "role": "MIS Viewer"
+  }
+ ],
+ "sort_field": "from_no",
+ "sort_order": "ASC",
+ "states": [],
+ "track_changes": 1,
+ "autoname": "format:IR-{season}-{####}",
+ "naming_rule": "Expression",
+ "title_field": "circle"
+}

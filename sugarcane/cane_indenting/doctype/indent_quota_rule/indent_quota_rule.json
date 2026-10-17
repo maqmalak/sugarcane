@@ -1,0 +1,214 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-17 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "season",
+  "rule_name",
+  "enabled",
+  "priority",
+  "cb1",
+  "quota_pct",
+  "from_date",
+  "to_date",
+  "sb_match",
+  "circle",
+  "grower_category",
+  "cb2",
+  "crop_type",
+  "maturity",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "season",
+   "fieldtype": "Link",
+   "label": "Season",
+   "options": "Crushing Season",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "rule_name",
+   "fieldtype": "Data",
+   "label": "Rule",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled",
+   "default": "1"
+  },
+  {
+   "fieldname": "priority",
+   "fieldtype": "Int",
+   "label": "Priority",
+   "default": "0",
+   "description": "Breaks a tie between equally specific rules (higher wins)"
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "quota_pct",
+   "fieldtype": "Percent",
+   "label": "Quota %",
+   "reqd": 1,
+   "default": "100",
+   "in_list_view": 1,
+   "description": "Share of the surveyed (expected) cane that becomes indents"
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "Supply From",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "Supply To",
+   "in_list_view": 1,
+   "description": "Empty dates = the whole season"
+  },
+  {
+   "fieldname": "sb_match",
+   "fieldtype": "Section Break",
+   "label": "Applies To",
+   "description": "Leave a condition empty (or All) to match everything. The most specific matching rule wins; a circle counts most."
+  },
+  {
+   "fieldname": "circle",
+   "fieldtype": "Link",
+   "label": "Circle",
+   "options": "Cane Circle",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "grower_category",
+   "fieldtype": "Select",
+   "label": "Grower Type",
+   "options": "All\nPassbook Grower\nNon-Passbook Grower",
+   "default": "All"
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "crop_type",
+   "fieldtype": "Select",
+   "label": "Plant / Ratoon",
+   "options": "All\nPlant\nRatoon",
+   "default": "All"
+  },
+  {
+   "fieldname": "maturity",
+   "fieldtype": "Select",
+   "label": "Variety Maturity",
+   "options": "All\nEarly\nMid\nLate",
+   "default": "All"
+  },
+  {
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "label": "Demo Record",
+   "default": "0",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-17 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cane Indenting",
+ "name": "Indent Quota Rule",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "role": "System Manager"
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "role": "Cane Manager"
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "role": "Cane Admin"
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "export": 1,
+   "report": 1,
+   "role": "Indent Clerk"
+  },
+  {
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "role": "Circle Officer"
+  },
+  {
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "role": "Token Clerk"
+  },
+  {
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "role": "Cane Accountant"
+  },
+  {
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "role": "MIS Viewer"
+  }
+ ],
+ "sort_field": "priority",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "autoname": "format:IQR-{season}-{###}",
+ "naming_rule": "Expression",
+ "title_field": "rule_name"
+}

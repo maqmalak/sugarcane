@@ -6,7 +6,7 @@
 import {
   BadgeCheck, Boxes, Building2, CalendarDays, CircleDot, Clock, Factory, Grid3x3, House, Layers, Leaf, Map, MapPin,
   MapPinned, Navigation, NotebookTabs, RefreshCw, Route, Scale, Settings, ShieldBan, Smartphone, Sprout, Target, Truck,
-  Upload, UserCheck, Users, Warehouse, Bug, type LucideIcon,
+  Upload, UserCheck, Users, Warehouse, Bug, type LucideIcon, Ticket, Hash, ClipboardList,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import type { DocConfig, ExtraContext, FormAction } from "@/components/doc/doc-config";
@@ -18,11 +18,13 @@ import { lazy, Suspense, type ReactNode } from "react";
 const JourneyPanel = lazy(() => import("./components/JourneyPanel").then((m) => ({ default: m.JourneyPanel })));
 const ListMap = lazy(() => import("./components/map/ListMap").then((m) => ({ default: m.ListMap })));
 const SurveyPhotos = lazy(() => import("./components/PhotoGallery").then((m) => ({ default: m.SurveyPhotos })));
+const BatchPanel = lazy(() => import("./components/IndentPanels").then((m) => ({ default: m.BatchPanel })));
+const IndentCard = lazy(() => import("./components/IndentPanels").then((m) => ({ default: m.IndentCard })));
 const GrowerPhotos = lazy(() => import("./components/PhotoGallery").then((m) => ({ default: m.GrowerPhotos })));
 const AreaGeoEditor = lazy(() => import("./pages/AreaMapPage").then((m) => ({ default: m.Editor })));
 const later = (node: ReactNode) => <Suspense fallback={<div className="h-24 animate-pulse rounded-2xl border bg-muted/40" />}>{node}</Suspense>;
 
-export type ScApp = "setup" | "survey" | "field-force";
+export type ScApp = "setup" | "survey" | "field-force" | "indenting";
 
 export interface ScDoc {
   doctype: string;
@@ -64,6 +66,11 @@ export const SC_DOCS: ScDoc[] = [
   { doctype: "Surveyor Target", label: "Targets", app: "field-force", group: "Records", icon: Target },
   { doctype: "Survey Device", label: "Devices", app: "field-force", group: "Records", icon: Smartphone },
   { doctype: "Surveyor Location Log", label: "GPS Points", app: "field-force", group: "Records", icon: Navigation },
+  // ------------------------------------------------------------------ indenting
+  { doctype: "Indent Batch", label: "Indent Batches", app: "indenting", group: "Records", icon: Boxes },
+  { doctype: "Cane Indent", label: "Cane Indents", app: "indenting", group: "Records", icon: Ticket },
+  { doctype: "Indent Quota Rule", label: "Quota Rules", app: "indenting", group: "Rules & Ranges", icon: Target },
+  { doctype: "Indent Range", label: "Indent Ranges", app: "indenting", group: "Rules & Ranges", icon: Hash },
 ];
 
 export const docBase = (doctype: string) => {
@@ -135,6 +142,14 @@ export const ENHANCERS: Record<string, Enhancer> = {
   ...Object.fromEntries(GEO.map((dt) => [dt, { extend: withAreaMap(dt) }])),
   ...Object.fromEntries(JOURNEY.map((dt) => [dt, { extend: withJourney(dt) }])),
   "Sugar Settings": { extend: withActions([onAreaMap("Sugar Settings")]) },
+  "Indent Batch": {
+    subtitle: "Indents generated for one circle and supply window — authorize, then print",
+    extend: (config) => ({ ...config, extra: (c) => <>{config.extra?.(c)}{!c.isNew && later(<BatchPanel ctx={c} />)}</> }),
+  },
+  "Cane Indent": {
+    subtitle: "Supply permits — one vehicle load each",
+    extend: (config) => ({ ...config, extra: (c) => <>{!c.isNew && later(<IndentCard ctx={c} />)}{config.extra?.(c)}</> }),
+  },
   Grower: { extend: (config) => ({ ...config, extra: (c) => <>{config.extra?.(c)}{!c.isNew && later(<GrowerPhotos name={c.name ?? ""} />)}</> }) },
   "Cane Survey": {
     subtitle: "Field surveys — boundary, variety, disease, photos",
@@ -162,4 +177,4 @@ export const ENHANCERS: Record<string, Enhancer> = {
   },
 };
 
-export const APP_ICON: Record<ScApp, LucideIcon> = { setup: Boxes, survey: Leaf, "field-force": Users };
+export const APP_ICON: Record<ScApp, LucideIcon> = { setup: Boxes, survey: Leaf, "field-force": Users, indenting: ClipboardList };

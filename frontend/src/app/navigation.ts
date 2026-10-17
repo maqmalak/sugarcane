@@ -4,7 +4,7 @@
  */
 import {
   BarChart3, Boxes, ClipboardList, FileSpreadsheet, Gauge, LayoutDashboard, Leaf, Map as MapIcon, MapPinned, Receipt,
-  Sparkles, Target, Ticket, Inbox, Layers, Truck, UserCog, Users, Warehouse, Weight, Beaker, Factory, Banknote, type LucideIcon,
+  Sparkles, Target, Ticket, Inbox, Layers, Truck, UserCog, Users, Warehouse, Weight, Beaker, Factory, Banknote, type LucideIcon, Wand2, ScanBarcode,
 } from "lucide-react";
 import { SC_DOCS, docBase, type ScApp } from "@/sc/registry";
 
@@ -22,6 +22,7 @@ export interface NavGroup {
 }
 
 const MANAGERS = ["Cane Manager", "Cane Admin"];
+const INDENT_ROLES = [...MANAGERS, "Indent Clerk", "Circle Officer", "MIS Viewer"];
 const SURVEY_ROLES = [...MANAGERS, "Circle Officer", "Surveyor", "MIS Viewer"];
 const FF_ROLES = [...MANAGERS, "Circle Officer"];
 
@@ -41,6 +42,7 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
       items: [
         { label: "EagleEye Survey", to: "/survey", icon: Leaf, roles: SURVEY_ROLES },
         { label: "Field Force", to: "/field-force", icon: UserCog, roles: FF_ROLES },
+        { label: "Indenting", to: "/indenting", icon: ClipboardList, roles: INDENT_ROLES },
         { label: "Setup", to: "/setup", icon: Boxes, roles: MANAGERS },
         { label: "Report Centre", to: "/reports", icon: FileSpreadsheet },
       ],
@@ -79,13 +81,25 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
       ? { ...g, items: [{ label: "Area Map", to: "/setup/area-map", icon: MapPinned, roles: [...MANAGERS, "Circle Officer"] }, ...g.items] }
       : g),
   ],
+  indenting: [
+    {
+      title: "Indenting",
+      items: [
+        { label: "Insights", to: "/indenting", icon: Sparkles, roles: INDENT_ROLES },
+        { label: "Generate indents", to: "/indenting/generate", icon: Wand2, roles: [...MANAGERS, "Indent Clerk"] },
+        { label: "Look up an indent", to: "/indenting/lookup", icon: ScanBarcode, roles: [...INDENT_ROLES, "Token Clerk"] },
+        { label: "Approvals inbox", to: "/approvals/inbox", icon: Inbox, roles: MANAGERS },
+      ],
+    },
+    ...docGroups("indenting", INDENT_ROLES),
+    { title: "Reports", items: [{ label: "Indent reports", to: "/reports?g=Indenting", icon: BarChart3 }] },
+  ],
   reports: [{ title: "Reports", items: [{ label: "Report Centre", to: "/reports", icon: FileSpreadsheet }] }],
   approvals: [{ title: "Approvals", items: [{ label: "Inbox", to: "/approvals/inbox", icon: Inbox }, { label: "Overlap reviews", to: "/survey/d/survey-overlap-review", icon: Layers }] }],
   mill: [
     {
       title: "Coming in later phases",
       items: [
-        { label: "Indenting (Phase 2)", to: "/mill/indenting", icon: ClipboardList },
         { label: "Token issue (Phase 3)", to: "/mill/tokens", icon: Ticket },
         { label: "Yard board (Phase 3)", to: "/mill/yard", icon: Warehouse },
         { label: "Weighbridge (Phase 3)", to: "/mill/weighbridge", icon: Weight },
@@ -105,6 +119,7 @@ export const APP_LABELS: Record<string, string> = {
   home: "Apps",
   survey: "EagleEye Survey",
   approvals: "Approvals",
+  indenting: "Indenting",
   "field-force": "Field Force",
   setup: "Sugar Setup",
   reports: "Report Centre",
@@ -137,6 +152,9 @@ export const ROUTE_TITLES: Record<string, string> = {
   "area-map": "Area Map",
   approvals: "Approvals",
   inbox: "Inbox",
+  indenting: "Indenting",
+  generate: "Generate",
+  lookup: "Look up",
   users: "Users & Devices",
   mill: "Mill Operations",
 };

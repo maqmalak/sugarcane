@@ -1,0 +1,170 @@
+{
+ "app": "sugarcane",
+ "charts": [],
+ "content": "[{\"id\": \"sc_ind_h1\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Shortcuts</b></span>\", \"col\": 12}}, {\"id\": \"sc_ind_s0\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Indenting (React)\", \"col\": 4}}, {\"id\": \"sc_ind_s1\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Indent Batch\", \"col\": 4}}, {\"id\": \"sc_ind_s2\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Cane Indent\", \"col\": 4}}, {\"id\": \"sc_ind_sp\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"sc_ind_h2\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Indenting</b></span>\", \"col\": 12}}, {\"id\": \"sc_ind_c0\", \"type\": \"card\", \"data\": {\"card_name\": \"Indents\", \"col\": 4}}, {\"id\": \"sc_ind_c1\", \"type\": \"card\", \"data\": {\"card_name\": \"Setup\", \"col\": 4}}, {\"id\": \"sc_ind_c2\", \"type\": \"card\", \"data\": {\"card_name\": \"Reports\", \"col\": 4}}]",
+ "creation": "2026-10-17 10:00:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "clipboard-list",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "Cane Indenting",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Indents",
+   "link_count": 2,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Indent Batch",
+   "link_count": 0,
+   "link_to": "Indent Batch",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Cane Indent",
+   "link_count": 0,
+   "link_to": "Cane Indent",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Setup",
+   "link_count": 3,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Indent Quota Rule",
+   "link_count": 0,
+   "link_to": "Indent Quota Rule",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Indent Range",
+   "link_count": 0,
+   "link_to": "Indent Range",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Crushing Season",
+   "link_count": 0,
+   "link_to": "Crushing Season",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Reports",
+   "link_count": 4,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Indent Register",
+   "link_count": 0,
+   "link_to": "Indent Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Cane Indent"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Circle Wise Indent Summary",
+   "link_count": 0,
+   "link_to": "Circle Wise Indent Summary",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Cane Indent"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Grower Indent Balance",
+   "link_count": 0,
+   "link_to": "Grower Indent Balance",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Cane Indent"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Daily Indent Schedule",
+   "link_count": 0,
+   "link_to": "Daily Indent Schedule",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Cane Indent"
+  }
+ ],
+ "modified": "2026-10-17 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cane Indenting",
+ "name": "Cane Indenting",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 32.0,
+ "shortcuts": [
+  {
+   "color": "Green",
+   "label": "Indenting (React)",
+   "type": "URL",
+   "url": "/sugar/indenting"
+  },
+  {
+   "color": "Blue",
+   "doc_view": "List",
+   "label": "Indent Batch",
+   "link_to": "Indent Batch",
+   "type": "DocType"
+  },
+  {
+   "color": "Orange",
+   "doc_view": "List",
+   "label": "Cane Indent",
+   "link_to": "Cane Indent",
+   "type": "DocType"
+  }
+ ],
+ "title": "Cane Indenting",
+ "type": "Workspace"
+}

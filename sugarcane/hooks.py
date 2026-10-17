@@ -302,3 +302,6 @@ doc_events.update({
 	"Survey Device": {"after_insert": "sugarcane.notify.device_inserted"},
 	"Surveyor Attendance": {"on_update": "sugarcane.notify.attendance_updated"},
 })
+
+# Indents past their last valid day become Expired (bench schedule must run for this site in production)
+scheduler_events = {"daily": ["sugarcane.cane_indenting.generator.expire_due"]}

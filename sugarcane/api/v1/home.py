@@ -30,10 +30,11 @@ FEED = {
 	"Grower Passbook": ("masters", None, "grower", "/setup/d/grower-passbook"),
 	"Crushing Season": ("masters", None, "season_name", "/setup/d/crushing-season"),
 	"Cane Source": ("masters", None, "source_name", "/setup/d/cane-source"),
+	"Indent Batch": ("indent", "from_date", "circle", "/indenting/d/indent-batch"),
 	"Journal Entry": ("finance", "posting_date", "title", None),
 	"Payment Entry": ("finance", "posting_date", "party_name", None),
 }
-MODULES = {"survey": "Survey", "field": "Field Force", "masters": "Masters", "finance": "Accounts"}
+MODULES = {"survey": "Survey", "field": "Field Force", "indent": "Indenting", "masters": "Masters", "finance": "Accounts"}
 
 
 def _can(dt):
@@ -94,6 +95,13 @@ def _alerts(approvals_total):
 			n = len(frappe.get_list(dt, filters={"is_active": 1, "latitude": ["in", [0, None]]}, pluck="name", limit_page_length=0))
 			add(f"sc_nopin_{frappe.scrub(dt)}", n, _("{0} without a location").format(_(dt) + ("s" if not dt.endswith("s") else "")),
 				_("No map pin — distance and journey time cannot be worked out"), f"/setup/d/{dt.lower().replace(' ', '-')}", "sky")
+	if _can("Indent Batch"):
+		add("sc_indent_draft", len(frappe.get_list("Indent Batch", filters={"docstatus": 0}, pluck="name", limit_page_length=0)),
+			_("Indent batches to authorize"), _("Generated indents wait for a Cane Manager"), "/approvals/inbox", "violet")
+	if _can("Cane Indent"):
+		add("sc_indent_unprinted", len(frappe.get_list("Cane Indent", filters={"docstatus": 1, "status": "Authorized"},
+			pluck="name", limit_page_length=0)), _("Authorized indents not printed"), _("Print them so growers get their permits"),
+			"/indenting/d/indent-batch?status=Authorized", "sky")
 	add("approvals", approvals_total, _("Approvals waiting"), _("Workflow and HR requests waiting for you"), "/approvals/inbox", "yellow")
 	return out
 
@@ -194,6 +202,9 @@ def _tiles():
 	if _can("Cane Village"):
 		put("geo", len(frappe.get_list("Cane Village", filters={"polygon": ["is", "set"]}, pluck="name", limit_page_length=0)),
 			_("villages mapped"))
+	if _can("Cane Indent"):
+		put("indenting", len(frappe.get_list("Cane Indent", filters={"docstatus": 1, "status": ["in", ["Authorized", "Printed"]],
+			"valid_from": ["<=", today], "valid_to": [">=", today]}, pluck="name", limit_page_length=0)), _("indents valid today"))
 	from sugarcane.exports import catalogue
 
 	put("reports", len(catalogue()), _("reports"))
@@ -211,8 +222,8 @@ def _approvals(limit=30, company=None):
 	items = [{"doctype": p["doctype"], "name": p["name"], "state": p["state"], "title": p.get("title") or "", "amount": p.get("amount"),
 		"since": p["since"], "category": p["category"],
 		# "Approve" on the home card: accept both fields for an overlap, the workflow's Approve otherwise
-		"can_approve": "Approve" in (p.get("actions") or []) or ACCEPT in (p.get("actions") or [])} for p in pending[:limit]]
-	return items, len(pending), sum(1 for p in pending if p["category"] == "overlap")
+		"can_approve": bool({"Approve", "Authorize", ACCEPT} & set(p.get("actions") or []))} for p in pending[:limit]]
+	return items, len(pending), sum(1 for p in pending if p["category"] in ("overlap", "indent"))
 
 
 @frappe.whitelist()
@@ -222,6 +233,8 @@ def approve(doctype: str, name: str) -> dict:
 
 	if doctype == DT:
 		return act(doctype, name, ACCEPT)
+	if doctype == "Indent Batch":
+		return act(doctype, name, "Authorize")
 	return base.approve(doctype, name)
 
 

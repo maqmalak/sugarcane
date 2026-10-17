@@ -79,3 +79,19 @@ def attendance_updated(doc, method=None):
 
 def quotas_adjusted(season: str, circles: list[str], text: str):
 	notify(users_with_roles(MANAGER_ROLES), _("Season {0} quotas adjusted: {1}").format(season, text), "Crushing Season", season)
+
+
+def indent_batches_generated(season: str, batches: list[dict]):
+	"""New draft indent batches: the people who authorize them are told."""
+	if not batches or all(frappe.db.get_value("Indent Batch", b["name"], "is_demo") for b in batches):
+		return
+	for b in batches:
+		notify(users_with_roles(MANAGER_ROLES), _("Indent batch {0} for {1}: {2} indents ({3} maund) wait for authorization").format(
+			b["name"], b["circle"], b["indents"], f"{b['maund']:,.0f}"), "Indent Batch", b["name"])
+
+
+def indent_batch_authorized(doc):
+	if _demo(doc):
+		return
+	notify(users_with_roles(("Indent Clerk",)) | {doc.generated_by}, _("Indent batch {0} ({1}) authorized — {2} indents ready to print").format(
+		doc.name, doc.circle, doc.indent_count), doc.doctype, doc.name)

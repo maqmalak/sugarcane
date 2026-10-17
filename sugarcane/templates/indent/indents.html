@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+  @page { size: A4; margin: 8mm; }
+  body { font-family: "Helvetica Neue", Arial, sans-serif; color: #111; margin: 0; font-size: 10.5px; }
+  .page { page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
+  table.grid { width: 100%; border-collapse: separate; border-spacing: 3mm; }
+  table.grid td.slot { box-sizing: border-box; width: 50%; height: 118mm; vertical-align: top; border: 1.2px dashed #888; border-radius: 6px; padding: 4mm; }
+  .head { border-bottom: 2px solid #111; padding-bottom: 2mm; margin-bottom: 2mm; }
+  .mill { font-size: 13px; font-weight: 700; }
+  .title { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #333; }
+  .no { font-size: 20px; font-weight: 800; letter-spacing: .02em; }
+  .dup { color: #c92a2a; font-weight: 800; font-size: 11px; border: 1.5px solid #c92a2a; padding: 0 4px; border-radius: 3px; }
+  .bar { text-align: center; margin: 2mm 0; }
+  table.kv { width: 100%; border-collapse: collapse; }
+  table.kv td { padding: 1.1mm 0; border-bottom: 0.5px solid #ddd; vertical-align: top; }
+  table.kv td.k { color: #555; width: 34%; }
+  table.kv td.v { font-weight: 600; }
+  .valid { margin-top: 2mm; padding: 2mm; background: #f1f3f5; border-radius: 4px; text-align: center; font-size: 12px; }
+  .valid b { font-size: 13px; }
+  .foot { margin-top: 2mm; font-size: 9px; color: #555; }
+  .sign { margin-top: 6mm; display: table; width: 100%; font-size: 9px; color: #333; }
+  .sign div { display: table-cell; width: 50%; border-top: 0.8px solid #333; padding-top: 1mm; text-align: center; }
+</style></head><body>
+{% for page in pages %}
+<div class="page"><table class="grid">
+  {% for row in page %}<tr>{% for i in row %}<td class="slot">{% if i %}
+    <div class="head">
+      <div class="mill">{{ company }}</div>
+      <div class="title">Cane Supply Indent · Season {{ i.season }}</div>
+    </div>
+    <div><span class="no">{{ i.name }}</span> {% if i.print_count %}<span class="dup">DUPLICATE {{ i.print_count + 1 }}</span>{% endif %}</div>
+    <div class="bar">{{ i.barcode }}</div>
+    <table class="kv">
+      <tr><td class="k">Grower</td><td class="v">{{ i.grower_name }}{% if i.father_name %} s/o {{ i.father_name }}{% endif %}</td></tr>
+      <tr><td class="k">Grower ID · CNIC</td><td class="v">{{ i.grower }} · {{ i.cnic or "" }}</td></tr>
+      {% if i.passbook_no %}<tr><td class="k">Passbook</td><td class="v">{{ i.passbook_no }}</td></tr>{% endif %}
+      <tr><td class="k">Village · Circle</td><td class="v">{{ i.village_name or i.village or "" }} · {{ i.circle }}</td></tr>
+      <tr><td class="k">Variety</td><td class="v">{{ i.variety or "—" }} {% if i.crop_type %}({{ i.crop_type }}){% endif %}</td></tr>
+      <tr><td class="k">Load</td><td class="v">{{ i.load_fmt }} maund</td></tr>
+      <tr><td class="k">Deliver to</td><td class="v">{{ i.source or "Factory gate" }}</td></tr>
+    </table>
+    <div class="valid">Supply on <b>{{ i.indent_date_fmt }}</b><br>Valid {{ i.valid_from_fmt }} – {{ i.valid_to_fmt }}</div>
+    <div class="sign"><div>Authorized: {{ i.authorized_by_name or "" }}</div><div>Received by grower</div></div>
+    <div class="foot">One vehicle load only. Bring this indent with the vehicle; the gate scans the barcode. Not valid after the last date. Printed {{ printed_at }}.</div>
+  {% endif %}</td>{% endfor %}</tr>{% endfor %}
+</table></div>
+{% endfor %}
+</body></html>

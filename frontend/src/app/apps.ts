@@ -78,9 +78,11 @@ export const APPS: AppTile[] = [
   { id: "setup", label: "Sugar Setup", tagline: "Masters & settings", group: "Finance & Setup", icon: Boxes, to: "/setup", roles: MANAGERS,
     description: "Sugar Settings, seasons, shifts, area hierarchy, sources, depots, varieties, vehicles and weighbridge terminals.",
     colorClass: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400", features: ["Seasons & rates", "Area hierarchy", "Vehicles"] },
+  { id: "indenting", label: "Indenting", tagline: "Permits & printing", group: "Mill Operations", icon: ClipboardList, to: "/indenting",
+    roles: [...MANAGERS, "Indent Clerk", "Circle Officer", "MIS Viewer"],
+    description: "Indents from surveyed area × yield × quota, scheduled to the mill's daily intake, authorized in batches and printed with barcodes.",
+    colorClass: "bg-violet-500/10 text-violet-600 dark:text-violet-400", features: ["Generate & preview", "Batch authorization", "Barcode slips", "Look up"] },
   // later phases (coming-soon pages)
-  { id: "indenting", label: "Indenting", tagline: "Phase 2", group: "Mill Operations", icon: ClipboardList, to: "/mill/indenting",
-    description: "Indents from surveyed area × yield × quota, bulk printing with authorisation.", colorClass: soon },
   { id: "weighbridge", label: "Gate & Weighbridge", tagline: "Phase 3", group: "Mill Operations", icon: Weight, to: "/mill/weighbridge",
     description: "Tokens, yard board, gross / tare weighment through the hardware agent.", colorClass: soon },
   { id: "cpr", label: "CPR & Bilty", tagline: "Phase 3", group: "Mill Operations", icon: Receipt, to: "/mill/cpr",

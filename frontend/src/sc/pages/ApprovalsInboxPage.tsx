@@ -16,13 +16,14 @@ import { formatMoney } from "@/utils/currency";
 
 interface Pending {
   doctype: string; name: string; state: string; title: string; amount?: number | null; since: string; owner: string;
-  actions: string[]; category: "hr" | "workflow" | "overlap"; workflow?: string | null; survey?: string; other_survey?: string;
+  actions: string[]; category: "hr" | "workflow" | "overlap" | "indent"; workflow?: string | null; survey?: string; other_survey?: string;
 }
-interface Change { doctype: string; name: string; state: string; by: string; at: string; category: "hr" | "workflow" | "overlap" }
-interface InboxData { pending: Pending[]; recent: Change[]; counts: { pending: number; hr: number; overlap?: number } }
+interface Change { doctype: string; name: string; state: string; by: string; at: string; category: "hr" | "workflow" | "overlap" | "indent" }
+interface InboxData { pending: Pending[]; recent: Change[]; counts: { pending: number; hr: number; overlap?: number; indent?: number } }
 
 const TABS = [
   { key: "all", label: "All" },
+  { key: "indent", label: "Indent batches" },
   { key: "overlap", label: "Overlap reviews" },
   { key: "hr", label: "HR approvals" },
   { key: "workflow", label: "Other workflows" },
@@ -77,7 +78,7 @@ export function ApprovalsInboxPage() {
     <div className="space-y-5">
       <PageHeader
         title="Approvals inbox"
-        subtitle="Overlapping fields, workflow documents and HR requests waiting for your decision, and what changed recently"
+        subtitle="Indent batches, overlapping fields, workflow documents and HR requests waiting for your decision, and what changed recently"
         icon={<Inbox className="h-5 w-5" />}
         actions={
           <div className="flex gap-2">
@@ -94,7 +95,8 @@ export function ApprovalsInboxPage() {
       <div className="flex flex-wrap gap-1.5">
         {TABS.map((t) => {
           const n = !inbox ? undefined : t.key === "all" ? inbox.counts.pending : t.key === "hr" ? inbox.counts.hr
-            : t.key === "overlap" ? inbox.counts.overlap ?? 0 : inbox.counts.pending - inbox.counts.hr - (inbox.counts.overlap ?? 0);
+            : t.key === "overlap" ? inbox.counts.overlap ?? 0 : t.key === "indent" ? inbox.counts.indent ?? 0
+            : inbox.counts.pending - inbox.counts.hr - (inbox.counts.overlap ?? 0) - (inbox.counts.indent ?? 0);
           return (
             <button key={t.key} type="button" onClick={() => setTab(t.key)}
               className={cn("rounded-full border px-3 py-1 text-xs font-medium transition-colors",
@@ -127,6 +129,7 @@ export function ApprovalsInboxPage() {
                         <DocLink doctype={p.doctype} name={p.name} className="text-xs font-semibold hover:underline">{p.name}</DocLink>
                         <span className="text-[11px] text-muted-foreground">{p.doctype}</span>
                         <span className={cn("rounded px-1.5 text-[10px] font-medium", stateTone(p.state))}>{p.state}</span>
+                        {p.category === "indent" && <span className="rounded bg-violet-500/10 px-1.5 text-[10px] font-medium text-violet-700 dark:text-violet-400">Indents</span>}
                         {p.category === "overlap" && <span className="rounded bg-rose-500/10 px-1.5 text-[10px] font-medium text-rose-700 dark:text-rose-400">Overlap</span>}
                         {p.category === "hr" && <span className="rounded bg-violet-500/10 px-1.5 text-[10px] font-medium text-violet-700 dark:text-violet-400">HR</span>}
                       </div>
@@ -136,9 +139,9 @@ export function ApprovalsInboxPage() {
                     </div>
                     <div className="flex shrink-0 flex-wrap gap-1.5">
                       {p.actions.map((a) => (
-                        <Button key={a} size="sm" variant={/approv|accept/i.test(a) ? "default" : "outline"} className="h-7 px-2.5 text-xs"
+                        <Button key={a} size="sm" variant={/approv|accept|authoriz/i.test(a) ? "default" : "outline"} className="h-7 px-2.5 text-xs"
                           disabled={busy === key} onClick={() => void act(p, a)}>
-                          {/approv|accept/i.test(a) ? <CheckCircle2 className="h-3.5 w-3.5" /> : /reject/i.test(a) ? <XCircle className="h-3.5 w-3.5" /> : null}
+                          {/approv|accept|authoriz/i.test(a) ? <CheckCircle2 className="h-3.5 w-3.5" /> : /reject/i.test(a) ? <XCircle className="h-3.5 w-3.5" /> : null}
                           {a}
                         </Button>
                       ))}

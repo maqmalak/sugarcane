@@ -1,0 +1,58 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-17 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "indent_date",
+  "indents",
+  "total_maund",
+  "growers"
+ ],
+ "fields": [
+  {
+   "fieldname": "indent_date",
+   "fieldtype": "Date",
+   "label": "Supply Date",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "indents",
+   "fieldtype": "Int",
+   "label": "Indents",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "total_maund",
+   "fieldtype": "Float",
+   "label": "Maund",
+   "precision": "0",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "growers",
+   "fieldtype": "Int",
+   "label": "Growers",
+   "in_list_view": 1,
+   "columns": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-17 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cane Indenting",
+ "name": "Indent Batch Day",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0,
+ "istable": 1,
+ "editable_grid": 1
+}

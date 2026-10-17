@@ -1,0 +1,418 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-17 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "indent_no",
+  "season",
+  "batch",
+  "status",
+  "cb1",
+  "indent_date",
+  "valid_from",
+  "valid_to",
+  "load_maund",
+  "sb_grower",
+  "grower",
+  "grower_name",
+  "father_name",
+  "cnic",
+  "passbook_no",
+  "cb2",
+  "circle",
+  "village",
+  "village_name",
+  "source",
+  "sb_crop",
+  "survey",
+  "variety",
+  "crop_type",
+  "cb3",
+  "maturity",
+  "quota_rule",
+  "plan_key",
+  "sb_track",
+  "authorized_by",
+  "authorized_on",
+  "print_count",
+  "printed_on",
+  "cb4",
+  "token",
+  "used_on",
+  "cancel_reason",
+  "amended_from",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "indent_no",
+   "fieldtype": "Data",
+   "label": "Indent No.",
+   "read_only": 1,
+   "in_list_view": 1,
+   "bold": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "season",
+   "fieldtype": "Link",
+   "label": "Season",
+   "options": "Crushing Season",
+   "reqd": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "batch",
+   "fieldtype": "Link",
+   "label": "Batch",
+   "options": "Indent Batch",
+   "read_only": 1,
+   "in_standard_filter": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nAuthorized\nPrinted\nUsed\nExpired\nCancelled",
+   "default": "Draft",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "indent_date",
+   "fieldtype": "Date",
+   "label": "Supply Date",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "valid_from",
+   "fieldtype": "Date",
+   "label": "Valid From",
+   "read_only": 1
+  },
+  {
+   "fieldname": "valid_to",
+   "fieldtype": "Date",
+   "label": "Valid To",
+   "read_only": 1
+  },
+  {
+   "fieldname": "load_maund",
+   "fieldtype": "Float",
+   "label": "Load (maund)",
+   "precision": "0",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sb_grower",
+   "fieldtype": "Section Break",
+   "label": "Grower"
+  },
+  {
+   "fieldname": "grower",
+   "fieldtype": "Link",
+   "label": "Grower",
+   "options": "Grower",
+   "reqd": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "grower_name",
+   "fieldtype": "Data",
+   "label": "Grower Name",
+   "fetch_from": "grower.grower_name",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "father_name",
+   "fieldtype": "Data",
+   "label": "Father / Husband",
+   "fetch_from": "grower.father_name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cnic",
+   "fieldtype": "Data",
+   "label": "CNIC",
+   "fetch_from": "grower.cnic",
+   "read_only": 1
+  },
+  {
+   "fieldname": "passbook_no",
+   "fieldtype": "Data",
+   "label": "Passbook No.",
+   "fetch_from": "grower.passbook_no",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "circle",
+   "fieldtype": "Link",
+   "label": "Circle",
+   "options": "Cane Circle",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "village",
+   "fieldtype": "Link",
+   "label": "Village",
+   "options": "Cane Village"
+  },
+  {
+   "fieldname": "village_name",
+   "fieldtype": "Data",
+   "label": "Village Name",
+   "fetch_from": "village.village_name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Link",
+   "label": "Deliver To",
+   "options": "Cane Source",
+   "description": "Gate, check post or depot where this load is delivered"
+  },
+  {
+   "fieldname": "sb_crop",
+   "fieldtype": "Section Break",
+   "label": "Crop"
+  },
+  {
+   "fieldname": "survey",
+   "fieldtype": "Link",
+   "label": "Survey",
+   "options": "Cane Survey",
+   "read_only": 1
+  },
+  {
+   "fieldname": "variety",
+   "fieldtype": "Link",
+   "label": "Variety",
+   "options": "Cane Variety",
+   "read_only": 1
+  },
+  {
+   "fieldname": "crop_type",
+   "fieldtype": "Data",
+   "label": "Plant / Ratoon",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "maturity",
+   "fieldtype": "Data",
+   "label": "Maturity",
+   "read_only": 1
+  },
+  {
+   "fieldname": "quota_rule",
+   "fieldtype": "Link",
+   "label": "Quota Rule",
+   "options": "Indent Quota Rule",
+   "read_only": 1
+  },
+  {
+   "fieldname": "plan_key",
+   "fieldtype": "Data",
+   "label": "Plan Key",
+   "read_only": 1,
+   "hidden": 1,
+   "no_copy": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "sb_track",
+   "fieldtype": "Section Break",
+   "label": "Authorization, Printing & Use"
+  },
+  {
+   "fieldname": "authorized_by",
+   "fieldtype": "Link",
+   "label": "Authorized By",
+   "options": "User",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "authorized_on",
+   "fieldtype": "Datetime",
+   "label": "Authorized On",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "print_count",
+   "fieldtype": "Int",
+   "label": "Times Printed",
+   "read_only": 1,
+   "no_copy": 1,
+   "default": "0"
+  },
+  {
+   "fieldname": "printed_on",
+   "fieldtype": "Datetime",
+   "label": "First Printed On",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "cb4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "token",
+   "fieldtype": "Data",
+   "label": "Cane Token",
+   "read_only": 1,
+   "no_copy": 1,
+   "description": "Set when the vehicle gets its token at the gate (Phase 3)"
+  },
+  {
+   "fieldname": "used_on",
+   "fieldtype": "Datetime",
+   "label": "Used On",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "cancel_reason",
+   "fieldtype": "Small Text",
+   "label": "Cancel Reason",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "options": "Cane Indent",
+   "read_only": 1,
+   "no_copy": 1,
+   "print_hide": 1
+  },
+  {
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "label": "Demo Record",
+   "default": "0",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-17 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cane Indenting",
+ "name": "Cane Indent",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "role": "System Manager"
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "role": "Cane Manager"
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "role": "Cane Admin"
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "export": 1,
+   "report": 1,
+   "role": "Indent Clerk"
+  },
+  {
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "role": "Circle Officer"
+  },
+  {
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "role": "Token Clerk"
+  },
+  {
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "role": "Cane Accountant"
+  },
+  {
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "role": "MIS Viewer"
+  }
+ ],
+ "sort_field": "indent_date",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "is_submittable": 1,
+ "title_field": "grower_name",
+ "show_title_field_in_link": 1,
+ "search_fields": "grower_name,cnic,village_name,indent_date"
+}

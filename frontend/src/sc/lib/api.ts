@@ -84,6 +84,39 @@ export async function post<T>(method: string, params: Params = {}): Promise<T> {
   return (await handle<{ message: T }>(res)).message;
 }
 
+/** POST a method that answers with a file (PDF, Excel) and save it; errors come back as JSON and are thrown. */
+export async function postDownload(method: string, params: Params = {}, fallbackName = "download"): Promise<void> {
+  if (!csrfToken) await refreshCsrf().catch(() => undefined);
+  const send = () => fetch(`/api/method/${method}`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/x-www-form-urlencoded", "X-Frappe-CSRF-Token": csrfToken },
+    body: serialize(params),
+  });
+  let res = await send();
+  if (res.status === 400 || res.status === 403) {
+    const body = (await res.clone().json().catch(() => null)) as { exc_type?: string } | null;
+    if (body?.exc_type === "CSRFTokenError") {
+      await refreshCsrf();
+      res = await send();
+    }
+  }
+  const type = res.headers.get("Content-Type") ?? "";
+  if (!res.ok || type.includes("application/json")) {
+    const body: unknown = await res.json().catch(() => null);
+    throw new FrappeError(errorMessage(body, res.status), res.status);
+  }
+  const name = /filename="?([^";]+)"?/.exec(res.headers.get("Content-Disposition") ?? "")?.[1] ?? fallbackName;
+  const url = URL.createObjectURL(await res.blob());
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = decodeURIComponent(name);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 30_000);
+}
+
 export type Filter = [string, string, string | number | (string | number)[] | null];
 
 export interface ListArgs {

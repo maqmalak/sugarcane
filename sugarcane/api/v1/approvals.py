@@ -43,20 +43,52 @@ def _overlaps_pending() -> list[dict]:
 	return out
 
 
+BATCH = "Indent Batch"
+
+
+def _batches_pending() -> list[dict]:
+	"""Draft indent batches the user may authorize."""
+	if not frappe.has_permission(BATCH, "submit"):
+		return []
+	out = []
+	for b in frappe.get_list(BATCH, filters={"docstatus": 0}, fields=["name", "circle", "season", "from_date", "to_date",
+			"indent_count", "total_maund", "grower_count", "creation", "owner"], order_by="creation desc", limit_page_length=100):
+		out.append({"doctype": BATCH, "name": b.name, "state": "Draft",
+			"title": _("{0} · {1} indents for {2} growers · {3} maund · supply {4} – {5}").format(b.circle, b.indent_count, b.grower_count,
+				f"{flt(b.total_maund):,.0f}", frappe.utils.formatdate(b.from_date, "dd MMM"), frappe.utils.formatdate(b.to_date, "dd MMM")),
+			"amount": None, "since": str(b.creation), "owner": b.owner, "category": "indent", "workflow": None,
+			"actions": ["Authorize", "Reject"]})
+	return out
+
+
 @frappe.whitelist()
 def get_inbox(company: str | None = None, days: int = 30) -> dict:
 	out = base.get_inbox(company, days)
-	overlaps = _overlaps_pending()
-	out["pending"] = overlaps + out["pending"]
+	overlaps, batches = _overlaps_pending(), _batches_pending()
+	out["pending"] = batches + overlaps + out["pending"]
 	for r in out["recent"]:
 		if r["doctype"] == DT:
 			r["category"] = "overlap"
-	out["counts"] = {**out["counts"], "pending": out["counts"]["pending"] + len(overlaps), "overlap": len(overlaps)}
+		elif r["doctype"] == BATCH:
+			r["category"] = "indent"
+	out["counts"] = {**out["counts"], "pending": out["counts"]["pending"] + len(overlaps) + len(batches), "overlap": len(overlaps),
+		"indent": len(batches)}
 	return out
 
 
 @frappe.whitelist(methods=["POST"])
 def act(doctype: str, name: str, action: str, remarks: str | None = None) -> dict:
+	if doctype == BATCH:
+		from sugarcane.cane_indenting.api import authorize_batch, reject_batch
+
+		if action == "Authorize":
+			out = authorize_batch(name)
+			frappe.get_doc(BATCH, name).add_comment("Workflow", _("Authorized"))
+			return {"name": name, "state": out["status"], "docstatus": 1}
+		if action == "Reject":
+			reject_batch(name, remarks)
+			return {"name": name, "state": "Rejected", "docstatus": None}
+		frappe.throw(_("Unknown action {0}").format(action))
 	if doctype != DT:
 		return base.act(doctype, name, action)
 	doc = frappe.get_doc(DT, name)

@@ -153,3 +153,101 @@ class TestRates(UnitTestCase):
 		r = rates.resolve({})
 		self.assertIsNone(r["govt_rate"])
 		self.assertIsNone(r["govt_rate_level"])
+
+
+class TestIndentCalc(UnitTestCase):
+	def test_most_specific_rule_wins(self):
+		from sugarcane.calc.indent import Rule, match_rule
+
+		rules = [Rule("all", 100), Rule("ratoon", 100, crop_type="Ratoon", priority=10), Rule("early", 90, maturity="Early"),
+			Rule("ratoon-early", 95, crop_type="Ratoon", maturity="Early"), Rule("kot", 80, circle="Kot Momin")]
+		self.assertEqual(match_rule(rules, {"crop_type": "Plant", "maturity": "Mid"}).name, "all")
+		self.assertEqual(match_rule(rules, {"crop_type": "Ratoon", "maturity": "Mid"}).name, "ratoon")
+		self.assertEqual(match_rule(rules, {"crop_type": "Ratoon", "maturity": "Early"}).name, "ratoon-early")
+		self.assertEqual(match_rule(rules, {"crop_type": "Ratoon", "maturity": "Early", "circle": "Kot Momin"}).name, "kot")
+		self.assertIsNone(match_rule([Rule("x", 100, crop_type="Ratoon")], {"crop_type": "Plant"}))
+		# equal specificity: priority decides
+		tie = [Rule("a", 100, crop_type="Ratoon", priority=1), Rule("b", 80, grower_category="Non-Passbook Grower", priority=5)]
+		self.assertEqual(match_rule(tie, {"crop_type": "Ratoon", "grower_category": "Non-Passbook Grower"}).name, "b")
+
+	def test_loads_and_part_loads(self):
+		from sugarcane.calc.indent import loads_for
+
+		self.assertEqual(loads_for(1000, 200), 5)
+		self.assertEqual(loads_for(1099, 200, 50), 5)   # 99 md left < 100 md
+		self.assertEqual(loads_for(1100, 200, 50), 6)   # 100 md left = half a load
+		self.assertEqual(loads_for(150, 200, 50), 1)
+		self.assertEqual(loads_for(90, 200, 50), 0)
+		self.assertEqual(loads_for(0, 200), 0)
+
+	def test_circle_cap(self):
+		from sugarcane.calc.indent import circle_factor
+
+		self.assertEqual(circle_factor(1000, 0), 1.0)
+		self.assertEqual(circle_factor(800, 1000), 1.0)
+		self.assertAlmostEqual(circle_factor(2000, 1500), 0.75)
+
+	def test_ideal_dates_spread_over_window(self):
+		from datetime import date
+
+		from sugarcane.calc.indent import ideal_dates
+
+		d = ideal_dates(4, date(2026, 11, 1), date(2026, 11, 30))
+		self.assertEqual(len(d), 4)
+		self.assertEqual(d, sorted(d))
+		self.assertTrue(all(date(2026, 11, 1) <= x <= date(2026, 11, 30) for x in d))
+		self.assertEqual(ideal_dates(1, date(2026, 11, 1), date(2026, 11, 1)), [date(2026, 11, 1)])
+		self.assertEqual(ideal_dates(0, date(2026, 11, 1), date(2026, 11, 5)), [])
+
+	def test_place_respects_capacity_and_window(self):
+		from datetime import date, timedelta
+
+		from sugarcane.calc.indent import Demand, place
+
+		d1 = date(2026, 11, 1)
+		demands = [Demand(f"k{i}", d1, d1, d1 + timedelta(days=2)) for i in range(5)]
+		placed, unplaced = place(demands, {}, 2)
+		days = sorted(placed.values())
+		self.assertEqual(days.count(d1), 2)
+		self.assertEqual(days.count(d1 + timedelta(days=1)), 2)
+		self.assertEqual(days.count(d1 + timedelta(days=2)), 1)
+		self.assertEqual(unplaced, [])
+		# day already used up by issued indents; nothing fits in a 1-day window
+		placed, unplaced = place([Demand("x", d1, d1, d1)], {d1: 0}, 5)
+		self.assertEqual((placed, unplaced), ({}, ["x"]))
+		# no room later: falls back to an earlier day in the window
+		placed, _u = place([Demand("y", d1 + timedelta(days=2), d1, d1 + timedelta(days=2))], {d1 + timedelta(days=2): 0}, 1)
+		self.assertEqual(placed["y"], d1 + timedelta(days=1))
+
+	def test_capacity_and_numbers(self):
+		from datetime import date
+
+		from sugarcane.calc.indent import daily_capacity_loads, derive_capacity, format_no
+
+		self.assertEqual(daily_capacity_loads(119_000, 200), 595)
+		self.assertAlmostEqual(derive_capacity(18_000_000, date(2026, 11, 1), date(2027, 3, 31)), 18_000_000 / 151)
+		self.assertEqual(format_no("26-001-", 123, 6), "26-001-000123")
+
+
+class TestBarcode(UnitTestCase):
+	def test_table_and_checksum(self):
+		from sugarcane.calc.barcode import PATTERNS, code128_values, modules
+
+		self.assertEqual(len(PATTERNS), 107)
+		self.assertEqual(len(set(PATTERNS)), 107)
+		self.assertTrue(all(sum(map(int, p)) == 11 for p in PATTERNS[:106]))
+		values = code128_values("26-001-100001")
+		self.assertEqual(values[0], 104)
+		self.assertEqual(values[-1], 106)
+		data = values[1:-2]
+		self.assertEqual(values[-2], (104 + sum(i * v for i, v in enumerate(data, 1))) % 103)
+		self.assertEqual(sum(modules("AB")), 11 * 4 + 13)  # start + 2 chars + check + stop
+		with self.assertRaises(ValueError):
+			code128_values("ç")
+
+	def test_svg(self):
+		from sugarcane.calc.barcode import svg
+
+		out = svg("26-001-100001")
+		self.assertTrue(out.startswith("<svg"))
+		self.assertIn("26-001-100001", out)

@@ -17,6 +17,8 @@ The sugar-specific code lives in `frontend/src/sc`.
 | `/sugar/field-force` | Field-force insights: attendance trend, today's board, check-in times, status mix |
 | `/sugar/field-force/users` | Field users, circles, devices (approve / block) |
 | `/sugar/setup` | Setup home: area hierarchy, sources, growers, crop, vehicles; each opens a generated list / form at `/setup/d/<doctype>` |
+| `/sugar/indenting` | Indenting (Phase 2): insights, `/generate` (preview + generate), `/lookup` (scan an indent), batches and indents at `/indenting/d/…` — see `docs/PHASE_2.md` |
+| `/sugar/approvals/inbox` | Indent batches to authorize, overlap reviews, workflow / HR approvals |
 | `/sugar/reports` | Report centre: every Script Report in the sugar modules, with filters, preview, chart, Excel and PDF |
 | `/sugar/mill/*` | Later phases (coming soon) |
 

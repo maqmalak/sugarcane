@@ -43,6 +43,7 @@ interface HomeData {
 const CATEGORY: Record<string, { label: string; tone: string }> = {
   survey: { label: "Survey", tone: "teal" },
   field: { label: "Field Force", tone: "violet" },
+  indent: { label: "Indenting", tone: "teal" },
   masters: { label: "Masters", tone: "rose" },
   finance: { label: "Accounts", tone: "red" },
 };
@@ -52,6 +53,7 @@ const QUICK: { label: string; sub: string; to: string; icon: LucideIcon; bg: str
   { label: "Survey insights", sub: "Progress, varieties, circles", to: "/survey", icon: Leaf, bg: "from-emerald-500 to-teal-600 shadow-emerald-500/30" },
   { label: "Survey Map", sub: "Fields, mills & attendance", to: "/survey/map", icon: MapPinned, bg: "from-sky-500 to-blue-600 shadow-sky-500/30" },
   { label: "Season quotas", sub: "Circle quotas vs survey", to: "/survey/quota", icon: Target, bg: "from-amber-500 to-orange-500 shadow-amber-500/30" },
+  { label: "Indenting", sub: "Generate, authorize & print", to: "/indenting", icon: ClipboardList, bg: "from-fuchsia-500 to-purple-600 shadow-fuchsia-500/30" },
   { label: "Field Force", sub: "Attendance & devices", to: "/field-force", icon: UserCog, bg: "from-violet-500 to-purple-600 shadow-violet-500/30" },
   { label: "Growers", sub: "Registry & passbooks", to: "/survey/growers", icon: Users2, bg: "from-pink-500 to-rose-600 shadow-pink-500/30" },
   { label: "Area Map", sub: "Pins & boundaries", to: "/setup/area-map", icon: MapPinned, bg: "from-cyan-500 to-sky-600 shadow-cyan-500/30" },
@@ -119,6 +121,8 @@ Object.assign(ALERT_STYLE, {
   sc_absent: { icon: UserX, dot: "from-orange-400 to-orange-600", pill: "bg-orange-500/15 text-orange-600 ring-orange-500/30 dark:text-orange-300", tag: "Absent" },
   sc_out_of_area: { icon: MapPinOff, dot: "from-red-500 to-rose-600", pill: "bg-red-500/15 text-red-600 ring-red-500/30 dark:text-red-300", tag: "Geofence", urgent: true },
   sc_quota: { icon: Target, dot: "from-yellow-400 to-amber-500", pill: "bg-yellow-500/15 text-yellow-700 ring-yellow-500/30 dark:text-yellow-300", tag: "Quota" },
+  sc_indent_draft: { icon: ClipboardList, dot: "from-violet-500 to-purple-600", pill: "bg-violet-500/15 text-violet-600 ring-violet-500/30 dark:text-violet-300", tag: "Authorize", urgent: true },
+  sc_indent_unprinted: { icon: FileCheck2, dot: "from-sky-500 to-blue-600", pill: "bg-sky-500/15 text-sky-600 ring-sky-500/30 dark:text-sky-300", tag: "Print" },
   sc_nopin_cane_source: { icon: MapPinOff, dot: "from-sky-500 to-blue-600", pill: "bg-sky-500/15 text-sky-600 ring-sky-500/30 dark:text-sky-300", tag: "No pin" },
   sc_nopin_cane_depot: { icon: MapPinOff, dot: "from-sky-500 to-blue-600", pill: "bg-sky-500/15 text-sky-600 ring-sky-500/30 dark:text-sky-300", tag: "No pin" },
   sc_nopin_loading_point: { icon: MapPinOff, dot: "from-sky-500 to-blue-600", pill: "bg-sky-500/15 text-sky-600 ring-sky-500/30 dark:text-sky-300", tag: "No pin" },
@@ -638,7 +642,7 @@ function ActivityPanel({ home, loading, tab, setTab, onChanged }: { home?: HomeD
                             {a.can_approve && (
                               <button type="button" disabled={busy === a.name} onClick={() => void approve(a)}
                                 className="inline-flex h-7 items-center gap-1 rounded-full bg-gradient-to-r from-emerald-500 to-green-600 px-3 text-xs font-semibold text-white shadow-md shadow-emerald-500/30 ring-1 ring-inset ring-white/20 transition hover:brightness-110 active:scale-95 disabled:opacity-60">
-                                {busy === a.name ? <RefreshCw className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />} {a.doctype === "Survey Overlap Review" ? "Accept both" : "Approve"}
+                                {busy === a.name ? <RefreshCw className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />} {a.doctype === "Survey Overlap Review" ? "Accept both" : a.doctype === "Indent Batch" ? "Authorize" : "Approve"}
                               </button>
                             )}
                             <DocLink doctype={a.doctype} name={a.name} to={a.doctype === "Survey Overlap Review" ? "/approvals/inbox" : undefined}
@@ -706,7 +710,7 @@ const MODULE_STYLE: Record<string, { g: string; icon: LucideIcon }> = {
   Production: { g: "from-amber-400 to-orange-600", icon: Factory }, HR: { g: "from-violet-400 to-purple-600", icon: Users2 },
   CRM: { g: "from-fuchsia-400 to-pink-600", icon: Target }, POS: { g: "from-indigo-400 to-blue-700", icon: Receipt },
   Survey: { g: "from-emerald-400 to-teal-600", icon: Sprout }, "Field Force": { g: "from-violet-400 to-purple-600", icon: UserCog },
-  Masters: { g: "from-pink-400 to-rose-600", icon: Boxes },
+  Masters: { g: "from-pink-400 to-rose-600", icon: Boxes }, Indenting: { g: "from-violet-400 to-purple-600", icon: ClipboardList },
 };
 const PERIODS = [["today", "Today"], ["week", "7 days"], ["month", "30 days"]] as const;
 

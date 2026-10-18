@@ -14,4 +14,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "MicroMaxSugar"
 // shared code for the three field apps; vehicle-tracking and depot-purchase join in Phase 4
-include(":core", ":eagleeye")
+include(":core", ":eagleeye", ":elp")

@@ -19,7 +19,8 @@ from frappe.utils import cint, flt, get_datetime, now_datetime
 
 from sugarcane.geo import as_feature_collection
 
-FIELD_ROLES = {"Surveyor", "Circle Officer", "LP Operator", "Depot User", "Cane Manager", "Cane Admin", "System Manager"}
+FIELD_ROLES = {"Surveyor", "Circle Officer", "LP Operator", "Depot User", "Token Clerk", "Yard Supervisor", "Cane Manager", "Cane Admin",
+	"System Manager"}
 SURVEY_FIELDS = ("season", "survey_date", "survey_for", "competitor_mill", "grower_category", "np_cnic", "np_grower_name",
 	"np_father_name", "np_mobile", "grower", "circle", "village", "murabba_no",
 	"killa_no", "total_acres", "empty_land_acres", "crop_land_acres", "variety", "crop_type", "ratoon_no", "sowing_date",
@@ -63,7 +64,7 @@ def login(usr: str, pwd: str, android_id: str, device_name: str | None = None, a
 	manager.authenticate(user=usr, pwd=pwd)  # raises AuthenticationError on a wrong password
 	user = manager.user
 	if not FIELD_ROLES & set(frappe.get_roles(user)):
-		frappe.throw(_("{0} has no field role (Surveyor or Circle Officer)").format(user), frappe.PermissionError)
+		frappe.throw(_("{0} has no role for the field apps (surveyor, circle officer, LP operator or gate staff)").format(user), frappe.PermissionError)
 
 	device = _device_doc(android_id)
 	auto = cint(frappe.db.get_single_value("Sugar Settings", "auto_approve_devices"))

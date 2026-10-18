@@ -62,4 +62,45 @@ object Photos {
     }
 
     const val BLUR_THRESHOLD = 60.0
+
+    /** Sharpness (as above), mean brightness and contrast (std of grey levels) — the same measures the server uses. */
+    data class Quality(val sharpness: Double, val brightness: Double, val contrast: Double) {
+        fun problems(minSharp: Double, minBright: Double, maxBright: Double, minContrast: Double): List<String> = buildList {
+            if (sharpness < minSharp) add("blurred")
+            if (brightness < minBright) add("too dark")
+            if (brightness > maxBright) add("too bright")
+            if (contrast < minContrast) add("faded / unclear")
+        }
+    }
+
+    fun quality(jpeg: ByteArray): Quality {
+        val src = BitmapFactory.decodeByteArray(jpeg, 0, jpeg.size) ?: return Quality(0.0, 0.0, 0.0)
+        val s = 256f / maxOf(src.width, src.height)
+        val bmp = Bitmap.createScaledBitmap(src, maxOf(3, (src.width * s).toInt()), maxOf(3, (src.height * s).toInt()), true)
+        val w = bmp.width; val h = bmp.height
+        val px = IntArray(w * h).also { bmp.getPixels(it, 0, w, 0, 0, w, h) }
+        val g = DoubleArray(px.size) { i -> val c = px[i]; 0.299 * (c shr 16 and 255) + 0.587 * (c shr 8 and 255) + 0.114 * (c and 255) }
+        val mean = g.average()
+        val std = kotlin.math.sqrt(g.sumOf { (it - mean) * (it - mean) } / g.size)
+        return Quality(sharpness(jpeg), mean, std)
+    }
+
+    /**
+     * Burn an evidence stamp into the bottom of the photo (point, date-time, GPS, vehicle): a printed or forwarded picture
+     * still shows where and when it was taken. Returns a new JPEG.
+     */
+    fun stamp(jpeg: ByteArray, lines: List<String>, quality: Int = 85): ByteArray {
+        val src = BitmapFactory.decodeByteArray(jpeg, 0, jpeg.size) ?: return jpeg
+        val bmp = src.copy(Bitmap.Config.ARGB_8888, true)
+        val canvas = android.graphics.Canvas(bmp)
+        val size = maxOf(14f, bmp.width / 45f)
+        val text = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            color = android.graphics.Color.YELLOW; textSize = size; typeface = android.graphics.Typeface.MONOSPACE
+        }
+        val band = android.graphics.Paint().apply { color = android.graphics.Color.argb(170, 0, 0, 0) }
+        val top = bmp.height - (lines.size * size * 1.3f + size * 0.6f)
+        canvas.drawRect(0f, top, bmp.width.toFloat(), bmp.height.toFloat(), band)
+        lines.forEachIndexed { i, l -> canvas.drawText(l, size * 0.5f, top + size * 1.2f * (i + 1), text) }
+        return ByteArrayOutputStream().use { s -> bmp.compress(Bitmap.CompressFormat.JPEG, quality, s); s.toByteArray() }
+    }
 }

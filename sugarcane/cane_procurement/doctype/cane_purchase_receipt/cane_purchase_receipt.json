@@ -14,6 +14,8 @@
   "token",
   "weighment",
   "entry_type",
+  "purchase_depot",
+  "warehouse",
   "cb2",
   "payment_status",
   "elp_registration",
@@ -154,10 +156,27 @@
   {
    "fieldname": "entry_type",
    "fieldtype": "Select",
-   "options": "ELP Verified\nGate",
+   "options": "ELP Verified\nGate\nDepot",
    "label": "Entry",
    "read_only": 1,
-   "in_standard_filter": 1
+   "in_standard_filter": 1,
+   "description": "ELP Verified = the loading point was verified by the audit team (that point's TPT applies) · Gate = paid at the mill-gate rates · Depot = bought at a depot (the depot's rates)"
+  },
+  {
+   "fieldname": "purchase_depot",
+   "fieldtype": "Link",
+   "options": "Cane Depot",
+   "label": "Bought at Depot",
+   "read_only": 1,
+   "in_standard_filter": 1,
+   "description": "Empty = bought at the mill gate"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "options": "Warehouse",
+   "label": "Warehouse",
+   "read_only": 1
   },
   {
    "fieldname": "cb2",

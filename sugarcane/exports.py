@@ -13,7 +13,7 @@ SUGAR_MODULES = ("Sugarcane", "EagleEye Survey", "Cane Indenting", "Vehicle Trac
 	"SMS Integration", "Sugar MIS")
 GROUPS = {"EagleEye Survey": "Crop Survey", "Cane Indenting": "Indenting", "Cane Procurement": "Procurement",
 	"Weighbridge": "Weighbridge", "Cane Accounting": "Cane Accounts", "Grower Loans": "Grower Loans", "Cane Costing": "Costing",
-	"Sugar Production": "Production", "Cane Laboratory": "Laboratory", "Sugar MIS": "MIS", "Sugarcane": "Masters", "Vehicle Tracking": "ELP"}
+	"Sugar Production": "Production", "Cane Laboratory": "Laboratory", "Sugar MIS": "MIS", "Sugarcane": "Masters", "Vehicle Tracking": "ELP", "Depot Purchase": "Depot"}
 SURVEY = ["season", "from_date", "to_date", "zone", "circle", "village", "variety", "crop_type", "survey_for"]
 FILTERS = {  # report -> filters it accepts (default by module below)
 	"Surveyor Attendance Report": ["from_date", "to_date", "surveyor", "circle", "attendance_status"],
@@ -28,9 +28,12 @@ FILTERS = {  # report -> filters it accepts (default by module below)
 	"TPT Bilty Register": ["from_date", "to_date", "bilty_status"],
 	"Cane Day Close": ["to_date"],
 	"Token Register": ["from_date", "to_date", "circle", "token_status"],
+	"Depot Stock": ["to_date"],
+	"Depot Dispatch Register": ["from_date", "to_date", "depot", "dispatch_status"],
 }
 MODULE_FILTERS = {"EagleEye Survey": SURVEY, "Vehicle Tracking": ["from_date", "to_date", "circle"],
-	"Cane Procurement": ["from_date", "to_date", "circle"], "Weighbridge": ["from_date", "to_date"]}
+	"Cane Procurement": ["from_date", "to_date", "circle"], "Weighbridge": ["from_date", "to_date"],
+	"Depot Purchase": ["from_date", "to_date", "depot"]}
 DESCRIPTIONS = {
 	"Cane Survey Detail": "Every surveyed field: grower, CNIC, passbook, village, variety, declared vs measured area",
 	"Circle Wise Survey Summary": "Fields, growers, area, plant / ratoon / diseased acres and expected cane per circle",
@@ -71,7 +74,9 @@ FILTER_DEFS = {
 	"survey_for": {"label": "Survey For", "kind": "select", "options": ["Company", "Competitor", "All"]},
 	"attendance_status": {"label": "Status", "kind": "select", "options": ["Present", "Half Day", "Out of Area", "Absent"],
 		"param": "status"},
-	"entry_type": {"label": "Entry", "kind": "select", "options": ["ELP Verified", "Gate"]},
+	"entry_type": {"label": "Entry", "kind": "select", "options": ["ELP Verified", "Gate", "Depot"]},
+	"depot": {"label": "Depot", "kind": "link", "doctype": "Cane Depot"},
+	"dispatch_status": {"label": "Status", "kind": "select", "options": ["Loading", "In Transit", "At Mill", "Received", "Cancelled"], "param": "status"},
 	"payment_status": {"label": "Payment", "kind": "select", "options": ["Unpaid", "Paid"]},
 	"bilty_status": {"label": "Status", "kind": "select", "options": ["Unpaid", "Paid"], "param": "status"},
 	"token_status": {"label": "Status", "kind": "select", "options": ["Issued", "Gross", "Completed", "Cancelled"], "param": "status"},

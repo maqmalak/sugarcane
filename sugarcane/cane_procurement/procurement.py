@@ -26,8 +26,9 @@ from sugarcane.calc import rates as rate_calc
 from sugarcane.vehicle_tracking.elp import canon, normalize_vehicle
 
 MANAGERS = {"System Manager", "Cane Manager", "Cane Admin"}
-GATE_ROLES = MANAGERS | {"Token Clerk"}
-WEIGH_ROLES = {"System Manager", "Cane Admin", "Gross Weighman", "Tare Weighman"}
+GATE_ROLES = MANAGERS | {"Token Clerk", "Depot User"}
+WEIGH_ROLES = {"System Manager", "Cane Admin", "Gross Weighman", "Tare Weighman", "Depot User"}
+DEPOT_ROLE = "Depot User"
 MANUAL_ROLES = {"System Manager", "Cane Admin", "Cane Manager"}
 CASH_ROLES = {"System Manager", "Cane Admin", "Cane Cashier"}
 CLOSE_ROLES = {"System Manager", "Cane Admin", "Cane Accountant"}
@@ -40,6 +41,24 @@ def need(roles: set, what: str):
 		frappe.throw(_("You are not allowed to {0}").format(what), frappe.PermissionError)
 
 
+def user_depots(user=None) -> list[str]:
+	"""Depots a user works at: every active depot for managers, otherwise the depots that list the user."""
+	user = user or frappe.session.user
+	if MANAGERS & set(frappe.get_roles(user)):
+		return frappe.get_all("Cane Depot", filters={"is_active": 1}, pluck="name", order_by="name")
+	return sorted(set(frappe.get_all("Cane Depot User", filters={"parenttype": "Cane Depot", "user": user}, pluck="parent")))
+
+
+def check_place(depot: str | None, roles_at_mill: set, what: str):
+	"""A depot operation needs a manager or a user of that depot; a mill operation needs one of the mill roles."""
+	roles = set(frappe.get_roles())
+	if depot:
+		if not (MANAGERS & roles) and not (DEPOT_ROLE in roles and depot in user_depots()):
+			frappe.throw(_("You are not a user of depot {0}, so you can't {1} there").format(depot, what), frappe.PermissionError)
+	elif not roles_at_mill & roles:
+		frappe.throw(_("You are not allowed to {0} at the mill").format(what), frappe.PermissionError)
+
+
 def settings() -> frappe._dict:
 	s = frappe.get_cached_doc("Sugar Settings")
 	return frappe._dict(
@@ -48,6 +67,8 @@ def settings() -> frappe._dict:
 		min_kg=cint(s.get("min_weight_kg")) or 200, max_yard_hours=cint(s.get("max_yard_hours")) or 12,
 		supplier=s.daily_purchase_supplier, item=s.cane_item, warehouse=s.cane_yard_warehouse, cost_center=s.cost_center,
 		clearing=s.cane_purchase_clearing_account, tpt_account=s.tpt_payable_account, cash_account=s.cash_counter_account,
+		transit=s.get("transit_warehouse"), freight_account=s.get("freight_account"), commission_account=s.get("depot_commission_account"),
+		shortage_account=s.get("transit_shortage_account"),
 		accounts={k: s.get(k) for k in ("cane_purchase_clearing_account", "subsidy_purchase_account", "additional_subsidy_account",
 			"road_cess_expense_account", "road_cess_payable_account", "tpt_payable_account", "grower_loan_account",
 			"grower_payable_account")},
@@ -131,12 +152,13 @@ def token_for_indent(indent: str) -> str | None:
 	return frappe.db.get_value("Cane Token", {"indent": indent, "docstatus": 1, "status": ["!=", "Cancelled"]}, "name")
 
 
-def offer(indent: str | None = None, elp_registration: str | None = None, day=None) -> dict:
+def offer(indent: str | None = None, elp_registration: str | None = None, day=None, purchase_depot: str | None = None) -> dict:
 	"""What a token for this indent / ELP load would be: entry type, source for rates, problems that block it, and the
-	rates. Shown on the gate screen before issuing, and re-checked by issue_token."""
+	rates. Shown on the gate screen before issuing, and re-checked by issue_token. With a purchase depot the cane is
+	bought at that depot, at the depot's rates (no ELP involved)."""
 	cfg = settings()
 	day = getdate(day) if day else crushing_day(cfg=cfg)
-	reg = _registration_for(indent, elp_registration)
+	reg = None if purchase_depot else _registration_for(indent, elp_registration)
 	if reg and not indent:
 		indent = reg.indent
 	ind = frappe.get_doc("Cane Indent", indent) if indent and frappe.db.exists("Cane Indent", indent) else None
@@ -146,7 +168,7 @@ def offer(indent: str | None = None, elp_registration: str | None = None, day=No
 		frappe.throw(_("Scan the indent or the ELP slip"))
 
 	blocks, notes = [], []
-	entry, needs_reason = "Gate", False
+	entry, needs_reason = ("Depot" if purchase_depot else "Gate"), False
 	if reg:
 		if reg.token:
 			blocks.append(_("ELP load {0} already has token {1}").format(reg.name, reg.token))
@@ -168,13 +190,17 @@ def offer(indent: str | None = None, elp_registration: str | None = None, day=No
 		other = token_for_indent(ind.name)
 		if other:
 			blocks.append(_("Indent {0} was already used by token {1}").format(ind.name, other))
-		if entry == "Gate" and not reg and ind.valid_from and ind.valid_to and not (getdate(ind.valid_from) <= day <= getdate(ind.valid_to)):
+		if entry in ("Gate", "Depot") and not reg and ind.valid_from and ind.valid_to and not (getdate(ind.valid_from) <= day <= getdate(ind.valid_to)):
 			blocks.append(_("Indent {0} is valid {1} – {2}, not on {3}").format(ind.name, frappe.utils.formatdate(ind.valid_from),
 				frappe.utils.formatdate(ind.valid_to), frappe.utils.formatdate(day)))
 
 	src_doc = ind or reg
 	claimed = (reg.source if reg else None) or (ind.source if ind else None)
-	if entry == "ELP Verified" or not cfg.tpt_requires_elp:
+	if purchase_depot:
+		source = frappe.db.get_value("Cane Depot", purchase_depot, "source") or gate_source()
+		if claimed and claimed != source:
+			notes.append(_("The indent is for {0}; bought at {1}, so {1}'s rates apply").format(claimed, purchase_depot))
+	elif entry == "ELP Verified" or not cfg.tpt_requires_elp:
 		source = claimed or gate_source()
 	else:
 		source = gate_source()
@@ -199,11 +225,13 @@ def offer(indent: str | None = None, elp_registration: str | None = None, day=No
 		loading_point=reg.loading_point if reg else None, depot=reg.depot if reg else None, point_name=reg.point_name if reg else None,
 		load_maund=ind.load_maund if ind else None, valid_to=str(ind.valid_to) if ind and ind.valid_to else None,
 		lp_verified=cint(reg.lp_verified) if reg else 0, vehicle=vehicle, grower_info=g, src_doc=src_doc.doctype,
+		purchase_depot=purchase_depot,
 	)
 
 
-def find(q: str) -> list[dict]:
-	"""Gate search: an ELP registration no., indent no., token no. or vehicle no. → loads that can get a token."""
+def find(q: str, purchase_depot: str | None = None) -> list[dict]:
+	"""Gate search: an ELP registration no., indent no., token no. or vehicle no. → loads that can get a token. At a depot
+	only indents are looked up."""
 	q = (q or "").strip()
 	if not q:
 		return []
@@ -214,7 +242,7 @@ def find(q: str) -> list[dict]:
 		if key and key not in seen:
 			seen.add(key)
 			try:
-				o = offer(kw.get("indent"), kw.get("elp_registration"))
+				o = offer(kw.get("indent"), kw.get("elp_registration"), purchase_depot=purchase_depot)
 			except frappe.ValidationError as e:
 				o = frappe._dict(indent=kw.get("indent"), elp_registration=kw.get("elp_registration"), blocks=[str(e)], notes=[])
 			o.pop("src_doc", None)
@@ -223,6 +251,10 @@ def find(q: str) -> list[dict]:
 	if frappe.db.exists("Cane Token", q):
 		t = frappe.db.get_value("Cane Token", q, ["name", "status", "vehicle_no", "grower_name"], as_dict=True)
 		return [{"token": t.name, "token_status": t.status, "blocks": [_("Token {0} is {1}").format(t.name, _(t.status))], "notes": []}]
+	if purchase_depot:
+		if frappe.db.exists("Cane Indent", q):
+			add(indent=q)
+		return out
 	if frappe.db.exists("LP Vehicle Registration", q):
 		add(elp_registration=q)
 	if frappe.db.exists("Cane Indent", q):
@@ -243,12 +275,13 @@ def _same_vehicle(column="vehicle_no"):
 
 # ---------------------------------------------------------------- gate: issue
 def issue_token(indent=None, elp_registration=None, vehicle_no=None, vehicle_type=None, driver_name=None, driver_cnic=None,
-		driver_mobile=None, gate_reason=None, issued_at=None, is_demo=0):
+		driver_mobile=None, gate_reason=None, issued_at=None, is_demo=0, purchase_depot=None):
 	need(GATE_ROLES, _("issue cane tokens"))
+	check_place(purchase_depot, GATE_ROLES - {DEPOT_ROLE}, _("issue cane tokens"))
 	cfg = settings()
 	at = get_datetime(issued_at) if issued_at else now_datetime()
 	day = crushing_day(at, cfg)
-	o = offer(indent, elp_registration, day)
+	o = offer(indent, elp_registration, day, purchase_depot or None)
 	if o.blocks:
 		frappe.throw("<br>".join(o.blocks), title=_("Token not issued"))
 	if o.needs_reason and not (gate_reason or "").strip():
@@ -275,7 +308,7 @@ def issue_token(indent=None, elp_registration=None, vehicle_no=None, vehicle_typ
 
 	g = o.grower_info
 	tok = frappe.get_doc({
-		"doctype": "Cane Token", "entry_type": o.entry_type, "season": o.season, "company": cfg.company, "crushing_day": day,
+		"doctype": "Cane Token", "entry_type": o.entry_type, "purchase_depot": purchase_depot or None, "season": o.season, "company": cfg.company, "crushing_day": day,
 		"issued_at": at, "issued_by": frappe.session.user, "elp_registration": o.elp_registration, "lp_verified": o.lp_verified,
 		"gate_reason": (gate_reason or "").strip() or None if o.needs_reason else None,
 		"indent": o.indent, "grower": o.grower, "grower_name": g.grower_name, "father_name": g.father_name, "cnic": g.cnic,
@@ -356,14 +389,15 @@ def post_reading(weight_kg, stable=1, raw=None, source="Indicator", terminal=Non
 	return reading
 
 
-def simulate(terminal: str, token: str | None = None, operation: str | None = None, weight_kg=None, stable=1) -> dict:
-	"""Simulator terminals only: put a weight on the bridge. Without a weight, a plausible one for the token's vehicle."""
+def simulate(terminal: str, token: str | None = None, operation: str | None = None, weight_kg=None, stable=1, vehicle_type=None) -> dict:
+	"""Simulator terminals only: put a weight on the bridge. Without a weight, a plausible one for the token's (or the given)
+	vehicle type; `operation` is Gross / Tare or a dispatch step (Depot Tare, Mill Gross, …)."""
 	if frappe.db.get_value("Weighbridge Terminal", terminal, "indicator_protocol") != "Simulator":
 		frappe.throw(_("{0} is not a simulator terminal").format(terminal))
-	if weight_kg in (None, "") and token:
-		vt = frappe.db.get_value("Vehicle Type", frappe.db.get_value("Cane Token", token, "vehicle_type"),
-			["min_gross_kg", "max_gross_kg", "min_tare_kg", "max_tare_kg"], as_dict=True) or {}
-		if (operation or "Gross") == "Tare":
+	vehicle_type = vehicle_type or (frappe.db.get_value("Cane Token", token, "vehicle_type") if token else None)
+	if weight_kg in (None, "") and vehicle_type:
+		vt = frappe.db.get_value("Vehicle Type", vehicle_type, ["min_gross_kg", "max_gross_kg", "min_tare_kg", "max_tare_kg"], as_dict=True) or {}
+		if (operation or "Gross").endswith("Tare"):
 			lo, hi = cint(vt.get("min_tare_kg")) or 2500, cint(vt.get("max_tare_kg")) or 5000
 		else:
 			lo, hi = cint(vt.get("min_gross_kg")) or 6000, cint(vt.get("max_gross_kg")) or 20000
@@ -383,24 +417,12 @@ def _limits(vehicle_type, operation, kg) -> str | None:
 	return None
 
 
-def capture(token: str, operation: str, manual_kg=None, note=None, terminal=None, at=None, is_demo=0) -> dict:
-	"""Take the gross or tare weight for a token from the terminal the request comes from."""
-	from sugarcane.weighbridge.doctype.weighbridge_terminal.weighbridge_terminal import terminal_for_request
-
-	if operation not in ("Gross", "Tare"):
-		frappe.throw(_("Operation must be Gross or Tare"))
-	need(WEIGH_ROLES, _("record weights"))
+def take_weight(t: str, label: str, manual_kg=None, note=None, at=None, vehicle_type=None, kind=None) -> tuple[int, dict, str]:
+	"""The weight to record on terminal `t`: the latest stable, fresh reading — or a typed-in weight from a Cane Admin with a
+	note. Checks the lowest weight and the vehicle type's gross / tare limits (`kind`); returns (kg, reading, note)."""
 	cfg = settings()
-	t = terminal or terminal_for_request(operation).name
-	tok = frappe.get_doc("Cane Token", token)
-	if tok.docstatus != 1:
-		frappe.throw(_("Token {0} is not valid").format(token))
-	want = {"Gross": "Issued", "Tare": "Gross"}[operation]
-	if tok.status != want:
-		frappe.throw(_("Token {0} is {1}: the {2} weight was already taken or isn't due").format(token, _(tok.status), _(operation)))
 	roles = set(frappe.get_roles())
 	note = (note or "").strip()
-
 	if manual_kg not in (None, ""):
 		if not MANUAL_ROLES & roles:
 			frappe.throw(_("Only a Cane Admin can type in a weight"), frappe.PermissionError)
@@ -419,21 +441,52 @@ def capture(token: str, operation: str, manual_kg=None, note=None, terminal=None
 	kg = cint(reading["weight_kg"])
 	if kg < cfg.min_kg:
 		frappe.throw(_("{0} kg is below the lowest weight accepted ({1} kg) — is the vehicle on the bridge?").format(kg, cfg.min_kg))
-	problem = _limits(tok.vehicle_type, operation, kg)
+	problem = _limits(vehicle_type, kind, kg) if vehicle_type and kind else None
 	if problem:
 		if not (MANUAL_ROLES & roles and note):
 			frappe.throw(problem + "<br>" + _("A Cane Admin can accept it with a note."), title=_("Outside the vehicle limits"))
 		note = f"{problem}. {note}"
+	return kg, reading, note
+
+
+def reading_log(t: str, kg: int, reading: dict, label: str, note: str | None, **links) -> str:
+	log = frappe.get_doc({"doctype": "Weighment Reading Log", "terminal": t, "read_at": get_datetime(reading["at"]), "weight_kg": kg,
+		"stable": cint(reading["stable"]), "source": reading["source"], "raw": reading.get("raw"), "used_for": label,
+		"ip_address": getattr(frappe.local, "request_ip", None), "user": frappe.session.user, "remarks": note or None, **links})
+	log.insert(ignore_permissions=True)
+	return log.name
+
+
+def terminal_depot(t: str) -> str | None:
+	return frappe.db.get_value("Weighbridge Terminal", t, "depot") or None
+
+
+def capture(token: str, operation: str, manual_kg=None, note=None, terminal=None, at=None, is_demo=0) -> dict:
+	"""Take the gross or tare weight for a token from the terminal the request comes from."""
+	from sugarcane.weighbridge.doctype.weighbridge_terminal.weighbridge_terminal import terminal_for_request
+
+	if operation not in ("Gross", "Tare"):
+		frappe.throw(_("Operation must be Gross or Tare"))
+	need(WEIGH_ROLES, _("record weights"))
+	t = terminal or terminal_for_request(operation).name
+	tok = frappe.get_doc("Cane Token", token)
+	if tok.docstatus != 1:
+		frappe.throw(_("Token {0} is not valid").format(token))
+	check_place(tok.purchase_depot, WEIGH_ROLES - {DEPOT_ROLE}, _("record weights"))
+	if terminal_depot(t) != (tok.purchase_depot or None):
+		frappe.throw(_("Terminal {0} is at {1}, but token {2} was issued {3}").format(t, terminal_depot(t) or _("the mill"), token,
+			_("at depot {0}").format(tok.purchase_depot) if tok.purchase_depot else _("at the mill gate")), title=_("Wrong weighbridge"))
+	want = {"Gross": "Issued", "Tare": "Gross"}[operation]
+	if tok.status != want:
+		frappe.throw(_("Token {0} is {1}: the {2} weight was already taken or isn't due").format(token, _(tok.status), _(operation)))
+	kg, reading, note = take_weight(t, operation, manual_kg, note, at, tok.vehicle_type, operation)
 	if operation == "Tare":
 		gross = cint(frappe.db.get_value("Cane Weighment", tok.weighment, "gross_kg"))
 		if kg >= gross:
 			frappe.throw(_("Tare {0} kg is not less than gross {1} kg").format(f"{kg:,}", f"{gross:,}"))
 
 	when = get_datetime(at) if at else now_datetime()
-	log = frappe.get_doc({"doctype": "Weighment Reading Log", "terminal": t, "read_at": get_datetime(reading["at"]), "weight_kg": kg,
-		"stable": cint(reading["stable"]), "source": reading["source"], "raw": reading.get("raw"), "used_for": operation,
-		"ip_address": getattr(frappe.local, "request_ip", None), "user": frappe.session.user, "remarks": note or None})
-	log.insert(ignore_permissions=True)
+	log = frappe._dict(name=reading_log(t, kg, reading, operation, note))
 
 	if operation == "Gross":
 		w = frappe.get_doc({"doctype": "Cane Weighment", "token": tok.name, "season": tok.season, "crushing_day": tok.crushing_day,
@@ -457,7 +510,7 @@ def capture(token: str, operation: str, manual_kg=None, note=None, terminal=None
 
 
 # ---------------------------------------------------------------- CPR
-TOKEN_TO_CPR = ("season", "company", "entry_type", "elp_registration", "lp_verified", "indent", "grower", "grower_name", "father_name",
+TOKEN_TO_CPR = ("season", "company", "entry_type", "purchase_depot", "elp_registration", "lp_verified", "indent", "grower", "grower_name", "father_name",
 	"cnic", "passbook_no", "circle", "village", "village_name", "source", "claimed_source", "loading_point", "depot", "point_name",
 	"vehicle", "vehicle_no", "vehicle_type", "driver_name", "driver_cnic", "driver_mobile", *rate_calc.RATE_FIELDS, "rate_levels",
 	"is_demo")
@@ -467,7 +520,9 @@ def make_cpr(weighment) -> str:
 	tok = frappe.get_doc("Cane Token", weighment.token)
 	cpr = frappe.get_doc({"doctype": "Cane Purchase Receipt", **{f: tok.get(f) for f in TOKEN_TO_CPR}, "token": tok.name,
 		"weighment": weighment.name, "gross_kg": weighment.gross_kg, "tare_kg": weighment.tare_kg,
-		"posted_at": weighment.tare_at, "posting_date": crushing_day(weighment.tare_at)})
+		"posted_at": weighment.tare_at, "posting_date": crushing_day(weighment.tare_at),
+		"warehouse": (frappe.db.get_value("Cane Depot", tok.purchase_depot, "warehouse") if tok.purchase_depot else None)
+			or settings().warehouse})
 	cpr.flags.ignore_permissions = True
 	cpr.insert()
 	cpr.submit()
@@ -558,8 +613,8 @@ def reverse_bilty_payment(name: str, reason: str):
 
 # ---------------------------------------------------------------- day close
 def day_cprs(day, exclude_dcp: str | None = None) -> list:
-	return frappe.db.sql("""select name, grower, grower_name, payable_kg, govt_value, tpt_amount, payable_cpr, journal_entry
-		from `tabCane Purchase Receipt` where docstatus = 1 and posting_date = %(d)s
+	return frappe.db.sql("""select name, grower, grower_name, payable_kg, govt_value, tpt_amount, payable_cpr, journal_entry,
+		warehouse, purchase_depot, payable_maund from `tabCane Purchase Receipt` where docstatus = 1 and posting_date = %(d)s
 		and (ifnull(daily_purchase, '') = '' or daily_purchase = %(x)s) order by posted_at, name""",
 		{"d": getdate(day), "x": exclude_dcp or ""}, as_dict=True)
 
@@ -587,18 +642,24 @@ def make_purchase_invoice(dcp) -> str:
 			("clearing", "Cane Purchase Clearing")):
 		if not cfg.get(f):
 			frappe.throw(_("Set {0} in Sugar Settings").format(label))
-	kg, total = cint(dcp.total_payable_kg), flt(dcp.total_govt_value, 2)
+	total = flt(dcp.total_govt_value, 2)
+	by_wh = {}  # one line per warehouse: the mill yard and each depot that bought cane that day
+	for it in dcp.items:
+		w = by_wh.setdefault(it.warehouse or cfg.warehouse, [0, 0.0])
+		w[0] += cint(it.payable_kg)
+		w[1] = flt(w[1] + flt(it.govt_value), 2)
 	stock_uom = frappe.db.get_value("Item", cfg.item, "stock_uom")
 	start, end = day_window(dcp.crushing_day, cfg)
 	pi = frappe.get_doc({
 		"doctype": "Purchase Invoice", "company": dcp.company, "supplier": cfg.supplier, "posting_date": dcp.crushing_day,
-		"set_posting_time": 1, "posting_time": "23:59:00", "bill_no": dcp.name, "bill_date": dcp.crushing_day, "due_date": dcp.crushing_day,
-		"update_stock": 1, "disable_rounded_total": 1, "credit_to": cfg.clearing, "cost_center": cfg.cost_center, "set_warehouse": cfg.warehouse,
+		"set_posting_time": 1, "posting_time": "23:30:00", "bill_no": dcp.name, "bill_date": dcp.crushing_day, "due_date": dcp.crushing_day,
+		"update_stock": 1, "disable_rounded_total": 1, "credit_to": cfg.clearing, "cost_center": cfg.cost_center,
 		"remarks": _("Cane bought on crushing day {0} ({1} – {2}): {3} CPRs, {4} maund").format(frappe.utils.formatdate(dcp.crushing_day),
 			start.strftime("%d %b %H:%M"), end.strftime("%d %b %H:%M"), dcp.cpr_count, f"{flt(dcp.total_payable_maund):,.3f}"),
-		"items": [{"item_code": cfg.item, "qty": kg, "uom": stock_uom, "stock_uom": stock_uom, "conversion_factor": 1,
-			"rate": flt(total / kg, 9), "warehouse": cfg.warehouse, "cost_center": cfg.cost_center,
-			"description": _("Sugarcane, crushing day {0}").format(frappe.utils.formatdate(dcp.crushing_day))}],
+		"items": [{"item_code": cfg.item, "qty": w_kg, "uom": stock_uom, "stock_uom": stock_uom, "conversion_factor": 1,
+			"rate": flt(w_value / w_kg, 9), "warehouse": wh, "cost_center": cfg.cost_center,
+			"description": _("Sugarcane, crushing day {0} — {1}").format(frappe.utils.formatdate(dcp.crushing_day), wh)}
+			for wh, (w_kg, w_value) in by_wh.items() if w_kg],
 	})
 	pi.flags.ignore_permissions = True
 	pi.set_missing_values()

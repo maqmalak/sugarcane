@@ -25,6 +25,7 @@ const MANAGERS = ["Cane Manager", "Cane Admin"];
 const INDENT_ROLES = [...MANAGERS, "Indent Clerk", "Circle Officer", "MIS Viewer"];
 const ELP_ROLES = [...MANAGERS, "ELP Auditor", "Token Clerk", "Yard Supervisor", "LP Operator", "Depot User", "MIS Viewer"];
 const PROC_ROLES = [...MANAGERS, "Token Clerk", "Gross Weighman", "Tare Weighman", "Yard Supervisor", "Cane Cashier", "Cane Accountant", "MIS Viewer"];
+const DEPOT_ROLES = [...MANAGERS, "Depot User", "Gross Weighman", "Tare Weighman", "Yard Supervisor", "Cane Accountant", "MIS Viewer"];
 const SURVEY_ROLES = [...MANAGERS, "Circle Officer", "Surveyor", "MIS Viewer"];
 const FF_ROLES = [...MANAGERS, "Circle Officer"];
 
@@ -130,6 +131,21 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
     ...docGroups("procurement", PROC_ROLES),
     { title: "Reports", items: [{ label: "Procurement reports", to: "/reports?g=Procurement", icon: BarChart3 }] },
   ],
+  depot: [
+    {
+      title: "Depots",
+      items: [
+        { label: "Depot dashboard", to: "/depot", icon: Sparkles, roles: DEPOT_ROLES },
+        { label: "Buy cane at a depot", to: "/procurement/gate?depot=", icon: Ticket, roles: [...MANAGERS, "Depot User"] },
+        { label: "Dispatch trucks", to: "/depot/dispatch", icon: Truck, roles: DEPOT_ROLES },
+        { label: "Weighbridge", to: "/procurement/weighbridge", icon: Weight, roles: [...MANAGERS, "Depot User", "Gross Weighman", "Tare Weighman"] },
+      ],
+    },
+    ...docGroups("depot", DEPOT_ROLES),
+    { title: "Setup", items: [{ label: "Depots", to: "/setup/d/cane-depot", icon: Warehouse, roles: MANAGERS },
+      { label: "Weighbridge terminals", to: "/setup/d/weighbridge-terminal", icon: Weight, roles: MANAGERS }] },
+    { title: "Reports", items: [{ label: "Depot reports", to: "/reports?g=Depot", icon: BarChart3 }] },
+  ],
   reports: [{ title: "Reports", items: [{ label: "Report Centre", to: "/reports", icon: FileSpreadsheet }] }],
   approvals: [{ title: "Approvals", items: [{ label: "Inbox", to: "/approvals/inbox", icon: Inbox }, { label: "Overlap reviews", to: "/survey/d/survey-overlap-review", icon: Layers }] }],
   mill: [
@@ -153,6 +169,7 @@ export const APP_LABELS: Record<string, string> = {
   indenting: "Indenting",
   elp: "ELP",
   procurement: "Cane Procurement",
+  depot: "Depots",
   "field-force": "Field Force",
   setup: "Sugar Setup",
   reports: "Report Centre",
@@ -191,6 +208,8 @@ export const ROUTE_TITLES: Record<string, string> = {
   yard: "Yard",
   counter: "Cash Counter",
   "day-close": "Day Close",
+  depot: "Depots",
+  dispatch: "Dispatch",
   generate: "Generate",
   lookup: "Look up",
   elp: "ELP",

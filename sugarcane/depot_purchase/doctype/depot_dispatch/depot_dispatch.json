@@ -1,0 +1,596 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "status",
+  "depot",
+  "source",
+  "season",
+  "company",
+  "cb1",
+  "dispatch_day",
+  "received_day",
+  "expected_at",
+  "cb2",
+  "contractor",
+  "posted_out",
+  "posted_in",
+  "sb_vehicle",
+  "vehicle",
+  "vehicle_no",
+  "vehicle_type",
+  "cb_vehicle",
+  "driver_name",
+  "driver_cnic",
+  "driver_mobile",
+  "sb_depot",
+  "depot_tare_kg",
+  "depot_tare_at",
+  "cb_depot",
+  "depot_gross_kg",
+  "depot_gross_at",
+  "cb_depot2",
+  "dispatched_kg",
+  "depot_terminal",
+  "depot_by",
+  "sb_mill",
+  "mill_gross_kg",
+  "mill_gross_at",
+  "cb_mill",
+  "mill_tare_kg",
+  "mill_tare_at",
+  "cb_mill2",
+  "received_kg",
+  "mill_terminal",
+  "mill_by",
+  "sb_result",
+  "journey_minutes",
+  "shortage_kg",
+  "shortage_pct",
+  "allowed_shortage_pct",
+  "excess_shortage_kg",
+  "cb_result",
+  "freight_rate",
+  "freight_amount",
+  "shortage_value",
+  "recovery_amount",
+  "cb_result2",
+  "out_entry",
+  "gain_entry",
+  "in_entry",
+  "shortage_entry",
+  "freight_journal",
+  "sb_notes",
+  "remarks",
+  "weight_notes",
+  "amended_from",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "options": "DSP-.YY.-.#####",
+   "label": "Series",
+   "hidden": 1,
+   "reqd": 1,
+   "default": "DSP-.YY.-.#####"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "options": "Loading\nIn Transit\nAt Mill\nReceived\nCancelled",
+   "label": "Status",
+   "description": "Loading = empty truck weighed at the depot · In Transit = loaded and weighed, on the road · At Mill = loaded weight taken at the mill · Received = emptied and weighed out",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "bold": 1,
+   "default": "Loading"
+  },
+  {
+   "fieldname": "depot",
+   "fieldtype": "Link",
+   "options": "Cane Depot",
+   "label": "Depot",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Link",
+   "options": "Cane Source",
+   "label": "Source",
+   "read_only": 1
+  },
+  {
+   "fieldname": "season",
+   "fieldtype": "Link",
+   "options": "Crushing Season",
+   "label": "Season",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "options": "Company",
+   "label": "Company",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "dispatch_day",
+   "fieldtype": "Date",
+   "label": "Dispatch Day",
+   "description": "Crushing day of the loaded weight at the depot",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "received_day",
+   "fieldtype": "Date",
+   "label": "Received Day",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "expected_at",
+   "fieldtype": "Datetime",
+   "label": "Expected at Mill",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contractor",
+   "fieldtype": "Link",
+   "options": "Supplier",
+   "label": "Contractor",
+   "description": "Defaults to the depot's contractor"
+  },
+  {
+   "fieldname": "posted_out",
+   "fieldtype": "Check",
+   "label": "Dispatch Posted (stock out of the depot)",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "posted_in",
+   "fieldtype": "Check",
+   "label": "Receipt Posted (stock into the yard, freight)",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "sb_vehicle",
+   "fieldtype": "Section Break",
+   "label": "Truck"
+  },
+  {
+   "fieldname": "vehicle",
+   "fieldtype": "Link",
+   "options": "Sugar Vehicle",
+   "label": "Vehicle",
+   "read_only": 1
+  },
+  {
+   "fieldname": "vehicle_no",
+   "fieldtype": "Data",
+   "label": "Vehicle No",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "vehicle_type",
+   "fieldtype": "Link",
+   "options": "Vehicle Type",
+   "label": "Vehicle Type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cb_vehicle",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "driver_name",
+   "fieldtype": "Data",
+   "label": "Driver Name"
+  },
+  {
+   "fieldname": "driver_cnic",
+   "fieldtype": "Data",
+   "label": "Driver CNIC"
+  },
+  {
+   "fieldname": "driver_mobile",
+   "fieldtype": "Data",
+   "label": "Driver Mobile"
+  },
+  {
+   "fieldname": "sb_depot",
+   "fieldtype": "Section Break",
+   "label": "At the Depot"
+  },
+  {
+   "fieldname": "depot_tare_kg",
+   "fieldtype": "Int",
+   "label": "Empty (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "depot_tare_at",
+   "fieldtype": "Datetime",
+   "label": "Empty At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_depot",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "depot_gross_kg",
+   "fieldtype": "Int",
+   "label": "Loaded (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "depot_gross_at",
+   "fieldtype": "Datetime",
+   "label": "Loaded At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_depot2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "dispatched_kg",
+   "fieldtype": "Int",
+   "label": "Dispatched (kg)",
+   "read_only": 1,
+   "in_list_view": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "depot_terminal",
+   "fieldtype": "Link",
+   "options": "Weighbridge Terminal",
+   "label": "Depot Terminal",
+   "read_only": 1
+  },
+  {
+   "fieldname": "depot_by",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Weighed By",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_mill",
+   "fieldtype": "Section Break",
+   "label": "At the Mill"
+  },
+  {
+   "fieldname": "mill_gross_kg",
+   "fieldtype": "Int",
+   "label": "Loaded (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "mill_gross_at",
+   "fieldtype": "Datetime",
+   "label": "Loaded At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_mill",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "mill_tare_kg",
+   "fieldtype": "Int",
+   "label": "Empty (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "mill_tare_at",
+   "fieldtype": "Datetime",
+   "label": "Empty At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_mill2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "received_kg",
+   "fieldtype": "Int",
+   "label": "Received (kg)",
+   "read_only": 1,
+   "in_list_view": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "mill_terminal",
+   "fieldtype": "Link",
+   "options": "Weighbridge Terminal",
+   "label": "Mill Terminal",
+   "read_only": 1
+  },
+  {
+   "fieldname": "mill_by",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Weighed By",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_result",
+   "fieldtype": "Section Break",
+   "label": "Shortage and Freight"
+  },
+  {
+   "fieldname": "journey_minutes",
+   "fieldtype": "Int",
+   "label": "Journey (min)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "shortage_kg",
+   "fieldtype": "Int",
+   "label": "Shortage (kg)",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "shortage_pct",
+   "fieldtype": "Percent",
+   "label": "Shortage %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "allowed_shortage_pct",
+   "fieldtype": "Percent",
+   "label": "Allowed %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "excess_shortage_kg",
+   "fieldtype": "Int",
+   "label": "Shortage Above Allowance (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_result",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "freight_rate",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Freight (per maund received)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "freight_amount",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Freight",
+   "read_only": 1
+  },
+  {
+   "fieldname": "shortage_value",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Shortage Value",
+   "read_only": 1
+  },
+  {
+   "fieldname": "recovery_amount",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Recovered from Contractor",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_result2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "out_entry",
+   "fieldtype": "Link",
+   "options": "Stock Entry",
+   "label": "Stock Out (depot → transit)",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "gain_entry",
+   "fieldtype": "Link",
+   "options": "Stock Entry",
+   "label": "Depot Gain Entry",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "in_entry",
+   "fieldtype": "Link",
+   "options": "Stock Entry",
+   "label": "Stock In (transit → yard)",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "shortage_entry",
+   "fieldtype": "Link",
+   "options": "Stock Entry",
+   "label": "Shortage Entry",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "freight_journal",
+   "fieldtype": "Link",
+   "options": "Journal Entry",
+   "label": "Freight Journal",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "sb_notes",
+   "fieldtype": "Section Break",
+   "label": "Notes",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "weight_notes",
+   "fieldtype": "Small Text",
+   "label": "Weight Notes",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "options": "Depot Dispatch",
+   "label": "Amended From",
+   "read_only": 1,
+   "no_copy": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "label": "Demo Record",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1,
+   "default": "0"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Depot Purchase",
+ "name": "Depot Dispatch",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Cane Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Cane Manager",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Depot User",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "submit": 1,
+   "print": 1,
+   "report": 1
+  },
+  {
+   "role": "Gross Weighman",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Tare Weighman",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Yard Supervisor",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Token Clerk",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Cane Accountant",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "MIS Viewer",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "sort_field": "depot_gross_at",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "is_submittable": 1,
+ "autoname": "naming_series:",
+ "title_field": "vehicle_no",
+ "search_fields": "vehicle_no,depot,dispatch_day"
+}

@@ -21,6 +21,8 @@ const WeighbridgePage = proc("WeighbridgePage");
 const YardPage = proc("YardPage");
 const CounterPage = proc("CounterPage");
 const DayClosePage = proc("DayClosePage");
+const DepotDashboardPage = lazy(() => import("@/sc/pages/DepotPages").then((m) => ({ default: m.DepotDashboardPage })));
+const DispatchPage = lazy(() => import("@/sc/pages/DepotPages").then((m) => ({ default: m.DispatchPage })));
 const ApprovalsInboxPage = lazy(() => import("@/sc/pages/ApprovalsInboxPage").then((m) => ({ default: m.ApprovalsInboxPage })));
 const SeasonQuotaPage = lazy(() => import("@/sc/pages/SeasonQuotaPage").then((m) => ({ default: m.SeasonQuotaPage })));
 const FieldForceInsightsPage = lazy(() => import("@/sc/pages/FieldForceInsightsPage").then((m) => ({ default: m.FieldForceInsightsPage })));
@@ -104,6 +106,10 @@ export function AppRoutes() {
         <Route path="procurement/day-close" element={sugar(<DayClosePage />)} />
         <Route path="procurement/d/:slug" element={sugar(<MetaDocPage mode="list" />)} />
         <Route path="procurement/d/:slug/:name" element={sugar(<MetaDocPage mode="form" />)} />
+        <Route path="depot" element={sugar(<DepotDashboardPage />)} />
+        <Route path="depot/dispatch" element={sugar(<DispatchPage />)} />
+        <Route path="depot/d/:slug" element={sugar(<MetaDocPage mode="list" />)} />
+        <Route path="depot/d/:slug/:name" element={sugar(<MetaDocPage mode="form" />)} />
         <Route path="mill/tokens" element={<Navigate to="/procurement/gate" replace />} />
         <Route path="mill/yard" element={<Navigate to="/procurement/yard" replace />} />
         <Route path="mill/weighbridge" element={<Navigate to="/procurement/weighbridge" replace />} />

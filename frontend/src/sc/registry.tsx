@@ -26,7 +26,7 @@ const GrowerPhotos = lazy(() => import("./components/PhotoGallery").then((m) => 
 const AreaGeoEditor = lazy(() => import("./pages/AreaMapPage").then((m) => ({ default: m.Editor })));
 const later = (node: ReactNode) => <Suspense fallback={<div className="h-24 animate-pulse rounded-2xl border bg-muted/40" />}>{node}</Suspense>;
 
-export type ScApp = "setup" | "survey" | "field-force" | "indenting" | "elp" | "procurement";
+export type ScApp = "setup" | "survey" | "field-force" | "indenting" | "elp" | "procurement" | "depot";
 
 export interface ScDoc {
   doctype: string;
@@ -83,6 +83,8 @@ export const SC_DOCS: ScDoc[] = [
   { doctype: "TPT Bilty", label: "TPT Bilties", app: "procurement", group: "Records", icon: Truck },
   { doctype: "Daily Cane Purchase", label: "Daily Cane Purchases", app: "procurement", group: "Records", icon: Warehouse },
   { doctype: "Weighment Reading Log", label: "Weighbridge Readings", app: "procurement", group: "Logs", icon: ScrollText },
+  // ------------------------------------------------------------------ depot
+  { doctype: "Depot Dispatch", label: "Depot Dispatches", app: "depot", group: "Records", icon: Truck },
 ];
 
 export const docBase = (doctype: string) => {
@@ -207,4 +209,4 @@ export const ENHANCERS: Record<string, Enhancer> = {
   },
 };
 
-export const APP_ICON: Record<ScApp, LucideIcon> = { setup: Boxes, survey: Leaf, "field-force": Users, indenting: ClipboardList, elp: Truck, procurement: Scale };
+export const APP_ICON: Record<ScApp, LucideIcon> = { setup: Boxes, survey: Leaf, "field-force": Users, indenting: ClipboardList, elp: Truck, procurement: Scale, depot: Warehouse };

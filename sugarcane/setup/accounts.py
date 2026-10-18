@@ -66,9 +66,13 @@ def setup_company(company: str) -> dict:
 		"subsidy_purchase_account": _account(company, abbr, "Subsidy Purchase", cost_of_sales),
 		"additional_subsidy_account": _account(company, abbr, "Additional Subsidy", cost_of_sales),
 		"road_cess_expense_account": _account(company, abbr, "Road Cess - Mill Share", cost_of_sales),
+		"freight_account": _account(company, abbr, "Cane Freight - Depots", cost_of_sales),
+		"depot_commission_account": _account(company, abbr, "Depot Commission", cost_of_sales),
+		"transit_shortage_account": _account(company, abbr, "Cane Transit Shortage", cost_of_sales),
 	}
 
 	warehouse = _warehouse(company, abbr)
+	transit = _warehouse(company, abbr, "Cane In Transit")
 	_maund_uom()
 	item = _cane_item(company, warehouse, accounts["cane_purchase_govt_account"])
 	contractor_group = _supplier_group(CONTRACTOR_GROUP)
@@ -76,7 +80,7 @@ def setup_company(company: str) -> dict:
 	supplier = _daily_supplier(company, accounts["cane_purchase_clearing_account"])
 
 	settings = frappe.get_single("Sugar Settings")
-	values = {**accounts, "company": company, "cane_yard_warehouse": warehouse, "cane_item": item,
+	values = {**accounts, "company": company, "cane_yard_warehouse": warehouse, "transit_warehouse": transit, "cane_item": item,
 		"daily_purchase_supplier": supplier, "contractor_supplier_group": contractor_group,
 		"cost_center": co.cost_center}
 	for field, value in values.items():
@@ -84,17 +88,27 @@ def setup_company(company: str) -> dict:
 			settings.set(field, value)
 	settings.flags.ignore_permissions = True
 	settings.save()
+	for depot in frappe.get_all("Cane Depot", filters={"warehouse": ["is", "not set"]}, pluck="name"):
+		frappe.db.set_value("Cane Depot", depot, "warehouse", depot_warehouse(depot, company), update_modified=False)
 	return values
 
 
-def _warehouse(company, abbr):
-	name = f"Cane Yard - {abbr}"
+def _warehouse(company, abbr, warehouse_name="Cane Yard"):
+	name = f"{warehouse_name} - {abbr}"
 	if frappe.db.exists("Warehouse", name):
 		return name
 	parent = frappe.db.get_value("Warehouse", {"company": company, "is_group": 1, "parent_warehouse": ["in", ["", None]]}, "name")
-	wh = frappe.get_doc({"doctype": "Warehouse", "warehouse_name": "Cane Yard", "company": company, "parent_warehouse": parent})
+	wh = frappe.get_doc({"doctype": "Warehouse", "warehouse_name": warehouse_name, "company": company, "parent_warehouse": parent})
 	wh.insert(ignore_permissions=True)
 	return wh.name
+
+
+def depot_warehouse(depot: str, company: str | None = None) -> str:
+	"""Each depot holds the cane bought there in its own warehouse until it is dispatched to the mill."""
+	company = company or frappe.db.get_single_value("Sugar Settings", "company")
+	abbr = frappe.get_cached_value("Company", company, "abbr")
+	label = depot if depot.lower().startswith("depot") else f"Depot {depot}"
+	return _warehouse(company, abbr, label)
 
 
 def _maund_uom():

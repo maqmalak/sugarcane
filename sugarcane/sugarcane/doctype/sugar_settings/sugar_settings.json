@@ -74,6 +74,10 @@
   "stock_tab",
   "cane_item",
   "cane_yard_warehouse",
+  "transit_warehouse",
+  "freight_account",
+  "depot_commission_account",
+  "transit_shortage_account",
   "cb_stock",
   "daily_purchase_supplier",
   "contractor_supplier_group"
@@ -485,6 +489,30 @@
    "fieldtype": "Link",
    "label": "Cane Yard Warehouse",
    "options": "Warehouse"
+  },
+  {
+   "fieldname": "transit_warehouse",
+   "fieldtype": "Link",
+   "options": "Warehouse",
+   "label": "Cane In Transit Warehouse"
+  },
+  {
+   "fieldname": "freight_account",
+   "fieldtype": "Link",
+   "options": "Account",
+   "label": "Depot Freight Account"
+  },
+  {
+   "fieldname": "depot_commission_account",
+   "fieldtype": "Link",
+   "options": "Account",
+   "label": "Depot Commission Account"
+  },
+  {
+   "fieldname": "transit_shortage_account",
+   "fieldtype": "Link",
+   "options": "Account",
+   "label": "Transit Shortage Account"
   },
   {
    "fieldname": "cb_stock",

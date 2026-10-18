@@ -34,6 +34,7 @@ FEED = {
 	"LP Vehicle Registration": ("elp", "registered_at", "vehicle_no", "/elp/d/lp-vehicle-registration"),
 	"Cane Purchase Receipt": ("procurement", "posted_at", "grower_name", "/procurement/d/cane-purchase-receipt"),
 	"Daily Cane Purchase": ("procurement", "crushing_day", "name", "/procurement/d/daily-cane-purchase"),
+	"Depot Dispatch": ("procurement", "dispatch_day", "vehicle_no", "/depot/d/depot-dispatch"),
 	"Journal Entry": ("finance", "posting_date", "title", None),
 	"Payment Entry": ("finance", "posting_date", "party_name", None),
 }
@@ -130,6 +131,11 @@ def _alerts(approvals_total):
 		open_days = frappe.db.sql("""select count(distinct posting_date) from `tabCane Purchase Receipt` where docstatus = 1
 			and ifnull(daily_purchase, '') = '' and posting_date <= %s""", ended)[0][0]
 		add("sc_day_close", open_days, _("Crushing days not closed"), _("Raise the daily cane purchase invoice"), "/procurement/day-close", "amber")
+	if _can("Depot Dispatch"):
+		late = frappe.db.sql("""select count(*) from `tabDepot Dispatch` where docstatus = 1 and status = 'In Transit'
+			and expected_at < %s""", frappe.utils.add_to_date(frappe.utils.now_datetime(), hours=-1))[0][0]
+		add("sc_depot_overdue", late, _("Depot trucks overdue"), _("Later than the depot's journey time to the mill"),
+			"/depot/dispatch?status=In%20Transit", "red")
 	add("approvals", approvals_total, _("Approvals waiting"), _("Workflow and HR requests waiting for you"), "/approvals/inbox", "yellow")
 	return out
 
@@ -242,6 +248,9 @@ def _tiles():
 		maund = frappe.db.sql("select ifnull(sum(payable_maund), 0) from `tabCane Purchase Receipt` where docstatus = 1 and posting_date = %s",
 			crushing_day())[0][0]
 		put("procurement", f"{round(maund):,}", _("maund bought today"))
+	if _can("Depot Dispatch"):
+		put("depot", len(frappe.get_list("Depot Dispatch", filters={"docstatus": 1, "status": ["in", ["In Transit", "At Mill"]]}, pluck="name",
+			limit_page_length=0)), _("trucks on the road"))
 	from sugarcane.exports import catalogue
 
 	put("reports", len(catalogue()), _("reports"))

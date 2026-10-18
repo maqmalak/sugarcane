@@ -1,7 +1,7 @@
 # MicroMax Sugar Mills Ltd. — Sugar ERP Architecture (Phase 0, for approval)
 
 App `sugarcane` · site `sugarcane` · Frappe 16.34 / ERPNext 16.35 / HRMS · Python 3.14 · Node 24 · MariaDB
-Status: **approved 2026-10-13** (v3: decisions below). Phases 0–3 and ELP are built; see `docs/PHASE_0.md` … `PHASE_3.md`, `ELP.md`.
+Status: **approved 2026-10-13** (v3: decisions below). Phases 0–4 and ELP are built; see `docs/PHASE_0.md` … `PHASE_4.md`, `ELP.md`.
 
 ### Decisions (2026-10-13)
 
@@ -231,6 +231,10 @@ Indent Batch (S; authorizing the batch authorizes its indents) · generation fro
 ### Phase 4 — Vehicle Tracking & Depot
 LP Vehicle Registration (S: uuid, LP/depot, photos, GPS, in-geofence, blur score, gate status, token) · Depot Weighment
 (S) → Depot CPR through the same §4 path.
+*As built (see `PHASE_4.md`):*
+- Depot purchases use the Phase 3 token / Cane Weighment / CPR, with a purchase depot and the depot's terminal, rather than a separate Depot Weighment.
+- **Depot Dispatch** carries the cane to the mill: transit shortage, freight and recovery post at day close.
+- LP Vehicle Registration is the ELP module (`ELP.md`).
 
 ### Phase 5 — Laboratory & Production
 Lab Sample (S: type, hour, shift, pol, brix, purity, moisture…) · Daily Manufacturing Report (S, W: Prepared → Approved) ·

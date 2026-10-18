@@ -21,7 +21,7 @@ class DailyCanePurchase(Document):
 			rows = day_cprs(self.crushing_day, self.name if not self.is_new() else None)
 			for r in rows:
 				self.append("items", {"cpr": r.name, "grower": r.grower, "grower_name": r.grower_name, "payable_kg": r.payable_kg,
-					"govt_value": r.govt_value, "journal_entry": r.journal_entry})
+					"warehouse": r.warehouse or cfg.warehouse, "govt_value": r.govt_value, "journal_entry": r.journal_entry})
 			self.cpr_count = len(rows)
 			self.total_payable_kg = sum(cint(r.payable_kg) for r in rows)
 			self.total_payable_maund = flt(self.total_payable_kg / cfg.maund_kg, 3)
@@ -31,8 +31,15 @@ class DailyCanePurchase(Document):
 			self.status = "Draft"
 
 	def before_submit(self):
-		if not self.items:
-			frappe.throw(_("No CPRs on crushing day {0}").format(frappe.utils.formatdate(self.crushing_day)))
+		from sugarcane.depot_purchase.depot import day_movements, pending_before
+
+		mv = day_movements(self.crushing_day)
+		if not self.items and not (mv["out"] or mv["in"]):
+			frappe.throw(_("Nothing to close on crushing day {0}: no CPRs and no depot dispatches").format(
+				frappe.utils.formatdate(self.crushing_day)))
+		earlier = pending_before(self.crushing_day, self.season)
+		if earlier:
+			frappe.throw(_("Close the earlier crushing day(s) first: {0}").format(", ".join(earlier)), title=_("Days close in order"))
 		if now_datetime() < self.to_time and not (self.flags.force_close or frappe.flags.in_test or cint(self.is_demo)):
 			frappe.throw(_("Crushing day {0} ends at {1}. Close it after that.").format(frappe.utils.formatdate(self.crushing_day),
 				frappe.utils.format_datetime(self.to_time, "dd MMM HH:mm")), title=_("Day not over"))
@@ -43,18 +50,33 @@ class DailyCanePurchase(Document):
 	def on_submit(self):
 		from sugarcane.cane_procurement.procurement import make_purchase_invoice, reconcile_day
 
-		pi = make_purchase_invoice(self)
-		ok = reconcile_day(self, pi)
+		from sugarcane.depot_purchase.depot import post_day
+
+		pi, ok = None, True
+		if self.items:
+			pi = make_purchase_invoice(self)
+			ok = reconcile_day(self, pi)
+			self.append("postings", {"kind": "Purchase Invoice", "voucher": pi, "description": _("Cane bought, {0} CPRs").format(len(self.items)),
+				"amount": self.total_govt_value}).db_insert()
+		for row in post_day(self):
+			self.append("postings", row).db_insert()
 		self.db_set({"purchase_invoice": pi, "reconciled": 1 if ok else 0, "status": "Invoiced"})
 		for it in self.items:
 			frappe.db.set_value("Cane Purchase Receipt", it.cpr, "daily_purchase", self.name, update_modified=False)
 
 	def before_cancel(self):
+		later = frappe.db.get_value("Daily Cane Purchase", {"season": self.season, "docstatus": 1, "crushing_day": [">", self.crushing_day]},
+			"name", order_by="crushing_day desc")
+		if later:
+			frappe.throw(_("Cancel the later closed day {0} first (days reopen from the latest)").format(later))
 		self.ignore_linked_doctypes = ("Purchase Invoice", "Cane Purchase Receipt", "GL Entry", "Stock Ledger Entry", "Payment Ledger Entry")
 
 	def on_cancel(self):
 		from erpnext.accounts.utils import unlink_ref_doc_from_payment_entries
 
+		from sugarcane.depot_purchase.depot import unpost_day
+
+		unpost_day(self)
 		if self.purchase_invoice and frappe.db.get_value("Purchase Invoice", self.purchase_invoice, "docstatus") == 1:
 			pi = frappe.get_doc("Purchase Invoice", self.purchase_invoice)
 			unlink_ref_doc_from_payment_entries(pi)

@@ -9,6 +9,7 @@
   "grower",
   "grower_name",
   "payable_kg",
+  "warehouse",
   "govt_value",
   "journal_entry",
   "clearing_row"
@@ -41,6 +42,14 @@
    "fieldname": "payable_kg",
    "fieldtype": "Int",
    "label": "Payable (kg)",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "options": "Warehouse",
+   "label": "Warehouse",
    "read_only": 1,
    "in_list_view": 1
   },

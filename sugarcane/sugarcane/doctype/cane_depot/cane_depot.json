@@ -12,6 +12,9 @@
   "cb_main",
   "contractor",
   "depot_rate",
+  "freight_rate",
+  "allowed_shortage_pct",
+  "warehouse",
   "target_maund",
   "is_active",
   "sb_geo",
@@ -76,8 +79,30 @@
   {
    "fieldname": "depot_rate",
    "fieldtype": "Currency",
-   "label": "Depot Rate (per maund)",
-   "non_negative": 1
+   "label": "Commission (per maund bought)",
+   "non_negative": 1,
+   "description": "Paid to the depot contractor on the payable maund bought at the depot (posted at day close)"
+  },
+  {
+   "fieldname": "freight_rate",
+   "fieldtype": "Currency",
+   "label": "Freight to Mill (per maund received)",
+   "description": "Paid to the contractor on the maund received at the mill (posted at day close)"
+  },
+  {
+   "fieldname": "allowed_shortage_pct",
+   "fieldtype": "Percent",
+   "label": "Allowed Transit Shortage %",
+   "default": "1",
+   "description": "Shortage above this is recovered from the contractor at the cane's cost"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "options": "Warehouse",
+   "label": "Warehouse",
+   "read_only": 1,
+   "description": "Created automatically: cane bought here is in stock here until it is dispatched"
   },
   {
    "fieldname": "target_maund",
@@ -134,7 +159,7 @@
    "fieldname": "sb_journey",
    "fieldtype": "Section Break",
    "label": "Journey to Mill",
-   "description": "Measured from the mill pin (Sugar Settings). Road distance comes from the drawn route, or the distance you enter, or the straight line \u00d7 road factor. Standard times use the loaded / empty speeds in Sugar Settings unless entered by hand."
+   "description": "Measured from the mill pin (Sugar Settings). Road distance comes from the drawn route, or the distance you enter, or the straight line × road factor. Standard times use the loaded / empty speeds in Sugar Settings unless entered by hand."
   },
   {
    "fieldname": "straight_km",
@@ -201,7 +226,7 @@
   {
    "fieldname": "route",
    "fieldtype": "Code",
-   "label": "Route (GeoJSON line, source \u2192 mill)",
+   "label": "Route (GeoJSON line, source → mill)",
    "options": "JSON",
    "description": "Draw it on the map in the React app; its length becomes the road distance.",
    "hidden": 1

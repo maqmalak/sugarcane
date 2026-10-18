@@ -45,12 +45,13 @@ def _cleanup(season):
 	frappe.set_user("Administrator")
 	for b in frappe.get_all("TPT Bilty", filters={"season": season, "status": "Paid"}, pluck="name"):
 		p.reverse_bilty_payment(b, "test cleanup")
-	for dt, f in (("Daily Cane Purchase", {"season": season}), ("Cane Purchase Receipt", {"season": season}), ("Cane Token", {"season": season})):
-		for name in frappe.get_all(dt, filters={**f, "docstatus": 1}, pluck="name"):
+	for dt, f in (("Daily Cane Purchase", {"season": season}), ("Depot Dispatch", {"season": season}),
+			("Cane Purchase Receipt", {"season": season}), ("Cane Token", {"season": season})):
+		for name in frappe.get_all(dt, filters={**f, "docstatus": 1}, pluck="name", order_by="creation desc"):
 			d = frappe.get_doc(dt, name)
 			d.flags.ignore_permissions = True
 			d.cancel()
-	for dt in ("Daily Cane Purchase", "TPT Bilty", "Cane Purchase Receipt", "Cane Weighment", "Cane Token"):
+	for dt in ("Depot Dispatch", "Daily Cane Purchase", "TPT Bilty", "Cane Purchase Receipt", "Cane Weighment", "Cane Token"):
 		for name in frappe.get_all(dt, filters={"season": season}, pluck="name"):
 			frappe.db.delete(dt, {"name": name})
 			if dt == "Daily Cane Purchase":
@@ -61,7 +62,13 @@ def _reading(kg, at=None, stable=1):
 	p._cache_reading(TERMINAL, {"weight_kg": kg, "stable": stable, "raw": "", "source": "Simulator", "at": str(at or frappe.utils.now_datetime())})
 
 
-class TestProcurement(IntegrationTestCase):
+class ProcurementBase(IntegrationTestCase):
+	"""Season, indents for a fresh grower per test, fixtures and helpers; each test class has its own CNIC prefix and field
+	spot so their surveys never overlap."""
+
+	CNIC = "91401"
+	LAT_OFFSET = 0.62
+
 	@classmethod
 	def setUpClass(cls):
 		super().setUpClass()
@@ -86,7 +93,7 @@ class TestProcurement(IntegrationTestCase):
 		_range(self.season)
 		_rule(self.season)
 		n = sorted(m for m in dir(self) if m.startswith("test_")).index(self._testMethodName)
-		s = _survey(f"91401-00000{n:02d}-1", square(LAT + 0.62 + n * 0.01, LNG, 100))
+		s = _survey(f"{self.CNIC}-00000{n:02d}-1", square(LAT + self.LAT_OFFSET + n * 0.01, LNG, 100))
 		out = generator.generate(self.season, START, END, NORTH, today=START)
 		api.authorize_batch(next(b["name"] for b in out["batches"] if b["circle"] == NORTH))
 		self.indents = frappe.get_all("Cane Indent", filters={"season": self.season, "grower": s.grower, "docstatus": 1},
@@ -119,6 +126,8 @@ class TestProcurement(IntegrationTestCase):
 		elp.arrive(name, [{"view": v, "data": jpeg()} for v in VIEWS[:3]], MILL[0] + 0.0005, MILL[1], arrived_at=f"{indent.indent_date} 09:00:00")
 		return name
 
+
+class TestProcurement(ProcurementBase):
 	# ------------------------------------------------------------ rates and the ELP rule
 	def test_rates_and_elp_rule(self):
 		from sugarcane.vehicle_tracking import elp

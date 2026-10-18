@@ -19,7 +19,7 @@ from frappe.utils import add_days, cint, flt, get_datetime, getdate, now_datetim
 
 from sugarcane.cane_procurement import procurement as p
 
-TOKEN_FIELDS = ["name", "status", "entry_type", "crushing_day", "issued_at", "issued_by", "indent", "elp_registration", "lp_verified",
+TOKEN_FIELDS = ["name", "status", "entry_type", "purchase_depot", "crushing_day", "issued_at", "issued_by", "indent", "elp_registration", "lp_verified",
 	"grower", "grower_name", "father_name", "circle", "village_name", "source", "claimed_source", "point_name", "vehicle_no",
 	"vehicle_type", "lane", "driver_name", "driver_cnic", "weighment", "gross_at", "cpr", "completed_at", "gate_reason",
 	"govt_rate", "tpt_rate", "subsidy_rate", "additional_subsidy_rate", "road_cess_pct", "binding_kg_per_quintal", "print_count"]
@@ -39,19 +39,22 @@ def masters() -> dict:
 			"max_gross_kg", "min_tare_kg", "max_tare_kg"], order_by="name"),
 		"day": str(p.crushing_day()), "gate_source": frappe.db.get_value("Cane Source", {"source_type": "Factory Gate"}, "name"),
 		"roles": sorted(set(frappe.get_roles()) & (p.GATE_ROLES | p.WEIGH_ROLES | p.CASH_ROLES | p.CLOSE_ROLES)),
+		"depots": p.user_depots(),
+		"at_mill": bool((p.GATE_ROLES - {p.DEPOT_ROLE}) & set(frappe.get_roles())),
 	}
 
 
 @frappe.whitelist(methods=["GET"])
-def find(q: str) -> list:
+def find(q: str, purchase_depot: str | None = None) -> list:
 	p.need(p.GATE_ROLES | {"Yard Supervisor"}, _("use the gate"))
-	return [_clean(o) for o in p.find(q)]
+	return [_clean(o) for o in p.find(q, purchase_depot or None)]
 
 
 @frappe.whitelist(methods=["GET"])
-def offer(indent: str | None = None, elp_registration: str | None = None, vehicle_type: str | None = None) -> dict:
+def offer(indent: str | None = None, elp_registration: str | None = None, vehicle_type: str | None = None,
+		purchase_depot: str | None = None) -> dict:
 	p.need(p.GATE_ROLES | {"Yard Supervisor"}, _("use the gate"))
-	o = _clean(p.offer(indent or None, elp_registration or None))
+	o = _clean(p.offer(indent or None, elp_registration or None, purchase_depot=purchase_depot or None))
 	vt = vehicle_type or o["vehicle"].get("vehicle_type")
 	if vt and not o["blocks"]:
 		o["rates"] = p.resolve_rates(o["season"], o["circle"], o["source"], vt)
@@ -60,9 +63,9 @@ def offer(indent: str | None = None, elp_registration: str | None = None, vehicl
 
 @frappe.whitelist(methods=["POST"])
 def issue(indent=None, elp_registration=None, vehicle_no=None, vehicle_type=None, driver_name=None, driver_cnic=None,
-		driver_mobile=None, gate_reason=None) -> dict:
+		driver_mobile=None, gate_reason=None, purchase_depot=None) -> dict:
 	tok = p.issue_token(indent or None, elp_registration or None, vehicle_no, vehicle_type, driver_name, driver_cnic, driver_mobile,
-		gate_reason)
+		gate_reason, purchase_depot=purchase_depot or None)
 	return token(tok.name)
 
 
@@ -88,8 +91,9 @@ def token(name: str) -> dict:
 
 
 @frappe.whitelist(methods=["GET"])
-def tokens(day: str | None = None, status: str | None = None, limit: int = 100) -> list:
-	filters = {"docstatus": ["<", 2] if status == "Cancelled" else 1, "crushing_day": getdate(day) if day else p.crushing_day()}
+def tokens(day: str | None = None, status: str | None = None, limit: int = 100, purchase_depot: str | None = None) -> list:
+	filters = {"docstatus": ["<", 2] if status == "Cancelled" else 1, "crushing_day": getdate(day) if day else p.crushing_day(),
+		"purchase_depot": purchase_depot or ["is", "not set"]}
 	if status:
 		filters["status"] = status
 	return frappe.get_list("Cane Token", filters=filters, fields=TOKEN_FIELDS, order_by="issued_at desc", limit_page_length=cint(limit))
@@ -107,7 +111,7 @@ def terminal() -> dict:
 		frappe.clear_last_message()
 		return {"terminal": None, "error": str(e), "ip": getattr(frappe.local, "request_ip", None)}
 	info = frappe.db.get_value("Weighbridge Terminal", t.name, ["name", "terminal_name", "weighbridge_no", "allowed_operations",
-		"indicator_protocol", "lane", "camera_front_url"], as_dict=True)
+		"indicator_protocol", "lane", "camera_front_url", "depot"], as_dict=True)
 	cfg = p.settings()
 	return {"terminal": info, "reading": p.latest_reading(t.name), "fresh_s": cfg.fresh_s, "min_kg": cfg.min_kg,
 		"ip": getattr(frappe.local, "request_ip", None), "can_manual": bool(p.MANUAL_ROLES & set(frappe.get_roles())),
@@ -124,11 +128,12 @@ def reading(weight_kg, stable=1, raw=None) -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
-def simulate(token=None, operation=None, weight_kg=None, stable=1) -> dict:
+def simulate(token=None, operation=None, weight_kg=None, stable=1, dispatch=None) -> dict:
 	from sugarcane.weighbridge.doctype.weighbridge_terminal.weighbridge_terminal import terminal_for_request
 
 	p.need(p.WEIGH_ROLES, _("use the weighbridge"))
-	return p.simulate(terminal_for_request().name, token or None, operation, weight_kg, stable)
+	vt = frappe.db.get_value("Depot Dispatch", dispatch, "vehicle_type") if dispatch else None
+	return p.simulate(terminal_for_request().name, token or None, operation, weight_kg, stable, vehicle_type=vt)
 
 
 @frappe.whitelist(methods=["POST"])
@@ -140,11 +145,11 @@ def capture(token: str, operation: str, manual_kg=None, note=None) -> dict:
 
 # ---------------------------------------------------------------- yard
 @frappe.whitelist(methods=["GET"])
-def yard() -> dict:
+def yard(depot: str | None = None) -> dict:
 	p.need(p.GATE_ROLES | p.WEIGH_ROLES | {"Yard Supervisor", "MIS Viewer"}, _("see the yard"))
 	cfg = p.settings()
 	now = now_datetime()
-	rows = frappe.get_all("Cane Token", filters={"docstatus": 1, "status": ["in", list(p.OPEN_TOKEN)]},
+	rows = frappe.get_all("Cane Token", filters={"docstatus": 1, "status": ["in", list(p.OPEN_TOKEN)], "purchase_depot": depot or ["is", "not set"]},
 		fields=["name", "status", "entry_type", "issued_at", "gross_at", "vehicle_no", "vehicle_type", "lane", "grower_name", "circle",
 			"point_name", "source", "weighment"], order_by="issued_at asc", limit=0)
 	gross = {w.name: w.gross_kg for w in frappe.get_all("Cane Weighment", filters={"name": ["in", [r.weighment for r in rows if r.weighment]]},
@@ -219,6 +224,15 @@ def days(limit: int = 30) -> dict:
 	rows = frappe.db.sql("""select posting_date day, count(*) cprs, sum(payable_kg) kg, sum(payable_maund) maund, sum(govt_value) govt_value,
 		sum(tpt_amount) tpt, sum(payable_cpr) payable, sum(case when ifnull(daily_purchase, '') = '' then 1 else 0 end) open_cprs
 		from `tabCane Purchase Receipt` where docstatus = 1 group by posting_date order by posting_date desc limit %s""", cint(limit), as_dict=True)
+	have = {getdate(r.day) for r in rows}
+	moves = frappe.db.sql("""select dispatch_day day from `tabDepot Dispatch` where docstatus = 1 and posted_out = 0
+		union select received_day from `tabDepot Dispatch` where docstatus = 1 and status = 'Received' and posted_in = 0""")
+	for (d,) in moves:  # days with only depot trucks to post
+		if d and getdate(d) not in have:
+			rows.append(frappe._dict(day=d, cprs=0, kg=0, maund=0, govt_value=0, tpt=0, payable=0, open_cprs=0))
+	trucks = dict(frappe.db.sql("""select day, count(*) from (select dispatch_day day from `tabDepot Dispatch` where docstatus = 1 and posted_out = 0
+		union all select received_day from `tabDepot Dispatch` where docstatus = 1 and status = 'Received' and posted_in = 0) x group by day"""))
+	rows.sort(key=lambda r: getdate(r.day), reverse=True)
 	dcps = {getdate(d.crushing_day): d for d in frappe.get_all("Daily Cane Purchase", filters={"docstatus": ["<", 2]},
 		fields=["name", "crushing_day", "docstatus", "status", "purchase_invoice", "reconciled", "total_govt_value", "remarks"])}
 	cur = p.crushing_day()
@@ -228,6 +242,7 @@ def days(limit: int = 30) -> dict:
 		r.dcp = dcps.get(getdate(r.day))
 		r.current = getdate(r.day) >= cur
 		r.open_tokens = cint(open_tokens.get(getdate(r.day)))
+		r.depot_moves = cint(trucks.get(getdate(r.day)))
 	return {"rows": rows, "current_day": str(cur), "can_close": bool(p.CLOSE_ROLES & set(frappe.get_roles()))}
 
 

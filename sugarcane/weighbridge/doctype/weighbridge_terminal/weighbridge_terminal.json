@@ -10,6 +10,7 @@
   "weighbridge_no",
   "allowed_operations",
   "lane",
+  "depot",
   "cb_main",
   "ip_address",
   "device_id",
@@ -52,6 +53,13 @@
    "fieldtype": "Link",
    "label": "Lane",
    "options": "Vehicle Lane"
+  },
+  {
+   "fieldname": "depot",
+   "fieldtype": "Link",
+   "options": "Cane Depot",
+   "label": "Depot",
+   "description": "A terminal at a depot weighs that depot's purchases and dispatch trucks. Empty = at the mill."
   },
   {
    "fieldname": "cb_main",

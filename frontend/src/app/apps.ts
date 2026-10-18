@@ -1,5 +1,5 @@
 import {
-  Banknote, Beaker, Boxes, ClipboardList, Factory, FileSpreadsheet, Gauge, Leaf, MapPinned, Truck, UserCog, Users,
+  Banknote, Beaker, Boxes, Warehouse, ClipboardList, Factory, FileSpreadsheet, Gauge, Leaf, MapPinned, Truck, UserCog, Users,
   Weight, type LucideIcon,
 } from "lucide-react";
 
@@ -87,6 +87,10 @@ export const APPS: AppTile[] = [
     roles: [...MANAGERS, "Token Clerk", "Gross Weighman", "Tare Weighman", "Yard Supervisor", "Cane Cashier", "Cane Accountant", "MIS Viewer"],
     description: "Gate tokens with rates, gross / tare from the weighbridge, CPRs posted to the ledgers, TPT bilty cash counter and the daily cane purchase invoice.",
     colorClass: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400", features: ["Gate token", "Weighbridge", "Yard board", "Cash counter", "Day close"] },
+  { id: "depot", label: "Depots", tagline: "Buy, hold & dispatch", group: "Mill Operations", icon: Warehouse, to: "/depot",
+    roles: [...MANAGERS, "Depot User", "Gross Weighman", "Tare Weighman", "Yard Supervisor", "Cane Accountant", "MIS Viewer"],
+    description: "Cane bought at depots on their own weighbridges, held in the depot, sent to the mill in contractor trucks; transit shortage, freight and commission.",
+    colorClass: "bg-violet-500/10 text-violet-600 dark:text-violet-400", features: ["Depot purchase", "Dispatch trucks", "Transit shortage", "Freight"] },
   { id: "elp", label: "ELP", tagline: "Electronic loading point", group: "Mill Operations", icon: Truck, to: "/elp",
     roles: [...MANAGERS, "ELP Auditor", "Token Clerk", "Yard Supervisor", "LP Operator", "Depot User", "MIS Viewer"],
     description: "Vehicles registered at loading points and depots with GPS and snapshots, gate arrival and photo verification by the audit team.",

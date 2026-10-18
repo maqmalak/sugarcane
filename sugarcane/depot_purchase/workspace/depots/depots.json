@@ -1,0 +1,142 @@
+{
+ "app": "sugarcane",
+ "charts": [],
+ "content": "[{\"id\": \"sc_dp_h1\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Shortcuts</b></span>\", \"col\": 12}}, {\"id\": \"sc_dp_s0\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Depot Dashboard\", \"col\": 3}}, {\"id\": \"sc_dp_s1\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Buy Cane at a Depot\", \"col\": 3}}, {\"id\": \"sc_dp_s2\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Dispatch Trucks\", \"col\": 3}}, {\"id\": \"sc_dp_s3\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Weighbridge\", \"col\": 3}}, {\"id\": \"sc_dp_sp\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"sc_dp_c1\", \"type\": \"card\", \"data\": {\"card_name\": \"Records\", \"col\": 4}}, {\"id\": \"sc_dp_c2\", \"type\": \"card\", \"data\": {\"card_name\": \"Reports\", \"col\": 4}}]",
+ "creation": "2026-10-18 20:00:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "assets",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "Depots",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Records",
+   "link_count": 3,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Depot Dispatch",
+   "link_count": 0,
+   "link_to": "Depot Dispatch",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Cane Depot",
+   "link_count": 0,
+   "link_to": "Cane Depot",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Weighbridge Terminal",
+   "link_count": 0,
+   "link_to": "Weighbridge Terminal",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Reports",
+   "link_count": 4,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Depot Dispatch Register",
+   "link_count": 0,
+   "link_to": "Depot Dispatch Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Transit Shortage",
+   "link_count": 0,
+   "link_to": "Transit Shortage",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Depot Stock",
+   "link_count": 0,
+   "link_to": "Depot Stock",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Depot Purchase Summary",
+   "link_count": 0,
+   "link_to": "Depot Purchase Summary",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-10-18 20:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Depot Purchase",
+ "name": "Depots",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 35.0,
+ "shortcuts": [
+  {
+   "color": "Purple",
+   "label": "Depot Dashboard",
+   "type": "URL",
+   "url": "/sugar/depot"
+  },
+  {
+   "color": "Blue",
+   "label": "Buy Cane at a Depot",
+   "type": "URL",
+   "url": "/sugar/procurement/gate?depot="
+  },
+  {
+   "color": "Orange",
+   "label": "Dispatch Trucks",
+   "type": "URL",
+   "url": "/sugar/depot/dispatch"
+  },
+  {
+   "color": "Green",
+   "label": "Weighbridge",
+   "type": "URL",
+   "url": "/sugar/procurement/weighbridge"
+  }
+ ],
+ "title": "Depots",
+ "type": "Workspace"
+}

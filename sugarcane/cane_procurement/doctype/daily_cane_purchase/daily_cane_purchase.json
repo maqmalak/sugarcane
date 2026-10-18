@@ -25,6 +25,8 @@
   "total_payable",
   "sb_items",
   "items",
+  "sb_postings",
+  "postings",
   "remarks",
   "amended_from",
   "is_demo"
@@ -163,6 +165,19 @@
    "options": "Daily Cane Purchase Item",
    "label": "CPRs",
    "read_only": 1
+  },
+  {
+   "fieldname": "sb_postings",
+   "fieldtype": "Section Break",
+   "label": "Depot Postings"
+  },
+  {
+   "fieldname": "postings",
+   "fieldtype": "Table",
+   "options": "Daily Cane Purchase Posting",
+   "label": "Postings",
+   "read_only": 1,
+   "description": "Depot stock moves, freight, shortage recovery and commission posted with this day"
   },
   {
    "fieldname": "remarks",

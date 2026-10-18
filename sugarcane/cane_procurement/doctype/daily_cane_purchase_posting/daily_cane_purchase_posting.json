@@ -1,0 +1,75 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "kind",
+  "voucher",
+  "description",
+  "amount",
+  "depot",
+  "dispatch"
+ ],
+ "fields": [
+  {
+   "fieldname": "kind",
+   "fieldtype": "Select",
+   "options": "Purchase Invoice\nStock Entry\nJournal Entry",
+   "label": "Kind",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "voucher",
+   "fieldtype": "Dynamic Link",
+   "options": "kind",
+   "label": "Voucher",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "What",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "Amount",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "depot",
+   "fieldtype": "Link",
+   "options": "Cane Depot",
+   "label": "Depot",
+   "read_only": 1
+  },
+  {
+   "fieldname": "dispatch",
+   "fieldtype": "Link",
+   "options": "Depot Dispatch",
+   "label": "Dispatch",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cane Procurement",
+ "name": "Daily Cane Purchase Posting",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0,
+ "istable": 1,
+ "editable_grid": 0
+}

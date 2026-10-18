@@ -192,18 +192,18 @@ interface Offer {
 interface VType { name: string; default_lane?: string; min_gross_kg: number; max_gross_kg: number; min_tare_kg: number; max_tare_kg: number }
 interface TokenRow { name: string; status: string; entry_type: string; issued_at: string; vehicle_no: string; vehicle_type: string; grower_name: string; point_name?: string; source: string; lane?: string; cpr?: string; print_count?: number }
 
-function OfferCard({ o, types, onIssued }: { o: Offer; types: VType[]; onIssued: (name: string) => void }) {
+function OfferCard({ o, types, onIssued, depot }: { o: Offer; types: VType[]; onIssued: (name: string) => void; depot?: string }) {
   const [v, setV] = useState({ vehicle_no: o.vehicle?.vehicle_no ?? "", vehicle_type: o.vehicle?.vehicle_type ?? "", driver_name: o.vehicle?.driver_name ?? "",
     driver_cnic: o.vehicle?.driver_cnic ?? "", driver_mobile: o.vehicle?.driver_mobile ?? "", gate_reason: "" });
   const [busy, setBusy] = useState(false);
   const fromElp = !!o.vehicle?.vehicle_no;
-  const { data: preview } = useQuery({ queryKey: ["sc-proc-offer", o.indent, o.elp_registration, v.vehicle_type], enabled: !o.blocks.length && !!v.vehicle_type,
-    queryFn: () => get<Offer>(`${API}.offer`, { indent: o.indent, elp_registration: o.elp_registration, vehicle_type: v.vehicle_type }) });
+  const { data: preview } = useQuery({ queryKey: ["sc-proc-offer", o.indent, o.elp_registration, v.vehicle_type, depot], enabled: !o.blocks.length && !!v.vehicle_type,
+    queryFn: () => get<Offer>(`${API}.offer`, { indent: o.indent, elp_registration: o.elp_registration, vehicle_type: v.vehicle_type, purchase_depot: depot }) });
   const rates = preview?.rates;
   const issue = async () => {
     setBusy(true);
     try {
-      const t = await post<{ name: string }>(`${API}.issue`, { indent: o.indent, elp_registration: o.elp_registration, ...v });
+      const t = await post<{ name: string }>(`${API}.issue`, { indent: o.indent, elp_registration: o.elp_registration, purchase_depot: depot, ...v });
       toast.success(`Token ${t.name} issued`);
       printSlip("token", t.name);
       onIssued(t.name);
@@ -266,22 +266,33 @@ export function GatePage() {
   const qc = useQueryClient();
   const [params, setParams] = useSearchParams();
   const q = params.get("q") ?? "";
-  const { data: m } = useQuery({ queryKey: ["sc-proc-masters"], queryFn: () => get<{ vehicle_types: VType[]; day: string }>(`${API}.masters`) });
-  const { data: found, isFetching } = useQuery({ queryKey: ["sc-proc-find", q], enabled: !!q, queryFn: () => get<Offer[]>(`${API}.find`, { q }) });
-  const { data: tokens } = useQuery({ queryKey: ["sc-proc-tokens"], queryFn: () => get<TokenRow[]>(`${API}.tokens`, { limit: 30 }), refetchInterval: 30_000 });
-  const issued = () => { setParams({}); qc.invalidateQueries({ queryKey: ["sc-proc-tokens"] }); };
+  const { data: m } = useQuery({ queryKey: ["sc-proc-masters"], queryFn: () => get<{ vehicle_types: VType[]; day: string; depots: string[]; at_mill: boolean }>(`${API}.masters`) });
+  // a depot user without a mill role always works at one of their depots
+  const depot = params.get("depot") || (m && !m.at_mill ? m.depots[0] ?? "" : "");
+  const setDepot = (d: string) => setParams(d ? { depot: d } : {});
+  const { data: found, isFetching } = useQuery({ queryKey: ["sc-proc-find", q, depot], enabled: !!q, queryFn: () => get<Offer[]>(`${API}.find`, { q, purchase_depot: depot }) });
+  const { data: tokens } = useQuery({ queryKey: ["sc-proc-tokens", depot], queryFn: () => get<TokenRow[]>(`${API}.tokens`, { limit: 30, purchase_depot: depot }), refetchInterval: 30_000 });
+  const issued = () => { setParams(depot ? { depot } : {}); qc.invalidateQueries({ queryKey: ["sc-proc-tokens"] }); };
   return (
     <div className="mx-auto max-w-7xl space-y-5 p-4 sm:p-6">
-      <Header title="Gate · token issue" sub="Scan the grower's indent or the ELP slip (or type the vehicle no.). The token carries the rates; ELP-verified loads get their loading point's TPT.">
-        <NavBtn to="/elp/gate" icon={ShieldCheck}>ELP arrival & audit</NavBtn>
-        <NavBtn to="/procurement/yard" icon={Warehouse}>Yard</NavBtn>
+      <Header title={depot ? `Depot purchase · ${depot}` : "Gate · token issue"}
+        sub={depot ? "Scan the grower's indent. The cane is bought here at the depot's rates and weighed on the depot's weighbridge; the depot sends it on to the mill."
+          : "Scan the grower's indent or the ELP slip (or type the vehicle no.). The token carries the rates; ELP-verified loads get their loading point's TPT."}>
+        {m && (m.depots.length > 0) && (
+          <select value={depot} onChange={(e) => setDepot(e.target.value)} className="h-9 rounded-lg border bg-background px-2 text-sm font-semibold">
+            {m.at_mill && <option value="">Mill gate</option>}
+            {m.depots.map((d) => <option key={d} value={d}>{d}</option>)}
+          </select>
+        )}
+        {depot ? <NavBtn to={`/depot/dispatch?depot=${encodeURIComponent(depot)}`} icon={Truck}>Dispatch trucks</NavBtn> : <NavBtn to="/elp/gate" icon={ShieldCheck}>ELP arrival & audit</NavBtn>}
+        <NavBtn to={depot ? `/procurement/yard?depot=${encodeURIComponent(depot)}` : "/procurement/yard"} icon={Warehouse}>Yard</NavBtn>
       </Header>
-      <Scan onFind={(x) => setParams({ q: x })} placeholder="Indent no. (scan), ELP-… registration or vehicle no." />
+      <Scan onFind={(x) => setParams({ q: x, ...(depot ? { depot } : {}) })} placeholder={depot ? "Indent no. (scan)" : "Indent no. (scan), ELP-… registration or vehicle no."} />
       {isFetching && <div className="h-56 animate-pulse rounded-2xl border bg-muted/40" />}
       {!isFetching && q && found && !found.length && <Notice tone="bad">Nothing found for <b className="font-mono">{q}</b>: no indent, ELP registration or open load with that number.</Notice>}
       {!isFetching && found?.map((o) => o.token
         ? <Notice key={o.token} tone="info">{o.blocks[0]} — <Link className="font-semibold underline" to={`/procurement/d/cane-token/${o.token}`}>open</Link></Notice>
-        : <OfferCard key={`${o.indent}-${o.elp_registration}`} o={o} types={m?.vehicle_types ?? []} onIssued={issued} />)}
+        : <OfferCard key={`${o.indent}-${o.elp_registration}-${depot}`} o={o} types={m?.vehicle_types ?? []} onIssued={issued} depot={depot || undefined} />)}
       <ChartCard title="Tokens today" sub={m ? `Crushing day ${dayLabel(m.day)}` : ""} bodyClass="h-auto">
         <DataTable rows={tokens ?? []} rowKey={(r) => r.name} dense cols={[
           { key: "name", label: "Token", value: (r) => r.name, render: (r) => <Link className="font-semibold text-primary hover:underline" to={`/procurement/d/cane-token/${r.name}`}>{r.name}</Link> },
@@ -289,7 +300,7 @@ export function GatePage() {
           { key: "vehicle", label: "Vehicle", value: (r) => r.vehicle_no, render: (r) => <><Plate no={r.vehicle_no} /> <span className="text-xs text-muted-foreground">{r.vehicle_type}</span></> },
           { key: "grower", label: "Grower", value: (r) => r.grower_name },
           { key: "from", label: "From", value: (r) => r.point_name || r.source },
-          { key: "entry", label: "Entry", value: (r) => r.entry_type, render: (r) => <Badge tone={r.entry_type === "ELP Verified" ? "green" : "gray"}>{r.entry_type}</Badge> },
+          { key: "entry", label: "Entry", value: (r) => r.entry_type, render: (r) => <Badge tone={r.entry_type === "ELP Verified" ? "green" : r.entry_type === "Depot" ? "violet" : "gray"}>{r.entry_type}</Badge> },
           { key: "status", label: "Status", value: (r) => r.status, render: (r) => <Badge tone={TOKEN_TONE[r.status]}>{r.status}</Badge> },
           { key: "print", label: "", value: () => "", render: (r) => <button type="button" title="Print token" onClick={() => printSlip("token", r.name)} className="text-muted-foreground hover:text-foreground"><Printer className="size-4" /></button> },
         ]} />
@@ -301,7 +312,7 @@ export function GatePage() {
 // =============================================================== weighbridge
 interface Reading { weight_kg: number; stable: number; source: string; at: string; age_s: number; raw?: string }
 interface TerminalInfo {
-  terminal: { name: string; terminal_name: string; allowed_operations: string; indicator_protocol: string; lane?: string } | null; error?: string; ip?: string;
+  terminal: { name: string; terminal_name: string; allowed_operations: string; indicator_protocol: string; lane?: string; depot?: string | null } | null; error?: string; ip?: string;
   reading?: Reading | null; fresh_s: number; min_kg: number; can_manual: boolean;
   recent: { name: string; token: string; status: string; vehicle_no: string; vehicle_type: string; grower_name: string; gross_kg: number; tare_kg?: number; net_kg?: number; gross_at: string; tare_at?: string; cpr?: string; manual_entry: number }[];
 }
@@ -326,16 +337,83 @@ function LiveWeight({ r, fresh }: { r?: Reading | null; fresh: number }) {
   );
 }
 
+export interface DispatchDoc {
+  name: string; status: string; docstatus: number; depot: string; vehicle_no: string; vehicle_type: string; driver_name?: string; contractor?: string;
+  depot_tare_kg?: number; depot_gross_kg?: number; depot_gross_at?: string; dispatched_kg?: number; mill_gross_kg?: number; mill_tare_kg?: number;
+  received_kg?: number; shortage_kg?: number; shortage_pct?: number; allowed_shortage_pct?: number; excess_shortage_kg?: number; journey_minutes?: number;
+  expected_at?: string; freight_amount?: number; recovery_amount?: number; next?: string | null; overdue?: boolean; posted_out?: number; posted_in?: number;
+  dispatch_day?: string; received_day?: string; weight_notes?: string;
+  limits?: { min_gross_kg: number; max_gross_kg: number; min_tare_kg: number; max_tare_kg: number };
+  depot_stock?: { balance_kg: number };
+}
+const DSP_TONE: Record<string, Tone> = { Loading: "blue", "In Transit": "amber", "At Mill": "violet", Received: "green", Cancelled: "gray" };
+export const DispatchStatus = ({ s, overdue }: { s: string; overdue?: boolean }) => <Badge tone={overdue ? "red" : DSP_TONE[s] ?? "gray"}>{overdue ? "Overdue" : s}</Badge>;
+
+/** The next weight of a depot dispatch truck on this terminal (depot: empty → loaded; mill: loaded → empty). */
+function DispatchWeigh({ d, info, reading, manual, setManual, busy, run, onDone }: {
+  d: DispatchDoc; info?: TerminalInfo; reading?: Reading | null; manual: { open: boolean; kg: string; note: string };
+  setManual: (m: { open: boolean; kg: string; note: string }) => void; busy: boolean; run: (fn: () => Promise<unknown>) => void; onDone: () => void;
+}) {
+  const atDepot = d.next?.startsWith("Depot");
+  const here = info?.terminal?.depot ?? null;
+  const wrong = d.next ? (atDepot ? here !== d.depot : !!here) : false;
+  const kind = d.next?.endsWith("Tare") ? "tare" : "gross";
+  const fresh = reading?.stable && reading.age_s <= (info?.fresh_s ?? 10) && reading.age_s > -5;
+  return (
+    <section className="rounded-2xl border bg-card p-4 shadow-sm">
+      <div className="flex flex-wrap items-center gap-2">
+        <Truck className="size-5 text-muted-foreground" /><Plate no={d.vehicle_no} className="text-base" /><span className="text-sm text-muted-foreground">{d.vehicle_type}</span>
+        <DispatchStatus s={d.status} overdue={d.overdue} /><span className="ml-auto font-mono text-sm">{d.name}</span>
+      </div>
+      <div className="mt-3 grid gap-x-6 sm:grid-cols-2">
+        <div><KV k="From" v={d.depot} /><KV k="Contractor · driver" v={`${d.contractor ?? "—"} · ${d.driver_name ?? "—"}`} />
+          <KV k="Expected at mill" v={fmt(d.expected_at)} /></div>
+        <div>
+          <KV k="Depot empty → loaded" v={`${kg(d.depot_tare_kg)} → ${kg(d.depot_gross_kg)}`} /><KV k="Dispatched" v={<b>{kg(d.dispatched_kg)}</b>} />
+          <KV k="Mill loaded → empty" v={`${kg(d.mill_gross_kg)} → ${kg(d.mill_tare_kg)}`} />
+          {d.status === "Received" && <KV k="Received · shortage" v={<>{kg(d.received_kg)} · <span className={cn((d.excess_shortage_kg ?? 0) > 0 && "font-bold text-red-600")}>{num(d.shortage_kg)} kg ({d.shortage_pct}%)</span></>} />}
+        </div>
+      </div>
+      {d.limits && d.next && <p className="mt-2 text-xs text-muted-foreground">{d.vehicle_type} {kind} limits: {num(kind === "tare" ? d.limits.min_tare_kg : d.limits.min_gross_kg)}–{num(kind === "tare" ? d.limits.max_tare_kg : d.limits.max_gross_kg)} kg
+        {d.next === "Depot Gross" && d.depot_stock ? ` · depot holds ${num(d.depot_stock.balance_kg)} kg not yet sent` : ""}</p>}
+      {d.next ? (
+        <div className="mt-3 space-y-2">
+          {wrong && <Notice tone="warn">{atDepot ? `Weigh this truck on ${d.depot}'s weighbridge.` : "This truck is weighed in at the mill."}</Notice>}
+          {manual.open && (
+            <div className="grid gap-2 rounded-xl border border-amber-500/40 bg-amber-500/5 p-3 sm:grid-cols-3">
+              <Input value={manual.kg} onChange={(e) => setManual({ ...manual, kg: e.target.value.replace(/\D/g, "") })} placeholder="Weight kg" className="font-mono" />
+              <Input value={manual.note} onChange={(e) => setManual({ ...manual, note: e.target.value })} placeholder="Why typed in / why accepted" className="sm:col-span-2" />
+            </div>
+          )}
+          <div className="flex flex-wrap gap-2">
+            <Button className="h-12 flex-1 text-base" disabled={busy || wrong || (!manual.open && !fresh)} onClick={() => run(async () => {
+              const r = await post<{ weight_kg: number; status: string; shortage_kg?: number }>("sugarcane.api.v1.depot.capture",
+                { name: d.name, operation: d.next, ...(manual.open ? { manual_kg: manual.kg, note: manual.note } : {}) });
+              toast.success(`${d.next}: ${num(r.weight_kg)} kg · ${r.status}${r.status === "Received" ? ` · shortage ${num(r.shortage_kg)} kg` : ""}`);
+              setManual({ open: false, kg: "", note: "" });
+              onDone();
+            })}><Weight />{busy ? "Saving…" : `Take ${d.next} weight${manual.open ? ` (${manual.kg || 0} kg typed)` : reading ? ` · ${num(reading.weight_kg)} kg` : ""}`}</Button>
+            {info?.can_manual && <Button variant="outline" className="h-12" onClick={() => setManual({ ...manual, open: !manual.open })}>{manual.open ? "Use the indicator" : "Type the weight"}</Button>}
+          </div>
+        </div>
+      ) : <Notice tone="good">Received — nothing left to weigh. Stock, freight and shortage post when the crushing day is closed.</Notice>}
+    </section>
+  );
+}
+
 export function WeighbridgePage() {
   const qc = useQueryClient();
-  const [token, setToken] = useState("");
+  const [params] = useSearchParams();
+  const [token, setToken] = useState(params.get("no") ?? "");
+  const isDsp = token.startsWith("DSP-");
   const [manual, setManual] = useState({ open: false, kg: "", note: "" });
   const [busy, setBusy] = useState(false);
   const { data: info, refetch } = useQuery({ queryKey: ["sc-proc-terminal"], queryFn: () => get<TerminalInfo>(`${API}.terminal`), refetchInterval: 2_000 });
   const [live, setLive] = useState<Reading | null>(null);
   useRealtime<Reading & { terminal: string }>("sugarcane_weight", (d) => { if (d.terminal === info?.terminal?.name) setLive({ ...d, age_s: 0 }); });
   const reading = live && info?.reading && live.at > info.reading.at ? live : info?.reading ?? live;
-  const { data: tok, refetch: reTok } = useQuery({ queryKey: ["sc-proc-token", token], enabled: !!token, queryFn: () => get<TokenDoc>(`${API}.token`, { name: token }) });
+  const { data: tok, refetch: reTok } = useQuery({ queryKey: ["sc-proc-token", token], enabled: !!token && !isDsp, queryFn: () => get<TokenDoc>(`${API}.token`, { name: token }) });
+  const { data: dsp, refetch: reDsp } = useQuery({ queryKey: ["sc-depot-dispatch", token], enabled: isDsp, queryFn: () => get<DispatchDoc>("sugarcane.api.v1.depot.dispatch", { name: token }) });
   const op = tok?.status === "Issued" ? "Gross" : tok?.status === "Gross" ? "Tare" : null;
   const allowed = (o: string) => !!info?.terminal && ["All", o, ...(o !== "Misc" ? ["Gross and Tare"] : [])].includes(info.terminal.allowed_operations);
   const sim = info?.terminal?.indicator_protocol === "Simulator";
@@ -356,7 +434,7 @@ export function WeighbridgePage() {
   );
   return (
     <div className="mx-auto max-w-7xl space-y-5 p-4 sm:p-6">
-      <Header title={`Weighbridge · ${info?.terminal?.terminal_name ?? "…"}`} sub={`${info?.terminal?.allowed_operations ?? ""} · ${info?.terminal?.lane ?? ""} · indicator ${info?.terminal?.indicator_protocol ?? ""} · this PC ${info?.ip ?? ""}`}>
+      <Header title={`Weighbridge · ${info?.terminal?.terminal_name ?? "…"}`} sub={`${info?.terminal?.depot ? `at ${info.terminal.depot} · ` : ""}${info?.terminal?.allowed_operations ?? ""} · ${info?.terminal?.lane ?? ""} · indicator ${info?.terminal?.indicator_protocol ?? ""} · this PC ${info?.ip ?? ""}`}>
         <NavBtn to="/procurement/yard" icon={Warehouse}>Yard</NavBtn>
       </Header>
       <div className="grid gap-4 lg:grid-cols-5">
@@ -366,15 +444,18 @@ export function WeighbridgePage() {
             <div className="rounded-xl border border-dashed p-3">
               <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Simulator (no indicator on this terminal)</p>
               <div className="flex flex-wrap gap-2">
-                <Button variant="outline" size="sm" disabled={!token || !op} onClick={() => run(async () => { await post(`${API}.simulate`, { token, operation: op }); refetch(); })}>Put the vehicle on</Button>
+                <Button variant="outline" size="sm" disabled={!token || !(isDsp ? dsp?.next : op)} onClick={() => run(async () => {
+                  await post(`${API}.simulate`, isDsp ? { dispatch: token, operation: dsp?.next } : { token, operation: op }); refetch(); })}>Put the vehicle on</Button>
                 <Button variant="outline" size="sm" onClick={() => run(async () => { await post(`${API}.simulate`, { weight_kg: 0, stable: 1 }); refetch(); })}>Empty bridge</Button>
               </div>
             </div>
           )}
         </div>
         <div className="space-y-3 lg:col-span-3">
-          <Scan onFind={setToken} placeholder="Scan the token (TKN-…)" />
-          {tok && (
+          <Scan onFind={setToken} placeholder="Scan the token (TKN-…) or a depot truck (DSP-…)" />
+          {isDsp && dsp && <DispatchWeigh d={dsp} info={info} reading={reading} manual={manual} setManual={setManual} busy={busy} run={run}
+            onDone={() => { reDsp(); refetch(); qc.invalidateQueries({ queryKey: ["sc-depot-board"] }); }} />}
+          {!isDsp && tok && (
             <section className="rounded-2xl border bg-card p-4 shadow-sm">
               <div className="flex flex-wrap items-center gap-2">
                 <Plate no={tok.vehicle_no} className="text-base" /><span className="text-sm text-muted-foreground">{tok.vehicle_type}</span>
@@ -456,11 +537,13 @@ function YardList({ title, sub, rows, tone }: { title: string; sub: string; rows
 }
 
 export function YardPage() {
-  const { data } = useQuery({ queryKey: ["sc-proc-yard"], queryFn: () => get<Yard>(`${API}.yard`), refetchInterval: 15_000 });
+  const [params] = useSearchParams();
+  const depot = params.get("depot") ?? "";
+  const { data } = useQuery({ queryKey: ["sc-proc-yard", depot], queryFn: () => get<Yard>(`${API}.yard`, { depot }), refetchInterval: 15_000 });
   if (!data) return <div className="grid gap-4 p-6 md:grid-cols-2"><Skeleton className="h-96 rounded-2xl" /><Skeleton className="h-96 rounded-2xl" /></div>;
   return (
     <div className="space-y-5 p-4 sm:p-6">
-      <Header title="Yard board" sub="Vehicles inside the mill: waiting for the gross weight, and unloading / waiting for the tare. Refreshes every 15 s.">
+      <Header title={depot ? `Yard · ${depot}` : "Yard board"} sub="Vehicles inside the mill: waiting for the gross weight, and unloading / waiting for the tare. Refreshes every 15 s.">
         <NavBtn to="/procurement/gate" icon={Ticket}>Gate</NavBtn><NavBtn to="/procurement/weighbridge" icon={Scale}>Weighbridge</NavBtn>
       </Header>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
@@ -555,7 +638,7 @@ export function CounterPage() {
 }
 
 // =============================================================== day close
-interface DayRow { day: string; cprs: number; kg: number; maund: number; govt_value: number; tpt: number; payable: number; open_cprs: number; current: boolean; open_tokens: number;
+interface DayRow { depot_moves?: number; day: string; cprs: number; kg: number; maund: number; govt_value: number; tpt: number; payable: number; open_cprs: number; current: boolean; open_tokens: number;
   dcp?: { name: string; docstatus: number; status: string; purchase_invoice?: string; reconciled: number; note?: string } | null }
 interface Check { key: string; label: string; ledger: number; expected: number; difference: number; ok: boolean; hint: string }
 
@@ -575,7 +658,7 @@ export function DayClosePage() {
   };
   return (
     <div className="space-y-5 p-4 sm:p-6">
-      <Header title="Day close" sub="One Purchase Invoice per crushing day (07:00 → 07:00) brings the day's cane into the Cane Yard; the day's CPR journals are reconciled against it so Cane Purchase Clearing returns to 0." />
+      <Header title="Day close" sub="One Purchase Invoice per crushing day (07:00 → 07:00) brings the day's cane into the Cane Yard and the depots; the CPR journals are reconciled against it so Cane Purchase Clearing returns to 0. Depot trucks, freight, shortage and commission post with the day. Days close in order." />
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {checks?.checks.map((c) => (
           <div key={c.key} className={cn("rounded-2xl border bg-card p-4 shadow-sm", !c.ok && "border-red-500/40")}>
@@ -594,6 +677,7 @@ export function DayClosePage() {
           { key: "govt", label: "Govt value (invoice)", align: "right", value: (r) => r.govt_value, render: (r) => money(r.govt_value) },
           { key: "tpt", label: "TPT", align: "right", value: (r) => r.tpt, render: (r) => money(r.tpt) },
           { key: "payable", label: "Payable", align: "right", value: (r) => r.payable, render: (r) => money(r.payable) },
+          { key: "moves", label: "Depot moves to post", align: "right", value: (r) => r.depot_moves ?? 0, render: (r) => (r.depot_moves ? <span className="text-violet-600">{r.depot_moves}</span> : "—") },
           { key: "open", label: "In yard", align: "right", value: (r) => r.open_tokens, render: (r) => (r.open_tokens ? <span className="text-amber-600">{r.open_tokens}</span> : "—") },
           { key: "dcp", label: "Status", value: (r) => r.dcp?.status ?? "Open", render: (r) => r.dcp?.docstatus === 1
             ? <span className="flex flex-wrap items-center gap-1"><Badge tone="green">Invoiced</Badge><Link className="font-mono text-xs text-primary hover:underline" to={`/procurement/d/daily-cane-purchase/${r.dcp.name}`}>{r.dcp.purchase_invoice}</Link>{r.dcp.reconciled ? <Badge tone="green">reconciled</Badge> : <Badge tone="red">not reconciled</Badge>}</span>

@@ -1,0 +1,22 @@
+{% extends "sugarcane/templates/bank/_base.html" %}
+{% block body %}
+{%- from "sugarcane/templates/bank/_macros.html" import letterhead, footer, signatures, payer with context -%}
+<div class="page">{{ letterhead() }}<div class="re-doc">
+<img class="qr" src="{{ qr }}">
+<h2>Bank Payment Schedule</h2>
+<div class="sub">Cane payment scroll {{ doc.name }} · {{ fmt_date(doc.posting_date) }} · {{ doc.mode_of_payment }}{% if doc.reference_no %} · ref {{ doc.reference_no }}{% endif %}</div>
+{{ payer() }}
+<table class="grid"><tr><th>Bank</th><th class="r">Beneficiaries</th><th class="r">CPRs</th><th class="r">Amount (Rs)</th></tr>
+{% for g in groups %}<tr><td>{{ g.bank }}</td><td class="r">{{ g.rows|length }}</td><td class="r">{{ g.cprs }}</td><td class="r">{{ money(g.amount) }}</td></tr>{% endfor %}
+<tr class="grand"><td>Total</td><td class="r">{{ doc.grower_count }}</td><td class="r">{{ doc.cpr_count }}</td><td class="r">{{ money(doc.total_amount) }}</td></tr></table>
+<div class="box">Amount in words: <b>{{ words(doc.total_amount) }}</b></div>
+{% for g in groups %}
+<h3>{{ g.bank }} — {{ g.rows|length }} beneficiaries · Rs {{ money(g.amount) }}</h3>
+<table class="grid"><tr><th>#</th><th>Beneficiary</th><th>CNIC</th><th>IBAN</th><th>CPRs</th><th class="r">Amount (Rs)</th></tr>
+{% for p in g.rows %}<tr><td>{{ loop.index }}</td><td>{{ p.account_title or p.grower_name }}<div class="muted">{{ p.grower }}</div></td><td class="mono">{{ p.cnic or "" }}</td>
+<td class="mono">{{ p.iban or "—" }}</td><td class="mono">{{ p.cpr_list }}</td><td class="r">{{ money(p.amount) }}{% if p.stop_requested %}<div class="red">STOPPED</div>{% endif %}</td></tr>{% endfor %}
+<tr class="sum"><td colspan="5">{{ g.bank }} total</td><td class="r">{{ money(g.amount) }}</td></tr></table>
+{% endfor %}
+{{ signatures() }}
+</div>{{ footer() }}</div>
+{% endblock %}

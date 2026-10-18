@@ -523,10 +523,25 @@ def make_cpr(weighment) -> str:
 		"posted_at": weighment.tare_at, "posting_date": crushing_day(weighment.tare_at),
 		"warehouse": (frappe.db.get_value("Cane Depot", tok.purchase_depot, "warehouse") if tok.purchase_depot else None)
 			or settings().warehouse})
+	cpr.loan_deduction = _loan_deduction(cpr)
 	cpr.flags.ignore_permissions = True
 	cpr.insert()
 	cpr.submit()
 	return cpr.name
+
+
+def _loan_deduction(cpr) -> float:
+	"""The grower's loans take their share of what is left after TPT (Phase 6, grower_loans.loans.deduction_for)."""
+	from sugarcane.calc.cpr import CPRError, CPRInput, compute
+	from sugarcane.grower_loans.loans import deduction_for
+
+	inputs = ("govt_rate", "road_cess_pct", "grower_cess_share_pct", "subsidy_rate", "additional_subsidy_rate", "tpt_rate",
+		"binding_kg_per_quintal", "garbage_pct", "garbage_fixed_kg")
+	try:
+		r = compute(CPRInput(gross_kg=cpr.gross_kg, tare_kg=cpr.tare_kg, maund_kg=settings().maund_kg, **{f: cpr.get(f) or 0 for f in inputs}))
+	except CPRError:
+		return 0
+	return deduction_for(cpr.grower, flt(r.net_amount - r.tpt_amount))
 
 
 def cpr_journal_entry(cpr) -> str:

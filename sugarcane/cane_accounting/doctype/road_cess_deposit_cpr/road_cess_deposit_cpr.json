@@ -1,0 +1,75 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "cpr",
+  "posting_date",
+  "grower_name",
+  "road_cess_grower",
+  "road_cess_mill",
+  "road_cess_total"
+ ],
+ "fields": [
+  {
+   "fieldname": "cpr",
+   "fieldtype": "Link",
+   "options": "Cane Purchase Receipt",
+   "label": "CPR",
+   "reqd": 1,
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Day",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "grower_name",
+   "fieldtype": "Data",
+   "label": "Grower",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "road_cess_grower",
+   "fieldtype": "Currency",
+   "label": "Grower Share",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "road_cess_mill",
+   "fieldtype": "Currency",
+   "label": "Mill Share",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "road_cess_total",
+   "fieldtype": "Currency",
+   "label": "Total",
+   "read_only": 1,
+   "in_list_view": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cane Accounting",
+ "name": "Road Cess Deposit CPR",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0,
+ "istable": 1,
+ "editable_grid": 0
+}

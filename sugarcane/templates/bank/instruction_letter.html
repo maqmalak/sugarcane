@@ -1,0 +1,25 @@
+{% extends "sugarcane/templates/bank/_base.html" %}
+{% block body %}
+{%- from "sugarcane/templates/bank/_macros.html" import letterhead, footer, signatures, payer with context -%}
+{% for g in groups %}
+<div class="page">{{ letterhead() }}<div class="re-doc">
+<img class="qr" src="{{ qr }}">
+<table class="meta" style="width:70%"><tr><td>Ref: <b>{{ g.ref }}</b></td></tr><tr><td>Date: {{ fmt_date(doc.posting_date) }}</td></tr></table>
+<p>The Branch Manager<br>{{ payer_bank_name or "Bank" }}<br>{{ payer_branch or "" }}</p>
+<p><b>Subject: Transfer of cane payments to {{ g.rows|length }} account(s) with {{ g.bank }} — Rs {{ money(g.amount) }}</b></p>
+<p>Dear Sir / Madam,</p>
+<p>Please debit our account no. <b>{{ payer_account_no or "—" }}</b>{% if payer_iban %} (IBAN <span class="mono">{{ payer_iban }}</span>){% endif %}, titled
+<b>{{ payer_account_title or company }}</b>, with <b>Rs {{ money(g.amount) }}</b> ({{ words(g.amount) }}) and credit the {{ g.rows|length }} account(s)
+held with <b>{{ g.bank }}</b> listed in the annexure, being payment for sugarcane bought by us (cane payment scroll {{ doc.name }}{% if doc.reference_no %}, our reference {{ doc.reference_no }}{% endif %}).</p>
+<p>Please quote the beneficiary reference shown for each line in the transfer narration, and send us the bank's advice with the transaction references once the transfers are done.
+Any transfer that is returned should be credited back to the account above and advised to us.</p>
+<p>Yours faithfully,<br>for {{ company }}</p>
+{{ signatures() }}
+<h3>Annexure — {{ g.bank }}</h3>
+<table class="grid"><tr><th>#</th><th>Beneficiary (account title)</th><th>CNIC</th><th>IBAN</th><th>Reference</th><th class="r">Amount (Rs)</th></tr>
+{% for p in g.rows %}<tr><td>{{ loop.index }}</td><td>{{ p.account_title or p.grower_name }}</td><td class="mono">{{ p.cnic or "" }}</td><td class="mono">{{ p.iban or "—" }}</td>
+<td class="mono">{{ doc.name }}/{{ p.grower }}</td><td class="r">{{ money(p.amount) }}</td></tr>{% endfor %}
+<tr class="grand"><td colspan="5">Total — {{ words(g.amount) }}</td><td class="r">{{ money(g.amount) }}</td></tr></table>
+</div>{{ footer("Letter " ~ loop.index ~ " of " ~ groups|length ~ " for scroll " ~ doc.name) }}</div>
+{% endfor %}
+{% endblock %}

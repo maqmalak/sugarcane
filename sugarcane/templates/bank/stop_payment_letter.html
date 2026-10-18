@@ -1,0 +1,25 @@
+{% extends "sugarcane/templates/bank/_base.html" %}
+{% block body %}
+{%- from "sugarcane/templates/bank/_macros.html" import letterhead, footer, signatures, payer with context -%}
+<div class="page">{{ letterhead() }}<div class="re-doc">
+<img class="qr" src="{{ qr }}">
+<table class="meta" style="width:70%"><tr><td>Ref: <b>{{ ref }}</b></td></tr><tr><td>Date: {{ fmt_date(on) }}</td></tr></table>
+<p>The Branch Manager<br>{{ payer_bank_name or "Bank" }}<br>{{ payer_branch or "" }}</p>
+<p><b>Subject: STOP PAYMENT — {{ "cheque" if doc.mode_of_payment == "Cheque" else "transfer" }} {{ instrument }} for Rs {{ money(p.amount) }} in favour of {{ p.account_title or p.grower_name }}</b></p>
+<p>Dear Sir / Madam,</p>
+<p>Please <span class="red">stop payment</span> of the following {{ "cheque" if doc.mode_of_payment == "Cheque" else "transfer instruction" }}, issued from our account
+no. <b>{{ payer_account_no or "—" }}</b>{% if payer_iban %} (IBAN <span class="mono">{{ payer_iban }}</span>){% endif %}, titled <b>{{ payer_account_title or company }}</b>:</p>
+<table>
+<tr><th>{{ "Cheque no." if doc.mode_of_payment == "Cheque" else "Transfer reference" }}</th><td class="mono">{{ instrument }}</td></tr>
+<tr><th>Issued on</th><td>{{ fmt_date(doc.posting_date) }} (our instruction for scroll {{ doc.name }})</td></tr>
+<tr><th>Beneficiary</th><td><b>{{ p.account_title or p.grower_name }}</b> · CNIC <span class="mono">{{ p.cnic or "—" }}</span></td></tr>
+<tr><th>Beneficiary bank · IBAN</th><td>{{ p.bank_name or "—" }} · <span class="mono">{{ p.iban or "—" }}</span></td></tr>
+<tr><th>Amount</th><td><b>Rs {{ money(p.amount) }}</b> ({{ words(p.amount) }})</td></tr>
+<tr><th>Reason</th><td>{{ reason }}</td></tr>
+</table>
+<p>If the payment has already been made, please let us know at once with the date and the transaction reference. The amount should remain in our account; a fresh
+instruction will be issued separately if required.</p>
+<p>Yours faithfully,<br>for {{ company }}</p>
+{{ signatures() }}
+</div>{{ footer("Stop payment " ~ ref) }}</div>
+{% endblock %}

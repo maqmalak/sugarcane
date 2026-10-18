@@ -26,7 +26,7 @@ const GrowerPhotos = lazy(() => import("./components/PhotoGallery").then((m) => 
 const AreaGeoEditor = lazy(() => import("./pages/AreaMapPage").then((m) => ({ default: m.Editor })));
 const later = (node: ReactNode) => <Suspense fallback={<div className="h-24 animate-pulse rounded-2xl border bg-muted/40" />}>{node}</Suspense>;
 
-export type ScApp = "setup" | "survey" | "field-force" | "indenting" | "elp" | "procurement" | "depot" | "lab" | "production";
+export type ScApp = "setup" | "survey" | "field-force" | "indenting" | "elp" | "procurement" | "depot" | "lab" | "production" | "accounts";
 
 export interface ScDoc {
   doctype: string;
@@ -94,6 +94,16 @@ export const SC_DOCS: ScDoc[] = [
   { doctype: "Daily Production Entry", label: "Production Entries", app: "production", group: "Records", icon: Factory },
   { doctype: "Plant Level Reading", label: "Plant Readings", app: "production", group: "Records", icon: Scale },
   { doctype: "Plant Point", label: "Plant Points", app: "production", group: "Setup", icon: Settings },
+  // ------------------------------------------------------------------ cane accounts & loans
+  { doctype: "Cane Payment Scroll", label: "Payment Scrolls", app: "accounts", group: "Records", icon: ScrollText },
+  { doctype: "Road Cess Deposit", label: "Road Cess Deposits", app: "accounts", group: "Records", icon: Building2 },
+  { doctype: "Grower Loan", label: "Grower Loans", app: "accounts", group: "Loans", icon: Users },
+  { doctype: "Grower Loan Entry", label: "Loan Entries", app: "accounts", group: "Loans", icon: ClipboardList },
+  { doctype: "Grower Loan Type", label: "Loan Types", app: "accounts", group: "Loans", icon: Settings },
+  { doctype: "Sugar Vault Document", label: "Vault Documents", app: "accounts", group: "Documents", icon: Upload },
+  { doctype: "Contractor Bill", label: "Contractor Bills", app: "accounts", group: "Contractors", icon: Truck },
+  { doctype: "Unloading Contract", label: "Unloading Contracts", app: "accounts", group: "Contractors", icon: NotebookTabs },
+  { doctype: "Sugar Generated Document", label: "Generated Documents", app: "accounts", group: "Documents", icon: ScrollText },
 ];
 
 export const docBase = (doctype: string) => {
@@ -218,4 +228,4 @@ export const ENHANCERS: Record<string, Enhancer> = {
   },
 };
 
-export const APP_ICON: Record<ScApp, LucideIcon> = { setup: Boxes, survey: Leaf, "field-force": Users, indenting: ClipboardList, elp: Truck, procurement: Scale, depot: Warehouse, lab: Leaf, production: Factory };
+export const APP_ICON: Record<ScApp, LucideIcon> = { setup: Boxes, survey: Leaf, "field-force": Users, indenting: ClipboardList, elp: Truck, procurement: Scale, depot: Warehouse, lab: Leaf, production: Factory, accounts: Building2 };

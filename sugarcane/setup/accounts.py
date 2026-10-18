@@ -60,15 +60,21 @@ def setup_company(company: str) -> dict:
 		"cane_purchase_clearing_account": _account(company, abbr, "Cane Purchase Clearing", payables, "Payable"),
 		"tpt_payable_account": _account(company, abbr, "TPT-Bilty Payable", current_liab),
 		"road_cess_payable_account": _account(company, abbr, "Road Cess Payable - Govt", duties, "Tax"),
-		"grower_loan_account": _account(company, abbr, "Grower Loan Receivable", loans, "Receivable"),
+		# party type Grower is Payable, and ERPNext only lets a party sit on an account of its party type's kind: so the loan
+		# ledger is a Payable-type account under the assets (a debit balance per grower)
+		"grower_loan_account": _account(company, abbr, "Grower Loan Receivable", loans, "Payable"),
 		"cash_counter_account": _account(company, abbr, "Cash Counter - Cane", cash, "Cash"),
 		"cane_purchase_govt_account": _account(company, abbr, "Cane Purchase A-c (Govt)", cost_of_sales),
 		"subsidy_purchase_account": _account(company, abbr, "Subsidy Purchase", cost_of_sales),
 		"additional_subsidy_account": _account(company, abbr, "Additional Subsidy", cost_of_sales),
 		"road_cess_expense_account": _account(company, abbr, "Road Cess - Mill Share", cost_of_sales),
 		"freight_account": _account(company, abbr, "Cane Freight - Depots", cost_of_sales),
+		"contract_labour_account": _account(company, abbr, "Cane Loading and Unloading", cost_of_sales),
 		"depot_commission_account": _account(company, abbr, "Depot Commission", cost_of_sales),
 		"transit_shortage_account": _account(company, abbr, "Cane Transit Shortage", cost_of_sales),
+		"cane_bank_account": _account(company, abbr, "Cane Payments Bank", _group(company, "Bank Accounts", root_type="Asset"), "Bank"),
+		"markup_income_account": _account(company, abbr, "Loan Markup Income", _group(company, "Indirect Income", "Direct Income",
+			root_type="Income"), "Income Account"),
 	}
 
 	warehouse = _warehouse(company, abbr)
@@ -91,6 +97,9 @@ def setup_company(company: str) -> dict:
 	from sugarcane.setup.production import setup as setup_production
 
 	setup_production(company)
+	loan_acc = accounts["grower_loan_account"]
+	if frappe.db.get_value("Account", loan_acc, "account_type") != "Payable" and not frappe.db.exists("GL Entry", {"account": loan_acc}):
+		frappe.db.set_value("Account", loan_acc, "account_type", "Payable")
 	for depot in frappe.get_all("Cane Depot", filters={"warehouse": ["is", "not set"]}, pluck="name"):
 		frappe.db.set_value("Cane Depot", depot, "warehouse", depot_warehouse(depot, company), update_modified=False)
 	return values

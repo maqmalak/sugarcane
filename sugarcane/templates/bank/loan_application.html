@@ -1,0 +1,66 @@
+{% extends "sugarcane/templates/bank/_base.html" %}
+{% block body %}
+{%- from "sugarcane/templates/bank/_macros.html" import letterhead, footer with context -%}
+<div class="page">{{ letterhead() }}<div class="re-doc">
+<img class="qr" src="{{ qr }}">
+<h2>Grower Loan Application</h2>
+<div class="sub">{{ loan.name }} · {{ loan.loan_type }} ({{ ltype.purpose }}) · season {{ loan.season }} · applied {{ fmt_date(loan.application_date) }} · <b>{{ loan.status }}</b></div>
+
+<h3>Applicant</h3>
+<table>
+<tr><th>Grower</th><td><b>{{ g.grower_name }}</b>{% if g.father_name %} s/o {{ g.father_name }}{% endif %} · ID {{ g.name }}</td></tr>
+<tr><th>CNIC · mobile</th><td><span class="mono">{{ g.cnic or "—" }}</span> · {{ g.mobile or "—" }}</td></tr>
+<tr><th>Village · circle · passbook</th><td>{{ g.village_name or "" }} · {{ g.circle or "" }} · {{ g.passbook_no or "—" }}</td></tr>
+<tr><th>Bank account</th><td>{% if g.iban %}{{ g.bank_name or "" }} · <span class="mono">{{ g.iban }}</span>{% else %}<span class="muted">none on record</span>{% endif %}</td></tr>
+</table>
+
+<h3>Guarantor</h3>
+{% if gu %}<table>
+<tr><th>Guarantor</th><td><b>{{ gu.grower_name }}</b>{% if gu.father_name %} s/o {{ gu.father_name }}{% endif %} · ID {{ gu.name }} · CNIC <span class="mono">{{ gu.cnic or "—" }}</span></td></tr>
+<tr><th>Village · circle</th><td>{{ gu.village_name or "" }} · {{ gu.circle or "" }}</td></tr>
+<tr><th>Cane this season</th><td>{{ el.guarantor.acres }} surveyed acres</td></tr>
+<tr><th>Own loans outstanding</th><td>Rs {{ money(el.guarantor.outstanding) }}</td></tr>
+<tr><th>Other loans guaranteed</th><td>{{ el.guarantor.guaranteeing }}</td></tr>
+</table>{% else %}<p class="muted">No guarantor given.</p>{% endif %}
+
+<h3>Eligibility</h3>
+<table class="grid"><tr><th>Basis</th><th class="r">Limit (Rs)</th></tr>
+{% for label, v in el.limits %}<tr><td>{{ label }}</td><td class="r">{{ money(v) }}</td></tr>{% endfor %}
+<tr class="sum"><td>The lowest of these</td><td class="r">{{ money(el.cap) }}</td></tr>
+<tr><td>Less: {{ loan.loan_type }} loans already taken this season</td><td class="r">− {{ money(el.taken) }}</td></tr>
+<tr><td>Less: other loans still outstanding</td><td class="r">− {{ money(el.open_outstanding) }}</td></tr>
+<tr class="grand"><td>Eligible</td><td class="r">{{ money(el.eligible) }}</td></tr></table>
+<table class="grid"><tr><th>Check</th><th>Result</th><th>Detail</th></tr>
+{% for label, ok, detail in el.checks %}<tr><td>{{ label }}</td><td>{% if ok %}<b style="color:#15803d">Yes</b>{% else %}<span class="red">No</span>{% endif %}</td><td>{{ detail }}</td></tr>{% endfor %}</table>
+
+<h3>Request and approval</h3>
+<table class="grid"><tr><th>Applied for</th><th>Eligible</th><th>Approved</th><th>Markup</th><th>Recovered from each CPR</th></tr>
+<tr><td class="r">{{ money(loan.requested_amount or loan.amount) }}</td><td class="r">{{ money(el.eligible) }}</td>
+<td class="r"><b>{% if loan.docstatus == 1 %}{{ money(loan.amount) }}{% else %}—{% endif %}</b></td><td>{{ loan.markup_pct }}% a year</td><td>up to {{ loan.recovery_pct }}% of its net after TPT</td></tr></table>
+<div class="box">{% if loan.docstatus == 1 %}Approved for <b>Rs {{ money(loan.amount) }}</b> ({{ words(loan.amount) }}){% if approver %} by {{ approver }} on {{ fmt_date(loan.approved_on) }}{% endif %}{% if loan.disbursed_on %}; disbursed {{ fmt_date(loan.disbursed_on) }}{% endif %}.{% else %}Not yet approved.{% endif %}</div>
+
+<h3>Previous loans</h3>
+{% if history %}<table class="grid"><tr><th>Loan</th><th>Season</th><th>Type</th><th>Disbursed</th><th class="r">Amount</th><th class="r">Markup</th><th class="r">Recovered</th><th class="r">Outstanding</th><th>Status</th></tr>
+{% for h in history %}<tr><td class="mono">{{ h.name }}</td><td>{{ h.season }}</td><td>{{ h.loan_type }}</td><td>{{ fmt_date(h.disbursed_on) }}</td><td class="r">{{ money(h.amount) }}</td>
+<td class="r">{{ money(h.markup_accrued) }}</td><td class="r">{{ money(h.recovered) }}</td><td class="r">{{ money(h.outstanding) }}</td><td>{{ h.status }}</td></tr>{% endfor %}</table>
+{% else %}<p class="muted">No earlier loans.</p>{% endif %}
+
+<h3>Cane supplied</h3>
+{% if supply %}<table class="grid"><tr><th>Season</th><th class="r">CPRs</th><th class="r">Maund</th><th class="r">Net value (Rs)</th><th class="r">Loans recovered (Rs)</th></tr>
+{% for r in supply %}<tr><td>{{ r.season }}</td><td class="r">{{ r.cprs }}</td><td class="r">{{ "{:,.1f}".format(r.maund or 0) }}</td><td class="r">{{ money(r.net) }}</td><td class="r">{{ money(r.loans) }}</td></tr>{% endfor %}</table>
+{% else %}<p class="muted">No cane supplied yet.</p>{% endif %}
+
+{% if entries %}
+<h3>Loan ledger</h3>
+<table class="grid"><tr><th>Date</th><th>Entry</th><th>Reference</th><th class="r">Debit (Rs)</th><th class="r">Credit (Rs)</th><th class="r">Balance (Rs)</th></tr>
+{% for e in entries %}<tr><td>{{ fmt_date(e.posting_date) }}</td><td>{{ e.entry }}</td><td class="mono">{{ e.ref }}</td><td class="r">{{ money(e.debit) if e.debit else "" }}</td>
+<td class="r">{{ money(e.credit) if e.credit else "" }}</td><td class="r"><b>{{ money(e.balance) }}</b></td></tr>{% endfor %}
+<tr class="grand"><td colspan="5">Balance outstanding</td><td class="r">{{ money(loan.outstanding) }}</td></tr></table>
+{% endif %}
+
+<p style="margin-top:14px">I apply for the loan above and agree that it, with its markup, is recovered from the payments for the cane I supply to the mill, and
+that any balance left at the end of the season is payable by me{% if gu %} and, failing me, by my guarantor{% endif %}.</p>
+<table class="sign"><tr><td>Grower (signature / thumb)</td><td class="gap"></td><td>{% if gu %}Guarantor (signature / thumb){% else %}Witness{% endif %}</td></tr></table>
+<table class="sign" style="margin-top:40px"><tr><td>Circle Officer (recommended)</td><td class="gap"></td><td>Cane Manager (approved)</td></tr></table>
+</div>{{ footer("Loan application " ~ loan.name) }}</div>
+{% endblock %}

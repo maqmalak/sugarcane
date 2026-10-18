@@ -1,0 +1,18 @@
+{%- macro letterhead() -%}
+<table class="lh"><tr>
+<td style="width:58px"><div class="mark">M</div></td>
+<td><div class="co">{{ company }}</div><div class="addr">{{ mill_address }}</div></td>
+<td class="contact">{{ mill_phone }}</td></tr></table>
+{%- endmacro -%}
+{%- macro footer(text) -%}
+<div class="lf">{{ company }} · {{ text or "This is a computer-generated document; verify it with the QR code." }} · Printed {{ printed_at }} by {{ printed_by }}</div>
+{%- endmacro -%}
+{%- macro signatures() -%}
+<table class="sign"><tr><td>{{ signatory_1 or "Authorised Signatory" }}</td><td class="gap"></td><td>{{ signatory_2 or "Authorised Signatory" }}</td></tr></table>
+{%- endmacro -%}
+{%- macro payer() -%}
+<table>
+<tr><th>Debit account</th><td><b>{{ payer_account_title or company }}</b> · A/c {{ payer_account_no or "—" }}{% if payer_iban %} · IBAN <span class="mono">{{ payer_iban }}</span>{% endif %}</td></tr>
+<tr><th>Bank · branch</th><td>{{ payer_bank_name or "—" }}{% if payer_branch %} · {{ payer_branch }}{% endif %}</td></tr>
+</table>
+{%- endmacro -%}

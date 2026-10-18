@@ -42,7 +42,8 @@ ELP_DEFAULTS = {"elp_min_sharpness": 60, "elp_min_brightness": 40, "elp_max_brig
 	"elp_required_views": "Number Plate\nIndent\nDriver\nBody Left", "elp_geofence_buffer_m": 30, "elp_require_indent": 1,
 	"elp_overdue_grace_min": 60, "elp_gate_buffer_m": 500, "elp_not_arrived_hours": 48,
 	"tpt_requires_elp": 1, "weight_fresh_seconds": 10, "min_weight_kg": 200, "max_yard_hours": 12,
-	"ccs_recovery_factor": 0.95, "mill_capacity_tcd": 12000.0}
+	"ccs_recovery_factor": 0.95, "mill_capacity_tcd": 12000.0, "recover_loans_at_cpr": 1, "payable_days": 15,
+	"unloading_rate": 1.5, "idle_rate_per_hour": 1500.0, "idle_min_minutes": 30, "idle_categories": "Mechanical\nElectrical\nProcess\nPower\nNo Cane"}
 
 
 def ensure_elp_defaults():

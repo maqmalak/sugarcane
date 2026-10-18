@@ -84,6 +84,7 @@ export function DepotDashboardPage() {
         <NavBtn to={`/procurement/gate?depot=${encodeURIComponent(data.depots[0]?.name ?? "")}`} icon={Ticket}>Depot purchase</NavBtn>
         <NavBtn to="/depot/dispatch" icon={Truck}>Dispatch trucks</NavBtn>
         <NavBtn to="/procurement/weighbridge" icon={Scale}>Weighbridge</NavBtn>
+        <NavBtn to={`/reports?r=${encodeURIComponent("Depot Excess Short")}`} icon={Weight}>Excess / short</NavBtn>
       </Header>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
         <KpiCard icon={Weight} label="Bought at depots" value={`${num(k.maund)} md`} color={C.violet} sub={`${num(k.loads)} growers' loads`} />

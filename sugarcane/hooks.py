@@ -306,6 +306,7 @@ doc_events.update({
 
 # Indents past their last valid day become Expired (bench schedule must run for this site in production)
 scheduler_events = {
-	"daily": ["sugarcane.cane_indenting.generator.expire_due"],
+	"daily": ["sugarcane.cane_indenting.generator.expire_due", "sugarcane.vault.refresh_statuses"],
 	"cron": {"15 7 * * *": ["sugarcane.cane_procurement.procurement.auto_close_previous_day"]},
+	"monthly": ["sugarcane.grower_loans.loans.monthly_markup"],
 }

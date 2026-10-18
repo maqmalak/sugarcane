@@ -90,6 +90,30 @@
   "byproduct_warehouse",
   "ccs_recovery_factor",
   "mill_capacity_tcd",
+  "sb_cane_accounts",
+  "cane_bank_account",
+  "markup_income_account",
+  "cb_cane_accounts",
+  "recover_loans_at_cpr",
+  "unloading_contractor",
+  "unloading_rate",
+  "contract_labour_account",
+  "idle_rate_per_hour",
+  "idle_min_minutes",
+  "idle_categories",
+  "payable_days",
+  "sb_bank_letters",
+  "payer_bank_name",
+  "payer_branch",
+  "payer_account_title",
+  "payer_account_no",
+  "payer_iban",
+  "cb_bank_letters",
+  "letter_ref_prefix",
+  "signatory_1",
+  "signatory_2",
+  "mill_address",
+  "mill_phone",
   "cb_stock",
   "daily_purchase_supplier",
   "contractor_supplier_group"
@@ -596,6 +620,139 @@
    "fieldtype": "Float",
    "label": "Mill Capacity (tonnes cane per day)",
    "default": "12000"
+  },
+  {
+   "fieldname": "sb_cane_accounts",
+   "fieldtype": "Section Break",
+   "label": "Cane Accounts and Loans"
+  },
+  {
+   "fieldname": "cane_bank_account",
+   "fieldtype": "Link",
+   "options": "Account",
+   "label": "Bank for Grower Payments"
+  },
+  {
+   "fieldname": "markup_income_account",
+   "fieldtype": "Link",
+   "options": "Account",
+   "label": "Loan Markup Income"
+  },
+  {
+   "fieldname": "cb_cane_accounts",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "recover_loans_at_cpr",
+   "fieldtype": "Check",
+   "label": "Recover grower loans from CPRs",
+   "default": "1"
+  },
+  {
+   "fieldname": "unloading_contractor",
+   "fieldtype": "Link",
+   "options": "Supplier",
+   "label": "Yard Unloading Contractor"
+  },
+  {
+   "fieldname": "unloading_rate",
+   "fieldtype": "Currency",
+   "label": "Unloading Rate (per maund)",
+   "default": "1.5"
+  },
+  {
+   "fieldname": "contract_labour_account",
+   "fieldtype": "Link",
+   "options": "Account",
+   "label": "Cane Loading & Unloading Account"
+  },
+  {
+   "fieldname": "idle_rate_per_hour",
+   "fieldtype": "Currency",
+   "label": "Unloading Idle Payment (per hour the mill is stopped)",
+   "default": "1500"
+  },
+  {
+   "fieldname": "idle_min_minutes",
+   "fieldtype": "Int",
+   "label": "Pay idle time for stoppages of at least (minutes)",
+   "default": "30"
+  },
+  {
+   "fieldname": "idle_categories",
+   "fieldtype": "Small Text",
+   "label": "Stoppage categories that earn idle payment",
+   "default": "Mechanical\nElectrical\nProcess\nPower\nNo Cane",
+   "description": "One per line, as on Mill Stoppage"
+  },
+  {
+   "fieldname": "payable_days",
+   "fieldtype": "Int",
+   "label": "Pay growers within (days)",
+   "default": "15",
+   "description": "CPRs unpaid for longer show in the overdue bucket and on the home page"
+  },
+  {
+   "fieldname": "sb_bank_letters",
+   "fieldtype": "Section Break",
+   "label": "Bank Letters",
+   "collapsible": 1,
+   "description": "Printed on the payment schedule, the instruction letters and stop-payment letters"
+  },
+  {
+   "fieldname": "payer_bank_name",
+   "fieldtype": "Data",
+   "label": "Our Bank"
+  },
+  {
+   "fieldname": "payer_branch",
+   "fieldtype": "Data",
+   "label": "Branch (name and address)"
+  },
+  {
+   "fieldname": "payer_account_title",
+   "fieldtype": "Data",
+   "label": "Account Title"
+  },
+  {
+   "fieldname": "payer_account_no",
+   "fieldtype": "Data",
+   "label": "Account No"
+  },
+  {
+   "fieldname": "payer_iban",
+   "fieldtype": "Data",
+   "label": "IBAN"
+  },
+  {
+   "fieldname": "cb_bank_letters",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "letter_ref_prefix",
+   "fieldtype": "Data",
+   "label": "Letter Reference Prefix",
+   "default": "MSML/CANE"
+  },
+  {
+   "fieldname": "signatory_1",
+   "fieldtype": "Data",
+   "label": "Authorised Signatory 1 (name, title)"
+  },
+  {
+   "fieldname": "signatory_2",
+   "fieldtype": "Data",
+   "label": "Authorised Signatory 2 (name, title)"
+  },
+  {
+   "fieldname": "mill_address",
+   "fieldtype": "Small Text",
+   "label": "Mill Address (letterhead)"
+  },
+  {
+   "fieldname": "mill_phone",
+   "fieldtype": "Data",
+   "label": "Mill Phone / Email (letterhead)"
   },
   {
    "fieldname": "cb_stock",

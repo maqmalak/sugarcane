@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+@page { size: A4; margin: 12mm 12mm 14mm 12mm; }
+body { margin: 0; }
+.page { page-break-after: always; }
+.page:last-child { page-break-after: auto; }
+.lh { width: 100%; border-bottom: 3px solid #15803d; font-family: Helvetica, Arial, sans-serif; margin-bottom: 10px; }
+.lh td { border: 0; padding: 0 0 6px; vertical-align: middle; }
+.lh .mark { width: 48px; height: 48px; border-radius: 10px; background: #15803d; color: #fff; font-size: 26px; font-weight: bold; text-align: center; line-height: 48px; }
+.lh .co { font-size: 20px; font-weight: bold; color: #0f172a; }
+.lh .addr { font-size: 11px; color: #475569; }
+.lh .contact { text-align: right; font-size: 10px; color: #475569; }
+.lf { border-top: 1px solid #cbd5e1; font-size: 9px; color: #64748b; text-align: center; font-family: Helvetica, Arial, sans-serif; padding-top: 4px; margin-top: 14px; }
+.re-doc { font-family: Helvetica, Arial, sans-serif; font-size: 12px; color: #1f2937; line-height: 1.5; }
+.re-doc h2 { font-size: 17px; text-align: center; letter-spacing: .6px; margin: 6px 0 2px; text-transform: uppercase; }
+.re-doc h3 { font-size: 13px; margin: 14px 0 4px; color: #14532d; border-bottom: 1px solid #bbf7d0; padding-bottom: 2px; }
+.re-doc .sub { text-align: center; color: #6b7280; margin-bottom: 12px; }
+.re-doc table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+.re-doc th, .re-doc td { border: 1px solid #d1d5db; padding: 4px 6px; text-align: left; vertical-align: top; }
+.re-doc th { background: #f0fdf4; width: 32%; }
+.re-doc .grid th { width: auto; font-size: 10.5px; }
+.re-doc .grid td { font-size: 11px; }
+.re-doc .r { text-align: right; white-space: nowrap; }
+.re-doc .mono { font-family: "DejaVu Sans Mono", monospace; font-size: 10px; white-space: nowrap; }
+.re-doc .muted { color: #6b7280; }
+.re-doc tr.sum td, .re-doc tr.sum th { background: #f8fafc; font-weight: bold; }
+.re-doc tr.grand td, .re-doc tr.grand th { background: #dcfce7; font-weight: bold; font-size: 12px; }
+.re-doc table.sign { margin-top: 56px; border: 0; }
+.re-doc table.sign td { border: 0; border-top: 1px solid #6b7280; text-align: center; padding-top: 4px; width: 40%; }
+.re-doc table.sign td.gap { border-top: 0; width: 20%; }
+.re-doc .qr { float: right; width: 84px; height: 84px; }
+.re-doc .box { border: 1px solid #d1d5db; padding: 8px 10px; border-radius: 4px; margin: 8px 0; }
+.re-doc .red { color: #b91c1c; font-weight: bold; }
+.re-doc .meta td { border: 0; padding: 1px 0; }
+.re-doc p { margin: 6px 0; }
+</style></head><body>
+{% block body %}{% endblock %}
+</body></html>

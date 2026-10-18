@@ -144,6 +144,15 @@ def _alerts(approvals_total):
 			and not exists (select 1 from `tabDaily Production Entry` e where e.crushing_day = d.crushing_day and e.docstatus = 1)""")[0][0]
 		add("sc_production_post", pending, _("Approved days not posted to production"), _("Post the Work Order and Manufacture entry"),
 			"/production", "amber")
+	if _can("Sugar Vault Document"):
+		add("sc_vault_expiring", frappe.db.count("Sugar Vault Document", {"status": ["in", ["Expiring Soon", "Expired"]]}),
+			_("Vault papers expiring or expired"), _("Renew them or upload the new copy"), "/accounts/documents", "amber")
+	if _can("Cane Payment Scroll"):
+		days = cint(frappe.db.get_single_value("Sugar Settings", "payable_days") or 15)
+		late = frappe.db.sql("""select count(*) from `tabCane Purchase Receipt` where docstatus = 1 and payment_status = 'Unpaid'
+			and posting_date < %s""", add_days(nowdate(), -days))[0][0]
+		add("sc_growers_unpaid", late, _("CPRs unpaid for more than {0} days").format(days), _("Put them on a payment scroll"),
+			"/accounts/scroll", "red")
 	if _can("Mill Stoppage"):
 		add("sc_mill_stopped", frappe.db.count("Mill Stoppage", {"end": ["is", "not set"]}), _("The mill is stopped"), _("A stoppage has no restart time"),
 			"/lab/stoppages", "red")

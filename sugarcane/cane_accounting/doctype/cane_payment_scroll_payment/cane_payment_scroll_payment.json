@@ -1,0 +1,126 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "grower",
+  "grower_name",
+  "cnic",
+  "bank_name",
+  "account_title",
+  "iban",
+  "cprs",
+  "amount",
+  "payment_entry",
+  "stop_requested",
+  "stop_reason",
+  "stop_requested_on",
+  "stop_letter_no"
+ ],
+ "fields": [
+  {
+   "fieldname": "grower",
+   "fieldtype": "Link",
+   "options": "Grower",
+   "label": "Grower",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "grower_name",
+   "fieldtype": "Data",
+   "label": "Grower Name",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cnic",
+   "fieldtype": "Data",
+   "label": "CNIC",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bank_name",
+   "fieldtype": "Data",
+   "label": "Bank",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "account_title",
+   "fieldtype": "Data",
+   "label": "Account Title",
+   "read_only": 1
+  },
+  {
+   "fieldname": "iban",
+   "fieldtype": "Data",
+   "label": "IBAN",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cprs",
+   "fieldtype": "Int",
+   "label": "CPRs",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "Amount",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "payment_entry",
+   "fieldtype": "Link",
+   "options": "Payment Entry",
+   "label": "Payment Entry",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "stop_requested",
+   "fieldtype": "Check",
+   "label": "Stop Payment Requested",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "stop_reason",
+   "fieldtype": "Small Text",
+   "label": "Stop Reason",
+   "read_only": 1
+  },
+  {
+   "fieldname": "stop_requested_on",
+   "fieldtype": "Datetime",
+   "label": "Stop Requested On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "stop_letter_no",
+   "fieldtype": "Data",
+   "label": "Stop Letter No",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cane Accounting",
+ "name": "Cane Payment Scroll Payment",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0,
+ "istable": 1,
+ "editable_grid": 0
+}

@@ -1,0 +1,32 @@
+{% extends "sugarcane/templates/bank/_base.html" %}
+{% block body %}
+{%- from "sugarcane/templates/bank/_macros.html" import letterhead, footer, signatures with context -%}
+<div class="page">{{ letterhead() }}<div class="re-doc">
+<img class="qr" src="{{ qr }}">
+<h2>Contractor Bill</h2>
+<div class="sub">{{ doc.name }} · {{ doc.bill_type }} · {{ fmt_date(doc.from_date) }} – {{ fmt_date(doc.to_date) }} · <b>{{ doc.status }}</b></div>
+<table>
+<tr><th>Contractor</th><td><b>{{ sup.supplier_name or doc.contractor }}</b>{% if sup.tax_id %} · NTN {{ sup.tax_id }}{% endif %}</td></tr>
+{% if doc.unloading_contract %}<tr><th>Contract</th><td>{{ doc.unloading_contract }}</td></tr>{% endif %}
+{% if doc.loading_point %}<tr><th>Loading point</th><td>{{ doc.loading_point }}</td></tr>{% endif %}
+{% if doc.depot %}<tr><th>Depot</th><td>{{ doc.depot }}</td></tr>{% endif %}
+<tr><th>Bill date</th><td>{{ fmt_date(doc.bill_date) }}</td></tr>
+</table>
+<table class="grid"><tr><th>Head</th><th class="r">Lines</th><th class="r">Maund / hours</th><th class="r">Amount (Rs)</th><th class="r">Deduction (Rs)</th></tr>
+{% for head, g in groups.items() %}<tr><td>{{ head }}</td><td class="r">{{ g.rows|length }}</td>
+<td class="r">{% if g.hours %}{{ "{:,.2f}".format(g.hours) }} h{% else %}{{ "{:,.1f}".format(g.maund) }} md{% endif %}</td><td class="r">{{ money(g.amount) }}</td><td class="r">{{ money(g.deduction) if g.deduction else "" }}</td></tr>{% endfor %}
+<tr class="sum"><td>Gross</td><td></td><td></td><td class="r">{{ money(doc.gross_amount) }}</td><td class="r">{{ money(doc.deductions) if doc.deductions else "" }}</td></tr>
+<tr class="grand"><td colspan="3">Net payable</td><td class="r" colspan="2">{{ money(doc.net_amount) }}</td></tr></table>
+<div class="box">Amount in words: <b>{{ words(doc.net_amount) }}</b>{% if doc.status == "Statement" %} · <span class="muted">freight and commission were posted with each crushing day; this bill is the statement</span>{% endif %}{% if doc.journal_entry %} · journal {{ doc.journal_entry }}{% endif %}</div>
+{% for head, g in groups.items() %}
+<h3>{{ head }}</h3>
+<table class="grid"><tr><th>#</th><th>Day</th><th>Reference</th><th>Vehicle</th><th>What</th><th class="r">{% if g.hours %}Hours{% else %}Maund{% endif %}</th><th class="r">Rate</th><th class="r">Amount</th>{% if g.deduction %}<th class="r">Deduction</th>{% endif %}</tr>
+{% for i in g.rows %}<tr><td>{{ loop.index }}</td><td>{{ fmt_date(i.posting_date) }}</td><td class="mono">{{ i.reference_name }}</td><td class="mono">{{ i.vehicle_no or "" }}</td>
+<td>{{ i.description }}</td><td class="r">{% if i.hours %}{{ "{:,.2f}".format(i.hours) }}{% elif i.maund %}{{ "{:,.3f}".format(i.maund) }}{% endif %}</td><td class="r">{{ money(i.rate) if i.rate else "" }}</td><td class="r">{{ money(i.amount) }}</td>
+{% if g.deduction %}<td class="r">{{ money(i.deduction) if i.deduction else "" }}</td>{% endif %}</tr>{% endfor %}
+<tr class="sum"><td colspan="7">{{ head }} total</td><td class="r">{{ money(g.amount) }}</td>{% if g.deduction %}<td class="r">{{ money(g.deduction) }}</td>{% endif %}</tr></table>
+{% endfor %}
+<table class="sign"><tr><td>Prepared (cane accounts)</td><td class="gap"></td><td>Contractor (received)</td></tr></table>
+{{ signatures() }}
+</div>{{ footer("Contractor bill " ~ doc.name) }}</div>
+{% endblock %}

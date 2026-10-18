@@ -1,0 +1,152 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "loan_type_name",
+  "purpose",
+  "is_active",
+  "cb1",
+  "markup_pct",
+  "recovery_pct",
+  "max_amount",
+  "max_per_acre",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "loan_type_name",
+   "fieldtype": "Data",
+   "label": "Loan Type",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "purpose",
+   "fieldtype": "Select",
+   "options": "Seed\nFertilizer\nPesticide\nCash\nMachinery\nOther",
+   "label": "Purpose",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Active",
+   "default": "1"
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "markup_pct",
+   "fieldtype": "Percent",
+   "label": "Markup % a Year",
+   "description": "Simple markup on the outstanding amount, accrued monthly",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "recovery_pct",
+   "fieldtype": "Percent",
+   "label": "Recovered from Each CPR (% of its net)",
+   "description": "Up to this share of a CPR's net amount (after TPT) goes to the loan",
+   "in_list_view": 1,
+   "default": "50"
+  },
+  {
+   "fieldname": "max_amount",
+   "fieldtype": "Currency",
+   "label": "Largest Loan"
+  },
+  {
+   "fieldname": "max_per_acre",
+   "fieldtype": "Currency",
+   "label": "Largest Loan per Surveyed Acre",
+   "description": "0 = no limit"
+  },
+  {
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "label": "Demo Record",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1,
+   "default": "0"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Grower Loans",
+ "name": "Grower Loan Type",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1
+  },
+  {
+   "role": "Cane Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1
+  },
+  {
+   "role": "Cane Accountant",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1
+  },
+  {
+   "role": "Cane Manager",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Circle Officer",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "MIS Viewer",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "autoname": "field:loan_type_name",
+ "title_field": "loan_type_name"
+}

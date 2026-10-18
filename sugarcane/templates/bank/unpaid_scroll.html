@@ -1,0 +1,20 @@
+{% extends "sugarcane/templates/bank/_base.html" %}
+{% block body %}
+{%- from "sugarcane/templates/bank/_macros.html" import letterhead, footer, signatures, payer with context -%}
+<div class="page">{{ letterhead() }}<div class="re-doc">
+<img class="qr" src="{{ qr }}">
+<h2>Bank Scroll — Unpaid CPRs</h2>
+<div class="sub">Cane purchase receipts not yet paid · as on {{ fmt_date(as_on) }}{% if upto %} · CPRs up to {{ fmt_date(upto) }}{% endif %}{% if circle %} · circle {{ circle }}{% endif %}</div>
+<table class="grid"><tr><th>Bank</th><th class="r">Growers</th><th class="r">CPRs</th><th class="r">Oldest (days)</th><th class="r">Amount (Rs)</th></tr>
+{% for g in groups %}<tr><td>{{ g.bank }}</td><td class="r">{{ g.rows|length }}</td><td class="r">{{ g.cprs }}</td><td class="r">{{ g.oldest }}</td><td class="r">{{ money(g.amount) }}</td></tr>{% endfor %}
+<tr class="grand"><td>Total</td><td class="r">{{ growers }}</td><td class="r">{{ cprs }}</td><td></td><td class="r">{{ money(total) }}</td></tr></table>
+{% for g in groups %}
+<h3>{{ g.bank }}</h3>
+<table class="grid"><tr><th>#</th><th>Grower</th><th>CNIC</th><th>IBAN</th><th>CPR · day · days</th><th class="r">Amount (Rs)</th></tr>
+{% for p in g.rows %}<tr><td>{{ loop.index }}</td><td>{{ p.grower_name }}<div class="muted">{{ p.grower }} · {{ p.circle or "" }}</div></td><td class="mono">{{ p.cnic or "" }}</td>
+<td class="mono">{{ p.iban or "—" }}</td><td class="mono">{% for c in p.cprs %}{{ c.name }} · {{ fmt_date(c.posting_date) }} · {{ c.days }}d<br>{% endfor %}</td><td class="r">{{ money(p.amount) }}</td></tr>{% endfor %}
+<tr class="sum"><td colspan="5">{{ g.bank }} total</td><td class="r">{{ money(g.amount) }}</td></tr></table>
+{% endfor %}
+<div class="box muted">Growers listed under "No bank account" need their bank details on the grower record before they can be paid by transfer, or are paid by cheque.</div>
+</div>{{ footer() }}</div>
+{% endblock %}

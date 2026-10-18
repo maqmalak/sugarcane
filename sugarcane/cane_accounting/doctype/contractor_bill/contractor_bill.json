@@ -1,0 +1,328 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "contractor",
+  "bill_type",
+  "loading_point",
+  "depot",
+  "unloading_contract",
+  "cb1",
+  "from_date",
+  "to_date",
+  "bill_date",
+  "company",
+  "cb2",
+  "status",
+  "rate",
+  "idle_rate",
+  "idle_hours",
+  "idle_amount",
+  "journal_entry",
+  "sb_items",
+  "items",
+  "sb_tot",
+  "line_count",
+  "total_maund",
+  "cb_tot",
+  "gross_amount",
+  "deductions",
+  "net_amount",
+  "remarks",
+  "amended_from",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "options": "CB-.YY.-.####",
+   "label": "Series",
+   "hidden": 1,
+   "reqd": 1,
+   "default": "CB-.YY.-.####"
+  },
+  {
+   "fieldname": "contractor",
+   "fieldtype": "Link",
+   "options": "Supplier",
+   "label": "Contractor",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "bill_type",
+   "fieldtype": "Select",
+   "options": "Unloading at Mill\nLoading at Loading Point\nDepot Freight and Commission",
+   "label": "Bill For",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "loading_point",
+   "fieldtype": "Link",
+   "options": "Loading Point",
+   "label": "Loading Point",
+   "description": "Empty = every point of this contractor",
+   "depends_on": "eval:doc.bill_type=='Loading at Loading Point'"
+  },
+  {
+   "fieldname": "depot",
+   "fieldtype": "Link",
+   "options": "Cane Depot",
+   "label": "Depot",
+   "description": "Empty = every depot of this contractor",
+   "depends_on": "eval:doc.bill_type=='Depot Freight and Commission'"
+  },
+  {
+   "fieldname": "unloading_contract",
+   "fieldtype": "Link",
+   "options": "Unloading Contract",
+   "label": "Unloading Contract",
+   "read_only": 1,
+   "depends_on": "eval:doc.bill_type=='Unloading at Mill'"
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "From",
+   "reqd": 1
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "To",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bill_date",
+   "fieldtype": "Date",
+   "label": "Bill Date",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "options": "Company",
+   "label": "Company",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "options": "Draft\nPosted\nStatement\nCancelled",
+   "label": "Status",
+   "description": "Statement = depot freight and commission already posted at day close",
+   "read_only": 1,
+   "in_list_view": 1,
+   "bold": 1,
+   "default": "Draft"
+  },
+  {
+   "fieldname": "rate",
+   "fieldtype": "Currency",
+   "label": "Rate per Maund",
+   "description": "Unloading: Sugar Settings; loading: each point's rate"
+  },
+  {
+   "fieldname": "idle_rate",
+   "fieldtype": "Currency",
+   "label": "Idle Rate (per hour stopped)",
+   "depends_on": "eval:doc.bill_type=='Unloading at Mill'",
+   "description": "Paid for the hours the mill was stopped (Sugar Settings → idle payment)"
+  },
+  {
+   "fieldname": "idle_hours",
+   "fieldtype": "Float",
+   "label": "Idle Hours",
+   "read_only": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "idle_amount",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Idle Payment",
+   "read_only": 1
+  },
+  {
+   "fieldname": "journal_entry",
+   "fieldtype": "Link",
+   "options": "Journal Entry",
+   "label": "Journal Entry",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "sb_items",
+   "fieldtype": "Section Break",
+   "label": "Lines"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "options": "Contractor Bill Item",
+   "label": "Lines",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_tot",
+   "fieldtype": "Section Break",
+   "label": "Totals"
+  },
+  {
+   "fieldname": "line_count",
+   "fieldtype": "Int",
+   "label": "Lines",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_maund",
+   "fieldtype": "Float",
+   "label": "Maund",
+   "read_only": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "cb_tot",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "gross_amount",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Gross",
+   "read_only": 1
+  },
+  {
+   "fieldname": "deductions",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Deductions",
+   "read_only": 1
+  },
+  {
+   "fieldname": "net_amount",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Net Payable",
+   "read_only": 1,
+   "in_list_view": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "options": "Contractor Bill",
+   "label": "Amended From",
+   "read_only": 1,
+   "no_copy": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "label": "Demo Record",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1,
+   "default": "0"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cane Accounting",
+ "name": "Contractor Bill",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Cane Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Cane Accountant",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Cane Manager",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "MIS Viewer",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "sort_field": "bill_date",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "is_submittable": 1,
+ "autoname": "naming_series:",
+ "title_field": "contractor"
+}

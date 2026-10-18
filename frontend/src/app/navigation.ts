@@ -27,6 +27,7 @@ const ELP_ROLES = [...MANAGERS, "ELP Auditor", "Token Clerk", "Yard Supervisor",
 const PROC_ROLES = [...MANAGERS, "Token Clerk", "Gross Weighman", "Tare Weighman", "Yard Supervisor", "Cane Cashier", "Cane Accountant", "MIS Viewer"];
 const DEPOT_ROLES = [...MANAGERS, "Depot User", "Gross Weighman", "Tare Weighman", "Yard Supervisor", "Cane Accountant", "MIS Viewer"];
 const LAB_ROLES = [...MANAGERS, "Lab Chemist", "Production Manager", "MIS Viewer"];
+const ACC_ROLES = [...MANAGERS, "Cane Accountant", "Cane Cashier", "MIS Viewer"];
 const SURVEY_ROLES = [...MANAGERS, "Circle Officer", "Surveyor", "MIS Viewer"];
 const FF_ROLES = [...MANAGERS, "Circle Officer"];
 
@@ -173,13 +174,28 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
     ...docGroups("production", LAB_ROLES),
     { title: "Reports", items: [{ label: "Production reports", to: "/reports?g=Production", icon: BarChart3 }] },
   ],
+  accounts: [
+    {
+      title: "Cane accounts",
+      items: [
+        { label: "Dashboard", to: "/accounts", icon: Sparkles, roles: ACC_ROLES },
+        { label: "Payment scroll", to: "/accounts/scroll", icon: ScanBarcode, roles: ACC_ROLES },
+        { label: "Road cess", to: "/accounts/cess", icon: Banknote, roles: ACC_ROLES },
+        { label: "Grower loans", to: "/accounts/loans", icon: Users, roles: [...ACC_ROLES, "Circle Officer"] },
+        { label: "Grower statement", to: "/accounts/grower", icon: FileSpreadsheet, roles: [...ACC_ROLES, "Circle Officer"] },
+        { label: "Contractor bills", to: "/accounts/contractors", icon: Truck, roles: ACC_ROLES },
+        { label: "Document vault", to: "/accounts/documents", icon: Layers, roles: [...ACC_ROLES, "Circle Officer"] },
+      ],
+    },
+    ...docGroups("accounts", ACC_ROLES),
+    { title: "Reports", items: [{ label: "Cane accounts reports", to: "/reports?g=Cane%20Accounts", icon: BarChart3 }, { label: "Costing", to: "/reports?g=Costing", icon: BarChart3 }] },
+  ],
   reports: [{ title: "Reports", items: [{ label: "Report Centre", to: "/reports", icon: FileSpreadsheet }] }],
   approvals: [{ title: "Approvals", items: [{ label: "Inbox", to: "/approvals/inbox", icon: Inbox }, { label: "Overlap reviews", to: "/survey/d/survey-overlap-review", icon: Layers }] }],
   mill: [
     {
       title: "Coming in later phases",
       items: [
-        { label: "Cane accounts & loans (Phase 6)", to: "/mill/accounts", icon: Banknote },
         { label: "MIS (Phase 8)", to: "/mill/mis", icon: Gauge },
       ],
     },
@@ -197,6 +213,7 @@ export const APP_LABELS: Record<string, string> = {
   depot: "Depots",
   lab: "Laboratory",
   production: "Sugar Production",
+  accounts: "Cane Accounts",
   "field-force": "Field Force",
   setup: "Sugar Setup",
   reports: "Report Centre",
@@ -244,6 +261,13 @@ export const ROUTE_TITLES: Record<string, string> = {
   dmr: "DMR",
   production: "Production",
   plant: "Plant Levels",
+  accounts: "Cane Accounts",
+  scroll: "Payment Scroll",
+  cess: "Road Cess",
+  loans: "Loans",
+  grower: "Grower Statement",
+  documents: "Document Vault",
+  contractors: "Contractor Bills",
   generate: "Generate",
   lookup: "Look up",
   elp: "ELP",

@@ -1,7 +1,7 @@
 # MicroMax Sugar Mills Ltd. — Sugar ERP Architecture (Phase 0, for approval)
 
 App `sugarcane` · site `sugarcane` · Frappe 16.34 / ERPNext 16.35 / HRMS · Python 3.14 · Node 24 · MariaDB
-Status: **approved 2026-10-13** (v3: decisions below). Phases 0–5 and ELP are built; see `docs/PHASE_0.md` … `PHASE_5.md`, `ELP.md`.
+Status: **approved 2026-10-13** (v3: decisions below). Phases 0–6 and ELP are built; see `docs/PHASE_0.md` … `PHASE_6.md`, `ELP.md`.
 
 ### Decisions (2026-10-13)
 

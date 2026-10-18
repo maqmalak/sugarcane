@@ -279,6 +279,11 @@ def day_checks(day: str | None = None) -> dict:
 		{"key": "grower", "label": _("Grower Payable"), "ledger": bal(s.grower_payable_account), "expected": grower,
 			"hint": _("= payable on unpaid CPRs")},
 	]
+	if s.grower_loan_account and frappe.db.count("Grower Loan", {"docstatus": 1}):
+		loans = flt(frappe.db.sql("""select ifnull(sum(outstanding), 0) from `tabGrower Loan` where docstatus = 1
+			and status in ('Disbursed', 'Recovered')""")[0][0]) if not on else None
+		checks.append({"key": "loans", "label": _("Grower Loan Receivable"), "ledger": -bal(s.grower_loan_account),
+			"expected": loans if loans is not None else -bal(s.grower_loan_account), "hint": _("= outstanding loans (with markup)")})
 	for c in checks:
 		c["ledger"], c["expected"] = flt(c["ledger"], 2), flt(c["expected"], 2)
 		c["ok"] = abs(c["ledger"] - c["expected"]) < 0.01 or (c["key"] == "clearing" and open_days)

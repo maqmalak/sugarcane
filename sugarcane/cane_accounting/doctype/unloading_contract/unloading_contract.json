@@ -1,0 +1,234 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "contract_no",
+  "contractor",
+  "status",
+  "cb1",
+  "valid_from",
+  "valid_to",
+  "security_deposit",
+  "sb_rates",
+  "rate_per_maund",
+  "cb_rates",
+  "include_depot_trucks",
+  "rates",
+  "sb_idle",
+  "idle_rate_per_hour",
+  "idle_min_minutes",
+  "cb_idle",
+  "idle_max_hours_per_day",
+  "idle_categories",
+  "sb_terms",
+  "terms",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "contract_no",
+   "fieldtype": "Data",
+   "label": "Contract No",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "contractor",
+   "fieldtype": "Link",
+   "options": "Supplier",
+   "label": "Contractor",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "options": "Active\nExpired\nTerminated",
+   "label": "Status",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "valid_from",
+   "fieldtype": "Date",
+   "label": "Valid From",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "valid_to",
+   "fieldtype": "Date",
+   "label": "Valid To",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "security_deposit",
+   "fieldtype": "Currency",
+   "label": "Security Deposit"
+  },
+  {
+   "fieldname": "sb_rates",
+   "fieldtype": "Section Break",
+   "label": "Rates"
+  },
+  {
+   "fieldname": "rate_per_maund",
+   "fieldtype": "Currency",
+   "label": "Rate per Maund Unloaded",
+   "description": "For every vehicle type without its own rate below",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cb_rates",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "include_depot_trucks",
+   "fieldtype": "Check",
+   "label": "Pay for Depot Trucks Unloaded",
+   "default": "1"
+  },
+  {
+   "fieldname": "rates",
+   "fieldtype": "Table",
+   "options": "Unloading Contract Rate",
+   "label": "Rates by Vehicle Type",
+   "description": "Overrides the rate per maund; a rate per vehicle is added on top"
+  },
+  {
+   "fieldname": "sb_idle",
+   "fieldtype": "Section Break",
+   "label": "Idle Payment (mill stopped)"
+  },
+  {
+   "fieldname": "idle_rate_per_hour",
+   "fieldtype": "Currency",
+   "label": "Idle Rate per Hour"
+  },
+  {
+   "fieldname": "idle_min_minutes",
+   "fieldtype": "Int",
+   "label": "Paid for Stoppages of at Least (minutes)",
+   "default": "30"
+  },
+  {
+   "fieldname": "cb_idle",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "idle_max_hours_per_day",
+   "fieldtype": "Float",
+   "label": "Most Idle Hours Paid per Day",
+   "description": "0 = no cap",
+   "precision": "1"
+  },
+  {
+   "fieldname": "idle_categories",
+   "fieldtype": "Small Text",
+   "label": "Stoppage Categories Paid",
+   "description": "One per line, as on Mill Stoppage"
+  },
+  {
+   "fieldname": "sb_terms",
+   "fieldtype": "Section Break",
+   "label": "Terms",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "terms",
+   "fieldtype": "Small Text",
+   "label": "Terms"
+  },
+  {
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "label": "Demo Record",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1,
+   "default": "0"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cane Accounting",
+ "name": "Unloading Contract",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1
+  },
+  {
+   "role": "Cane Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1
+  },
+  {
+   "role": "Cane Accountant",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1
+  },
+  {
+   "role": "Cane Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1
+  },
+  {
+   "role": "MIS Viewer",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "sort_field": "valid_from",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "autoname": "field:contract_no",
+ "title_field": "contractor"
+}

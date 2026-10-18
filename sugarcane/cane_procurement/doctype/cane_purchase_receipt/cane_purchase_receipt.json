@@ -85,6 +85,9 @@
   "cb_links",
   "daily_purchase",
   "cess_deposited",
+  "road_cess_deposit",
+  "payment_scroll",
+  "paid_on",
   "cb_links2",
   "print_count",
   "amended_from",
@@ -619,6 +622,29 @@
    "fieldname": "cess_deposited",
    "fieldtype": "Check",
    "label": "Road Cess Deposited",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "road_cess_deposit",
+   "fieldtype": "Link",
+   "options": "Road Cess Deposit",
+   "label": "Road Cess Deposit",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "payment_scroll",
+   "fieldtype": "Link",
+   "options": "Cane Payment Scroll",
+   "label": "Payment Scroll",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "paid_on",
+   "fieldtype": "Date",
+   "label": "Paid On",
    "read_only": 1,
    "no_copy": 1
   },

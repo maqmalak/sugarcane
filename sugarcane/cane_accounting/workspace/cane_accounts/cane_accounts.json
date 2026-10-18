@@ -1,0 +1,254 @@
+{
+ "app": "sugarcane",
+ "charts": [],
+ "content": "[{\"id\": \"sc_ca_h1\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Shortcuts</b></span>\", \"col\": 12}}, {\"id\": \"sc_ca_s0\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Accounts Dashboard\", \"col\": 3}}, {\"id\": \"sc_ca_s1\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Payment Scroll\", \"col\": 3}}, {\"id\": \"sc_ca_s2\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Road Cess\", \"col\": 3}}, {\"id\": \"sc_ca_s3\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Grower Loans\", \"col\": 3}}, {\"id\": \"sc_ca_s4\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Contractor Bills\", \"col\": 3}}, {\"id\": \"sc_ca_s5\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Document Vault\", \"col\": 3}}, {\"id\": \"sc_ca_sp\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"sc_ca_c1\", \"type\": \"card\", \"data\": {\"card_name\": \"Records\", \"col\": 4}}, {\"id\": \"sc_ca_c2\", \"type\": \"card\", \"data\": {\"card_name\": \"Reports\", \"col\": 4}}]",
+ "creation": "2026-10-19 01:00:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "accounting",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "Cane Accounts",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Records",
+   "link_count": 8,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Cane Payment Scroll",
+   "link_count": 0,
+   "link_to": "Cane Payment Scroll",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Road Cess Deposit",
+   "link_count": 0,
+   "link_to": "Road Cess Deposit",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Grower Loan",
+   "link_count": 0,
+   "link_to": "Grower Loan",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Grower Loan Type",
+   "link_count": 0,
+   "link_to": "Grower Loan Type",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Contractor Bill",
+   "link_count": 0,
+   "link_to": "Contractor Bill",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Unloading Contract",
+   "link_count": 0,
+   "link_to": "Unloading Contract",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sugar Vault Document",
+   "link_count": 0,
+   "link_to": "Sugar Vault Document",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sugar Generated Document",
+   "link_count": 0,
+   "link_to": "Sugar Generated Document",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Reports",
+   "link_count": 9,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Grower Ledger",
+   "link_count": 0,
+   "link_to": "Grower Ledger",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Grower Payable Aging",
+   "link_count": 0,
+   "link_to": "Grower Payable Aging",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Grower Trial Balance",
+   "link_count": 0,
+   "link_to": "Grower Trial Balance",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "CPR Paid Unpaid",
+   "link_count": 0,
+   "link_to": "CPR Paid Unpaid",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Road Cess Deducted vs Deposited",
+   "link_count": 0,
+   "link_to": "Road Cess Deducted vs Deposited",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Grower Loan Register",
+   "link_count": 0,
+   "link_to": "Grower Loan Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Cane Cost per Maund",
+   "link_count": 0,
+   "link_to": "Cane Cost per Maund",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Cost of Production per Bag",
+   "link_count": 0,
+   "link_to": "Cost of Production per Bag",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Depot Excess Short",
+   "link_count": 0,
+   "link_to": "Depot Excess Short",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-10-19 01:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cane Accounting",
+ "name": "Cane Accounts",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 38.0,
+ "shortcuts": [
+  {
+   "color": "Blue",
+   "label": "Accounts Dashboard",
+   "type": "URL",
+   "url": "/sugar/accounts"
+  },
+  {
+   "color": "Green",
+   "label": "Payment Scroll",
+   "type": "URL",
+   "url": "/sugar/accounts/scroll"
+  },
+  {
+   "color": "Orange",
+   "label": "Road Cess",
+   "type": "URL",
+   "url": "/sugar/accounts/cess"
+  },
+  {
+   "color": "Purple",
+   "label": "Grower Loans",
+   "type": "URL",
+   "url": "/sugar/accounts/loans"
+  },
+  {
+   "color": "Cyan",
+   "label": "Contractor Bills",
+   "type": "URL",
+   "url": "/sugar/accounts/contractors"
+  },
+  {
+   "color": "Yellow",
+   "label": "Document Vault",
+   "type": "URL",
+   "url": "/sugar/accounts/documents"
+  }
+ ],
+ "title": "Cane Accounts",
+ "type": "Workspace"
+}

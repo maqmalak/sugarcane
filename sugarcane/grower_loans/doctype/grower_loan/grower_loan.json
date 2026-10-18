@@ -1,0 +1,389 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "grower",
+  "grower_name",
+  "circle",
+  "loan_type",
+  "cb1",
+  "season",
+  "company",
+  "application_date",
+  "status",
+  "approved_by",
+  "approved_on",
+  "cb2",
+  "guarantor",
+  "guarantor_name",
+  "surveyed_acres",
+  "sb_amt",
+  "amount",
+  "requested_amount",
+  "eligible_amount",
+  "expected_cane_maund",
+  "expected_cane_value",
+  "markup_pct",
+  "recovery_pct",
+  "cb_amt",
+  "disbursed_on",
+  "disbursement_journal",
+  "bank_account",
+  "cb_amt2",
+  "markup_accrued",
+  "recovered",
+  "outstanding",
+  "sb_rec",
+  "recoveries_html",
+  "remarks",
+  "amended_from",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "options": "LN-.YY.-.#####",
+   "label": "Series",
+   "hidden": 1,
+   "reqd": 1,
+   "default": "LN-.YY.-.#####"
+  },
+  {
+   "fieldname": "grower",
+   "fieldtype": "Link",
+   "options": "Grower",
+   "label": "Grower",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "grower_name",
+   "fieldtype": "Data",
+   "label": "Grower Name",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "circle",
+   "fieldtype": "Link",
+   "options": "Cane Circle",
+   "label": "Circle",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "loan_type",
+   "fieldtype": "Link",
+   "options": "Grower Loan Type",
+   "label": "Loan Type",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "season",
+   "fieldtype": "Link",
+   "options": "Crushing Season",
+   "label": "Season",
+   "reqd": 1,
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "options": "Company",
+   "label": "Company",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "application_date",
+   "fieldtype": "Date",
+   "label": "Applied On",
+   "reqd": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "options": "Draft\nApproved\nDisbursed\nRecovered\nWritten Off\nCancelled",
+   "label": "Status",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "bold": 1,
+   "default": "Draft"
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Approved By",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "approved_on",
+   "fieldtype": "Datetime",
+   "label": "Approved On",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "guarantor",
+   "fieldtype": "Link",
+   "options": "Grower",
+   "label": "Guarantor"
+  },
+  {
+   "fieldname": "guarantor_name",
+   "fieldtype": "Data",
+   "label": "Guarantor Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "surveyed_acres",
+   "fieldtype": "Float",
+   "label": "Surveyed Acres (season)",
+   "read_only": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "sb_amt",
+   "fieldtype": "Section Break",
+   "label": "Amount"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Approved Amount",
+   "reqd": 1,
+   "bold": 1,
+   "description": "What is lent. Starts as the amount applied for; the Cane Manager may lower it before approving."
+  },
+  {
+   "fieldname": "requested_amount",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Amount Applied For"
+  },
+  {
+   "fieldname": "eligible_amount",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Eligible Amount",
+   "read_only": 1,
+   "description": "The lowest of: the type's largest loan, its per-acre limit × surveyed acres, and the type's recovery share of the expected cane — less loans of this type already taken"
+  },
+  {
+   "fieldname": "expected_cane_maund",
+   "fieldtype": "Float",
+   "label": "Expected Cane (maund)",
+   "read_only": 1,
+   "precision": "0"
+  },
+  {
+   "fieldname": "expected_cane_value",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Expected Cane Value",
+   "read_only": 1
+  },
+  {
+   "fieldname": "markup_pct",
+   "fieldtype": "Percent",
+   "label": "Markup % a Year",
+   "read_only": 1
+  },
+  {
+   "fieldname": "recovery_pct",
+   "fieldtype": "Percent",
+   "label": "Recovered per CPR %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_amt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "disbursed_on",
+   "fieldtype": "Date",
+   "label": "Disbursed On",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "disbursement_journal",
+   "fieldtype": "Link",
+   "options": "Journal Entry",
+   "label": "Disbursement Journal",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "options": "Account",
+   "label": "Paid From (Bank)"
+  },
+  {
+   "fieldname": "cb_amt2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "markup_accrued",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Markup Accrued",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "recovered",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Recovered",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "outstanding",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Outstanding",
+   "read_only": 1,
+   "no_copy": 1,
+   "in_list_view": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "sb_rec",
+   "fieldtype": "Section Break",
+   "label": "Recoveries and Markup"
+  },
+  {
+   "fieldname": "recoveries_html",
+   "fieldtype": "HTML",
+   "label": "Recoveries"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "options": "Grower Loan",
+   "label": "Amended From",
+   "read_only": 1,
+   "no_copy": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "label": "Demo Record",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1,
+   "default": "0"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Grower Loans",
+ "name": "Grower Loan",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Cane Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Cane Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "submit": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Cane Accountant",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Circle Officer",
+   "read": 1,
+   "create": 1,
+   "write": 1,
+   "print": 1,
+   "report": 1
+  },
+  {
+   "role": "MIS Viewer",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "sort_field": "application_date",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "is_submittable": 1,
+ "autoname": "naming_series:",
+ "title_field": "grower_name",
+ "search_fields": "grower_name,loan_type"
+}

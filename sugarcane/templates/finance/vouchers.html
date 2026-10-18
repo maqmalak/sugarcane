@@ -1,0 +1,24 @@
+{% extends "sugarcane/templates/bank/_base.html" %}
+{% block body %}
+{%- from "sugarcane/templates/bank/_macros.html" import letterhead, footer with context -%}
+{% for v in vouchers %}
+<div class="page"{% if not loop.last %} style="page-break-after: always"{% endif %}>{{ letterhead() }}<div class="re-doc">
+<h2>{{ v.title }}</h2>
+<div class="sub"><b class="mono">{{ v.doc.name }}</b> · {{ fmt_date(v.doc.posting_date) }} · {{ "Posted" if v.doc.docstatus == 1 else ("Cancelled" if v.doc.docstatus == 2 else "Draft — not posted") }}</div>
+<table>
+{% if v.cheque %}<tr><th>Cheque / reference</th><td>{{ v.cheque }}{% if v.cheque_date %} dated {{ fmt_date(v.cheque_date) }}{% endif %}</td></tr>{% endif %}
+{% if v.doc.doctype == "Payment Entry" %}<tr><th>{{ "Paid to" if v.doc.payment_type == "Pay" else "Received from" }}</th><td><b>{{ v.doc.party_name or v.doc.party or "" }}</b></td></tr>{% endif %}
+</table>
+<table class="grid"><tr><th>#</th><th>Account</th><th>Party / cost centre</th><th class="r">Debit (Rs)</th><th class="r">Credit (Rs)</th></tr>
+{% for r in v.rows %}<tr><td>{{ loop.index }}</td><td>{{ r.account }}{% if r.remark %}<br><span class="muted">{{ r.remark }}</span>{% endif %}</td>
+<td>{{ r.party or "" }}{% if r.party and r.cost_center %} · {% endif %}{{ r.cost_center or "" }}</td>
+<td class="r">{{ money(r.debit) if r.debit else "" }}</td><td class="r">{{ money(r.credit) if r.credit else "" }}</td></tr>{% endfor %}
+<tr class="grand"><td colspan="3">Total</td><td class="r">{{ money(v.total) }}</td><td class="r">{{ money(v.total) }}</td></tr></table>
+<div class="box">Amount in words: <b>{{ words(v.total) }}</b></div>
+{% if v.narration %}<div class="box">Narration: {{ v.narration }}</div>{% endif %}
+<table class="sign"><tr><td>Prepared by</td><td class="gap"></td><td>Checked by</td></tr></table>
+<table class="sign"><tr><td>Approved by</td><td class="gap"></td><td>Received by</td></tr></table>
+{{ footer("Voucher " ~ v.doc.name) }}
+</div></div>
+{% endfor %}
+{% endblock %}

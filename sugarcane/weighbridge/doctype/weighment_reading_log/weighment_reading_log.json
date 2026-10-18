@@ -88,7 +88,7 @@
   {
    "fieldname": "used_for",
    "fieldtype": "Select",
-   "options": "\nGross\nTare\nDepot Tare\nDepot Gross\nMill Gross\nMill Tare",
+   "options": "\nGross\nTare\nDepot Tare\nDepot Gross\nMill Gross\nMill Tare\nSales Tare\nSales Gross",
    "label": "Used For",
    "read_only": 1,
    "in_standard_filter": 1

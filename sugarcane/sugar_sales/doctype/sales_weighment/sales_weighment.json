@@ -1,0 +1,330 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "delivery_note",
+  "customer",
+  "customer_name",
+  "cb1",
+  "status",
+  "vehicle_no",
+  "driver_name",
+  "terminal",
+  "sb_w",
+  "tare_kg",
+  "tare_at",
+  "gross_kg",
+  "gross_at",
+  "net_kg",
+  "cb2",
+  "bags",
+  "bag_weight_kg",
+  "packing_kg",
+  "expected_kg",
+  "difference_kg",
+  "difference_pct",
+  "allowed_pct",
+  "within_limit",
+  "remarks",
+  "amended_from",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "options": "SW-.YY.-.#####",
+   "label": "Series",
+   "read_only": 1,
+   "hidden": 1,
+   "default": "SW-.YY.-.#####"
+  },
+  {
+   "fieldname": "delivery_note",
+   "fieldtype": "Link",
+   "options": "Delivery Note",
+   "label": "Delivery Order (DN)",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "options": "Customer",
+   "label": "Customer",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "options": "Empty Weighed\nCompleted\nCancelled",
+   "label": "Status",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "default": "Empty Weighed"
+  },
+  {
+   "fieldname": "vehicle_no",
+   "fieldtype": "Data",
+   "label": "Vehicle No.",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "driver_name",
+   "fieldtype": "Data",
+   "label": "Driver"
+  },
+  {
+   "fieldname": "terminal",
+   "fieldtype": "Link",
+   "options": "Weighbridge Terminal",
+   "label": "Weighbridge"
+  },
+  {
+   "fieldname": "sb_w",
+   "fieldtype": "Section Break",
+   "label": "Weights"
+  },
+  {
+   "fieldname": "tare_kg",
+   "fieldtype": "Int",
+   "label": "Empty (Tare) kg",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tare_at",
+   "fieldtype": "Datetime",
+   "label": "Tare At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "gross_kg",
+   "fieldtype": "Int",
+   "label": "Loaded (Gross) kg",
+   "read_only": 1
+  },
+  {
+   "fieldname": "gross_at",
+   "fieldtype": "Datetime",
+   "label": "Gross At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "net_kg",
+   "fieldtype": "Int",
+   "label": "Net kg",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "bags",
+   "fieldtype": "Float",
+   "label": "Bags on the DO",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bag_weight_kg",
+   "fieldtype": "Float",
+   "label": "Bag Weight kg",
+   "read_only": 1
+  },
+  {
+   "fieldname": "packing_kg",
+   "fieldtype": "Float",
+   "label": "Packing kg",
+   "read_only": 1
+  },
+  {
+   "fieldname": "expected_kg",
+   "fieldtype": "Float",
+   "label": "Expected kg",
+   "read_only": 1
+  },
+  {
+   "fieldname": "difference_kg",
+   "fieldtype": "Float",
+   "label": "Difference kg",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "difference_pct",
+   "fieldtype": "Percent",
+   "label": "Difference %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "allowed_pct",
+   "fieldtype": "Percent",
+   "label": "Allowed ±%",
+   "read_only": 1
+  },
+  {
+   "fieldname": "within_limit",
+   "fieldtype": "Check",
+   "label": "Within Limit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "options": "Sales Weighment",
+   "label": "Amended From",
+   "read_only": 1,
+   "no_copy": 1,
+   "print_hide": 1
+  },
+  {
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "label": "Demo Record",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1,
+   "default": "0"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Sugar Sales",
+ "name": "Sales Weighment",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Sales Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Sales User",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1
+  },
+  {
+   "role": "Cane Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Gross Weighman",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1
+  },
+  {
+   "role": "Tare Weighman",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1
+  },
+  {
+   "role": "Accounts User",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "MIS Viewer",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "is_submittable": 1,
+ "autoname": "naming_series:",
+ "title_field": "vehicle_no",
+ "search_fields": "delivery_note,customer_name,vehicle_no"
+}

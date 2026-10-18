@@ -10,10 +10,11 @@ from frappe.utils import add_days, cstr, flt, fmt_money, formatdate, nowdate
 
 SUGAR_MODULES = ("Sugarcane", "EagleEye Survey", "Cane Indenting", "Vehicle Tracking", "Cane Procurement", "Weighbridge",
 	"Depot Purchase", "Cane Accounting", "Grower Loans", "Cane Costing", "Sugar Production", "Cane Laboratory",
-	"SMS Integration", "Sugar MIS")
+	"SMS Integration", "Sugar MIS", "Mill Stores", "Sugar Sales", "Mill Finance", "Mill HR")
 GROUPS = {"EagleEye Survey": "Crop Survey", "Cane Indenting": "Indenting", "Cane Procurement": "Procurement",
 	"Weighbridge": "Weighbridge", "Cane Accounting": "Cane Accounts", "Grower Loans": "Grower Loans", "Cane Costing": "Costing",
-	"Sugar Production": "Production", "Cane Laboratory": "Laboratory", "Sugar MIS": "MIS", "Sugarcane": "Masters", "Vehicle Tracking": "ELP", "Depot Purchase": "Depot"}
+	"Sugar Production": "Production", "Cane Laboratory": "Laboratory", "Sugar MIS": "MIS", "Sugarcane": "Masters", "Vehicle Tracking": "ELP", "Depot Purchase": "Depot",
+	"Mill Stores": "Purchase & Stores", "Sugar Sales": "Sugar Sales", "Mill Finance": "Finance", "Mill HR": "HR & Payroll"}
 SURVEY = ["season", "from_date", "to_date", "zone", "circle", "village", "variety", "crop_type", "survey_for"]
 FILTERS = {  # report -> filters it accepts (default by module below)
 	"Surveyor Attendance Report": ["from_date", "to_date", "surveyor", "circle", "attendance_status"],
@@ -38,6 +39,15 @@ FILTERS = {  # report -> filters it accepts (default by module below)
 	"Season Progress": ["season", "to_date"],
 	"Circle Wise Performance": ["season", "to_date"],
 	"Grower Supply Ranking": ["season", "circle"],
+	"Comparative Statement": ["from_date", "to_date"],
+	"Gate Pass Outstanding": ["from_date", "to_date"],
+	"Sugar Dispatch Register": ["from_date", "to_date"],
+	"Payables Projection": [],
+	"Post Dated Cheques": [],
+	"Earnings Per Share": ["from_date", "to_date"],
+	"WPPF and WWF": ["from_date", "to_date"],
+	"Voucher Register": ["from_date", "to_date"],
+	"Late Coming Register": [],
 }
 MODULE_FILTERS = {"EagleEye Survey": SURVEY, "Vehicle Tracking": ["from_date", "to_date", "circle"],
 	"Cane Procurement": ["from_date", "to_date", "circle"], "Weighbridge": ["from_date", "to_date"],
@@ -72,6 +82,15 @@ DESCRIPTIONS = {
 	"Season Progress": "Day by day: cane bought (gate / depots), crushed, sugar bags and recovery, with running totals against the season target",
 	"Circle Wise Performance": "Per circle: survey, quota, indents issued / used / expired and cane supplied — % of quota and of the survey",
 	"Grower Supply Ranking": "Growers by cane supplied: survey expected, loads, payable, paid, unpaid and loan outstanding",
+	"Comparative Statement": "Supplier quotations side by side per item: each rate, the lowest, the spread and the last PO rate",
+	"Gate Pass Outstanding": "Returnable items still outside the mill, with days overdue",
+	"Sugar Dispatch Register": "Delivery Orders lifted: bags, truck weight against expected, gate pass and billing",
+	"Payables Projection": "What the mill will pay by week: unpaid bills by due date plus goods received but not invoiced",
+	"Post Dated Cheques": "Cheques issued and received dated after today, with the days to presentation",
+	"Earnings Per Share": "Profit after tax ÷ shares outstanding, by month and for the period",
+	"WPPF and WWF": "Workers' Profit Participation Fund (5%) and Workers' Welfare Fund (2%) on profit before tax",
+	"Voucher Register": "Journals by voucher type — JV, BPV, BRV, CPV, CRV — posted and draft",
+	"Late Coming Register": "Late marks per employee for a month and the days to deduct",
 }
 # filter key -> (label, kind, source); kind: date | select | link; the report receives `param` (or the key)
 FILTER_DEFS = {

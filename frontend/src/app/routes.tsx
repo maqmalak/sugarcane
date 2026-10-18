@@ -39,6 +39,11 @@ const LoansPage = accPage("LoansPage");
 const StatementPage = accPage("StatementPage");
 const DocumentsPage = accPage("DocumentsPage");
 const ContractorBillsPage = accPage("ContractorBillsPage");
+const erpPage = (name: string) => lazy(() => import("@/sc/pages/ErpPages").then((m) => ({ default: (m as unknown as Record<string, () => JSX.Element>)[name] })));
+const PurchasePage = erpPage("PurchasePage");
+const SalesPage = erpPage("SalesPage");
+const FinancePage = erpPage("FinancePage");
+const HrPage = erpPage("HrPage");
 const MisWallPage = lazy(() => import("@/sc/pages/MisPages").then((m) => ({ default: m.MisWallPage })));
 const MessagesPage = lazy(() => import("@/sc/pages/MisPages").then((m) => ({ default: m.MessagesPage })));
 const ApprovalsInboxPage = lazy(() => import("@/sc/pages/ApprovalsInboxPage").then((m) => ({ default: m.ApprovalsInboxPage })));
@@ -89,6 +94,14 @@ export function AppRoutes() {
         <Route path="reports" element={sugar(<ReportsPage />)} />
 
         {/* later phases */}
+        <Route path="purchase" element={sugar(<PurchasePage />)} />
+        <Route path="sales" element={sugar(<SalesPage />)} />
+        <Route path="finance" element={sugar(<FinancePage />)} />
+        <Route path="hr" element={sugar(<HrPage />)} />
+        {["purchase", "sales"].map((a) => [
+          <Route key={`${a}-l`} path={`${a}/d/:slug`} element={sugar(<MetaDocPage mode="list" />)} />,
+          <Route key={`${a}-f`} path={`${a}/d/:slug/:name`} element={sugar(<MetaDocPage mode="form" />)} />,
+        ])}
         <Route path="mis" element={sugar(<MisWallPage />)} />
         <Route path="mis/messages" element={sugar(<MessagesPage />)} />
         <Route path="mis/d/:slug" element={sugar(<MetaDocPage mode="list" />)} />

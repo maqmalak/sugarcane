@@ -12,3 +12,7 @@ Sugar Production
 Cane Laboratory
 SMS Integration
 Sugar MIS
+Mill Stores
+Sugar Sales
+Mill Finance
+Mill HR

@@ -316,6 +316,9 @@ doc_events.update({
 	"Daily Manufacturing Report": {"on_submit": "sugarcane.sugar_mis.live.changed"},
 	"Depot Dispatch": {"on_submit": "sugarcane.sugar_mis.live.changed"},
 })
+# Phase 7: JV / BPV / BRV / CPV / CRV voucher series on every journal (sugarcane.mill_finance.vouchers)
+doc_events["Journal Entry"] = {"before_insert": "sugarcane.mill_finance.vouchers.before_insert",
+	"validate": "sugarcane.mill_finance.vouchers.validate"}
 
 # Indents past their last valid day become Expired (bench schedule must run for this site in production)
 scheduler_events = {

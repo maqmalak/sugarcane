@@ -1,7 +1,7 @@
 # MicroMax Sugar Mills Ltd. — Sugar ERP Architecture (Phase 0, for approval)
 
 App `sugarcane` · site `sugarcane` · Frappe 16.34 / ERPNext 16.35 / HRMS · Python 3.14 · Node 24 · MariaDB
-Status: **approved 2026-10-13** (v3: decisions below). Phases 0–6, 8 and ELP are built; see `docs/PHASE_0.md` … `PHASE_6.md`, `PHASE_8.md`, `ELP.md`.
+Status: **approved 2026-10-13** (v3: decisions below). Phases 0–8 and ELP are built; see `docs/PHASE_0.md` … `PHASE_8.md`, `ELP.md`. Phase 9 (hardening and deployment) is next.
 
 ### Decisions (2026-10-13)
 
@@ -247,6 +247,13 @@ Mill Stoppage Log · Vehicle Recovery Sample · Plant Level Reading · Daily Pro
 Cane Payment Scroll (Bank) (S) · Road Cess Deposit (S) · Grower Loan Type · Grower Loan (S, W; disbursement by Payment
 Entry Dr Grower Loan Receivable, party Grower) · Loan Recovery Entry (from CPR) · markup Journal Entry (scheduler) ·
 Cane Costing reports.
+
+### Phase 7 — ERPNext standard modules configured for the mill
+Configure, don't rebuild: purchase, stores, payables, GL / cash / tax, sugar sales, receivables, fixed assets, HRMS.
+*As built (see `PHASE_7.md`):*
+- `setup/erp_config.py` (idempotent, every migrate) does the configuration.
+- Custom pieces: Gate Pass, Sales Weighment, voucher series / batch posting / printing, the late-coming penalty, biometric punches,
+  and 9 reports.
 
 ### Phase 8 — Messaging & MIS
 Sugar SMS Template · Sugar SMS Log · SMS Keyword; MIS API + realtime events.

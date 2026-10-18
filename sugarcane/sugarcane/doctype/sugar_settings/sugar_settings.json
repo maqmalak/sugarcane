@@ -125,6 +125,16 @@
   "sms_quiet_to",
   "sms_daily_cap",
   "sms_inbound_token",
+  "sb_erp",
+  "sales_weight_tolerance_pct",
+  "bag_packing_kg",
+  "late_marks_per_day",
+  "biometric_token",
+  "cb_erp",
+  "shares_outstanding",
+  "share_face_value",
+  "wppf_pct",
+  "wwf_pct",
   "cb_stock",
   "daily_purchase_supplier",
   "contractor_supplier_group"
@@ -831,6 +841,65 @@
    "fieldtype": "Password",
    "label": "Inbound Token",
    "description": "The gateway posts incoming SMS to /api/method/sugarcane.api.v1.sms.inbound?token=…"
+  },
+  {
+   "fieldname": "sb_erp",
+   "fieldtype": "Section Break",
+   "label": "Stores, Sales, Finance and HR"
+  },
+  {
+   "fieldname": "sales_weight_tolerance_pct",
+   "fieldtype": "Percent",
+   "label": "Sales Weighment Tolerance ±%",
+   "default": "0.5",
+   "description": "Truck net weight against bags × bag weight on the Delivery Order"
+  },
+  {
+   "fieldname": "bag_packing_kg",
+   "fieldtype": "Float",
+   "label": "Packing Weight per Bag (kg)",
+   "default": "0.1"
+  },
+  {
+   "fieldname": "late_marks_per_day",
+   "fieldtype": "Int",
+   "label": "Late Marks for One Day's Deduction",
+   "default": "3"
+  },
+  {
+   "fieldname": "biometric_token",
+   "fieldtype": "Password",
+   "label": "Biometric Token",
+   "description": "Devices post punches to /api/method/sugarcane.mill_hr.hr.punch with this token"
+  },
+  {
+   "fieldname": "cb_erp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "shares_outstanding",
+   "fieldtype": "Float",
+   "label": "Ordinary Shares Outstanding",
+   "default": "35000000",
+   "description": "For earnings per share"
+  },
+  {
+   "fieldname": "share_face_value",
+   "fieldtype": "Currency",
+   "label": "Face Value per Share",
+   "default": "10"
+  },
+  {
+   "fieldname": "wppf_pct",
+   "fieldtype": "Percent",
+   "label": "WPPF % of Profit",
+   "default": "5"
+  },
+  {
+   "fieldname": "wwf_pct",
+   "fieldtype": "Percent",
+   "label": "WWF % of Profit",
+   "default": "2"
   },
   {
    "fieldname": "cb_stock",

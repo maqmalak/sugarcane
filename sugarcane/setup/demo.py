@@ -89,6 +89,10 @@ ROLE_USERS = {  # email prefix: (first, last, roles)
 	"lp.north": ("Ghulam", "Murtaza", ["LP Operator"]),
 	"lp.south": ("Asif", "Javed", ["LP Operator"]),
 	"elp.auditor": ("Sana", "Malik", ["ELP Auditor"]),
+	"store.keeper": ("Ghulam", "Abbas", ["Stock User", "Purchase User"]),
+	"sales.officer": ("Arshad", "Mahmood", ["Sales User", "Sales Manager"]),
+	"accounts.manager": ("Zubair", "Aslam", ["Accounts Manager", "Accounts User"]),
+	"hr.officer": ("Samina", "Yasmin", ["HR Manager", "HR User"]),
 }
 SCOPES = {  # user prefix -> circles they may see
 	"circle.north": ("Bhalwal", "Phularwan", "Kot Momin", "Midh Ranjha"),
@@ -133,6 +137,9 @@ def run(growers: int = GROWERS):
 	from sugarcane.setup import demo_messages
 
 	demo_messages.run()
+	from sugarcane.setup import demo_erp
+
+	demo_erp.run()
 	counts = {dt: frappe.db.count(dt) for dt in ("Cane Circle", "Cane Village", "Grower", "Grower Passbook", "Sugar Vehicle",
 		"Cane Survey", "Survey Overlap Review", "Surveyor Attendance", "Surveyor Location Log", "Indent Batch", "Cane Indent", "Cane Token", "Cane Purchase Receipt", "TPT Bilty", "Daily Cane Purchase")}
 	print("Demo ready:", counts)
@@ -175,6 +182,9 @@ def reset():
 	from sugarcane.setup import demo_messages
 
 	demo_messages.reset()
+	from sugarcane.setup import demo_erp
+
+	demo_erp.reset()
 	demo_accounts.reset_payments()
 	demo_lab.reset()
 	demo_procurement.reset()

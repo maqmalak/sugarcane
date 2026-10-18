@@ -26,7 +26,7 @@ const GrowerPhotos = lazy(() => import("./components/PhotoGallery").then((m) => 
 const AreaGeoEditor = lazy(() => import("./pages/AreaMapPage").then((m) => ({ default: m.Editor })));
 const later = (node: ReactNode) => <Suspense fallback={<div className="h-24 animate-pulse rounded-2xl border bg-muted/40" />}>{node}</Suspense>;
 
-export type ScApp = "setup" | "survey" | "field-force" | "indenting" | "elp" | "procurement" | "depot" | "lab" | "production" | "accounts" | "mis";
+export type ScApp = "setup" | "survey" | "field-force" | "indenting" | "elp" | "procurement" | "depot" | "lab" | "production" | "accounts" | "mis" | "purchase" | "sales" | "finance" | "hr";
 
 export interface ScDoc {
   doctype: string;
@@ -108,6 +108,9 @@ export const SC_DOCS: ScDoc[] = [
   { doctype: "Sugar SMS Log", label: "Message Log", app: "mis", group: "Messaging", icon: Smartphone },
   { doctype: "Sugar SMS Template", label: "Message Templates", app: "mis", group: "Messaging", icon: NotebookTabs },
   { doctype: "SMS Keyword", label: "SMS Keywords", app: "mis", group: "Messaging", icon: Hash },
+  // ------------------------------------------------------------------ Phase 7 (the rest are ERPNext's own forms, opened in the desk)
+  { doctype: "Gate Pass", label: "Gate Passes", app: "purchase", group: "Stores", icon: ScrollText },
+  { doctype: "Sales Weighment", label: "Sales Weighments", app: "sales", group: "Dispatch", icon: Scale },
 ];
 
 export const docBase = (doctype: string) => {
@@ -232,4 +235,4 @@ export const ENHANCERS: Record<string, Enhancer> = {
   },
 };
 
-export const APP_ICON: Record<ScApp, LucideIcon> = { setup: Boxes, survey: Leaf, "field-force": Users, indenting: ClipboardList, elp: Truck, procurement: Scale, depot: Warehouse, lab: Leaf, production: Factory, accounts: Building2, mis: Smartphone };
+export const APP_ICON: Record<ScApp, LucideIcon> = { setup: Boxes, survey: Leaf, "field-force": Users, indenting: ClipboardList, elp: Truck, procurement: Scale, depot: Warehouse, lab: Leaf, production: Factory, accounts: Building2, mis: Smartphone, purchase: Boxes, sales: Truck, finance: Banknote, hr: Users };

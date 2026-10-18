@@ -5,7 +5,7 @@ Built 2026-10-19. This phase covers:
 - the keyword replies (a grower texts *BAL* and gets their balance)
 - a live MIS screen for the mill, and three season reports
 
-Everything is on the React app's **MIS** app (`/sugar/mis`) and the desk workspace *Sugar MIS*. Phase 7 is not part of the plan.
+Everything is on the React app's **MIS** app (`/sugar/mis`) and the desk workspace *Sugar MIS*.
 
 ## Messages (`/mis/messages`)
 

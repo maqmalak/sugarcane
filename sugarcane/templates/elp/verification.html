@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+  @page { size: A4; margin: 10mm; }
+  body { font-family: "Helvetica Neue", Arial, sans-serif; color: #111; font-size: 10.5px; }
+  h1 { text-align: center; color: #1f4e79; font-size: 17px; margin: 0 0 4mm; border-bottom: 1px solid #ccc; padding-bottom: 2mm; }
+  .client { font-size: 11px; margin-bottom: 3mm; }
+  table.ph { width: 100%; border-collapse: collapse; margin-bottom: 3mm; }
+  table.ph td.lab { width: 22mm; font-weight: 700; vertical-align: middle; }
+  table.ph td.img { padding: 1mm; text-align: center; vertical-align: top; }
+  table.ph img { width: 100%; height: 34mm; object-fit: cover; border: 1px solid #ddd; }
+  .cap { font-size: 8.5px; color: #555; }
+  table.det { width: 100%; border-collapse: collapse; }
+  table.det th, table.det td { border: 0.8px solid #999; padding: 1.6mm 2mm; text-align: left; }
+  table.det th { background: #f1f3f5; }
+  table.det td.k { color: #444; width: 32%; }
+  .st { font-size: 14px; font-weight: 800; }
+  .ok { color: #2b8a3e; } .bad { color: #c92a2a; } .wait { color: #e67700; }
+  .foot { margin-top: 4mm; font-size: 8.5px; color: #666; }
+</style></head><body>
+  <h1>Verification Report</h1>
+  <div class="client"><b>Client Company Name</b> {{ company }} &nbsp;·&nbsp; <b>Registration</b> {{ r.name }} &nbsp;·&nbsp; <b>Indent</b> {{ r.indent or "—" }} &nbsp;·&nbsp; <b>Grower</b> {{ r.grower_name or "—" }}</div>
+  {% for label, row in (("Registration", lp_photos), ("Arrival", gate_photos)) %}
+  <table class="ph"><tr><td class="lab">{{ label }}</td>
+    {% for p in row %}<td class="img">{% if p %}<img src="{{ p.src }}"><div class="cap">{{ p.view }} · {{ p.when }}</div>{% endif %}</td>{% endfor %}
+  </tr></table>
+  {% endfor %}
+  <table class="det">
+    <tr><th></th><th>Registration Details</th><th>Arrival Details</th></tr>
+    {% for k, a, b in rows %}<tr><td class="k">{{ k }}</td><td>{{ a }}</td><td>{{ b }}</td></tr>{% endfor %}
+    <tr><td class="k">Status</td><td colspan="2" class="st {{ 'ok' if r.status == 'Accepted' else ('bad' if r.status == 'Rejected' else 'wait') }}">{{ r.status }}{% if r.lp_verified %} — LP verified{% endif %}{% if r.reject_reason %}: {{ r.reject_reason }}{% endif %}</td></tr>
+  </table>
+  <div class="foot">Verified by {{ verified_by or "—" }} at {{ verified_at or "—" }} · printed {{ printed_at }} by {{ printed_by }} · copy {{ copy }}</div>
+</body></html>

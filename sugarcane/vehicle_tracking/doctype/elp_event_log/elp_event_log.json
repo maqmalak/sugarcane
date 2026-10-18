@@ -1,0 +1,159 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 11:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "in_create": 1,
+ "field_order": [
+  "event",
+  "event_time",
+  "registration",
+  "vehicle_no",
+  "point_name",
+  "cb1",
+  "user",
+  "device",
+  "latitude",
+  "longitude",
+  "ip",
+  "details"
+ ],
+ "fields": [
+  {
+   "fieldname": "event",
+   "fieldtype": "Select",
+   "label": "Event",
+   "options": "Registered\nRegistration Refused\nArrival Refused\nPhoto Refused\nArrived\nGate Photo\nAccepted\nRejected\nCancelled\nReport Printed",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "event_time",
+   "fieldtype": "Datetime",
+   "label": "Time",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "registration",
+   "fieldtype": "Link",
+   "label": "Registration",
+   "options": "LP Vehicle Registration",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "vehicle_no",
+   "fieldtype": "Data",
+   "label": "Vehicle No.",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "point_name",
+   "fieldtype": "Data",
+   "label": "Point",
+   "in_standard_filter": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User",
+   "in_standard_filter": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "device",
+   "fieldtype": "Link",
+   "label": "Device",
+   "options": "Survey Device",
+   "read_only": 1
+  },
+  {
+   "fieldname": "latitude",
+   "fieldtype": "Float",
+   "label": "Latitude",
+   "precision": "7",
+   "read_only": 1
+  },
+  {
+   "fieldname": "longitude",
+   "fieldtype": "Float",
+   "label": "Longitude",
+   "precision": "7",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ip",
+   "fieldtype": "Data",
+   "label": "IP",
+   "read_only": 1
+  },
+  {
+   "fieldname": "details",
+   "fieldtype": "Small Text",
+   "label": "Details",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 11:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Vehicle Tracking",
+ "name": "ELP Event Log",
+ "owner": "Administrator",
+ "autoname": "hash",
+ "permissions": [
+  {
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "role": "System Manager"
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "role": "Cane Manager"
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "role": "Cane Admin"
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "role": "ELP Auditor"
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "role": "MIS Viewer"
+  }
+ ],
+ "sort_field": "event_time",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0,
+ "title_field": "vehicle_no"
+}

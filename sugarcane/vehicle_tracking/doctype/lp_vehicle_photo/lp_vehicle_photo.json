@@ -1,0 +1,107 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "stage",
+  "view",
+  "photo",
+  "sharpness",
+  "brightness",
+  "contrast",
+  "quality_ok",
+  "latitude",
+  "longitude",
+  "taken_at"
+ ],
+ "fields": [
+  {
+   "fieldname": "stage",
+   "fieldtype": "Select",
+   "label": "Stage",
+   "options": "Loading Point\nGate",
+   "default": "Loading Point",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "view",
+   "fieldtype": "Select",
+   "label": "View",
+   "options": "Number Plate\nIndent\nDriver\nBody Left\nBody Right\nFront\nBack\nChassis No.\nLP Board\nLoad\nOther",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "photo",
+   "fieldtype": "Attach Image",
+   "label": "Photo",
+   "in_list_view": 1,
+   "columns": 3
+  },
+  {
+   "fieldname": "sharpness",
+   "fieldtype": "Float",
+   "label": "Sharpness",
+   "precision": "1",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "brightness",
+   "fieldtype": "Float",
+   "label": "Brightness",
+   "precision": "1",
+   "columns": 1
+  },
+  {
+   "fieldname": "contrast",
+   "fieldtype": "Float",
+   "label": "Contrast",
+   "precision": "1",
+   "columns": 1
+  },
+  {
+   "fieldname": "quality_ok",
+   "fieldtype": "Check",
+   "label": "Quality OK",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "latitude",
+   "fieldtype": "Float",
+   "label": "Latitude",
+   "precision": "7"
+  },
+  {
+   "fieldname": "longitude",
+   "fieldtype": "Float",
+   "label": "Longitude",
+   "precision": "7"
+  },
+  {
+   "fieldname": "taken_at",
+   "fieldtype": "Datetime",
+   "label": "Taken At",
+   "in_list_view": 1,
+   "columns": 2
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 11:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Vehicle Tracking",
+ "name": "LP Vehicle Photo",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0,
+ "istable": 1,
+ "editable_grid": 1
+}

@@ -1,0 +1,595 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "status",
+  "point_type",
+  "loading_point",
+  "depot",
+  "point_name",
+  "cb1",
+  "season",
+  "circle",
+  "source",
+  "registered_at",
+  "serial_no",
+  "expected_arrival",
+  "sb_load",
+  "indent",
+  "grower",
+  "grower_name",
+  "cb2",
+  "vehicle",
+  "vehicle_no",
+  "vehicle_type",
+  "driver_name",
+  "driver_cnic",
+  "driver_mobile",
+  "sb_gps",
+  "latitude",
+  "longitude",
+  "gps_accuracy_m",
+  "cell_id",
+  "cb3",
+  "inside_geofence",
+  "distance_from_point_m",
+  "point_latitude",
+  "point_longitude",
+  "sb_photos",
+  "photos",
+  "sb_gate",
+  "arrived_at",
+  "arrival_by",
+  "arrival_serial_no",
+  "arrival_latitude",
+  "arrival_longitude",
+  "arrival_cell_id",
+  "arrival_device",
+  "transit_minutes",
+  "late_minutes",
+  "average_minutes",
+  "cb4",
+  "decided_at",
+  "decided_by",
+  "reject_reason",
+  "token",
+  "lp_verified",
+  "report_print_count",
+  "sb_meta",
+  "registration_uuid",
+  "arrival_uuid",
+  "device",
+  "registered_by",
+  "synced_at",
+  "remarks",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "ELP-.YY.-.######",
+   "default": "ELP-.YY.-.######",
+   "hidden": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "In Transit\nArrived\nAccepted\nRejected\nCancelled",
+   "default": "In Transit",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "bold": 1,
+   "description": "In Transit = registered at the LP \u00b7 Arrived = gate photos taken, waiting for the audit team"
+  },
+  {
+   "fieldname": "point_type",
+   "fieldtype": "Select",
+   "label": "Point Type",
+   "options": "Loading Point\nCane Depot",
+   "reqd": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "loading_point",
+   "fieldtype": "Link",
+   "label": "Loading Point",
+   "options": "Loading Point",
+   "depends_on": "eval:doc.point_type=='Loading Point'",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "depot",
+   "fieldtype": "Link",
+   "label": "Depot",
+   "options": "Cane Depot",
+   "depends_on": "eval:doc.point_type=='Cane Depot'",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "point_name",
+   "fieldtype": "Data",
+   "label": "Point",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "season",
+   "fieldtype": "Link",
+   "label": "Season",
+   "options": "Crushing Season",
+   "reqd": 1
+  },
+  {
+   "fieldname": "circle",
+   "fieldtype": "Link",
+   "label": "Circle",
+   "options": "Cane Circle",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Link",
+   "label": "Source",
+   "options": "Cane Source",
+   "read_only": 1
+  },
+  {
+   "fieldname": "registered_at",
+   "fieldtype": "Datetime",
+   "label": "Registered At",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "serial_no",
+   "fieldtype": "Data",
+   "label": "Serial No.",
+   "read_only": 1,
+   "description": "Phone serial: date-time of registration + device"
+  },
+  {
+   "fieldname": "expected_arrival",
+   "fieldtype": "Datetime",
+   "label": "Expected at Mill",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_load",
+   "fieldtype": "Section Break",
+   "label": "Load"
+  },
+  {
+   "fieldname": "indent",
+   "fieldtype": "Link",
+   "label": "Indent",
+   "options": "Cane Indent",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "grower",
+   "fieldtype": "Link",
+   "label": "Grower",
+   "options": "Grower",
+   "read_only": 1
+  },
+  {
+   "fieldname": "grower_name",
+   "fieldtype": "Data",
+   "label": "Grower Name",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "vehicle",
+   "fieldtype": "Link",
+   "label": "Vehicle",
+   "options": "Sugar Vehicle"
+  },
+  {
+   "fieldname": "vehicle_no",
+   "fieldtype": "Data",
+   "label": "Vehicle No.",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "vehicle_type",
+   "fieldtype": "Link",
+   "label": "Vehicle Type",
+   "options": "Vehicle Type"
+  },
+  {
+   "fieldname": "driver_name",
+   "fieldtype": "Data",
+   "label": "Driver"
+  },
+  {
+   "fieldname": "driver_cnic",
+   "fieldtype": "Data",
+   "label": "Driver CNIC"
+  },
+  {
+   "fieldname": "driver_mobile",
+   "fieldtype": "Data",
+   "label": "Driver Mobile",
+   "options": "Phone"
+  },
+  {
+   "fieldname": "sb_gps",
+   "fieldtype": "Section Break",
+   "label": "Location at Registration"
+  },
+  {
+   "fieldname": "latitude",
+   "fieldtype": "Float",
+   "label": "Latitude (actual)",
+   "precision": "7"
+  },
+  {
+   "fieldname": "longitude",
+   "fieldtype": "Float",
+   "label": "Longitude (actual)",
+   "precision": "7"
+  },
+  {
+   "fieldname": "gps_accuracy_m",
+   "fieldtype": "Float",
+   "label": "GPS Accuracy (m)",
+   "precision": "1"
+  },
+  {
+   "fieldname": "cell_id",
+   "fieldtype": "Data",
+   "label": "Tower Id",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "inside_geofence",
+   "fieldtype": "Check",
+   "label": "Inside Point Geofence",
+   "read_only": 1
+  },
+  {
+   "fieldname": "distance_from_point_m",
+   "fieldtype": "Float",
+   "label": "Distance from Point (m)",
+   "precision": "0",
+   "read_only": 1
+  },
+  {
+   "fieldname": "point_latitude",
+   "fieldtype": "Float",
+   "label": "Latitude (as per parameters)",
+   "precision": "7",
+   "read_only": 1
+  },
+  {
+   "fieldname": "point_longitude",
+   "fieldtype": "Float",
+   "label": "Longitude (as per parameters)",
+   "precision": "7",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_photos",
+   "fieldtype": "Section Break",
+   "label": "Snapshots"
+  },
+  {
+   "fieldname": "photos",
+   "fieldtype": "Table",
+   "label": "Photos",
+   "options": "LP Vehicle Photo"
+  },
+  {
+   "fieldname": "sb_gate",
+   "fieldtype": "Section Break",
+   "label": "Gate"
+  },
+  {
+   "fieldname": "arrived_at",
+   "fieldtype": "Datetime",
+   "label": "Arrived At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "arrival_by",
+   "fieldtype": "Link",
+   "label": "Arrival Recorded By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "arrival_serial_no",
+   "fieldtype": "Data",
+   "label": "Arrival Serial No.",
+   "read_only": 1
+  },
+  {
+   "fieldname": "arrival_latitude",
+   "fieldtype": "Float",
+   "label": "Arrival Latitude",
+   "precision": "7",
+   "read_only": 1
+  },
+  {
+   "fieldname": "arrival_longitude",
+   "fieldtype": "Float",
+   "label": "Arrival Longitude",
+   "precision": "7",
+   "read_only": 1
+  },
+  {
+   "fieldname": "arrival_cell_id",
+   "fieldtype": "Data",
+   "label": "Arrival Tower Id",
+   "read_only": 1
+  },
+  {
+   "fieldname": "arrival_device",
+   "fieldtype": "Link",
+   "label": "Arrival Device",
+   "options": "Survey Device",
+   "read_only": 1
+  },
+  {
+   "fieldname": "transit_minutes",
+   "fieldtype": "Int",
+   "label": "Journey (min)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "late_minutes",
+   "fieldtype": "Int",
+   "label": "Late by (min)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "average_minutes",
+   "fieldtype": "Int",
+   "label": "Average Journey from this Point (min)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "decided_at",
+   "fieldtype": "Datetime",
+   "label": "Verified At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "decided_by",
+   "fieldtype": "Link",
+   "label": "Verified By (audit)",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reject_reason",
+   "fieldtype": "Small Text",
+   "label": "Reject Reason"
+  },
+  {
+   "fieldname": "token",
+   "fieldtype": "Data",
+   "label": "Cane Token",
+   "read_only": 1,
+   "description": "Issued from the accepted registration (Phase 3)"
+  },
+  {
+   "default": "0",
+   "fieldname": "lp_verified",
+   "fieldtype": "Check",
+   "label": "LP Verified",
+   "read_only": 1,
+   "description": "Set when the audit team accepts: the load really came from this point (TPT is paid only on verified loads)"
+  },
+  {
+   "default": "0",
+   "fieldname": "report_print_count",
+   "fieldtype": "Int",
+   "label": "Verification Report Printed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_meta",
+   "fieldtype": "Section Break",
+   "label": "Device & Sync",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "registration_uuid",
+   "fieldtype": "Data",
+   "label": "UUID",
+   "read_only": 1,
+   "unique": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "arrival_uuid",
+   "fieldtype": "Data",
+   "label": "Arrival UUID",
+   "read_only": 1,
+   "no_copy": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "device",
+   "fieldtype": "Link",
+   "label": "Device",
+   "options": "Survey Device",
+   "read_only": 1
+  },
+  {
+   "fieldname": "registered_by",
+   "fieldtype": "Link",
+   "label": "Registered By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "synced_at",
+   "fieldtype": "Datetime",
+   "label": "Synced At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "label": "Demo Record",
+   "default": "0",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 11:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Vehicle Tracking",
+ "name": "LP Vehicle Registration",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "role": "System Manager"
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "role": "Cane Manager"
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "role": "Cane Admin"
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "print": 1,
+   "report": 1,
+   "role": "LP Operator"
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "print": 1,
+   "report": 1,
+   "role": "Depot User"
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "print": 1,
+   "report": 1,
+   "role": "Token Clerk"
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "print": 1,
+   "report": 1,
+   "role": "Yard Supervisor"
+  },
+  {
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "role": "Circle Officer"
+  },
+  {
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "role": "Indent Clerk"
+  },
+  {
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "role": "MIS Viewer"
+  },
+  {
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "role": "Cane Accountant"
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1,
+   "role": "ELP Auditor"
+  }
+ ],
+ "sort_field": "registered_at",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "autoname": "naming_series:",
+ "naming_rule": "By \"Naming Series\" field",
+ "title_field": "vehicle_no",
+ "show_title_field_in_link": 1,
+ "search_fields": "vehicle_no,grower_name,indent,point_name",
+ "image_field": null
+}

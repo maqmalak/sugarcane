@@ -13,7 +13,7 @@ SUGAR_MODULES = ("Sugarcane", "EagleEye Survey", "Cane Indenting", "Vehicle Trac
 	"SMS Integration", "Sugar MIS")
 GROUPS = {"EagleEye Survey": "Crop Survey", "Cane Indenting": "Indenting", "Cane Procurement": "Procurement",
 	"Weighbridge": "Weighbridge", "Cane Accounting": "Cane Accounts", "Grower Loans": "Grower Loans", "Cane Costing": "Costing",
-	"Sugar Production": "Production", "Cane Laboratory": "Laboratory", "Sugar MIS": "MIS", "Sugarcane": "Masters"}
+	"Sugar Production": "Production", "Cane Laboratory": "Laboratory", "Sugar MIS": "MIS", "Sugarcane": "Masters", "Vehicle Tracking": "ELP"}
 SURVEY = ["season", "from_date", "to_date", "zone", "circle", "village", "variety", "crop_type", "survey_for"]
 FILTERS = {  # report -> filters it accepts (default by module below)
 	"Surveyor Attendance Report": ["from_date", "to_date", "surveyor", "circle", "attendance_status"],
@@ -23,8 +23,9 @@ FILTERS = {  # report -> filters it accepts (default by module below)
 	"Daily Indent Schedule": ["season", "from_date", "to_date", "circle"],
 	"Circle Wise Indent Summary": ["season", "circle"],
 	"Grower Indent Balance": ["season", "circle", "village"],
+	"ELP Pending Registrations": ["circle"],
 }
-MODULE_FILTERS = {"EagleEye Survey": SURVEY}
+MODULE_FILTERS = {"EagleEye Survey": SURVEY, "Vehicle Tracking": ["from_date", "to_date", "circle"]}
 DESCRIPTIONS = {
 	"Cane Survey Detail": "Every surveyed field: grower, CNIC, passbook, village, variety, declared vs measured area",
 	"Circle Wise Survey Summary": "Fields, growers, area, plant / ratoon / diseased acres and expected cane per circle",
@@ -40,6 +41,17 @@ DESCRIPTIONS = {
 	"Circle Wise Indent Summary": "Surveyed and entitled cane, loads, and indents issued / used / expired per circle",
 	"Grower Indent Balance": "Each grower's entitled loads against indents issued, used, expired and still to issue",
 	"Daily Indent Schedule": "Indents per supply day against the mill's daily intake capacity",
+	"ELP Pending Registrations": "Indents valid today that no vehicle was registered against at a loading point yet",
+	"ELP Pending Arrival": "Vehicles registered at a loading point / depot that have not reached the mill gate",
+	"ELP Pending Verification": "Arrived vehicles (gate photos taken) waiting for the audit team",
+	"ELP Uncleared Registrations": "Registrations neither accepted, rejected nor cancelled after 24 hours",
+	"ELP LP Wise Summary": "Per loading point: registered, in transit, pending verification, accepted, rejected, journey times",
+	"ELP Reconciliation": "Per circle and day: indents against loads registered, arrived, accepted and rejected",
+	"ELP Total Loads": "Loads registered per day and their outcome",
+	"ELP Registration Audit": "Every registration: GPS actual vs the point's parameters, geofence, device, serial, tower, photo quality",
+	"ELP Arrival Audit": "Every arrival: GPS at the gate, journey vs standard and average, verdict and auditor",
+	"ELP Vehicles Not Arrived": "Vehicles still not at the mill 48 hours after registration",
+	"ELP Journey Time": "Each journey against the point's standard time and its own average",
 }
 # filter key -> (label, kind, source); kind: date | select | link; the report receives `param` (or the key)
 FILTER_DEFS = {

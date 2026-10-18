@@ -33,6 +33,18 @@
   "auto_approve_devices",
   "max_photo_mb",
   "half_day_hours",
+  "sb_elp",
+  "elp_min_sharpness",
+  "elp_min_brightness",
+  "elp_max_brightness",
+  "elp_min_contrast",
+  "cb_elp",
+  "elp_required_views",
+  "elp_geofence_buffer_m",
+  "elp_require_indent",
+  "elp_overdue_grace_min",
+  "elp_gate_buffer_m",
+  "elp_not_arrived_hours",
   "sb_weighbridge",
   "weighbridge_ip_check",
   "accounts_tab",
@@ -226,6 +238,82 @@
    "label": "Half Day Below (hours)"
   },
   {
+   "fieldname": "sb_elp",
+   "fieldtype": "Section Break",
+   "label": "ELP \u2014 Electronic Loading Point",
+   "collapsible": 1,
+   "description": "Vehicle registration at loading points and depots. Photos below these scores are refused (on the phone and again here)."
+  },
+  {
+   "default": "60",
+   "fieldname": "elp_min_sharpness",
+   "fieldtype": "Float",
+   "label": "Minimum Sharpness",
+   "description": "Variance of the Laplacian; blurred photos score low"
+  },
+  {
+   "default": "40",
+   "fieldname": "elp_min_brightness",
+   "fieldtype": "Float",
+   "label": "Minimum Brightness (0\u2013255)"
+  },
+  {
+   "default": "225",
+   "fieldname": "elp_max_brightness",
+   "fieldtype": "Float",
+   "label": "Maximum Brightness (0\u2013255)"
+  },
+  {
+   "default": "20",
+   "fieldname": "elp_min_contrast",
+   "fieldtype": "Float",
+   "label": "Minimum Contrast",
+   "description": "Faded / washed-out photos score low"
+  },
+  {
+   "fieldname": "cb_elp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Number Plate\nIndent\nDriver\nBody Left",
+   "fieldname": "elp_required_views",
+   "fieldtype": "Small Text",
+   "label": "Required Photo Views",
+   "description": "One per line: Number Plate, Indent, Driver, Body Left, Body Right, Front, Back, Chassis No., LP Board, Load"
+  },
+  {
+   "default": "30",
+   "fieldname": "elp_geofence_buffer_m",
+   "fieldtype": "Int",
+   "label": "Geofence Buffer (m)",
+   "description": "GPS slack around the point's boundary or radius"
+  },
+  {
+   "default": "1",
+   "fieldname": "elp_require_indent",
+   "fieldtype": "Check",
+   "label": "Vehicle Needs a Valid Indent"
+  },
+  {
+   "default": "60",
+   "fieldname": "elp_overdue_grace_min",
+   "fieldtype": "Int",
+   "label": "Overdue After Standard Journey + (min)"
+  },
+  {
+   "default": "500",
+   "fieldname": "elp_gate_buffer_m",
+   "fieldtype": "Int",
+   "label": "Gate Photos Within (m of the mill)",
+   "description": "Phone arrival photos must be taken this close to the mill pin / premises"
+  },
+  {
+   "default": "48",
+   "fieldname": "elp_not_arrived_hours",
+   "fieldtype": "Int",
+   "label": "Not Arrived Alert After (hours)"
+  },
+  {
    "fieldname": "sb_weighbridge",
    "fieldtype": "Section Break",
    "label": "Weighbridge"
@@ -371,7 +459,7 @@
  "index_web_pages_for_search": 0,
  "issingle": 1,
  "links": [],
- "modified": "2026-10-14 12:00:00.000000",
+ "modified": "2026-10-18 11:00:00.000000",
  "modified_by": "Administrator",
  "module": "Sugarcane",
  "name": "Sugar Settings",

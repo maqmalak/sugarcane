@@ -15,6 +15,7 @@ def after_migrate():
 	ensure_roles()
 	ensure_party_type()
 	ensure_journey_defaults()
+	ensure_elp_defaults()
 	company = frappe.db.get_single_value("Sugar Settings", "company")
 	if company and frappe.db.exists("Company", company):
 		from sugarcane.setup.accounts import setup_company
@@ -29,6 +30,18 @@ def ensure_journey_defaults():
 
 	if not frappe.db.get_single_value("Sugar Settings", "road_factor"):
 		for field, value in DEFAULTS.items():
+			frappe.db.set_single_value("Sugar Settings", field, value)
+
+
+ELP_DEFAULTS = {"elp_min_sharpness": 60, "elp_min_brightness": 40, "elp_max_brightness": 225, "elp_min_contrast": 20,
+	"elp_required_views": "Number Plate\nIndent\nDriver\nBody Left", "elp_geofence_buffer_m": 30, "elp_require_indent": 1,
+	"elp_overdue_grace_min": 60, "elp_gate_buffer_m": 500, "elp_not_arrived_hours": 48}
+
+
+def ensure_elp_defaults():
+	"""ELP settings get their defaults on sites created before they existed (an existing value is kept)."""
+	for field, value in ELP_DEFAULTS.items():
+		if not frappe.db.get_single_value("Sugar Settings", field):
 			frappe.db.set_single_value("Sugar Settings", field, value)
 
 

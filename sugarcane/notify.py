@@ -95,3 +95,12 @@ def indent_batch_authorized(doc):
 		return
 	notify(users_with_roles(("Indent Clerk",)) | {doc.generated_by}, _("Indent batch {0} ({1}) authorized — {2} indents ready to print").format(
 		doc.name, doc.circle, doc.indent_count), doc.doctype, doc.name)
+
+
+def elp_decided(doc):
+	"""Gate decision on a vehicle registered at a loading point: the operator who registered it is told."""
+	if _demo(doc) or not doc.registered_by:
+		return
+	text = (_("{0} ({1}) accepted at the mill gate").format(doc.vehicle_no, doc.name) if doc.status == "Accepted"
+		else _("{0} ({1}) rejected at the mill gate: {2}").format(doc.vehicle_no, doc.name, doc.reject_reason or ""))
+	notify({doc.registered_by}, text, doc.doctype, doc.name)

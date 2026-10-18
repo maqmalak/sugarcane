@@ -61,18 +61,35 @@ def _batches_pending() -> list[dict]:
 	return out
 
 
+ELP = "LP Vehicle Registration"
+
+
+def _elp_pending() -> list[dict]:
+	"""Arrived loads waiting for the audit team (decided on the comparison page, not here)."""
+	from sugarcane.vehicle_tracking.elp import AUDIT_ROLES
+
+	if not AUDIT_ROLES & set(frappe.get_roles()):
+		return []
+	return [{"doctype": ELP, "name": r.name, "state": "Pending verification",
+		"title": _("{0} from {1} · {2} · arrived {3}").format(r.vehicle_no, r.point_name, r.grower_name or "—",
+			frappe.utils.format_datetime(r.arrived_at, "dd MMM HH:mm") if r.arrived_at else "—"),
+		"amount": None, "since": str(r.arrived_at or r.modified), "owner": r.owner, "category": "elp", "workflow": None, "actions": []}
+		for r in frappe.get_list(ELP, filters={"status": "Arrived"}, fields=["name", "vehicle_no", "point_name", "grower_name", "arrived_at",
+			"modified", "owner"], order_by="arrived_at asc", limit_page_length=200)]
+
+
 @frappe.whitelist()
 def get_inbox(company: str | None = None, days: int = 30) -> dict:
 	out = base.get_inbox(company, days)
-	overlaps, batches = _overlaps_pending(), _batches_pending()
-	out["pending"] = batches + overlaps + out["pending"]
+	overlaps, batches, loads = _overlaps_pending(), _batches_pending(), _elp_pending()
+	out["pending"] = batches + loads + overlaps + out["pending"]
 	for r in out["recent"]:
 		if r["doctype"] == DT:
 			r["category"] = "overlap"
 		elif r["doctype"] == BATCH:
 			r["category"] = "indent"
-	out["counts"] = {**out["counts"], "pending": out["counts"]["pending"] + len(overlaps) + len(batches), "overlap": len(overlaps),
-		"indent": len(batches)}
+	out["counts"] = {**out["counts"], "pending": out["counts"]["pending"] + len(overlaps) + len(batches) + len(loads),
+		"overlap": len(overlaps), "indent": len(batches), "elp": len(loads)}
 	return out
 
 

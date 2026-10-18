@@ -1,0 +1,236 @@
+{
+ "app": "sugarcane",
+ "charts": [],
+ "content": "[{\"id\": \"sc_elp_h1\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Shortcuts</b></span>\", \"col\": 12}}, {\"id\": \"sc_elp_s0\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"ELP Dashboard\", \"col\": 4}}, {\"id\": \"sc_elp_s1\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Gate & Verification\", \"col\": 4}}, {\"id\": \"sc_elp_s2\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"LP Vehicle Registration\", \"col\": 4}}, {\"id\": \"sc_elp_sp\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"sc_elp_h2\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>ELP</b></span>\", \"col\": 12}}, {\"id\": \"sc_elp_c0\", \"type\": \"card\", \"data\": {\"card_name\": \"Loads\", \"col\": 4}}, {\"id\": \"sc_elp_c1\", \"type\": \"card\", \"data\": {\"card_name\": \"Points\", \"col\": 4}}, {\"id\": \"sc_elp_c2\", \"type\": \"card\", \"data\": {\"card_name\": \"MIS Reports\", \"col\": 4}}]",
+ "creation": "2026-10-18 12:00:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "truck",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "ELP",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Loads",
+   "link_count": 2,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "LP Vehicle Registration",
+   "link_count": 0,
+   "link_to": "LP Vehicle Registration",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "ELP Event Log",
+   "link_count": 0,
+   "link_to": "ELP Event Log",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Points",
+   "link_count": 2,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Loading Point",
+   "link_count": 0,
+   "link_to": "Loading Point",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Cane Depot",
+   "link_count": 0,
+   "link_to": "Cane Depot",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "MIS Reports",
+   "link_count": 11,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "ELP Pending Registrations",
+   "link_count": 0,
+   "link_to": "ELP Pending Registrations",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "LP Vehicle Registration"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "ELP Pending Arrival",
+   "link_count": 0,
+   "link_to": "ELP Pending Arrival",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "LP Vehicle Registration"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "ELP Pending Verification",
+   "link_count": 0,
+   "link_to": "ELP Pending Verification",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "LP Vehicle Registration"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "ELP Uncleared Registrations",
+   "link_count": 0,
+   "link_to": "ELP Uncleared Registrations",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "LP Vehicle Registration"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "ELP LP Wise Summary",
+   "link_count": 0,
+   "link_to": "ELP LP Wise Summary",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "LP Vehicle Registration"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "ELP Reconciliation",
+   "link_count": 0,
+   "link_to": "ELP Reconciliation",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "LP Vehicle Registration"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "ELP Total Loads",
+   "link_count": 0,
+   "link_to": "ELP Total Loads",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "LP Vehicle Registration"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "ELP Registration Audit",
+   "link_count": 0,
+   "link_to": "ELP Registration Audit",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "LP Vehicle Registration"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "ELP Arrival Audit",
+   "link_count": 0,
+   "link_to": "ELP Arrival Audit",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "LP Vehicle Registration"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "ELP Vehicles Not Arrived",
+   "link_count": 0,
+   "link_to": "ELP Vehicles Not Arrived",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "LP Vehicle Registration"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "ELP Journey Time",
+   "link_count": 0,
+   "link_to": "ELP Journey Time",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "LP Vehicle Registration"
+  }
+ ],
+ "modified": "2026-10-18 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Vehicle Tracking",
+ "name": "ELP",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 33.0,
+ "shortcuts": [
+  {
+   "color": "Green",
+   "label": "ELP Dashboard",
+   "type": "URL",
+   "url": "/sugar/elp"
+  },
+  {
+   "color": "Blue",
+   "label": "Gate & Verification",
+   "type": "URL",
+   "url": "/sugar/elp/gate"
+  },
+  {
+   "color": "Orange",
+   "doc_view": "List",
+   "label": "LP Vehicle Registration",
+   "link_to": "LP Vehicle Registration",
+   "type": "DocType"
+  }
+ ],
+ "title": "ELP",
+ "type": "Workspace"
+}

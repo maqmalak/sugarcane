@@ -19,7 +19,7 @@ from frappe.utils import cint, flt, get_datetime, now_datetime
 
 from sugarcane.geo import as_feature_collection
 
-FIELD_ROLES = {"Surveyor", "Circle Officer", "Cane Manager", "Cane Admin", "System Manager"}
+FIELD_ROLES = {"Surveyor", "Circle Officer", "LP Operator", "Depot User", "Cane Manager", "Cane Admin", "System Manager"}
 SURVEY_FIELDS = ("season", "survey_date", "survey_for", "competitor_mill", "grower_category", "np_cnic", "np_grower_name",
 	"np_father_name", "np_mobile", "grower", "circle", "village", "murabba_no",
 	"killa_no", "total_acres", "empty_land_acres", "crop_land_acres", "variety", "crop_type", "ratoon_no", "sowing_date",

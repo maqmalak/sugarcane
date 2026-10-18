@@ -282,7 +282,7 @@ fixtures = [
 	{"dt": "Role", "filters": [["name", "in", [
 		"Cane Manager", "Cane Admin", "Circle Officer", "Surveyor", "Indent Clerk", "Token Clerk", "Gross Weighman",
 		"Tare Weighman", "Yard Supervisor", "Cane Cashier", "Lab Chemist", "Production Manager", "Cane Accountant",
-		"Depot User", "MIS Viewer"]]]},
+		"Depot User", "LP Operator", "ELP Auditor", "MIS Viewer"]]]},
 	{"dt": "Party Type", "filters": [["name", "=", "Grower"]]},
 ]
 

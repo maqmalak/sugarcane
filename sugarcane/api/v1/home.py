@@ -31,10 +31,11 @@ FEED = {
 	"Crushing Season": ("masters", None, "season_name", "/setup/d/crushing-season"),
 	"Cane Source": ("masters", None, "source_name", "/setup/d/cane-source"),
 	"Indent Batch": ("indent", "from_date", "circle", "/indenting/d/indent-batch"),
+	"LP Vehicle Registration": ("elp", "registered_at", "vehicle_no", "/elp/d/lp-vehicle-registration"),
 	"Journal Entry": ("finance", "posting_date", "title", None),
 	"Payment Entry": ("finance", "posting_date", "party_name", None),
 }
-MODULES = {"survey": "Survey", "field": "Field Force", "indent": "Indenting", "masters": "Masters", "finance": "Accounts"}
+MODULES = {"survey": "Survey", "field": "Field Force", "indent": "Indenting", "elp": "ELP", "masters": "Masters", "finance": "Accounts"}
 
 
 def _can(dt):
@@ -102,6 +103,16 @@ def _alerts(approvals_total):
 		add("sc_indent_unprinted", len(frappe.get_list("Cane Indent", filters={"docstatus": 1, "status": "Authorized"},
 			pluck="name", limit_page_length=0)), _("Authorized indents not printed"), _("Print them so growers get their permits"),
 			"/indenting/d/indent-batch?status=Authorized", "sky")
+	if _can("LP Vehicle Registration"):
+		from sugarcane.vehicle_tracking import elp as elp_logic
+
+		cfg = elp_logic.settings()
+		open_rows = frappe.get_list("LP Vehicle Registration", filters={"status": ["in", ["In Transit", "Arrived"]]},
+			fields=["name", "status", "expected_arrival", "registered_at"], limit_page_length=0)
+		add("sc_elp_verify", sum(1 for r in open_rows if r.status == "Arrived"), _("Loads waiting for the audit team"),
+			_("Arrived at the gate — compare loading-point and gate photos"), "/elp/board?status=Arrived", "violet")
+		add("sc_elp_overdue", sum(1 for r in open_rows if elp_logic.is_overdue(r, cfg)), _("Vehicles overdue at the mill"),
+			_("Later than the standard journey time from their loading point"), "/elp/board?status=Overdue", "red")
 	add("approvals", approvals_total, _("Approvals waiting"), _("Workflow and HR requests waiting for you"), "/approvals/inbox", "yellow")
 	return out
 
@@ -205,6 +216,9 @@ def _tiles():
 	if _can("Cane Indent"):
 		put("indenting", len(frappe.get_list("Cane Indent", filters={"docstatus": 1, "status": ["in", ["Authorized", "Printed"]],
 			"valid_from": ["<=", today], "valid_to": [">=", today]}, pluck="name", limit_page_length=0)), _("indents valid today"))
+	if _can("LP Vehicle Registration"):
+		put("elp", len(frappe.get_list("LP Vehicle Registration", filters={"status": "In Transit"}, pluck="name", limit_page_length=0)),
+			_("vehicles on the way"))
 	from sugarcane.exports import catalogue
 
 	put("reports", len(catalogue()), _("reports"))
@@ -223,7 +237,7 @@ def _approvals(limit=30, company=None):
 		"since": p["since"], "category": p["category"],
 		# "Approve" on the home card: accept both fields for an overlap, the workflow's Approve otherwise
 		"can_approve": bool({"Approve", "Authorize", ACCEPT} & set(p.get("actions") or []))} for p in pending[:limit]]
-	return items, len(pending), sum(1 for p in pending if p["category"] in ("overlap", "indent"))
+	return items, len(pending), sum(1 for p in pending if p["category"] in ("overlap", "indent", "elp"))
 
 
 @frappe.whitelist()

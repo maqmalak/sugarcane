@@ -18,6 +18,8 @@ ROLES = {
 	"Production Manager": "Daily production entries",
 	"Cane Accountant": "Payment scrolls, road cess deposits, grower ledgers",
 	"Depot User": "Depot weighments and bills",
+	"LP Operator": "Registers loaded vehicles at loading points and depots (ELP app)",
+	"ELP Auditor": "Independent audit team: compares loading-point and gate photos, accepts or rejects the load",
 	"MIS Viewer": "Read-only dashboards and reports",
 }
 

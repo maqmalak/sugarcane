@@ -86,6 +86,9 @@ ROLE_USERS = {  # email prefix: (first, last, roles)
 	"cane.accountant": ("Nadia", "Rehman", ["Cane Accountant", "Accounts User"]),
 	"depot.user": ("Shahbaz", "Nasir", ["Depot User"]),
 	"mis": ("Omer", "Farooq", ["MIS Viewer"]),
+	"lp.north": ("Ghulam", "Murtaza", ["LP Operator"]),
+	"lp.south": ("Asif", "Javed", ["LP Operator"]),
+	"elp.auditor": ("Sana", "Malik", ["ELP Auditor"]),
 }
 SCOPES = {  # user prefix -> circles they may see
 	"circle.north": ("Bhalwal", "Phularwan", "Kot Momin", "Midh Ranjha"),
@@ -118,9 +121,10 @@ def run(growers: int = GROWERS):
 	from sugarcane.setup import demo_survey
 
 	demo_survey.run(_staff_password())
-	from sugarcane.setup import demo_indent
+	from sugarcane.setup import demo_elp, demo_indent
 
 	demo_indent.run()
+	demo_elp.run()
 	counts = {dt: frappe.db.count(dt) for dt in ("Cane Circle", "Cane Village", "Grower", "Grower Passbook", "Sugar Vehicle",
 		"Cane Survey", "Survey Overlap Review", "Surveyor Attendance", "Surveyor Location Log", "Indent Batch", "Cane Indent")}
 	print("Demo ready:", counts)
@@ -158,8 +162,9 @@ def _purge(doctype, names):
 
 
 def reset():
-	from sugarcane.setup import demo_indent, demo_survey
+	from sugarcane.setup import demo_elp, demo_indent, demo_survey
 
+	demo_elp.reset()
 	demo_indent.reset()
 	demo_survey.reset()
 	for dt in DEMO_DOCTYPES:

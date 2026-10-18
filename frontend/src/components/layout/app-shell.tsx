@@ -9,6 +9,7 @@ import { APP_NAVIGATION, APP_LABELS, appSegmentForPath } from "@/app/navigation"
 import { useInstalledApps, tileForPath, appsForPath } from "@/hooks/useInstalledApps";
 import { EmptyState } from "@/components/common/empty-state";
 import { cn } from "@/utils/cn";
+import { useTrail } from "@/app/trail";
 
 /**
  * Authenticated application shell: header + routed content, with a sidebar
@@ -38,6 +39,8 @@ export function AppShell() {
   // Entry, CRM lead…) keep the Real Estate sidebar, and a bar leads back to the page you came from. Going through the
   // Desktop launcher (or another app's own home) ends the context.
   const context = useStickyContext(location.pathname + location.search, ownSegment);
+  const trail = useTrail(location.pathname + location.search);
+  const from = trail.length >= 2 ? trail[trail.length - 2] : null;
   const segment = context.segment;
   // Drop sidebar links whose page needs a backend app this site doesn't have (e.g. Export Analysis without
   // micromax) — in every app's sidebar, including the home one that lists the app tiles.
@@ -105,6 +108,27 @@ export function AppShell() {
                       Switch to {APP_LABELS[ownSegment] ?? ownSegment} menu
                     </button>
                   </div>
+                )}
+                {!context.returnTo && from && from.path !== "/home" && (
+                  <nav aria-label="Back" className="mb-3 flex min-w-0 flex-wrap items-center gap-1.5 text-xs">
+                    <button type="button" onClick={() => navigate(from.path)} title={from.path}
+                      className="inline-flex max-w-[22rem] items-center gap-1.5 rounded-lg border bg-card px-2.5 py-1 font-semibold shadow-sm hover:bg-accent">
+                      <ArrowLeft className="h-3.5 w-3.5 shrink-0" /><span className="truncate">Back to {from.label}</span>
+                    </button>
+                    {trail.length > 2 && (
+                      <span className="hidden min-w-0 items-center gap-1 text-muted-foreground sm:flex">
+                        {trail.slice(Math.max(0, trail.length - 5), -2).map((st) => (
+                          <span key={st.path} className="flex min-w-0 items-center gap-1">
+                            <button type="button" onClick={() => navigate(st.path)} className="max-w-[12rem] truncate hover:text-foreground hover:underline">{st.label}</button>
+                            <span aria-hidden>›</span>
+                          </span>
+                        ))}
+                        <button type="button" onClick={() => navigate(from.path)} className="max-w-[12rem] truncate hover:text-foreground hover:underline">{from.label}</button>
+                        <span aria-hidden>›</span>
+                        <span className="max-w-[12rem] truncate font-medium text-foreground">{trail[trail.length - 1].label}</span>
+                      </span>
+                    )}
+                  </nav>
                 )}
                 <Outlet />
               </>

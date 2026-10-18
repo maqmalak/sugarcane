@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { backTarget } from "@/app/trail";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { ArrowLeft, Ban, ChevronDown, CircleDot, History, Copy, ExternalLink, Link as LinkIcon, Link2, PlusCircle, Printer, RefreshCw, Save, Send, Trash2, X, Zap } from "lucide-react";
@@ -311,7 +312,7 @@ function DocFormPageInner({ config }: { config: DocConfig }) {
         await deleteDoc(routeName);
         toast.success("Deleted");
         notifyDataChanged();
-        navigate(config.base);
+        navigate(backTarget(config.base));
         return;
       }
       loadedFor.current = null;
@@ -344,7 +345,7 @@ function DocFormPageInner({ config }: { config: DocConfig }) {
       <div className="py-10 text-center">
         <p className="text-sm text-muted-foreground">{humanizeError(docError)}</p>
         <div className="mt-3 flex justify-center gap-2">
-          <Button variant="outline" onClick={() => navigate(config.base)}>
+          <Button variant="outline" onClick={() => navigate(backTarget(config.base))}>
             Back to list
           </Button>
           <Button onClick={() => void mutate()}>Retry</Button>
@@ -501,7 +502,7 @@ function DocFormPageInner({ config }: { config: DocConfig }) {
         badge={statusLabel && <StatusBadge status={statusLabel} className="px-3 py-1" />}
         actions={
           <>
-            <Button variant="neutral" onClick={() => navigate(config.base)} disabled={busyAny} title={readOnly ? "Back to the list" : "Discard changes and go back"}>
+            <Button variant="neutral" onClick={() => navigate(backTarget(config.base))} disabled={busyAny} title={readOnly ? "Back to the list" : "Discard changes and go back"}>
               {readOnly ? <ArrowLeft className="h-4 w-4" /> : <X className="h-4 w-4" />} {readOnly ? "Back" : "Cancel"}
             </Button>
             {(transitions ?? []).slice(0, 3).map((t) => (
@@ -627,7 +628,7 @@ function DocFormPageInner({ config }: { config: DocConfig }) {
             {isNew ? `New ${config.singular.toLowerCase()}` : <>Editing <span className="font-medium text-foreground">{title}</span></>}
           </p>
           <div className="flex shrink-0 gap-2">
-            <Button variant="neutral" size="sm" onClick={() => navigate(config.base)} disabled={busyAny}><X className="h-3.5 w-3.5" />Cancel</Button>
+            <Button variant="neutral" size="sm" onClick={() => navigate(backTarget(config.base))} disabled={busyAny}><X className="h-3.5 w-3.5" />Cancel</Button>
             <Button variant="save" size="sm" onClick={() => void save()} disabled={busyAny}>
               <Save className="h-4 w-4" /> {isNew ? "Save" : "Update"}
             </Button>

@@ -301,6 +301,7 @@ doc_events.update({
 	"Survey Overlap Review": {"after_insert": "sugarcane.notify.overlap_review_inserted", "on_update": "sugarcane.notify.overlap_review_updated"},
 	"Survey Device": {"after_insert": "sugarcane.notify.device_inserted"},
 	"Surveyor Attendance": {"on_update": "sugarcane.notify.attendance_updated"},
+	"Crushing Season": {"on_update": "sugarcane.setup.production.season_updated"},
 })
 
 # Indents past their last valid day become Expired (bench schedule must run for this site in production)

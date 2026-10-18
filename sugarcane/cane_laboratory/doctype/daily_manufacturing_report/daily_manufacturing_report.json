@@ -1,0 +1,505 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "crushing_day",
+  "status",
+  "season",
+  "cb1",
+  "prepared_by",
+  "prepared_at",
+  "cb2",
+  "approved_by",
+  "approved_at",
+  "sb_cane",
+  "cane_from_gate_kg",
+  "cane_from_depots_kg",
+  "cane_received_kg",
+  "cb_cane",
+  "yard_opening_kg",
+  "yard_closing_kg",
+  "cb_cane2",
+  "cane_crushed_kg",
+  "cane_crushed_maund",
+  "sb_time",
+  "stoppage_minutes",
+  "running_hours",
+  "cb_time",
+  "crush_rate_tph",
+  "capacity_use_pct",
+  "sb_prod",
+  "sugar_bags",
+  "sugar_kg",
+  "recovery_pct",
+  "cb_prod",
+  "molasses_kg",
+  "bagasse_kg",
+  "press_mud_kg",
+  "cb_prod2",
+  "molasses_pct_cane",
+  "bagasse_pct_cane",
+  "press_mud_pct_cane",
+  "sb_loss",
+  "pol_pct_cane",
+  "loss_bagasse",
+  "loss_press_mud",
+  "cb_loss",
+  "loss_molasses",
+  "loss_known",
+  "loss_undetermined",
+  "sb_std",
+  "std_cane_crushed_kg",
+  "std_sugar_bags",
+  "cb_std",
+  "std_recovery_pct",
+  "std_running_hours",
+  "sb_an",
+  "analyses",
+  "sb_rem",
+  "remarks",
+  "amended_from",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "crushing_day",
+   "fieldtype": "Date",
+   "label": "Crushing Day",
+   "reqd": 1,
+   "in_list_view": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "options": "Draft\nPrepared\nApproved\nCancelled",
+   "label": "Status",
+   "description": "Prepared by the lab, approved by the Production Manager (submit)",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "bold": 1,
+   "default": "Draft"
+  },
+  {
+   "fieldname": "season",
+   "fieldtype": "Link",
+   "options": "Crushing Season",
+   "label": "Season",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "prepared_by",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Prepared By",
+   "read_only": 1
+  },
+  {
+   "fieldname": "prepared_at",
+   "fieldtype": "Datetime",
+   "label": "Prepared At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Approved By",
+   "read_only": 1
+  },
+  {
+   "fieldname": "approved_at",
+   "fieldtype": "Datetime",
+   "label": "Approved At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_cane",
+   "fieldtype": "Section Break",
+   "label": "Cane (kg)"
+  },
+  {
+   "fieldname": "cane_from_gate_kg",
+   "fieldtype": "Int",
+   "label": "From the Gate (CPRs)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cane_from_depots_kg",
+   "fieldtype": "Int",
+   "label": "From Depots (trucks received)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cane_received_kg",
+   "fieldtype": "Int",
+   "label": "Received in the Yard",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_cane",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "yard_opening_kg",
+   "fieldtype": "Int",
+   "label": "Yard at 07:00 (opening)",
+   "description": "The previous day's closing"
+  },
+  {
+   "fieldname": "yard_closing_kg",
+   "fieldtype": "Int",
+   "label": "Yard at 07:00 Next Day (closing)",
+   "description": "Cane still in the yard at the end of the day — the lab enters it"
+  },
+  {
+   "fieldname": "cb_cane2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cane_crushed_kg",
+   "fieldtype": "Int",
+   "label": "Cane Crushed (kg)",
+   "read_only": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "cane_crushed_maund",
+   "fieldtype": "Float",
+   "label": "Cane Crushed (maund)",
+   "read_only": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "sb_time",
+   "fieldtype": "Section Break",
+   "label": "Mill Time"
+  },
+  {
+   "fieldname": "stoppage_minutes",
+   "fieldtype": "Int",
+   "label": "Stoppages (min)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "running_hours",
+   "fieldtype": "Float",
+   "label": "Running Hours",
+   "read_only": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "cb_time",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "crush_rate_tph",
+   "fieldtype": "Float",
+   "label": "Crush Rate (t/h)",
+   "read_only": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "capacity_use_pct",
+   "fieldtype": "Percent",
+   "label": "Use of Capacity %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_prod",
+   "fieldtype": "Section Break",
+   "label": "Production"
+  },
+  {
+   "fieldname": "sugar_bags",
+   "fieldtype": "Int",
+   "label": "Sugar Bags (50 kg)"
+  },
+  {
+   "fieldname": "sugar_kg",
+   "fieldtype": "Int",
+   "label": "Sugar (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "recovery_pct",
+   "fieldtype": "Float",
+   "label": "Recovery %",
+   "read_only": 1,
+   "bold": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "cb_prod",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "molasses_kg",
+   "fieldtype": "Int",
+   "label": "Final Molasses (kg)"
+  },
+  {
+   "fieldname": "bagasse_kg",
+   "fieldtype": "Int",
+   "label": "Bagasse (kg)"
+  },
+  {
+   "fieldname": "press_mud_kg",
+   "fieldtype": "Int",
+   "label": "Press Mud (kg)"
+  },
+  {
+   "fieldname": "cb_prod2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "molasses_pct_cane",
+   "fieldtype": "Float",
+   "label": "Molasses % Cane",
+   "read_only": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "bagasse_pct_cane",
+   "fieldtype": "Float",
+   "label": "Bagasse % Cane",
+   "read_only": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "press_mud_pct_cane",
+   "fieldtype": "Float",
+   "label": "Press Mud % Cane",
+   "read_only": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "sb_loss",
+   "fieldtype": "Section Break",
+   "label": "Pol Losses (% cane)"
+  },
+  {
+   "fieldname": "pol_pct_cane",
+   "fieldtype": "Float",
+   "label": "Pol % Cane",
+   "description": "From the vehicle recovery samples' average when left empty",
+   "precision": "3"
+  },
+  {
+   "fieldname": "loss_bagasse",
+   "fieldtype": "Float",
+   "label": "In Bagasse",
+   "read_only": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "loss_press_mud",
+   "fieldtype": "Float",
+   "label": "In Press Mud",
+   "read_only": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "cb_loss",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "loss_molasses",
+   "fieldtype": "Float",
+   "label": "In Final Molasses",
+   "read_only": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "loss_known",
+   "fieldtype": "Float",
+   "label": "Known Losses",
+   "read_only": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "loss_undetermined",
+   "fieldtype": "Float",
+   "label": "Undetermined",
+   "read_only": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "sb_std",
+   "fieldtype": "Section Break",
+   "label": "Season to Date"
+  },
+  {
+   "fieldname": "std_cane_crushed_kg",
+   "fieldtype": "Int",
+   "label": "Cane Crushed (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "std_sugar_bags",
+   "fieldtype": "Int",
+   "label": "Sugar Bags",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_std",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "std_recovery_pct",
+   "fieldtype": "Float",
+   "label": "Recovery %",
+   "read_only": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "std_running_hours",
+   "fieldtype": "Float",
+   "label": "Running Hours",
+   "read_only": 1,
+   "precision": "1"
+  },
+  {
+   "fieldname": "sb_an",
+   "fieldtype": "Section Break",
+   "label": "Average Analyses"
+  },
+  {
+   "fieldname": "analyses",
+   "fieldtype": "Table",
+   "options": "DMR Analysis",
+   "label": "Analyses",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_rem",
+   "fieldtype": "Section Break",
+   "label": "Remarks",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "options": "Daily Manufacturing Report",
+   "label": "Amended From",
+   "read_only": 1,
+   "no_copy": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "label": "Demo Record",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1,
+   "default": "0"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cane Laboratory",
+ "name": "Daily Manufacturing Report",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Cane Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Cane Manager",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Lab Chemist",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Production Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Cane Accountant",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "MIS Viewer",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "sort_field": "crushing_day",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "is_submittable": 1,
+ "autoname": "format:DMR-{crushing_day}",
+ "title_field": "crushing_day"
+}

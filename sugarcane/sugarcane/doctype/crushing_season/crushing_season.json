@@ -30,6 +30,10 @@
   "molasses_nrv_per_kg",
   "bagasse_nrv_per_kg",
   "press_mud_nrv_per_kg",
+  "expected_molasses_pct",
+  "expected_bagasse_pct",
+  "expected_mud_pct",
+  "bag_bom",
   "sb_indent",
   "indent_load_maund",
   "indent_validity_days",
@@ -197,6 +201,32 @@
    "options": "Company:company:default_currency"
   },
   {
+   "fieldname": "expected_molasses_pct",
+   "fieldtype": "Percent",
+   "label": "Expected Molasses % Cane",
+   "default": "4.5"
+  },
+  {
+   "fieldname": "expected_bagasse_pct",
+   "fieldtype": "Percent",
+   "label": "Expected Bagasse % Cane",
+   "default": "30"
+  },
+  {
+   "fieldname": "expected_mud_pct",
+   "fieldtype": "Percent",
+   "label": "Expected Press Mud % Cane",
+   "default": "3.5"
+  },
+  {
+   "fieldname": "bag_bom",
+   "fieldtype": "Link",
+   "options": "BOM",
+   "label": "Sugar Bag BOM",
+   "read_only": 1,
+   "description": "Created from the standard recovery and the expected by-products; remade when they change"
+  },
+  {
    "fieldname": "sb_indent",
    "fieldtype": "Section Break",
    "label": "Indenting",
@@ -236,7 +266,7 @@
    "label": "Daily Cane Intake (maund)",
    "precision": "0",
    "non_negative": 1,
-   "description": "Indents per day are capped at intake \u00f7 load. Empty = crushing target \u00f7 season days"
+   "description": "Indents per day are capped at intake ÷ load. Empty = crushing target ÷ season days"
   },
   {
    "fieldname": "indent_start_date",

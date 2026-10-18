@@ -26,6 +26,7 @@ const INDENT_ROLES = [...MANAGERS, "Indent Clerk", "Circle Officer", "MIS Viewer
 const ELP_ROLES = [...MANAGERS, "ELP Auditor", "Token Clerk", "Yard Supervisor", "LP Operator", "Depot User", "MIS Viewer"];
 const PROC_ROLES = [...MANAGERS, "Token Clerk", "Gross Weighman", "Tare Weighman", "Yard Supervisor", "Cane Cashier", "Cane Accountant", "MIS Viewer"];
 const DEPOT_ROLES = [...MANAGERS, "Depot User", "Gross Weighman", "Tare Weighman", "Yard Supervisor", "Cane Accountant", "MIS Viewer"];
+const LAB_ROLES = [...MANAGERS, "Lab Chemist", "Production Manager", "MIS Viewer"];
 const SURVEY_ROLES = [...MANAGERS, "Circle Officer", "Surveyor", "MIS Viewer"];
 const FF_ROLES = [...MANAGERS, "Circle Officer"];
 
@@ -146,16 +147,40 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
       { label: "Weighbridge terminals", to: "/setup/d/weighbridge-terminal", icon: Weight, roles: MANAGERS }] },
     { title: "Reports", items: [{ label: "Depot reports", to: "/reports?g=Depot", icon: BarChart3 }] },
   ],
+  lab: [
+    {
+      title: "Laboratory",
+      items: [
+        { label: "Lab dashboard", to: "/lab", icon: Sparkles, roles: LAB_ROLES },
+        { label: "Hourly samples", to: "/lab/entry", icon: Beaker, roles: LAB_ROLES },
+        { label: "Vehicle samples", to: "/lab/vehicle", icon: Truck, roles: LAB_ROLES },
+        { label: "Mill stoppages", to: "/lab/stoppages", icon: Gauge, roles: LAB_ROLES },
+        { label: "Daily manufacturing report", to: "/lab/dmr", icon: ClipboardList, roles: LAB_ROLES },
+      ],
+    },
+    ...docGroups("lab", LAB_ROLES),
+    { title: "Reports", items: [{ label: "Laboratory reports", to: "/reports?g=Laboratory", icon: BarChart3 }] },
+  ],
+  production: [
+    {
+      title: "Sugar production",
+      items: [
+        { label: "Production", to: "/production", icon: Factory, roles: LAB_ROLES },
+        { label: "Plant levels", to: "/production/plant", icon: Gauge, roles: LAB_ROLES },
+        { label: "Daily manufacturing report", to: "/lab/dmr", icon: ClipboardList, roles: LAB_ROLES },
+      ],
+    },
+    ...docGroups("production", LAB_ROLES),
+    { title: "Reports", items: [{ label: "Production reports", to: "/reports?g=Production", icon: BarChart3 }] },
+  ],
   reports: [{ title: "Reports", items: [{ label: "Report Centre", to: "/reports", icon: FileSpreadsheet }] }],
   approvals: [{ title: "Approvals", items: [{ label: "Inbox", to: "/approvals/inbox", icon: Inbox }, { label: "Overlap reviews", to: "/survey/d/survey-overlap-review", icon: Layers }] }],
   mill: [
     {
       title: "Coming in later phases",
       items: [
-        { label: "Laboratory & production (Phase 5)", to: "/mill/lab", icon: Beaker },
         { label: "Cane accounts & loans (Phase 6)", to: "/mill/accounts", icon: Banknote },
         { label: "MIS (Phase 8)", to: "/mill/mis", icon: Gauge },
-        { label: "Plant (Phase 5)", to: "/mill/plant", icon: Factory },
       ],
     },
   ],
@@ -170,6 +195,8 @@ export const APP_LABELS: Record<string, string> = {
   elp: "ELP",
   procurement: "Cane Procurement",
   depot: "Depots",
+  lab: "Laboratory",
+  production: "Sugar Production",
   "field-force": "Field Force",
   setup: "Sugar Setup",
   reports: "Report Centre",
@@ -210,6 +237,13 @@ export const ROUTE_TITLES: Record<string, string> = {
   "day-close": "Day Close",
   depot: "Depots",
   dispatch: "Dispatch",
+  lab: "Laboratory",
+  entry: "Hourly Samples",
+  vehicle: "Vehicle Samples",
+  stoppages: "Stoppages",
+  dmr: "DMR",
+  production: "Production",
+  plant: "Plant Levels",
   generate: "Generate",
   lookup: "Look up",
   elp: "ELP",

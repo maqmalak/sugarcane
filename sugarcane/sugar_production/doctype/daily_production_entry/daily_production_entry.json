@@ -1,0 +1,309 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "crushing_day",
+  "dmr",
+  "daily_purchase",
+  "season",
+  "company",
+  "cb1",
+  "status",
+  "bom",
+  "sb_q",
+  "cane_crushed_kg",
+  "bags_produced",
+  "recovery_pct",
+  "cb_q",
+  "molasses_kg",
+  "bagasse_kg",
+  "press_mud_kg",
+  "sb_v",
+  "work_order",
+  "stock_entry",
+  "cb_v",
+  "cane_cost",
+  "by_product_value",
+  "cb_v2",
+  "sugar_value",
+  "cost_per_bag",
+  "amended_from",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "crushing_day",
+   "fieldtype": "Date",
+   "label": "Crushing Day",
+   "reqd": 1,
+   "in_list_view": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "dmr",
+   "fieldtype": "Link",
+   "options": "Daily Manufacturing Report",
+   "label": "DMR",
+   "reqd": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "daily_purchase",
+   "fieldtype": "Link",
+   "options": "Daily Cane Purchase",
+   "label": "Daily Cane Purchase",
+   "read_only": 1
+  },
+  {
+   "fieldname": "season",
+   "fieldtype": "Link",
+   "options": "Crushing Season",
+   "label": "Season",
+   "read_only": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "options": "Company",
+   "label": "Company",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "options": "Draft\nPosted\nCancelled",
+   "label": "Status",
+   "read_only": 1,
+   "in_list_view": 1,
+   "bold": 1,
+   "default": "Draft"
+  },
+  {
+   "fieldname": "bom",
+   "fieldtype": "Link",
+   "options": "BOM",
+   "label": "BOM (per bag)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_q",
+   "fieldtype": "Section Break",
+   "label": "Quantities (from the approved DMR)"
+  },
+  {
+   "fieldname": "cane_crushed_kg",
+   "fieldtype": "Int",
+   "label": "Cane Crushed (kg)",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "bags_produced",
+   "fieldtype": "Int",
+   "label": "Sugar Bags",
+   "read_only": 1,
+   "in_list_view": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "recovery_pct",
+   "fieldtype": "Float",
+   "label": "Recovery %",
+   "read_only": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "cb_q",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "molasses_kg",
+   "fieldtype": "Int",
+   "label": "Molasses (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bagasse_kg",
+   "fieldtype": "Int",
+   "label": "Bagasse (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "press_mud_kg",
+   "fieldtype": "Int",
+   "label": "Press Mud (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_v",
+   "fieldtype": "Section Break",
+   "label": "Vouchers and Cost"
+  },
+  {
+   "fieldname": "work_order",
+   "fieldtype": "Link",
+   "options": "Work Order",
+   "label": "Work Order",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "stock_entry",
+   "fieldtype": "Link",
+   "options": "Stock Entry",
+   "label": "Stock Entry (Manufacture)",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "cb_v",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cane_cost",
+   "fieldtype": "Currency",
+   "label": "Cane Consumed (value)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "by_product_value",
+   "fieldtype": "Currency",
+   "label": "By-products at NRV",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_v2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sugar_value",
+   "fieldtype": "Currency",
+   "label": "Sugar (value)",
+   "read_only": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "cost_per_bag",
+   "fieldtype": "Currency",
+   "label": "Cost per Bag",
+   "read_only": 1,
+   "in_list_view": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "options": "Daily Production Entry",
+   "label": "Amended From",
+   "read_only": 1,
+   "no_copy": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "label": "Demo Record",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1,
+   "default": "0"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Sugar Production",
+ "name": "Daily Production Entry",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Cane Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Production Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Cane Manager",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Cane Accountant",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Lab Chemist",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "MIS Viewer",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "sort_field": "crushing_day",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "is_submittable": 1,
+ "autoname": "format:PROD-{crushing_day}",
+ "title_field": "crushing_day"
+}

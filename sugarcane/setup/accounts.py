@@ -88,6 +88,9 @@ def setup_company(company: str) -> dict:
 			settings.set(field, value)
 	settings.flags.ignore_permissions = True
 	settings.save()
+	from sugarcane.setup.production import setup as setup_production
+
+	setup_production(company)
 	for depot in frappe.get_all("Cane Depot", filters={"warehouse": ["is", "not set"]}, pluck="name"):
 		frappe.db.set_value("Cane Depot", depot, "warehouse", depot_warehouse(depot, company), update_modified=False)
 	return values

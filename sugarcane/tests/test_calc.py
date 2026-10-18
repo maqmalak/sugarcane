@@ -251,3 +251,47 @@ class TestBarcode(UnitTestCase):
 		out = svg("26-001-100001")
 		self.assertTrue(out.startswith("<svg"))
 		self.assertIn("26-001-100001", out)
+
+
+class TestLabCalc(UnitTestCase):
+	def test_purity_and_errors(self):
+		from sugarcane.calc import lab
+
+		self.assertEqual(lab.purity(14.2, 17.8), 79.78)
+		self.assertIsNone(lab.purity(None, 17))
+		with self.assertRaises(lab.LabError):
+			lab.purity(18, 17)
+
+	def test_ccs(self):
+		from sugarcane.calc import lab
+
+		# pol 17.5, brix 20.0, fibre 14: 1.5·17.5·0.81 − 0.5·20·0.83 = 21.2625 − 8.3 = 12.96
+		self.assertEqual(lab.ccs(17.5, 20.0, 14), 12.96)
+		with self.assertRaises(lab.LabError):
+			lab.ccs(25, 20, 14)
+
+	def test_crushed_recovery_losses(self):
+		from sugarcane.calc import lab
+
+		self.assertEqual(lab.crushed(50_000, 1_000_000, 40_000), 1_010_000)
+		with self.assertRaises(lab.LabError):
+			lab.crushed(0, 1000, 2000)
+		self.assertEqual(lab.recovery_pct(101_000, 1_010_000), 10.0)
+		self.assertEqual(lab.crush_rate_tph(1_010_000, 22 * 60), 45.91)
+		l = lab.losses(1_000_000, 300_000, 2.0, 35_000, 1.5, 45_000, 32.0, 10.0, pol_pct_cane=12.5)
+		self.assertEqual((l.bagasse, l.press_mud, l.molasses), (0.6, 0.053, 1.44))
+		self.assertEqual(l.undetermined, round(12.5 - 10 - 2.093, 3))
+
+	def test_average_recomputes_purity(self):
+		from sugarcane.calc import lab
+
+		a = lab.average([{"brix": 16, "pol": 13}, {"brix": 18, "pol": 15}, {"brix": None, "pol": None, "ph": 5.4}])
+		self.assertEqual((a["samples"], a["brix"], a["pol"], a["ph"]), (3, 17.0, 14.0, 5.4))
+		self.assertEqual(a["purity"], 82.35)
+
+	def test_bag_bom(self):
+		from sugarcane.calc import lab
+
+		self.assertEqual(lab.bag_bom(10), {"cane_kg": 500.0, "molasses_kg": 22.5, "bagasse_kg": 150.0, "press_mud_kg": 17.5})
+		with self.assertRaises(lab.LabError):
+			lab.bag_bom(0)

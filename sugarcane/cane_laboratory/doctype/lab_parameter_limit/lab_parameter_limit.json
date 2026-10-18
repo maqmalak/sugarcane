@@ -1,0 +1,58 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "parameter",
+  "min_value",
+  "max_value",
+  "target"
+ ],
+ "fields": [
+  {
+   "fieldname": "parameter",
+   "fieldtype": "Select",
+   "options": "brix\npol\npurity\nph\nmoisture_pct\nfibre_pct\ncolour_icumsa\ntemperature_c",
+   "label": "Parameter",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "min_value",
+   "fieldtype": "Float",
+   "label": "Lowest",
+   "in_list_view": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "max_value",
+   "fieldtype": "Float",
+   "label": "Highest",
+   "in_list_view": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "target",
+   "fieldtype": "Float",
+   "label": "Target",
+   "in_list_view": 1,
+   "precision": "3"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cane Laboratory",
+ "name": "Lab Parameter Limit",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0,
+ "istable": 1,
+ "editable_grid": 1
+}

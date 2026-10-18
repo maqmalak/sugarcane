@@ -1,7 +1,7 @@
 # MicroMax Sugar Mills Ltd. — Sugar ERP Architecture (Phase 0, for approval)
 
 App `sugarcane` · site `sugarcane` · Frappe 16.34 / ERPNext 16.35 / HRMS · Python 3.14 · Node 24 · MariaDB
-Status: **approved 2026-10-13** (v3: decisions below). Phases 0–4 and ELP are built; see `docs/PHASE_0.md` … `PHASE_4.md`, `ELP.md`.
+Status: **approved 2026-10-13** (v3: decisions below). Phases 0–5 and ELP are built; see `docs/PHASE_0.md` … `PHASE_5.md`, `ELP.md`.
 
 ### Decisions (2026-10-13)
 
@@ -239,6 +239,9 @@ LP Vehicle Registration (S: uuid, LP/depot, photos, GPS, in-geofence, blur score
 ### Phase 5 — Laboratory & Production
 Lab Sample (S: type, hour, shift, pol, brix, purity, moisture…) · Daily Manufacturing Report (S, W: Prepared → Approved) ·
 Mill Stoppage Log · Vehicle Recovery Sample · Plant Level Reading · Daily Production Entry (S, §5).
+*As built (see `PHASE_5.md`):*
+- The workflow is a status (Prepared) plus submit (Approved).
+- The bag BOM uses v16 *secondary items* (By-Product, Manual cost at NRV).
 
 ### Phase 6 — Accounting, Loans, Costing
 Cane Payment Scroll (Bank) (S) · Road Cess Deposit (S) · Grower Loan Type · Grower Loan (S, W; disbursement by Payment

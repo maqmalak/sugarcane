@@ -23,6 +23,14 @@ const CounterPage = proc("CounterPage");
 const DayClosePage = proc("DayClosePage");
 const DepotDashboardPage = lazy(() => import("@/sc/pages/DepotPages").then((m) => ({ default: m.DepotDashboardPage })));
 const DispatchPage = lazy(() => import("@/sc/pages/DepotPages").then((m) => ({ default: m.DispatchPage })));
+const labPage = (name: string) => lazy(() => import("@/sc/pages/LabPages").then((m) => ({ default: (m as unknown as Record<string, () => JSX.Element>)[name] })));
+const LabDashboardPage = labPage("LabDashboardPage");
+const LabEntryPage = labPage("LabEntryPage");
+const VehicleSamplesPage = labPage("VehicleSamplesPage");
+const StoppagesPage = labPage("StoppagesPage");
+const DmrPage = labPage("DmrPage");
+const ProductionPage = labPage("ProductionPage");
+const PlantPage = labPage("PlantPage");
 const ApprovalsInboxPage = lazy(() => import("@/sc/pages/ApprovalsInboxPage").then((m) => ({ default: m.ApprovalsInboxPage })));
 const SeasonQuotaPage = lazy(() => import("@/sc/pages/SeasonQuotaPage").then((m) => ({ default: m.SeasonQuotaPage })));
 const FieldForceInsightsPage = lazy(() => import("@/sc/pages/FieldForceInsightsPage").then((m) => ({ default: m.FieldForceInsightsPage })));
@@ -38,8 +46,6 @@ const lazyPage = (node: ReactNode) => <Suspense fallback={<FullPageLoader />}>{n
 const sugar = (node: ReactNode) => lazyPage(<ScProviders>{node}</ScProviders>);
 
 const PHASES: [string, string, string][] = [
-  ["lab", "Laboratory & Production", "Phase 5 — hourly samples, daily manufacturing report, production entries"],
-  ["plant", "Plant", "Phase 5 — steam, juice, water and molasses levels"],
   ["accounts", "Cane Accounts & Loans", "Phase 6 — payment scrolls, road cess deposits, grower ledgers and loans"],
   ["mis", "MIS", "Phase 8 — realtime crushing and management dashboards"],
 ];
@@ -110,6 +116,19 @@ export function AppRoutes() {
         <Route path="depot/dispatch" element={sugar(<DispatchPage />)} />
         <Route path="depot/d/:slug" element={sugar(<MetaDocPage mode="list" />)} />
         <Route path="depot/d/:slug/:name" element={sugar(<MetaDocPage mode="form" />)} />
+        <Route path="lab" element={sugar(<LabDashboardPage />)} />
+        <Route path="lab/entry" element={sugar(<LabEntryPage />)} />
+        <Route path="lab/vehicle" element={sugar(<VehicleSamplesPage />)} />
+        <Route path="lab/stoppages" element={sugar(<StoppagesPage />)} />
+        <Route path="lab/dmr" element={sugar(<DmrPage />)} />
+        <Route path="lab/d/:slug" element={sugar(<MetaDocPage mode="list" />)} />
+        <Route path="lab/d/:slug/:name" element={sugar(<MetaDocPage mode="form" />)} />
+        <Route path="production" element={sugar(<ProductionPage />)} />
+        <Route path="production/plant" element={sugar(<PlantPage />)} />
+        <Route path="production/d/:slug" element={sugar(<MetaDocPage mode="list" />)} />
+        <Route path="production/d/:slug/:name" element={sugar(<MetaDocPage mode="form" />)} />
+        <Route path="mill/lab" element={<Navigate to="/lab" replace />} />
+        <Route path="mill/plant" element={<Navigate to="/production/plant" replace />} />
         <Route path="mill/tokens" element={<Navigate to="/procurement/gate" replace />} />
         <Route path="mill/yard" element={<Navigate to="/procurement/yard" replace />} />
         <Route path="mill/weighbridge" element={<Navigate to="/procurement/weighbridge" replace />} />

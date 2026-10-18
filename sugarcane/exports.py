@@ -29,11 +29,12 @@ FILTERS = {  # report -> filters it accepts (default by module below)
 	"Cane Day Close": ["to_date"],
 	"Token Register": ["from_date", "to_date", "circle", "token_status"],
 	"Depot Stock": ["to_date"],
+	"Variety Wise Recovery": ["from_date", "to_date", "recovery_group"],
 	"Depot Dispatch Register": ["from_date", "to_date", "depot", "dispatch_status"],
 }
 MODULE_FILTERS = {"EagleEye Survey": SURVEY, "Vehicle Tracking": ["from_date", "to_date", "circle"],
 	"Cane Procurement": ["from_date", "to_date", "circle"], "Weighbridge": ["from_date", "to_date"],
-	"Depot Purchase": ["from_date", "to_date", "depot"]}
+	"Depot Purchase": ["from_date", "to_date", "depot"], "Cane Laboratory": ["from_date", "to_date"], "Sugar Production": ["from_date", "to_date"]}
 DESCRIPTIONS = {
 	"Cane Survey Detail": "Every surveyed field: grower, CNIC, passbook, village, variety, declared vs measured area",
 	"Circle Wise Survey Summary": "Fields, growers, area, plant / ratoon / diseased acres and expected cane per circle",
@@ -76,6 +77,7 @@ FILTER_DEFS = {
 		"param": "status"},
 	"entry_type": {"label": "Entry", "kind": "select", "options": ["ELP Verified", "Gate", "Depot"]},
 	"depot": {"label": "Depot", "kind": "link", "doctype": "Cane Depot"},
+	"recovery_group": {"label": "Group by", "kind": "select", "options": ["Variety", "Circle", "Grower", "Source"], "param": "group_by"},
 	"dispatch_status": {"label": "Status", "kind": "select", "options": ["Loading", "In Transit", "At Mill", "Received", "Cancelled"], "param": "status"},
 	"payment_status": {"label": "Payment", "kind": "select", "options": ["Unpaid", "Paid"]},
 	"bilty_status": {"label": "Status", "kind": "select", "options": ["Unpaid", "Paid"], "param": "status"},

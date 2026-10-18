@@ -78,6 +78,18 @@
   "freight_account",
   "depot_commission_account",
   "transit_shortage_account",
+  "sb_production",
+  "sugar_item",
+  "packing_item",
+  "molasses_item",
+  "bagasse_item",
+  "press_mud_item",
+  "cb_production",
+  "sugar_warehouse",
+  "packing_warehouse",
+  "byproduct_warehouse",
+  "ccs_recovery_factor",
+  "mill_capacity_tcd",
   "cb_stock",
   "daily_purchase_supplier",
   "contractor_supplier_group"
@@ -513,6 +525,77 @@
    "fieldtype": "Link",
    "options": "Account",
    "label": "Transit Shortage Account"
+  },
+  {
+   "fieldname": "sb_production",
+   "fieldtype": "Section Break",
+   "label": "Laboratory and Production"
+  },
+  {
+   "fieldname": "sugar_item",
+   "fieldtype": "Link",
+   "options": "Item",
+   "label": "Sugar Item (50 kg bag)"
+  },
+  {
+   "fieldname": "packing_item",
+   "fieldtype": "Link",
+   "options": "Item",
+   "label": "Packing Bag Item"
+  },
+  {
+   "fieldname": "molasses_item",
+   "fieldtype": "Link",
+   "options": "Item",
+   "label": "Molasses Item"
+  },
+  {
+   "fieldname": "bagasse_item",
+   "fieldtype": "Link",
+   "options": "Item",
+   "label": "Bagasse Item"
+  },
+  {
+   "fieldname": "press_mud_item",
+   "fieldtype": "Link",
+   "options": "Item",
+   "label": "Press Mud Item"
+  },
+  {
+   "fieldname": "cb_production",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sugar_warehouse",
+   "fieldtype": "Link",
+   "options": "Warehouse",
+   "label": "Sugar Godown"
+  },
+  {
+   "fieldname": "packing_warehouse",
+   "fieldtype": "Link",
+   "options": "Warehouse",
+   "label": "Packing Store"
+  },
+  {
+   "fieldname": "byproduct_warehouse",
+   "fieldtype": "Link",
+   "options": "Warehouse",
+   "label": "By-products Store"
+  },
+  {
+   "fieldname": "ccs_recovery_factor",
+   "fieldtype": "Float",
+   "label": "Recovery Factor (CCS → recovery)",
+   "default": "0.95",
+   "precision": "3",
+   "description": "Estimated recovery of a vehicle sample = CCS × this factor"
+  },
+  {
+   "fieldname": "mill_capacity_tcd",
+   "fieldtype": "Float",
+   "label": "Mill Capacity (tonnes cane per day)",
+   "default": "12000"
   },
   {
    "fieldname": "cb_stock",

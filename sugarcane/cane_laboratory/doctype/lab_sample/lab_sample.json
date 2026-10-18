@@ -1,0 +1,293 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "sample_type",
+  "stage",
+  "sample_time",
+  "cb1",
+  "crushing_day",
+  "hour",
+  "shift",
+  "cb2",
+  "out_of_range",
+  "problems",
+  "chemist",
+  "sb_v",
+  "brix",
+  "pol",
+  "purity",
+  "ph",
+  "cb_v",
+  "moisture_pct",
+  "fibre_pct",
+  "colour_icumsa",
+  "temperature_c",
+  "sb_r",
+  "remarks",
+  "amended_from",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "options": "LAB-.YY.-.######",
+   "label": "Series",
+   "hidden": 1,
+   "reqd": 1,
+   "default": "LAB-.YY.-.######"
+  },
+  {
+   "fieldname": "sample_type",
+   "fieldtype": "Link",
+   "options": "Lab Sample Type",
+   "label": "Sample Type",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "stage",
+   "fieldtype": "Data",
+   "label": "Stage",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sample_time",
+   "fieldtype": "Datetime",
+   "label": "Sample Time",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "crushing_day",
+   "fieldtype": "Date",
+   "label": "Crushing Day",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "hour",
+   "fieldtype": "Data",
+   "label": "Hour",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "shift",
+   "fieldtype": "Link",
+   "options": "Crushing Shift",
+   "label": "Shift",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "out_of_range",
+   "fieldtype": "Check",
+   "label": "Out of Range",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "problems",
+   "fieldtype": "Small Text",
+   "label": "Outside the Limits",
+   "read_only": 1
+  },
+  {
+   "fieldname": "chemist",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Chemist",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_v",
+   "fieldtype": "Section Break",
+   "label": "Analysis"
+  },
+  {
+   "fieldname": "brix",
+   "fieldtype": "Float",
+   "label": "Brix %",
+   "precision": "3"
+  },
+  {
+   "fieldname": "pol",
+   "fieldtype": "Float",
+   "label": "Pol %",
+   "precision": "3"
+  },
+  {
+   "fieldname": "purity",
+   "fieldtype": "Float",
+   "label": "Purity %",
+   "description": "pol ÷ brix × 100",
+   "read_only": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "ph",
+   "fieldtype": "Float",
+   "label": "pH",
+   "precision": "2"
+  },
+  {
+   "fieldname": "cb_v",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "moisture_pct",
+   "fieldtype": "Float",
+   "label": "Moisture %",
+   "precision": "3"
+  },
+  {
+   "fieldname": "fibre_pct",
+   "fieldtype": "Float",
+   "label": "Fibre %",
+   "precision": "3"
+  },
+  {
+   "fieldname": "colour_icumsa",
+   "fieldtype": "Float",
+   "label": "Colour (ICUMSA)",
+   "precision": "0"
+  },
+  {
+   "fieldname": "temperature_c",
+   "fieldtype": "Float",
+   "label": "Temperature °C",
+   "precision": "1"
+  },
+  {
+   "fieldname": "sb_r",
+   "fieldtype": "Section Break",
+   "label": "Remarks",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "options": "Lab Sample",
+   "label": "Amended From",
+   "read_only": 1,
+   "no_copy": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "label": "Demo Record",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1,
+   "default": "0"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cane Laboratory",
+ "name": "Lab Sample",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Cane Manager",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Cane Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Lab Chemist",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Production Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "MIS Viewer",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "sort_field": "sample_time",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "is_submittable": 1,
+ "autoname": "naming_series:",
+ "title_field": "sample_type",
+ "search_fields": "sample_type,crushing_day"
+}

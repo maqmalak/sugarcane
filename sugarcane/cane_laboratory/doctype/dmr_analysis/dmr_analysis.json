@@ -1,0 +1,110 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "sample_type",
+  "samples",
+  "brix",
+  "pol",
+  "purity",
+  "ph",
+  "moisture_pct",
+  "fibre_pct",
+  "colour_icumsa",
+  "out_of_range"
+ ],
+ "fields": [
+  {
+   "fieldname": "sample_type",
+   "fieldtype": "Link",
+   "options": "Lab Sample Type",
+   "label": "Sample Type",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "samples",
+   "fieldtype": "Int",
+   "label": "Samples",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "brix",
+   "fieldtype": "Float",
+   "label": "Brix",
+   "read_only": 1,
+   "in_list_view": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "pol",
+   "fieldtype": "Float",
+   "label": "Pol",
+   "read_only": 1,
+   "in_list_view": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "purity",
+   "fieldtype": "Float",
+   "label": "Purity",
+   "read_only": 1,
+   "in_list_view": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "ph",
+   "fieldtype": "Float",
+   "label": "pH",
+   "read_only": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "moisture_pct",
+   "fieldtype": "Float",
+   "label": "Moisture %",
+   "read_only": 1,
+   "in_list_view": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "fibre_pct",
+   "fieldtype": "Float",
+   "label": "Fibre %",
+   "read_only": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "colour_icumsa",
+   "fieldtype": "Float",
+   "label": "Colour",
+   "read_only": 1,
+   "precision": "0"
+  },
+  {
+   "fieldname": "out_of_range",
+   "fieldtype": "Int",
+   "label": "Out of Range",
+   "read_only": 1,
+   "in_list_view": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cane Laboratory",
+ "name": "DMR Analysis",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0,
+ "istable": 1,
+ "editable_grid": 0
+}

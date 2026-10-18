@@ -136,6 +136,17 @@ def _alerts(approvals_total):
 			and expected_at < %s""", frappe.utils.add_to_date(frappe.utils.now_datetime(), hours=-1))[0][0]
 		add("sc_depot_overdue", late, _("Depot trucks overdue"), _("Later than the depot's journey time to the mill"),
 			"/depot/dispatch?status=In%20Transit", "red")
+	if _can("Daily Manufacturing Report"):
+		add("sc_dmr_approve", len(frappe.get_list("Daily Manufacturing Report", filters={"docstatus": 0, "status": "Prepared"}, pluck="name",
+			limit_page_length=0)), _("DMRs waiting for approval"), _("Prepared by the lab"), "/production", "violet")
+		pending = frappe.db.sql("""select count(*) from `tabDaily Manufacturing Report` d where d.docstatus = 1
+			and exists (select 1 from `tabDaily Cane Purchase` p where p.crushing_day = d.crushing_day and p.docstatus = 1)
+			and not exists (select 1 from `tabDaily Production Entry` e where e.crushing_day = d.crushing_day and e.docstatus = 1)""")[0][0]
+		add("sc_production_post", pending, _("Approved days not posted to production"), _("Post the Work Order and Manufacture entry"),
+			"/production", "amber")
+	if _can("Mill Stoppage"):
+		add("sc_mill_stopped", frappe.db.count("Mill Stoppage", {"end": ["is", "not set"]}), _("The mill is stopped"), _("A stoppage has no restart time"),
+			"/lab/stoppages", "red")
 	add("approvals", approvals_total, _("Approvals waiting"), _("Workflow and HR requests waiting for you"), "/approvals/inbox", "yellow")
 	return out
 
@@ -251,6 +262,15 @@ def _tiles():
 	if _can("Depot Dispatch"):
 		put("depot", len(frappe.get_list("Depot Dispatch", filters={"docstatus": 1, "status": ["in", ["In Transit", "At Mill"]]}, pluck="name",
 			limit_page_length=0)), _("trucks on the road"))
+	if _can("Daily Manufacturing Report"):
+		last = frappe.db.get_value("Daily Manufacturing Report", {"docstatus": ["<", 2]}, ["recovery_pct", "std_recovery_pct"], order_by="crushing_day desc",
+			as_dict=True)
+		put("lab", f"{flt(last.std_recovery_pct):.2f}%" if last else "—", _("season recovery"))
+	if _can("Daily Production Entry"):
+		from sugarcane.stock import stock_qty
+
+		s_ = frappe.get_cached_doc("Sugar Settings")
+		put("production", f"{int(stock_qty(s_.sugar_item, s_.sugar_warehouse)):,}" if s_.sugar_item else "0", _("bags in the godown"))
 	from sugarcane.exports import catalogue
 
 	put("reports", len(catalogue()), _("reports"))

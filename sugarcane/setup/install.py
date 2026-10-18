@@ -17,6 +17,10 @@ def after_migrate():
 	ensure_journey_defaults()
 	ensure_elp_defaults()
 	ensure_purchase_rate_precision()
+	ensure_season_production_defaults()
+	from sugarcane.setup.lab_setup import ensure as ensure_lab_masters
+
+	ensure_lab_masters()
 	company = frappe.db.get_single_value("Sugar Settings", "company")
 	if company and frappe.db.exists("Company", company):
 		from sugarcane.setup.accounts import setup_company
@@ -37,7 +41,8 @@ def ensure_journey_defaults():
 ELP_DEFAULTS = {"elp_min_sharpness": 60, "elp_min_brightness": 40, "elp_max_brightness": 225, "elp_min_contrast": 20,
 	"elp_required_views": "Number Plate\nIndent\nDriver\nBody Left", "elp_geofence_buffer_m": 30, "elp_require_indent": 1,
 	"elp_overdue_grace_min": 60, "elp_gate_buffer_m": 500, "elp_not_arrived_hours": 48,
-	"tpt_requires_elp": 1, "weight_fresh_seconds": 10, "min_weight_kg": 200, "max_yard_hours": 12}
+	"tpt_requires_elp": 1, "weight_fresh_seconds": 10, "min_weight_kg": 200, "max_yard_hours": 12,
+	"ccs_recovery_factor": 0.95, "mill_capacity_tcd": 12000.0}
 
 
 def ensure_elp_defaults():
@@ -47,6 +52,12 @@ def ensure_elp_defaults():
 	for field, value in ELP_DEFAULTS.items():
 		if field not in stored or (not isinstance(value, int) and not frappe.db.get_single_value("Sugar Settings", field)):
 			frappe.db.set_single_value("Sugar Settings", field, value)
+
+
+def ensure_season_production_defaults():
+	"""Expected by-products for seasons made before the fields existed (0 would leave the bag BOM without by-products)."""
+	for field, value in (("expected_molasses_pct", 4.5), ("expected_bagasse_pct", 30), ("expected_mud_pct", 3.5)):
+		frappe.db.sql(f"update `tabCrushing Season` set {field} = %s where ifnull({field}, 0) = 0", value)
 
 
 def ensure_purchase_rate_precision():

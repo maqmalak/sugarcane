@@ -212,9 +212,9 @@ def _stock_entry(purpose, day, time_, rows, remarks, company) -> frappe.model.do
 
 
 def _stock(warehouse, day) -> float:
-	from erpnext.stock.utils import get_stock_balance
+	from sugarcane.stock import stock_qty
 
-	return flt(get_stock_balance(p.settings().item, warehouse, getdate(day), "23:59:59"))
+	return stock_qty(p.settings().item, warehouse, day)
 
 
 

@@ -26,7 +26,7 @@ const GrowerPhotos = lazy(() => import("./components/PhotoGallery").then((m) => 
 const AreaGeoEditor = lazy(() => import("./pages/AreaMapPage").then((m) => ({ default: m.Editor })));
 const later = (node: ReactNode) => <Suspense fallback={<div className="h-24 animate-pulse rounded-2xl border bg-muted/40" />}>{node}</Suspense>;
 
-export type ScApp = "setup" | "survey" | "field-force" | "indenting" | "elp" | "procurement" | "depot";
+export type ScApp = "setup" | "survey" | "field-force" | "indenting" | "elp" | "procurement" | "depot" | "lab" | "production";
 
 export interface ScDoc {
   doctype: string;
@@ -85,6 +85,15 @@ export const SC_DOCS: ScDoc[] = [
   { doctype: "Weighment Reading Log", label: "Weighbridge Readings", app: "procurement", group: "Logs", icon: ScrollText },
   // ------------------------------------------------------------------ depot
   { doctype: "Depot Dispatch", label: "Depot Dispatches", app: "depot", group: "Records", icon: Truck },
+  // ------------------------------------------------------------------ laboratory & production
+  { doctype: "Daily Manufacturing Report", label: "Daily Manufacturing Reports", app: "lab", group: "Records", icon: ClipboardList },
+  { doctype: "Lab Sample", label: "Lab Samples", app: "lab", group: "Records", icon: Leaf },
+  { doctype: "Vehicle Recovery Sample", label: "Vehicle Samples", app: "lab", group: "Records", icon: Truck },
+  { doctype: "Mill Stoppage", label: "Mill Stoppages", app: "lab", group: "Records", icon: Clock },
+  { doctype: "Lab Sample Type", label: "Sample Types & Limits", app: "lab", group: "Setup", icon: Settings },
+  { doctype: "Daily Production Entry", label: "Production Entries", app: "production", group: "Records", icon: Factory },
+  { doctype: "Plant Level Reading", label: "Plant Readings", app: "production", group: "Records", icon: Scale },
+  { doctype: "Plant Point", label: "Plant Points", app: "production", group: "Setup", icon: Settings },
 ];
 
 export const docBase = (doctype: string) => {
@@ -209,4 +218,4 @@ export const ENHANCERS: Record<string, Enhancer> = {
   },
 };
 
-export const APP_ICON: Record<ScApp, LucideIcon> = { setup: Boxes, survey: Leaf, "field-force": Users, indenting: ClipboardList, elp: Truck, procurement: Scale, depot: Warehouse };
+export const APP_ICON: Record<ScApp, LucideIcon> = { setup: Boxes, survey: Leaf, "field-force": Users, indenting: ClipboardList, elp: Truck, procurement: Scale, depot: Warehouse, lab: Leaf, production: Factory };

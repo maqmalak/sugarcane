@@ -4,7 +4,7 @@
  */
 import {
   BarChart3, Boxes, ClipboardList, FileSpreadsheet, Gauge, LayoutDashboard, Leaf, Map as MapIcon, MapPinned, Receipt,
-  Sparkles, Target, Ticket, Inbox, Layers, Truck, UserCog, Users, Warehouse, Weight, Beaker, Factory, Banknote, type LucideIcon, Wand2, ScanBarcode,
+  Sparkles, Target, Ticket, Inbox, Layers, Truck, UserCog, Users, Warehouse, Weight, Beaker, Factory, Banknote, type LucideIcon, Wand2, ScanBarcode, ShieldCheck, AlertTriangle, MapPin,
 } from "lucide-react";
 import { SC_DOCS, docBase, type ScApp } from "@/sc/registry";
 
@@ -23,6 +23,7 @@ export interface NavGroup {
 
 const MANAGERS = ["Cane Manager", "Cane Admin"];
 const INDENT_ROLES = [...MANAGERS, "Indent Clerk", "Circle Officer", "MIS Viewer"];
+const ELP_ROLES = [...MANAGERS, "ELP Auditor", "Token Clerk", "Yard Supervisor", "LP Operator", "Depot User", "MIS Viewer"];
 const SURVEY_ROLES = [...MANAGERS, "Circle Officer", "Surveyor", "MIS Viewer"];
 const FF_ROLES = [...MANAGERS, "Circle Officer"];
 
@@ -43,6 +44,7 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
         { label: "EagleEye Survey", to: "/survey", icon: Leaf, roles: SURVEY_ROLES },
         { label: "Field Force", to: "/field-force", icon: UserCog, roles: FF_ROLES },
         { label: "Indenting", to: "/indenting", icon: ClipboardList, roles: INDENT_ROLES },
+        { label: "ELP (loading points)", to: "/elp", icon: Truck, roles: ELP_ROLES },
         { label: "Setup", to: "/setup", icon: Boxes, roles: MANAGERS },
         { label: "Report Centre", to: "/reports", icon: FileSpreadsheet },
       ],
@@ -94,6 +96,24 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
     ...docGroups("indenting", INDENT_ROLES),
     { title: "Reports", items: [{ label: "Indent reports", to: "/reports?g=Indenting", icon: BarChart3 }] },
   ],
+  elp: [
+    {
+      title: "ELP",
+      items: [
+        { label: "Dashboard", to: "/elp", icon: Sparkles, roles: ELP_ROLES },
+        { label: "Gate & verification", to: "/elp/gate", icon: ScanBarcode, roles: ELP_ROLES },
+        { label: "On the way", to: "/elp/board?status=Pending", icon: Truck, roles: ELP_ROLES },
+        { label: "Pending verification", to: "/elp/board?status=Arrived", icon: ShieldCheck, roles: ELP_ROLES },
+        { label: "Overdue", to: "/elp/board?status=Overdue", icon: AlertTriangle, roles: ELP_ROLES },
+      ],
+    },
+    ...docGroups("elp", ELP_ROLES),
+    { title: "Points", items: [
+      { label: "Loading points", to: "/setup/d/loading-point", icon: MapPin, roles: MANAGERS },
+      { label: "Depots", to: "/setup/d/cane-depot", icon: Warehouse, roles: MANAGERS },
+    ] },
+    { title: "Reports", items: [{ label: "ELP MIS reports", to: "/reports?g=ELP", icon: BarChart3 }] },
+  ],
   reports: [{ title: "Reports", items: [{ label: "Report Centre", to: "/reports", icon: FileSpreadsheet }] }],
   approvals: [{ title: "Approvals", items: [{ label: "Inbox", to: "/approvals/inbox", icon: Inbox }, { label: "Overlap reviews", to: "/survey/d/survey-overlap-review", icon: Layers }] }],
   mill: [
@@ -104,7 +124,6 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
         { label: "Yard board (Phase 3)", to: "/mill/yard", icon: Warehouse },
         { label: "Weighbridge (Phase 3)", to: "/mill/weighbridge", icon: Weight },
         { label: "CPR & Bilty (Phase 3)", to: "/mill/cpr", icon: Receipt },
-        { label: "Depot & vehicle tracking (Phase 4)", to: "/mill/depots", icon: Truck },
         { label: "Laboratory & production (Phase 5)", to: "/mill/lab", icon: Beaker },
         { label: "Cane accounts & loans (Phase 6)", to: "/mill/accounts", icon: Banknote },
         { label: "MIS (Phase 8)", to: "/mill/mis", icon: Gauge },
@@ -120,6 +139,7 @@ export const APP_LABELS: Record<string, string> = {
   survey: "EagleEye Survey",
   approvals: "Approvals",
   indenting: "Indenting",
+  elp: "ELP",
   "field-force": "Field Force",
   setup: "Sugar Setup",
   reports: "Report Centre",
@@ -155,6 +175,9 @@ export const ROUTE_TITLES: Record<string, string> = {
   indenting: "Indenting",
   generate: "Generate",
   lookup: "Look up",
+  elp: "ELP",
+  gate: "Gate & verification",
+  board: "Loads",
   users: "Users & Devices",
   mill: "Mill Operations",
 };

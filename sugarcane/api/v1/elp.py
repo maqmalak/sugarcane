@@ -261,7 +261,10 @@ def insights(days: int = 7) -> dict:
 	by_day = defaultdict(lambda: Counter())
 	for r in rows:
 		by_day[str(getdate(r.registered_at))][r.status] += 1
-	trend = [{"date": str(add_days(since, i)), **{k: by_day[str(add_days(since, i))].get(k, 0)
+	# the chart ends today, or on the latest load when loads are registered for later days (pre-season demo data)
+	end = max([getdate(nowdate())] + [getdate(r.registered_at) for r in rows])
+	start = add_days(end, -max(cint(days), 1) + 1)
+	trend = [{"date": str(add_days(start, i)), **{k: by_day[str(add_days(start, i))].get(k, 0)
 		for k in ("In Transit", "Arrived", "Accepted", "Rejected", "Cancelled")}} for i in range(max(cint(days), 1))]
 	by_point = defaultdict(lambda: {"registered": 0, "accepted": 0, "rejected": 0, "in_transit": 0, "overdue": 0, "transit": []})
 	for r in rows:

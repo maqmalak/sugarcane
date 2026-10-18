@@ -6,7 +6,7 @@ import {
   AlertTriangle, ChevronRight, Inbox, ListTodo, RefreshCw, Truck, Activity, AlertCircle, CheckCircle2, ClipboardList,
   FileCheck2, FileClock, FileWarning, Landmark, PackageMinus, PackageX, PhoneCall, ShoppingCart, BookOpen, CalendarCheck, FileText, HandCoins,
   Package, Receipt, ShoppingBag, Target, Eye, Flag, type LucideIcon, ArrowRight, Factory, LayoutGrid,
-  Users2, Zap, Layers, Smartphone, FilePen, UserX, MapPinOff, Leaf, UserCog, MapPinned, Boxes, FileSpreadsheet, Sprout,
+  Users2, Zap, ShieldCheck, Layers, Smartphone, FilePen, UserX, MapPinOff, Leaf, UserCog, MapPinned, Boxes, FileSpreadsheet, Sprout,
 } from "lucide-react";
 import { APPS, APP_GROUPS, type AppTile } from "@/app/apps";
 import { APP_NAVIGATION, appSegmentForPath } from "@/app/navigation";
@@ -44,6 +44,7 @@ const CATEGORY: Record<string, { label: string; tone: string }> = {
   survey: { label: "Survey", tone: "teal" },
   field: { label: "Field Force", tone: "violet" },
   indent: { label: "Indenting", tone: "teal" },
+  elp: { label: "ELP", tone: "red" },
   masters: { label: "Masters", tone: "rose" },
   finance: { label: "Accounts", tone: "red" },
 };
@@ -121,6 +122,8 @@ Object.assign(ALERT_STYLE, {
   sc_absent: { icon: UserX, dot: "from-orange-400 to-orange-600", pill: "bg-orange-500/15 text-orange-600 ring-orange-500/30 dark:text-orange-300", tag: "Absent" },
   sc_out_of_area: { icon: MapPinOff, dot: "from-red-500 to-rose-600", pill: "bg-red-500/15 text-red-600 ring-red-500/30 dark:text-red-300", tag: "Geofence", urgent: true },
   sc_quota: { icon: Target, dot: "from-yellow-400 to-amber-500", pill: "bg-yellow-500/15 text-yellow-700 ring-yellow-500/30 dark:text-yellow-300", tag: "Quota" },
+  sc_elp_verify: { icon: ShieldCheck, dot: "from-violet-500 to-purple-600", pill: "bg-violet-500/15 text-violet-600 ring-violet-500/30 dark:text-violet-300", tag: "Verify", urgent: true },
+  sc_elp_overdue: { icon: Truck, dot: "from-red-500 to-rose-600", pill: "bg-red-500/15 text-red-600 ring-red-500/30 dark:text-red-300", tag: "Overdue", urgent: true },
   sc_indent_draft: { icon: ClipboardList, dot: "from-violet-500 to-purple-600", pill: "bg-violet-500/15 text-violet-600 ring-violet-500/30 dark:text-violet-300", tag: "Authorize", urgent: true },
   sc_indent_unprinted: { icon: FileCheck2, dot: "from-sky-500 to-blue-600", pill: "bg-sky-500/15 text-sky-600 ring-sky-500/30 dark:text-sky-300", tag: "Print" },
   sc_nopin_cane_source: { icon: MapPinOff, dot: "from-sky-500 to-blue-600", pill: "bg-sky-500/15 text-sky-600 ring-sky-500/30 dark:text-sky-300", tag: "No pin" },
@@ -711,6 +714,7 @@ const MODULE_STYLE: Record<string, { g: string; icon: LucideIcon }> = {
   CRM: { g: "from-fuchsia-400 to-pink-600", icon: Target }, POS: { g: "from-indigo-400 to-blue-700", icon: Receipt },
   Survey: { g: "from-emerald-400 to-teal-600", icon: Sprout }, "Field Force": { g: "from-violet-400 to-purple-600", icon: UserCog },
   Masters: { g: "from-pink-400 to-rose-600", icon: Boxes }, Indenting: { g: "from-violet-400 to-purple-600", icon: ClipboardList },
+  ELP: { g: "from-orange-400 to-red-500", icon: Truck },
 };
 const PERIODS = [["today", "Today"], ["week", "7 days"], ["month", "30 days"]] as const;
 

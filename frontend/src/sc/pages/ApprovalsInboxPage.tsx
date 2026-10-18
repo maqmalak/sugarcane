@@ -16,14 +16,15 @@ import { formatMoney } from "@/utils/currency";
 
 interface Pending {
   doctype: string; name: string; state: string; title: string; amount?: number | null; since: string; owner: string;
-  actions: string[]; category: "hr" | "workflow" | "overlap" | "indent"; workflow?: string | null; survey?: string; other_survey?: string;
+  actions: string[]; category: "hr" | "workflow" | "overlap" | "indent" | "elp"; workflow?: string | null; survey?: string; other_survey?: string;
 }
-interface Change { doctype: string; name: string; state: string; by: string; at: string; category: "hr" | "workflow" | "overlap" | "indent" }
-interface InboxData { pending: Pending[]; recent: Change[]; counts: { pending: number; hr: number; overlap?: number; indent?: number } }
+interface Change { doctype: string; name: string; state: string; by: string; at: string; category: "hr" | "workflow" | "overlap" | "indent" | "elp" }
+interface InboxData { pending: Pending[]; recent: Change[]; counts: { pending: number; hr: number; overlap?: number; indent?: number; elp?: number } }
 
 const TABS = [
   { key: "all", label: "All" },
   { key: "indent", label: "Indent batches" },
+  { key: "elp", label: "Loads to verify" },
   { key: "overlap", label: "Overlap reviews" },
   { key: "hr", label: "HR approvals" },
   { key: "workflow", label: "Other workflows" },
@@ -95,8 +96,8 @@ export function ApprovalsInboxPage() {
       <div className="flex flex-wrap gap-1.5">
         {TABS.map((t) => {
           const n = !inbox ? undefined : t.key === "all" ? inbox.counts.pending : t.key === "hr" ? inbox.counts.hr
-            : t.key === "overlap" ? inbox.counts.overlap ?? 0 : t.key === "indent" ? inbox.counts.indent ?? 0
-            : inbox.counts.pending - inbox.counts.hr - (inbox.counts.overlap ?? 0) - (inbox.counts.indent ?? 0);
+            : t.key === "overlap" ? inbox.counts.overlap ?? 0 : t.key === "indent" ? inbox.counts.indent ?? 0 : t.key === "elp" ? inbox.counts.elp ?? 0
+            : inbox.counts.pending - inbox.counts.hr - (inbox.counts.overlap ?? 0) - (inbox.counts.indent ?? 0) - (inbox.counts.elp ?? 0);
           return (
             <button key={t.key} type="button" onClick={() => setTab(t.key)}
               className={cn("rounded-full border px-3 py-1 text-xs font-medium transition-colors",
@@ -129,6 +130,7 @@ export function ApprovalsInboxPage() {
                         <DocLink doctype={p.doctype} name={p.name} className="text-xs font-semibold hover:underline">{p.name}</DocLink>
                         <span className="text-[11px] text-muted-foreground">{p.doctype}</span>
                         <span className={cn("rounded px-1.5 text-[10px] font-medium", stateTone(p.state))}>{p.state}</span>
+                        {p.category === "elp" && <span className="rounded bg-orange-500/10 px-1.5 text-[10px] font-medium text-orange-700 dark:text-orange-400">ELP</span>}
                         {p.category === "indent" && <span className="rounded bg-violet-500/10 px-1.5 text-[10px] font-medium text-violet-700 dark:text-violet-400">Indents</span>}
                         {p.category === "overlap" && <span className="rounded bg-rose-500/10 px-1.5 text-[10px] font-medium text-rose-700 dark:text-rose-400">Overlap</span>}
                         {p.category === "hr" && <span className="rounded bg-violet-500/10 px-1.5 text-[10px] font-medium text-violet-700 dark:text-violet-400">HR</span>}
@@ -145,6 +147,9 @@ export function ApprovalsInboxPage() {
                           {a}
                         </Button>
                       ))}
+                      {p.category === "elp" && (
+                        <Link to={`/elp/gate?no=${encodeURIComponent(p.name)}`} className="inline-flex h-7 items-center gap-1 rounded-md bg-primary px-2.5 text-xs font-semibold text-primary-foreground">Compare & verify</Link>
+                      )}
                       {p.category === "overlap" && p.survey && (
                         <Link to={`/survey/map?focus=${encodeURIComponent(p.survey)}&from=${encodeURIComponent("/approvals/inbox")}`}
                           className="inline-flex h-7 items-center gap-1 rounded-md border border-border px-2.5 text-xs hover:bg-muted"><MapIcon className="h-3.5 w-3.5" />Map</Link>

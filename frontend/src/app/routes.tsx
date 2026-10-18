@@ -11,6 +11,9 @@ const SurveyInsightsPage = lazy(() => import("@/sc/pages/SurveyInsightsPage").th
 const IndentInsightsPage = lazy(() => import("@/sc/pages/IndentInsightsPage").then((m) => ({ default: m.IndentInsightsPage })));
 const IndentGeneratePage = lazy(() => import("@/sc/pages/IndentGeneratePage").then((m) => ({ default: m.IndentGeneratePage })));
 const IndentLookupPage = lazy(() => import("@/sc/pages/IndentLookupPage").then((m) => ({ default: m.IndentLookupPage })));
+const ElpDashboardPage = lazy(() => import("@/sc/pages/ElpPages").then((m) => ({ default: m.ElpDashboardPage })));
+const ElpBoardPage = lazy(() => import("@/sc/pages/ElpPages").then((m) => ({ default: m.ElpBoardPage })));
+const ElpGatePage = lazy(() => import("@/sc/pages/ElpPages").then((m) => ({ default: m.ElpGatePage })));
 const ApprovalsInboxPage = lazy(() => import("@/sc/pages/ApprovalsInboxPage").then((m) => ({ default: m.ApprovalsInboxPage })));
 const SeasonQuotaPage = lazy(() => import("@/sc/pages/SeasonQuotaPage").then((m) => ({ default: m.SeasonQuotaPage })));
 const FieldForceInsightsPage = lazy(() => import("@/sc/pages/FieldForceInsightsPage").then((m) => ({ default: m.FieldForceInsightsPage })));
@@ -30,7 +33,6 @@ const PHASES: [string, string, string][] = [
   ["yard", "Yard board", "Phase 3 — realtime inner / outer yard positions and hourly balance"],
   ["weighbridge", "Gate & Weighbridge", "Phase 3 — gross / tare from the hardware agent, camera snapshots, LCD"],
   ["cpr", "CPR & Bilty", "Phase 3 — cane purchase receipts, TPT bilty cash counter, daily cane purchase invoice"],
-  ["depots", "Depots & Vehicles", "Phase 4 — loading-point vehicle registration and depot purchase"],
   ["lab", "Laboratory & Production", "Phase 5 — hourly samples, daily manufacturing report, production entries"],
   ["plant", "Plant", "Phase 5 — steam, juice, water and molasses levels"],
   ["accounts", "Cane Accounts & Loans", "Phase 6 — payment scrolls, road cess deposits, grower ledgers and loans"],
@@ -85,6 +87,12 @@ export function AppRoutes() {
         <Route path="indenting/d/:slug" element={sugar(<MetaDocPage mode="list" />)} />
         <Route path="indenting/d/:slug/:name" element={sugar(<MetaDocPage mode="form" />)} />
         <Route path="mill/indenting" element={<Navigate to="/indenting" replace />} />
+        <Route path="elp" element={sugar(<ElpDashboardPage />)} />
+        <Route path="elp/board" element={sugar(<ElpBoardPage />)} />
+        <Route path="elp/gate" element={sugar(<ElpGatePage />)} />
+        <Route path="elp/d/:slug" element={sugar(<MetaDocPage mode="list" />)} />
+        <Route path="elp/d/:slug/:name" element={sugar(<MetaDocPage mode="form" />)} />
+        <Route path="mill/depots" element={<Navigate to="/elp" replace />} />
         <Route path="approvals" element={<Navigate to="/approvals/inbox" replace />} />
         <Route path="approvals/inbox" element={sugar(<ApprovalsInboxPage />)} />
         <Route path="*" element={<Navigate to="/home" replace />} />

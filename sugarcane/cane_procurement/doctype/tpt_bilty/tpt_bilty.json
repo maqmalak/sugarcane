@@ -1,0 +1,368 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "status",
+  "cpr",
+  "token",
+  "cb1",
+  "crushing_day",
+  "season",
+  "company",
+  "cb2",
+  "grower",
+  "grower_name",
+  "source",
+  "point_name",
+  "sb_vehicle",
+  "vehicle_no",
+  "vehicle_type",
+  "cb_vehicle",
+  "driver_name",
+  "driver_cnic",
+  "driver_mobile",
+  "sb_amount",
+  "payable_maund",
+  "tpt_rate",
+  "cb_amount",
+  "amount",
+  "sb_paid",
+  "paid_at",
+  "paid_by",
+  "payment_journal_entry",
+  "cb_paid",
+  "received_by",
+  "received_by_cnic",
+  "print_count",
+  "amended_from",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "options": "BLT-.YY.-.######",
+   "label": "Series",
+   "hidden": 1,
+   "reqd": 1,
+   "default": "BLT-.YY.-.######"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "options": "Unpaid\nPaid\nCancelled",
+   "label": "Status",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "bold": 1,
+   "default": "Unpaid"
+  },
+  {
+   "fieldname": "cpr",
+   "fieldtype": "Link",
+   "options": "Cane Purchase Receipt",
+   "label": "CPR",
+   "reqd": 1,
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "token",
+   "fieldtype": "Link",
+   "options": "Cane Token",
+   "label": "Token",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "crushing_day",
+   "fieldtype": "Date",
+   "label": "Crushing Day",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "season",
+   "fieldtype": "Link",
+   "options": "Crushing Season",
+   "label": "Season",
+   "read_only": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "options": "Company",
+   "label": "Company",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "grower",
+   "fieldtype": "Link",
+   "options": "Grower",
+   "label": "Grower",
+   "read_only": 1
+  },
+  {
+   "fieldname": "grower_name",
+   "fieldtype": "Data",
+   "label": "Grower Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Link",
+   "options": "Cane Source",
+   "label": "Source",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "point_name",
+   "fieldtype": "Data",
+   "label": "Point",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_vehicle",
+   "fieldtype": "Section Break",
+   "label": "Vehicle and Driver"
+  },
+  {
+   "fieldname": "vehicle_no",
+   "fieldtype": "Data",
+   "label": "Vehicle No",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "vehicle_type",
+   "fieldtype": "Link",
+   "options": "Vehicle Type",
+   "label": "Vehicle Type",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_vehicle",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "driver_name",
+   "fieldtype": "Data",
+   "label": "Driver Name",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "driver_cnic",
+   "fieldtype": "Data",
+   "label": "Driver CNIC",
+   "read_only": 1
+  },
+  {
+   "fieldname": "driver_mobile",
+   "fieldtype": "Data",
+   "label": "Driver Mobile",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_amount",
+   "fieldtype": "Section Break",
+   "label": "Amount"
+  },
+  {
+   "fieldname": "payable_maund",
+   "fieldtype": "Float",
+   "label": "Payable (maund)",
+   "read_only": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "tpt_rate",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "TPT Rate (per maund)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_amount",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Amount",
+   "read_only": 1,
+   "in_list_view": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "sb_paid",
+   "fieldtype": "Section Break",
+   "label": "Payment"
+  },
+  {
+   "fieldname": "paid_at",
+   "fieldtype": "Datetime",
+   "label": "Paid At",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "paid_by",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Paid By",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "payment_journal_entry",
+   "fieldtype": "Link",
+   "options": "Journal Entry",
+   "label": "Payment Journal Entry",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "cb_paid",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "received_by",
+   "fieldtype": "Data",
+   "label": "Received By",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "received_by_cnic",
+   "fieldtype": "Data",
+   "label": "Receiver CNIC",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "print_count",
+   "fieldtype": "Int",
+   "label": "Prints",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "options": "TPT Bilty",
+   "label": "Amended From",
+   "read_only": 1,
+   "no_copy": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "label": "Demo Record",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1,
+   "default": "0"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cane Procurement",
+ "name": "TPT Bilty",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Cane Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Cane Manager",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Cane Cashier",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Cane Accountant",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Tare Weighman",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "MIS Viewer",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "sort_field": "crushing_day",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "is_submittable": 1,
+ "autoname": "naming_series:",
+ "title_field": "vehicle_no",
+ "search_fields": "vehicle_no,driver_name,driver_cnic,cpr"
+}

@@ -14,6 +14,13 @@ const IndentLookupPage = lazy(() => import("@/sc/pages/IndentLookupPage").then((
 const ElpDashboardPage = lazy(() => import("@/sc/pages/ElpPages").then((m) => ({ default: m.ElpDashboardPage })));
 const ElpBoardPage = lazy(() => import("@/sc/pages/ElpPages").then((m) => ({ default: m.ElpBoardPage })));
 const ElpGatePage = lazy(() => import("@/sc/pages/ElpPages").then((m) => ({ default: m.ElpGatePage })));
+const proc = (name: string) => lazy(() => import("@/sc/pages/ProcurementPages").then((m) => ({ default: (m as unknown as Record<string, () => JSX.Element>)[name] })));
+const ProcurementDashboardPage = proc("ProcurementDashboardPage");
+const GatePage = proc("GatePage");
+const WeighbridgePage = proc("WeighbridgePage");
+const YardPage = proc("YardPage");
+const CounterPage = proc("CounterPage");
+const DayClosePage = proc("DayClosePage");
 const ApprovalsInboxPage = lazy(() => import("@/sc/pages/ApprovalsInboxPage").then((m) => ({ default: m.ApprovalsInboxPage })));
 const SeasonQuotaPage = lazy(() => import("@/sc/pages/SeasonQuotaPage").then((m) => ({ default: m.SeasonQuotaPage })));
 const FieldForceInsightsPage = lazy(() => import("@/sc/pages/FieldForceInsightsPage").then((m) => ({ default: m.FieldForceInsightsPage })));
@@ -29,10 +36,6 @@ const lazyPage = (node: ReactNode) => <Suspense fallback={<FullPageLoader />}>{n
 const sugar = (node: ReactNode) => lazyPage(<ScProviders>{node}</ScProviders>);
 
 const PHASES: [string, string, string][] = [
-  ["tokens", "Token issue", "Phase 3 — cane tokens with rates applied at issue, barcode slips"],
-  ["yard", "Yard board", "Phase 3 — realtime inner / outer yard positions and hourly balance"],
-  ["weighbridge", "Gate & Weighbridge", "Phase 3 — gross / tare from the hardware agent, camera snapshots, LCD"],
-  ["cpr", "CPR & Bilty", "Phase 3 — cane purchase receipts, TPT bilty cash counter, daily cane purchase invoice"],
   ["lab", "Laboratory & Production", "Phase 5 — hourly samples, daily manufacturing report, production entries"],
   ["plant", "Plant", "Phase 5 — steam, juice, water and molasses levels"],
   ["accounts", "Cane Accounts & Loans", "Phase 6 — payment scrolls, road cess deposits, grower ledgers and loans"],
@@ -93,6 +96,18 @@ export function AppRoutes() {
         <Route path="elp/d/:slug" element={sugar(<MetaDocPage mode="list" />)} />
         <Route path="elp/d/:slug/:name" element={sugar(<MetaDocPage mode="form" />)} />
         <Route path="mill/depots" element={<Navigate to="/elp" replace />} />
+        <Route path="procurement" element={sugar(<ProcurementDashboardPage />)} />
+        <Route path="procurement/gate" element={sugar(<GatePage />)} />
+        <Route path="procurement/weighbridge" element={sugar(<WeighbridgePage />)} />
+        <Route path="procurement/yard" element={sugar(<YardPage />)} />
+        <Route path="procurement/counter" element={sugar(<CounterPage />)} />
+        <Route path="procurement/day-close" element={sugar(<DayClosePage />)} />
+        <Route path="procurement/d/:slug" element={sugar(<MetaDocPage mode="list" />)} />
+        <Route path="procurement/d/:slug/:name" element={sugar(<MetaDocPage mode="form" />)} />
+        <Route path="mill/tokens" element={<Navigate to="/procurement/gate" replace />} />
+        <Route path="mill/yard" element={<Navigate to="/procurement/yard" replace />} />
+        <Route path="mill/weighbridge" element={<Navigate to="/procurement/weighbridge" replace />} />
+        <Route path="mill/cpr" element={<Navigate to="/procurement" replace />} />
         <Route path="approvals" element={<Navigate to="/approvals/inbox" replace />} />
         <Route path="approvals/inbox" element={sugar(<ApprovalsInboxPage />)} />
         <Route path="*" element={<Navigate to="/home" replace />} />

@@ -6,8 +6,9 @@
 import {
   BadgeCheck, Boxes, Building2, CalendarDays, CircleDot, Clock, Factory, Grid3x3, House, Layers, Leaf, Map, MapPin,
   MapPinned, Navigation, NotebookTabs, RefreshCw, Route, Scale, Settings, ShieldBan, Smartphone, Sprout, Target, Truck,
-  Upload, UserCheck, Users, Warehouse, Bug, type LucideIcon, Ticket, Hash, ClipboardList, ScrollText,
+  Upload, UserCheck, Users, Warehouse, Bug, type LucideIcon, Ticket, Hash, ClipboardList, ScrollText, Printer, Banknote,
 } from "lucide-react";
+import { postDownload } from "./lib/api";
 import toast from "react-hot-toast";
 import type { DocConfig, ExtraContext, FormAction } from "@/components/doc/doc-config";
 import { humanizeError, postCall } from "@/services/frappe";
@@ -25,7 +26,7 @@ const GrowerPhotos = lazy(() => import("./components/PhotoGallery").then((m) => 
 const AreaGeoEditor = lazy(() => import("./pages/AreaMapPage").then((m) => ({ default: m.Editor })));
 const later = (node: ReactNode) => <Suspense fallback={<div className="h-24 animate-pulse rounded-2xl border bg-muted/40" />}>{node}</Suspense>;
 
-export type ScApp = "setup" | "survey" | "field-force" | "indenting" | "elp";
+export type ScApp = "setup" | "survey" | "field-force" | "indenting" | "elp" | "procurement";
 
 export interface ScDoc {
   doctype: string;
@@ -75,6 +76,13 @@ export const SC_DOCS: ScDoc[] = [
   // ------------------------------------------------------------------ ELP
   { doctype: "LP Vehicle Registration", label: "Vehicle Registrations", app: "elp", group: "Records", icon: Truck },
   { doctype: "ELP Event Log", label: "Event Log", app: "elp", group: "Records", icon: ScrollText },
+  // ------------------------------------------------------------------ procurement
+  { doctype: "Cane Token", label: "Cane Tokens", app: "procurement", group: "Records", icon: Ticket },
+  { doctype: "Cane Weighment", label: "Weighments", app: "procurement", group: "Records", icon: Scale },
+  { doctype: "Cane Purchase Receipt", label: "CPRs", app: "procurement", group: "Records", icon: ClipboardList },
+  { doctype: "TPT Bilty", label: "TPT Bilties", app: "procurement", group: "Records", icon: Truck },
+  { doctype: "Daily Cane Purchase", label: "Daily Cane Purchases", app: "procurement", group: "Records", icon: Warehouse },
+  { doctype: "Weighment Reading Log", label: "Weighbridge Readings", app: "procurement", group: "Logs", icon: ScrollText },
 ];
 
 export const docBase = (doctype: string) => {
@@ -142,7 +150,21 @@ const withPhotos = (config: DocConfig): DocConfig => ({
   extra: (c: ExtraContext) => <>{config.extra?.(c)}{!c.isNew && later(<SurveyPhotos name={c.name ?? ""} />)}</>,
 });
 
+/** Procurement slips (token / CPR / bilty) as a PDF download. */
+const printAction = (kind: "token" | "cpr" | "bilty"): FormAction => ({
+  label: `Print ${kind === "cpr" ? "CPR" : kind}`,
+  icon: Printer,
+  show: (c: ExtraContext) => !c.isNew,
+  run: async (c: ExtraContext) => {
+    try { await postDownload("sugarcane.api.v1.procurement.slip", { kind, name: c.name ?? "" }, `${kind}-${c.name}.pdf`); } catch (e) { toast.error(humanizeError(e)); }
+  },
+});
+
 export const ENHANCERS: Record<string, Enhancer> = {
+  "Cane Token": { subtitle: "Gate tokens — one vehicle, one load; rates copied at issue", extend: withActions([printAction("token")]) },
+  "Cane Purchase Receipt": { subtitle: "Posted on tare — Journal Entry, TPT bilty, daily purchase invoice", extend: withActions([printAction("cpr")]) },
+  "TPT Bilty": { subtitle: "Carriage paid to the driver at the cash counter", extend: withActions([printAction("bilty"),
+    { label: "Open the cash counter", icon: Banknote, show: (c: ExtraContext) => !c.isNew, run: (c: ExtraContext) => go(`/procurement/counter?q=${encodeURIComponent(c.name ?? "")}`)() }]) },
   ...Object.fromEntries(GEO.map((dt) => [dt, { extend: withAreaMap(dt) }])),
   ...Object.fromEntries(JOURNEY.map((dt) => [dt, { extend: withJourney(dt) }])),
   "Sugar Settings": { extend: withActions([onAreaMap("Sugar Settings")]) },
@@ -185,4 +207,4 @@ export const ENHANCERS: Record<string, Enhancer> = {
   },
 };
 
-export const APP_ICON: Record<ScApp, LucideIcon> = { setup: Boxes, survey: Leaf, "field-force": Users, indenting: ClipboardList, elp: Truck };
+export const APP_ICON: Record<ScApp, LucideIcon> = { setup: Boxes, survey: Leaf, "field-force": Users, indenting: ClipboardList, elp: Truck, procurement: Scale };

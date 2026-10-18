@@ -1,6 +1,6 @@
 """Seasonal rate resolution: the most specific level that sets a value wins.
 
-Order (most specific first): Loading Point → Source → Circle → Season. A level that leaves a field empty (None / "")
+Order (most specific first): Vehicle Type (binding / garbage only) → Loading Point → Source → Circle → Season. A level that leaves a field empty (None / "")
 falls through to the next. Zero is a real value ("no subsidy here") and does not fall through.
 """
 
@@ -16,13 +16,13 @@ RATE_FIELDS = (
 	"garbage_fixed_kg",
 )
 
-LEVELS = ("loading_point", "source", "circle", "season")
+LEVELS = ("vehicle_type", "loading_point", "source", "circle", "season")
 
 
 def resolve(season: dict, circle: dict | None = None, source: dict | None = None,
-		loading_point: dict | None = None, fields=RATE_FIELDS) -> dict:
+		loading_point: dict | None = None, fields=RATE_FIELDS, vehicle_type: dict | None = None) -> dict:
 	"""Returns {field: value} plus {field + "_level": level name} saying where each value came from."""
-	by_level = {"loading_point": loading_point, "source": source, "circle": circle, "season": season}
+	by_level = {"vehicle_type": vehicle_type, "loading_point": loading_point, "source": source, "circle": circle, "season": season}
 	out = {}
 	for field in fields:
 		out[field], out[f"{field}_level"] = None, None

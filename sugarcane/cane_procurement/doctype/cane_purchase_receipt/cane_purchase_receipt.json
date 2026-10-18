@@ -1,0 +1,740 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "posting_date",
+  "posted_at",
+  "season",
+  "company",
+  "cb1",
+  "token",
+  "weighment",
+  "entry_type",
+  "cb2",
+  "payment_status",
+  "elp_registration",
+  "lp_verified",
+  "sb_grower",
+  "indent",
+  "grower",
+  "grower_name",
+  "father_name",
+  "cnic",
+  "passbook_no",
+  "cb_grower",
+  "circle",
+  "village",
+  "village_name",
+  "source",
+  "claimed_source",
+  "loading_point",
+  "depot",
+  "point_name",
+  "sb_vehicle",
+  "vehicle",
+  "vehicle_no",
+  "vehicle_type",
+  "cb_vehicle",
+  "driver_name",
+  "driver_cnic",
+  "driver_mobile",
+  "sb_weight",
+  "gross_kg",
+  "tare_kg",
+  "net_kg",
+  "cb_weight",
+  "binding_kg",
+  "garbage_kg",
+  "cb_weight2",
+  "payable_kg",
+  "payable_maund",
+  "sb_amount",
+  "govt_rate",
+  "govt_value",
+  "road_cess_pct",
+  "road_cess_total",
+  "grower_cess_share_pct",
+  "road_cess_grower",
+  "road_cess_mill",
+  "cb_amount",
+  "subsidy_rate",
+  "subsidy",
+  "additional_subsidy_rate",
+  "additional_subsidy",
+  "net_amount",
+  "cb_amount2",
+  "tpt_rate",
+  "tpt_amount",
+  "loan_deduction",
+  "payable_cpr",
+  "sb_rates",
+  "binding_kg_per_quintal",
+  "garbage_pct",
+  "garbage_fixed_kg",
+  "cb_rates",
+  "rate_levels",
+  "sb_links",
+  "journal_entry",
+  "bilty",
+  "cb_links",
+  "daily_purchase",
+  "cess_deposited",
+  "cb_links2",
+  "print_count",
+  "amended_from",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "options": "CPR-.YY.-.######",
+   "label": "Series",
+   "hidden": 1,
+   "reqd": 1,
+   "default": "CPR-.YY.-.######"
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Posting Date",
+   "description": "The crushing day",
+   "reqd": 1,
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "posted_at",
+   "fieldtype": "Datetime",
+   "label": "Posted At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "season",
+   "fieldtype": "Link",
+   "options": "Crushing Season",
+   "label": "Season",
+   "reqd": 1,
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "options": "Company",
+   "label": "Company",
+   "reqd": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "token",
+   "fieldtype": "Link",
+   "options": "Cane Token",
+   "label": "Token",
+   "reqd": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "weighment",
+   "fieldtype": "Link",
+   "options": "Cane Weighment",
+   "label": "Weighment",
+   "reqd": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "entry_type",
+   "fieldtype": "Select",
+   "options": "ELP Verified\nGate",
+   "label": "Entry",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_status",
+   "fieldtype": "Select",
+   "options": "Unpaid\nPaid",
+   "label": "Payment",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "default": "Unpaid"
+  },
+  {
+   "fieldname": "elp_registration",
+   "fieldtype": "Link",
+   "options": "LP Vehicle Registration",
+   "label": "ELP Registration",
+   "read_only": 1
+  },
+  {
+   "fieldname": "lp_verified",
+   "fieldtype": "Check",
+   "label": "LP Verified",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_grower",
+   "fieldtype": "Section Break",
+   "label": "Grower"
+  },
+  {
+   "fieldname": "indent",
+   "fieldtype": "Link",
+   "options": "Cane Indent",
+   "label": "Indent",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "grower",
+   "fieldtype": "Link",
+   "options": "Grower",
+   "label": "Grower",
+   "reqd": 1,
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "grower_name",
+   "fieldtype": "Data",
+   "label": "Grower Name",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "father_name",
+   "fieldtype": "Data",
+   "label": "Father Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cnic",
+   "fieldtype": "Data",
+   "label": "CNIC",
+   "read_only": 1
+  },
+  {
+   "fieldname": "passbook_no",
+   "fieldtype": "Data",
+   "label": "Passbook No",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_grower",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "circle",
+   "fieldtype": "Link",
+   "options": "Cane Circle",
+   "label": "Circle",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "village",
+   "fieldtype": "Link",
+   "options": "Cane Village",
+   "label": "Village",
+   "read_only": 1
+  },
+  {
+   "fieldname": "village_name",
+   "fieldtype": "Data",
+   "label": "Village Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Link",
+   "options": "Cane Source",
+   "label": "Source (rates)",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "claimed_source",
+   "fieldtype": "Link",
+   "options": "Cane Source",
+   "label": "Source on the Indent / ELP",
+   "read_only": 1
+  },
+  {
+   "fieldname": "loading_point",
+   "fieldtype": "Link",
+   "options": "Loading Point",
+   "label": "Loading Point",
+   "read_only": 1
+  },
+  {
+   "fieldname": "depot",
+   "fieldtype": "Link",
+   "options": "Cane Depot",
+   "label": "Depot",
+   "read_only": 1
+  },
+  {
+   "fieldname": "point_name",
+   "fieldtype": "Data",
+   "label": "Point",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_vehicle",
+   "fieldtype": "Section Break",
+   "label": "Vehicle",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "vehicle",
+   "fieldtype": "Link",
+   "options": "Sugar Vehicle",
+   "label": "Vehicle",
+   "read_only": 1
+  },
+  {
+   "fieldname": "vehicle_no",
+   "fieldtype": "Data",
+   "label": "Vehicle No",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "vehicle_type",
+   "fieldtype": "Link",
+   "options": "Vehicle Type",
+   "label": "Vehicle Type",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_vehicle",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "driver_name",
+   "fieldtype": "Data",
+   "label": "Driver Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "driver_cnic",
+   "fieldtype": "Data",
+   "label": "Driver CNIC",
+   "read_only": 1
+  },
+  {
+   "fieldname": "driver_mobile",
+   "fieldtype": "Data",
+   "label": "Driver Mobile",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_weight",
+   "fieldtype": "Section Break",
+   "label": "Weight"
+  },
+  {
+   "fieldname": "gross_kg",
+   "fieldtype": "Int",
+   "label": "Gross (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tare_kg",
+   "fieldtype": "Int",
+   "label": "Tare (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "net_kg",
+   "fieldtype": "Int",
+   "label": "Net (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_weight",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "binding_kg",
+   "fieldtype": "Int",
+   "label": "Binding (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "garbage_kg",
+   "fieldtype": "Int",
+   "label": "Garbage (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_weight2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payable_kg",
+   "fieldtype": "Int",
+   "label": "Payable (kg)",
+   "read_only": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "payable_maund",
+   "fieldtype": "Float",
+   "label": "Payable (maund)",
+   "read_only": 1,
+   "in_list_view": 1,
+   "bold": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "sb_amount",
+   "fieldtype": "Section Break",
+   "label": "Amount"
+  },
+  {
+   "fieldname": "govt_rate",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Govt Rate (per maund)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "govt_value",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Govt Value",
+   "read_only": 1
+  },
+  {
+   "fieldname": "road_cess_pct",
+   "fieldtype": "Percent",
+   "label": "Road Cess %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "road_cess_total",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Road Cess (total)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "grower_cess_share_pct",
+   "fieldtype": "Percent",
+   "label": "Grower Share of Cess %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "road_cess_grower",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Road Cess (grower)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "road_cess_mill",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Road Cess (mill)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_amount",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "subsidy_rate",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Subsidy Rate",
+   "read_only": 1
+  },
+  {
+   "fieldname": "subsidy",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Subsidy",
+   "read_only": 1
+  },
+  {
+   "fieldname": "additional_subsidy_rate",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Additional Subsidy Rate",
+   "read_only": 1
+  },
+  {
+   "fieldname": "additional_subsidy",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Additional Subsidy",
+   "read_only": 1
+  },
+  {
+   "fieldname": "net_amount",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Net Amount",
+   "read_only": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "cb_amount2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tpt_rate",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "TPT Rate (per maund)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tpt_amount",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "TPT (bilty)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "loan_deduction",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Loan Deduction",
+   "read_only": 1
+  },
+  {
+   "fieldname": "payable_cpr",
+   "fieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "label": "Payable to Grower",
+   "read_only": 1,
+   "in_list_view": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "sb_rates",
+   "fieldtype": "Section Break",
+   "label": "Rate Basis",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "binding_kg_per_quintal",
+   "fieldtype": "Float",
+   "label": "Binding (kg per quintal)",
+   "read_only": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "garbage_pct",
+   "fieldtype": "Percent",
+   "label": "Garbage %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "garbage_fixed_kg",
+   "fieldtype": "Int",
+   "label": "Garbage Fixed (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_rates",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "rate_levels",
+   "fieldtype": "Small Text",
+   "label": "Where Each Rate Came From",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_links",
+   "fieldtype": "Section Break",
+   "label": "Accounting"
+  },
+  {
+   "fieldname": "journal_entry",
+   "fieldtype": "Link",
+   "options": "Journal Entry",
+   "label": "Journal Entry",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "bilty",
+   "fieldtype": "Link",
+   "options": "TPT Bilty",
+   "label": "TPT Bilty",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "cb_links",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "daily_purchase",
+   "fieldtype": "Link",
+   "options": "Daily Cane Purchase",
+   "label": "Daily Cane Purchase",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "cess_deposited",
+   "fieldtype": "Check",
+   "label": "Road Cess Deposited",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "cb_links2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "print_count",
+   "fieldtype": "Int",
+   "label": "Prints",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "options": "Cane Purchase Receipt",
+   "label": "Amended From",
+   "read_only": 1,
+   "no_copy": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "label": "Demo Record",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1,
+   "default": "0"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cane Procurement",
+ "name": "Cane Purchase Receipt",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Cane Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Cane Manager",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Tare Weighman",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Gross Weighman",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Token Clerk",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Cane Cashier",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Cane Accountant",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Circle Officer",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "MIS Viewer",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "sort_field": "posted_at",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "is_submittable": 1,
+ "autoname": "naming_series:",
+ "title_field": "grower_name",
+ "show_title_field_in_link": 1,
+ "search_fields": "grower_name,vehicle_no,cnic,posting_date"
+}

@@ -3,7 +3,7 @@
  * MicroMax shell it was forked from: APP_NAVIGATION[segment] → groups shown in the sidebar for that app.
  */
 import {
-  BarChart3, Boxes, ClipboardList, FileSpreadsheet, Gauge, LayoutDashboard, Leaf, Map as MapIcon, MapPinned, Receipt,
+  BarChart3, Boxes, ClipboardList, FileSpreadsheet, Gauge, LayoutDashboard, Leaf, Map as MapIcon, MapPinned,
   Sparkles, Target, Ticket, Inbox, Layers, Truck, UserCog, Users, Warehouse, Weight, Beaker, Factory, Banknote, type LucideIcon, Wand2, ScanBarcode, ShieldCheck, AlertTriangle, MapPin,
 } from "lucide-react";
 import { SC_DOCS, docBase, type ScApp } from "@/sc/registry";
@@ -24,6 +24,7 @@ export interface NavGroup {
 const MANAGERS = ["Cane Manager", "Cane Admin"];
 const INDENT_ROLES = [...MANAGERS, "Indent Clerk", "Circle Officer", "MIS Viewer"];
 const ELP_ROLES = [...MANAGERS, "ELP Auditor", "Token Clerk", "Yard Supervisor", "LP Operator", "Depot User", "MIS Viewer"];
+const PROC_ROLES = [...MANAGERS, "Token Clerk", "Gross Weighman", "Tare Weighman", "Yard Supervisor", "Cane Cashier", "Cane Accountant", "MIS Viewer"];
 const SURVEY_ROLES = [...MANAGERS, "Circle Officer", "Surveyor", "MIS Viewer"];
 const FF_ROLES = [...MANAGERS, "Circle Officer"];
 
@@ -114,16 +115,27 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
     ] },
     { title: "Reports", items: [{ label: "ELP MIS reports", to: "/reports?g=ELP", icon: BarChart3 }] },
   ],
+  procurement: [
+    {
+      title: "Cane procurement",
+      items: [
+        { label: "Intake dashboard", to: "/procurement", icon: Sparkles, roles: PROC_ROLES },
+        { label: "Gate · token issue", to: "/procurement/gate", icon: Ticket, roles: [...MANAGERS, "Token Clerk"] },
+        { label: "Weighbridge", to: "/procurement/weighbridge", icon: Weight, roles: [...MANAGERS, "Gross Weighman", "Tare Weighman"] },
+        { label: "Yard board", to: "/procurement/yard", icon: Warehouse, roles: PROC_ROLES },
+        { label: "TPT cash counter", to: "/procurement/counter", icon: Banknote, roles: [...MANAGERS, "Cane Cashier", "Cane Accountant"] },
+        { label: "Day close", to: "/procurement/day-close", icon: ClipboardList, roles: [...MANAGERS, "Cane Accountant"] },
+      ],
+    },
+    ...docGroups("procurement", PROC_ROLES),
+    { title: "Reports", items: [{ label: "Procurement reports", to: "/reports?g=Procurement", icon: BarChart3 }] },
+  ],
   reports: [{ title: "Reports", items: [{ label: "Report Centre", to: "/reports", icon: FileSpreadsheet }] }],
   approvals: [{ title: "Approvals", items: [{ label: "Inbox", to: "/approvals/inbox", icon: Inbox }, { label: "Overlap reviews", to: "/survey/d/survey-overlap-review", icon: Layers }] }],
   mill: [
     {
       title: "Coming in later phases",
       items: [
-        { label: "Token issue (Phase 3)", to: "/mill/tokens", icon: Ticket },
-        { label: "Yard board (Phase 3)", to: "/mill/yard", icon: Warehouse },
-        { label: "Weighbridge (Phase 3)", to: "/mill/weighbridge", icon: Weight },
-        { label: "CPR & Bilty (Phase 3)", to: "/mill/cpr", icon: Receipt },
         { label: "Laboratory & production (Phase 5)", to: "/mill/lab", icon: Beaker },
         { label: "Cane accounts & loans (Phase 6)", to: "/mill/accounts", icon: Banknote },
         { label: "MIS (Phase 8)", to: "/mill/mis", icon: Gauge },
@@ -140,6 +152,7 @@ export const APP_LABELS: Record<string, string> = {
   approvals: "Approvals",
   indenting: "Indenting",
   elp: "ELP",
+  procurement: "Cane Procurement",
   "field-force": "Field Force",
   setup: "Sugar Setup",
   reports: "Report Centre",
@@ -173,10 +186,15 @@ export const ROUTE_TITLES: Record<string, string> = {
   approvals: "Approvals",
   inbox: "Inbox",
   indenting: "Indenting",
+  procurement: "Cane Procurement",
+  weighbridge: "Weighbridge",
+  yard: "Yard",
+  counter: "Cash Counter",
+  "day-close": "Day Close",
   generate: "Generate",
   lookup: "Look up",
   elp: "ELP",
-  gate: "Gate & verification",
+  gate: "Gate",
   board: "Loads",
   users: "Users & Devices",
   mill: "Mill Operations",

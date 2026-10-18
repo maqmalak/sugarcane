@@ -1,0 +1,224 @@
+{
+ "app": "sugarcane",
+ "charts": [],
+ "content": "[{\"id\": \"sc_pr_h1\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Shortcuts</b></span>\", \"col\": 12}}, {\"id\": \"sc_pr_s0\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Intake Dashboard\", \"col\": 4}}, {\"id\": \"sc_pr_s1\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Gate \\u00b7 Token Issue\", \"col\": 4}}, {\"id\": \"sc_pr_s2\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Weighbridge\", \"col\": 4}}, {\"id\": \"sc_pr_s3\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Yard Board\", \"col\": 4}}, {\"id\": \"sc_pr_s4\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"TPT Cash Counter\", \"col\": 4}}, {\"id\": \"sc_pr_s5\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Day Close\", \"col\": 4}}, {\"id\": \"sc_pr_sp\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"sc_pr_h2\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Records & Reports</b></span>\", \"col\": 12}}, {\"id\": \"sc_pr_c1\", \"type\": \"card\", \"data\": {\"card_name\": \"Records\", \"col\": 4}}, {\"id\": \"sc_pr_c2\", \"type\": \"card\", \"data\": {\"card_name\": \"Reports\", \"col\": 4}}]",
+ "creation": "2026-10-18 18:00:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "scale",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "Cane Procurement",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Records",
+   "link_count": 6,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Cane Token",
+   "link_count": 0,
+   "link_to": "Cane Token",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Cane Weighment",
+   "link_count": 0,
+   "link_to": "Cane Weighment",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Cane Purchase Receipt",
+   "link_count": 0,
+   "link_to": "Cane Purchase Receipt",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "TPT Bilty",
+   "link_count": 0,
+   "link_to": "TPT Bilty",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Daily Cane Purchase",
+   "link_count": 0,
+   "link_to": "Daily Cane Purchase",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Weighment Reading Log",
+   "link_count": 0,
+   "link_to": "Weighment Reading Log",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Reports",
+   "link_count": 8,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "CPR Register",
+   "link_count": 0,
+   "link_to": "CPR Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Daily Cane Purchase Summary",
+   "link_count": 0,
+   "link_to": "Daily Cane Purchase Summary",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Circle Wise Cane Purchase",
+   "link_count": 0,
+   "link_to": "Circle Wise Cane Purchase",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Source Wise Cane Purchase",
+   "link_count": 0,
+   "link_to": "Source Wise Cane Purchase",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "TPT Bilty Register",
+   "link_count": 0,
+   "link_to": "TPT Bilty Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Cane Day Close",
+   "link_count": 0,
+   "link_to": "Cane Day Close",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Token Register",
+   "link_count": 0,
+   "link_to": "Token Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Weighment Register",
+   "link_count": 0,
+   "link_to": "Weighment Register",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-10-18 18:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cane Procurement",
+ "name": "Cane Procurement",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 34.0,
+ "shortcuts": [
+  {
+   "color": "Green",
+   "label": "Intake Dashboard",
+   "type": "URL",
+   "url": "/sugar/procurement"
+  },
+  {
+   "color": "Blue",
+   "label": "Gate · Token Issue",
+   "type": "URL",
+   "url": "/sugar/procurement/gate"
+  },
+  {
+   "color": "Orange",
+   "label": "Weighbridge",
+   "type": "URL",
+   "url": "/sugar/procurement/weighbridge"
+  },
+  {
+   "color": "Yellow",
+   "label": "Yard Board",
+   "type": "URL",
+   "url": "/sugar/procurement/yard"
+  },
+  {
+   "color": "Purple",
+   "label": "TPT Cash Counter",
+   "type": "URL",
+   "url": "/sugar/procurement/counter"
+  },
+  {
+   "color": "Cyan",
+   "label": "Day Close",
+   "type": "URL",
+   "url": "/sugar/procurement/day-close"
+  }
+ ],
+ "title": "Cane Procurement",
+ "type": "Workspace"
+}

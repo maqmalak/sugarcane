@@ -32,10 +32,12 @@ FEED = {
 	"Cane Source": ("masters", None, "source_name", "/setup/d/cane-source"),
 	"Indent Batch": ("indent", "from_date", "circle", "/indenting/d/indent-batch"),
 	"LP Vehicle Registration": ("elp", "registered_at", "vehicle_no", "/elp/d/lp-vehicle-registration"),
+	"Cane Purchase Receipt": ("procurement", "posted_at", "grower_name", "/procurement/d/cane-purchase-receipt"),
+	"Daily Cane Purchase": ("procurement", "crushing_day", "name", "/procurement/d/daily-cane-purchase"),
 	"Journal Entry": ("finance", "posting_date", "title", None),
 	"Payment Entry": ("finance", "posting_date", "party_name", None),
 }
-MODULES = {"survey": "Survey", "field": "Field Force", "indent": "Indenting", "elp": "ELP", "masters": "Masters", "finance": "Accounts"}
+MODULES = {"survey": "Survey", "field": "Field Force", "indent": "Indenting", "elp": "ELP", "procurement": "Procurement", "masters": "Masters", "finance": "Accounts"}
 
 
 def _can(dt):
@@ -113,6 +115,21 @@ def _alerts(approvals_total):
 			_("Arrived at the gate — compare loading-point and gate photos"), "/elp/board?status=Arrived", "violet")
 		add("sc_elp_overdue", sum(1 for r in open_rows if elp_logic.is_overdue(r, cfg)), _("Vehicles overdue at the mill"),
 			_("Later than the standard journey time from their loading point"), "/elp/board?status=Overdue", "red")
+	if _can("Cane Token"):
+		from sugarcane.cane_procurement import procurement as proc
+
+		cfg = proc.settings()
+		late = frappe.db.sql("""select count(*) from `tabCane Token` where docstatus = 1 and status in ('Issued', 'Gross')
+			and issued_at < %s""", frappe.utils.add_to_date(frappe.utils.now_datetime(), hours=-cfg.max_yard_hours))[0][0]
+		add("sc_yard_late", late, _("Vehicles in the yard over {0} h").format(cfg.max_yard_hours),
+			_("Token issued but not weighed out — check the yard"), "/procurement/yard", "red")
+	if _can("Daily Cane Purchase"):
+		from sugarcane.cane_procurement import procurement as proc
+
+		ended = frappe.utils.add_days(proc.crushing_day(), -1)
+		open_days = frappe.db.sql("""select count(distinct posting_date) from `tabCane Purchase Receipt` where docstatus = 1
+			and ifnull(daily_purchase, '') = '' and posting_date <= %s""", ended)[0][0]
+		add("sc_day_close", open_days, _("Crushing days not closed"), _("Raise the daily cane purchase invoice"), "/procurement/day-close", "amber")
 	add("approvals", approvals_total, _("Approvals waiting"), _("Workflow and HR requests waiting for you"), "/approvals/inbox", "yellow")
 	return out
 
@@ -219,6 +236,12 @@ def _tiles():
 	if _can("LP Vehicle Registration"):
 		put("elp", len(frappe.get_list("LP Vehicle Registration", filters={"status": "In Transit"}, pluck="name", limit_page_length=0)),
 			_("vehicles on the way"))
+	if _can("Cane Purchase Receipt"):
+		from sugarcane.cane_procurement.procurement import crushing_day
+
+		maund = frappe.db.sql("select ifnull(sum(payable_maund), 0) from `tabCane Purchase Receipt` where docstatus = 1 and posting_date = %s",
+			crushing_day())[0][0]
+		put("procurement", f"{round(maund):,}", _("maund bought today"))
 	from sugarcane.exports import catalogue
 
 	put("reports", len(catalogue()), _("reports"))

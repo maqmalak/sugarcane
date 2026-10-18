@@ -1,0 +1,594 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "status",
+  "entry_type",
+  "season",
+  "company",
+  "cb1",
+  "crushing_day",
+  "issued_at",
+  "issued_by",
+  "cb2",
+  "elp_registration",
+  "lp_verified",
+  "gate_reason",
+  "sb_grower",
+  "indent",
+  "grower",
+  "grower_name",
+  "father_name",
+  "cnic",
+  "passbook_no",
+  "cb_grower",
+  "circle",
+  "village",
+  "village_name",
+  "source",
+  "claimed_source",
+  "loading_point",
+  "depot",
+  "point_name",
+  "sb_vehicle",
+  "vehicle",
+  "vehicle_no",
+  "vehicle_type",
+  "lane",
+  "cb_vehicle",
+  "driver_name",
+  "driver_cnic",
+  "driver_mobile",
+  "sb_rates",
+  "govt_rate",
+  "road_cess_pct",
+  "grower_cess_share_pct",
+  "subsidy_rate",
+  "cb_rates",
+  "additional_subsidy_rate",
+  "tpt_rate",
+  "binding_kg_per_quintal",
+  "garbage_pct",
+  "garbage_fixed_kg",
+  "rate_levels",
+  "sb_track",
+  "weighment",
+  "gross_at",
+  "cb_track",
+  "cpr",
+  "completed_at",
+  "cb_track2",
+  "print_count",
+  "cancel_reason",
+  "amended_from",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "options": "TKN-.YY.-.######",
+   "label": "Series",
+   "hidden": 1,
+   "reqd": 1,
+   "default": "TKN-.YY.-.######"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "options": "Issued\nGross\nCompleted\nCancelled",
+   "label": "Status",
+   "description": "Issued = waiting for the gross weight · Gross = in the yard, waiting for the tare · Completed = CPR posted",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "bold": 1,
+   "default": "Issued"
+  },
+  {
+   "fieldname": "entry_type",
+   "fieldtype": "Select",
+   "options": "ELP Verified\nGate",
+   "label": "Entry",
+   "description": "ELP Verified = the loading point was verified by the audit team (that point's TPT applies) · Gate = paid at the mill-gate rates",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "season",
+   "fieldtype": "Link",
+   "options": "Crushing Season",
+   "label": "Season",
+   "reqd": 1,
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "options": "Company",
+   "label": "Company",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "crushing_day",
+   "fieldtype": "Date",
+   "label": "Crushing Day",
+   "description": "07:00 to 07:00",
+   "reqd": 1,
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "issued_at",
+   "fieldtype": "Datetime",
+   "label": "Issued At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "issued_by",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Issued By",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "elp_registration",
+   "fieldtype": "Link",
+   "options": "LP Vehicle Registration",
+   "label": "ELP Registration",
+   "read_only": 1
+  },
+  {
+   "fieldname": "lp_verified",
+   "fieldtype": "Check",
+   "label": "LP Verified",
+   "read_only": 1
+  },
+  {
+   "fieldname": "gate_reason",
+   "fieldtype": "Small Text",
+   "label": "Why Gate Rates",
+   "description": "Filled when a load registered at a loading point is taken at the gate rates",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_grower",
+   "fieldtype": "Section Break",
+   "label": "Grower"
+  },
+  {
+   "fieldname": "indent",
+   "fieldtype": "Link",
+   "options": "Cane Indent",
+   "label": "Indent",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "grower",
+   "fieldtype": "Link",
+   "options": "Grower",
+   "label": "Grower",
+   "reqd": 1,
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "grower_name",
+   "fieldtype": "Data",
+   "label": "Grower Name",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "father_name",
+   "fieldtype": "Data",
+   "label": "Father Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cnic",
+   "fieldtype": "Data",
+   "label": "CNIC",
+   "read_only": 1
+  },
+  {
+   "fieldname": "passbook_no",
+   "fieldtype": "Data",
+   "label": "Passbook No",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_grower",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "circle",
+   "fieldtype": "Link",
+   "options": "Cane Circle",
+   "label": "Circle",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "village",
+   "fieldtype": "Link",
+   "options": "Cane Village",
+   "label": "Village",
+   "read_only": 1
+  },
+  {
+   "fieldname": "village_name",
+   "fieldtype": "Data",
+   "label": "Village Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Link",
+   "options": "Cane Source",
+   "label": "Source (rates)",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "claimed_source",
+   "fieldtype": "Link",
+   "options": "Cane Source",
+   "label": "Source on the Indent / ELP",
+   "read_only": 1
+  },
+  {
+   "fieldname": "loading_point",
+   "fieldtype": "Link",
+   "options": "Loading Point",
+   "label": "Loading Point",
+   "read_only": 1
+  },
+  {
+   "fieldname": "depot",
+   "fieldtype": "Link",
+   "options": "Cane Depot",
+   "label": "Depot",
+   "read_only": 1
+  },
+  {
+   "fieldname": "point_name",
+   "fieldtype": "Data",
+   "label": "Point",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_vehicle",
+   "fieldtype": "Section Break",
+   "label": "Vehicle"
+  },
+  {
+   "fieldname": "vehicle",
+   "fieldtype": "Link",
+   "options": "Sugar Vehicle",
+   "label": "Vehicle",
+   "read_only": 1
+  },
+  {
+   "fieldname": "vehicle_no",
+   "fieldtype": "Data",
+   "label": "Vehicle No",
+   "reqd": 1,
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "vehicle_type",
+   "fieldtype": "Link",
+   "options": "Vehicle Type",
+   "label": "Vehicle Type",
+   "reqd": 1,
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "lane",
+   "fieldtype": "Link",
+   "options": "Vehicle Lane",
+   "label": "Lane",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_vehicle",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "driver_name",
+   "fieldtype": "Data",
+   "label": "Driver Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "driver_cnic",
+   "fieldtype": "Data",
+   "label": "Driver CNIC",
+   "read_only": 1
+  },
+  {
+   "fieldname": "driver_mobile",
+   "fieldtype": "Data",
+   "label": "Driver Mobile",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_rates",
+   "fieldtype": "Section Break",
+   "label": "Rates (copied when the token was issued)",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "govt_rate",
+   "fieldtype": "Currency",
+   "label": "Govt Rate (per maund)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "road_cess_pct",
+   "fieldtype": "Percent",
+   "label": "Road Cess %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "grower_cess_share_pct",
+   "fieldtype": "Percent",
+   "label": "Grower Share of Cess %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "subsidy_rate",
+   "fieldtype": "Currency",
+   "label": "Subsidy (per maund)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_rates",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "additional_subsidy_rate",
+   "fieldtype": "Currency",
+   "label": "Additional Subsidy (per maund)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tpt_rate",
+   "fieldtype": "Currency",
+   "label": "TPT (per maund)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "binding_kg_per_quintal",
+   "fieldtype": "Float",
+   "label": "Binding (kg per quintal)",
+   "read_only": 1,
+   "precision": "3"
+  },
+  {
+   "fieldname": "garbage_pct",
+   "fieldtype": "Percent",
+   "label": "Garbage %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "garbage_fixed_kg",
+   "fieldtype": "Int",
+   "label": "Garbage Fixed (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rate_levels",
+   "fieldtype": "Small Text",
+   "label": "Rate Levels",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "sb_track",
+   "fieldtype": "Section Break",
+   "label": "Weighment and CPR"
+  },
+  {
+   "fieldname": "weighment",
+   "fieldtype": "Link",
+   "options": "Cane Weighment",
+   "label": "Weighment",
+   "read_only": 1
+  },
+  {
+   "fieldname": "gross_at",
+   "fieldtype": "Datetime",
+   "label": "Gross At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_track",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cpr",
+   "fieldtype": "Link",
+   "options": "Cane Purchase Receipt",
+   "label": "CPR",
+   "read_only": 1
+  },
+  {
+   "fieldname": "completed_at",
+   "fieldtype": "Datetime",
+   "label": "Completed At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_track2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "print_count",
+   "fieldtype": "Int",
+   "label": "Prints",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cancel_reason",
+   "fieldtype": "Small Text",
+   "label": "Cancel Reason",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "options": "Cane Token",
+   "label": "Amended From",
+   "read_only": 1,
+   "no_copy": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "label": "Demo Record",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1,
+   "default": "0"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cane Procurement",
+ "name": "Cane Token",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Cane Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Cane Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Token Clerk",
+   "read": 1,
+   "create": 1,
+   "write": 1,
+   "submit": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Yard Supervisor",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Gross Weighman",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Tare Weighman",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Cane Cashier",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Cane Accountant",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "MIS Viewer",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "sort_field": "issued_at",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "is_submittable": 1,
+ "autoname": "naming_series:",
+ "title_field": "vehicle_no",
+ "show_title_field_in_link": 0,
+ "search_fields": "vehicle_no,grower_name,indent"
+}

@@ -1,5 +1,5 @@
 import {
-  Banknote, Beaker, Boxes, ClipboardList, Factory, FileSpreadsheet, Gauge, Leaf, MapPinned, Receipt, Truck, UserCog, Users,
+  Banknote, Beaker, Boxes, ClipboardList, Factory, FileSpreadsheet, Gauge, Leaf, MapPinned, Truck, UserCog, Users,
   Weight, type LucideIcon,
 } from "lucide-react";
 
@@ -83,10 +83,10 @@ export const APPS: AppTile[] = [
     description: "Indents from surveyed area × yield × quota, scheduled to the mill's daily intake, authorized in batches and printed with barcodes.",
     colorClass: "bg-violet-500/10 text-violet-600 dark:text-violet-400", features: ["Generate & preview", "Batch authorization", "Barcode slips", "Look up"] },
   // later phases (coming-soon pages)
-  { id: "weighbridge", label: "Gate & Weighbridge", tagline: "Phase 3", group: "Mill Operations", icon: Weight, to: "/mill/weighbridge",
-    description: "Tokens, yard board, gross / tare weighment through the hardware agent.", colorClass: soon },
-  { id: "cpr", label: "CPR & Bilty", tagline: "Phase 3", group: "Mill Operations", icon: Receipt, to: "/mill/cpr",
-    description: "Cane purchase receipts, TPT bilty cash counter, daily cane purchase invoice.", colorClass: soon },
+  { id: "procurement", label: "Cane Procurement", tagline: "Gate · weighbridge · CPR", group: "Mill Operations", icon: Weight, to: "/procurement",
+    roles: [...MANAGERS, "Token Clerk", "Gross Weighman", "Tare Weighman", "Yard Supervisor", "Cane Cashier", "Cane Accountant", "MIS Viewer"],
+    description: "Gate tokens with rates, gross / tare from the weighbridge, CPRs posted to the ledgers, TPT bilty cash counter and the daily cane purchase invoice.",
+    colorClass: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400", features: ["Gate token", "Weighbridge", "Yard board", "Cash counter", "Day close"] },
   { id: "elp", label: "ELP", tagline: "Electronic loading point", group: "Mill Operations", icon: Truck, to: "/elp",
     roles: [...MANAGERS, "ELP Auditor", "Token Clerk", "Yard Supervisor", "LP Operator", "Depot User", "MIS Viewer"],
     description: "Vehicles registered at loading points and depots with GPS and snapshots, gate arrival and photo verification by the audit team.",

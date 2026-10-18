@@ -304,4 +304,7 @@ doc_events.update({
 })
 
 # Indents past their last valid day become Expired (bench schedule must run for this site in production)
-scheduler_events = {"daily": ["sugarcane.cane_indenting.generator.expire_due"]}
+scheduler_events = {
+	"daily": ["sugarcane.cane_indenting.generator.expire_due"],
+	"cron": {"15 7 * * *": ["sugarcane.cane_procurement.procurement.auto_close_previous_day"]},
+}

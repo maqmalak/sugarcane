@@ -24,8 +24,13 @@ FILTERS = {  # report -> filters it accepts (default by module below)
 	"Circle Wise Indent Summary": ["season", "circle"],
 	"Grower Indent Balance": ["season", "circle", "village"],
 	"ELP Pending Registrations": ["circle"],
+	"CPR Register": ["from_date", "to_date", "circle", "entry_type", "payment_status"],
+	"TPT Bilty Register": ["from_date", "to_date", "bilty_status"],
+	"Cane Day Close": ["to_date"],
+	"Token Register": ["from_date", "to_date", "circle", "token_status"],
 }
-MODULE_FILTERS = {"EagleEye Survey": SURVEY, "Vehicle Tracking": ["from_date", "to_date", "circle"]}
+MODULE_FILTERS = {"EagleEye Survey": SURVEY, "Vehicle Tracking": ["from_date", "to_date", "circle"],
+	"Cane Procurement": ["from_date", "to_date", "circle"], "Weighbridge": ["from_date", "to_date"]}
 DESCRIPTIONS = {
 	"Cane Survey Detail": "Every surveyed field: grower, CNIC, passbook, village, variety, declared vs measured area",
 	"Circle Wise Survey Summary": "Fields, growers, area, plant / ratoon / diseased acres and expected cane per circle",
@@ -66,6 +71,10 @@ FILTER_DEFS = {
 	"survey_for": {"label": "Survey For", "kind": "select", "options": ["Company", "Competitor", "All"]},
 	"attendance_status": {"label": "Status", "kind": "select", "options": ["Present", "Half Day", "Out of Area", "Absent"],
 		"param": "status"},
+	"entry_type": {"label": "Entry", "kind": "select", "options": ["ELP Verified", "Gate"]},
+	"payment_status": {"label": "Payment", "kind": "select", "options": ["Unpaid", "Paid"]},
+	"bilty_status": {"label": "Status", "kind": "select", "options": ["Unpaid", "Paid"], "param": "status"},
+	"token_status": {"label": "Status", "kind": "select", "options": ["Issued", "Gross", "Completed", "Cancelled"], "param": "status"},
 	"indent_status": {"label": "Status", "kind": "select", "options": ["Draft", "Authorized", "Printed", "Used", "Expired", "Cancelled"],
 		"param": "status"},
 }

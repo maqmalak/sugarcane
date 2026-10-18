@@ -1,7 +1,7 @@
 # MicroMax Sugar Mills Ltd. — Sugar ERP Architecture (Phase 0, for approval)
 
 App `sugarcane` · site `sugarcane` · Frappe 16.34 / ERPNext 16.35 / HRMS · Python 3.14 · Node 24 · MariaDB
-Status: **approved 2026-10-13** (v3: decisions below). Phases 0–2 are built; see `docs/PHASE_0.md`, `PHASE_1.md`, `PHASE_2.md`.
+Status: **approved 2026-10-13** (v3: decisions below). Phases 0–3 and ELP are built; see `docs/PHASE_0.md` … `PHASE_3.md`, `ELP.md`.
 
 ### Decisions (2026-10-13)
 
@@ -210,6 +210,11 @@ Indent Range · Cane Indent (S: Draft → Authorized → Printed → Used/Expire
 Indent Batch (S; authorizing the batch authorizes its indents) · generation from the React *Generate* screen (built: see `PHASE_2.md`).
 
 ### Phase 3 — Procurement / Weighbridge
+*As built (see `PHASE_3.md`):*
+- No separate Seasonal Rate Setup: rates resolve from the existing season, circle, source (TPT by vehicle type) and vehicle-type fields.
+- The yard is a live board instead of In-Gate Pass / Yard Balance Log documents.
+- Misc Weighment and Contractor Allotment / Cane Officer Quota / Source Target are not built yet.
+
 | DocType | Key fields |
 |---|---|
 | Seasonal Rate Setup | season, level (Season / Circle / Source / Loading Point) + link, govt_rate, road_cess_pct, subsidy_rate, tpt_basis (per maund / per kg / per trip) + rates by vehicle type (T), binding rule, garbage rule (fixed kg / % of net / both, by vehicle type T). Most specific level wins |

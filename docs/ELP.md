@@ -59,5 +59,5 @@ The passwords are in `~/.sugarcane-site-secrets`.
 ## Open points
 
 - **Indents and dates:** the demo indents are dated for November, so a phone registering *today* finds no valid indent. Live use starts with the season.
-- **Gate entry and TPT:** gate entry (token) and TPT payment on verified loads come with Phase 3.
+- **Gate entry and TPT:** built in Phase 3 — an accepted load gets an ELP-verified token with its loading point's TPT; see `PHASE_3.md`.
 - **Real hardware:** photo thresholds may need tuning on real phones (Sugar Settings → ELP).

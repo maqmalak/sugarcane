@@ -47,6 +47,13 @@
   "elp_not_arrived_hours",
   "sb_weighbridge",
   "weighbridge_ip_check",
+  "sb_procurement",
+  "tpt_requires_elp",
+  "weight_fresh_seconds",
+  "min_weight_kg",
+  "cb_procurement",
+  "max_yard_hours",
+  "auto_close_day",
   "accounts_tab",
   "accounts_help",
   "sb_party",
@@ -104,13 +111,13 @@
   },
   {
    "default": "7",
-   "description": "A crushing day runs from this hour to the same hour next day, e.g. 7 = 07:00 \u2192 07:00.",
+   "description": "A crushing day runs from this hour to the same hour next day, e.g. 7 = 07:00 → 07:00.",
    "fieldname": "crushing_day_start_hour",
    "fieldtype": "Int",
    "label": "Crushing Day Starts At (hour)"
   },
   {
-   "description": "Shown on the survey maps; set it here or in React \u2192 Area Map \u2192 Company",
+   "description": "Shown on the survey maps; set it here or in React → Area Map → Company",
    "fieldname": "sb_mill",
    "fieldtype": "Section Break",
    "label": "Mill Location"
@@ -140,7 +147,7 @@
    "fieldname": "sb_journey",
    "fieldtype": "Section Break",
    "label": "Cane Journey Standards",
-   "description": "Used for every source, depot and loading point: road km = straight line \u00d7 road factor (unless a route is drawn or a distance entered); time = road km \u00f7 speed + allowance."
+   "description": "Used for every source, depot and loading point: road km = straight line × road factor (unless a route is drawn or a distance entered); time = road km ÷ speed + allowance."
   },
   {
    "default": "1.3",
@@ -240,7 +247,7 @@
   {
    "fieldname": "sb_elp",
    "fieldtype": "Section Break",
-   "label": "ELP \u2014 Electronic Loading Point",
+   "label": "ELP — Electronic Loading Point",
    "collapsible": 1,
    "description": "Vehicle registration at loading points and depots. Photos below these scores are refused (on the phone and again here)."
   },
@@ -255,13 +262,13 @@
    "default": "40",
    "fieldname": "elp_min_brightness",
    "fieldtype": "Float",
-   "label": "Minimum Brightness (0\u2013255)"
+   "label": "Minimum Brightness (0–255)"
   },
   {
    "default": "225",
    "fieldname": "elp_max_brightness",
    "fieldtype": "Float",
-   "label": "Maximum Brightness (0\u2013255)"
+   "label": "Maximum Brightness (0–255)"
   },
   {
    "default": "20",
@@ -325,6 +332,47 @@
    "label": "Accept Readings Only From Registered Terminal IPs"
   },
   {
+   "fieldname": "sb_procurement",
+   "fieldtype": "Section Break",
+   "label": "Gate, Weighbridge and CPR"
+  },
+  {
+   "fieldname": "tpt_requires_elp",
+   "fieldtype": "Check",
+   "label": "Loading-point TPT only for ELP-verified loads",
+   "default": "1",
+   "description": "On: a load that the audit team has not verified is paid at the mill-gate rates (TPT of the Factory Gate source). Off: the indent's own source rates apply."
+  },
+  {
+   "fieldname": "weight_fresh_seconds",
+   "fieldtype": "Int",
+   "label": "Reading must be newer than (seconds)",
+   "default": "10"
+  },
+  {
+   "fieldname": "min_weight_kg",
+   "fieldtype": "Int",
+   "label": "Lowest weight accepted (kg)",
+   "default": "200"
+  },
+  {
+   "fieldname": "cb_procurement",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "max_yard_hours",
+   "fieldtype": "Int",
+   "label": "Alert after a vehicle is in the yard for (hours)",
+   "default": "12"
+  },
+  {
+   "fieldname": "auto_close_day",
+   "fieldtype": "Check",
+   "label": "Close the crushing day automatically",
+   "default": "0",
+   "description": "Creates the Daily Cane Purchase invoice after the day ends (needs the scheduler)."
+  },
+  {
    "fieldname": "accounts_tab",
    "fieldtype": "Tab Break",
    "label": "Accounts"
@@ -367,7 +415,7 @@
   {
    "fieldname": "road_cess_payable_account",
    "fieldtype": "Link",
-   "label": "Road Cess Payable \u2013 Govt Account",
+   "label": "Road Cess Payable – Govt Account",
    "options": "Account"
   },
   {
@@ -412,7 +460,7 @@
   {
    "fieldname": "road_cess_expense_account",
    "fieldtype": "Link",
-   "label": "Road Cess \u2013 Mill Share Account",
+   "label": "Road Cess – Mill Share Account",
    "options": "Account"
   },
   {

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+  body { font-family: "Helvetica Neue", Arial, sans-serif; color: #111; margin: 0; font-size: {{ "9.5px" if kind == "cpr" else "10px" }}; }
+  .slip { page-break-after: always; }
+  .slip:last-child { page-break-after: auto; }
+  .head { border-bottom: 2px solid #111; padding-bottom: 1.5mm; margin-bottom: 2mm; display: table; width: 100%; }
+  .head > div { display: table-cell; vertical-align: bottom; }
+  .head > div:first-child { width: 62%; }
+  .mill { font-size: 13px; font-weight: 700; }
+  .title { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: #333; }
+  .no { font-size: 18px; font-weight: 800; letter-spacing: .02em; text-align: right; }
+  .dup { color: #c92a2a; font-weight: 800; font-size: 10px; border: 1.5px solid #c92a2a; padding: 0 4px; border-radius: 3px; }
+  .tag { display: inline-block; font-weight: 700; font-size: 9.5px; padding: .3mm 1.6mm; border-radius: 3px; border: 1px solid #333; }
+  .tag.ok { color: #2b8a3e; border-color: #2b8a3e; }
+  .tag.warn { color: #c2410c; border-color: #c2410c; }
+  .bar { text-align: center; margin: 1.5mm 0; }
+  table.kv { width: 100%; border-collapse: collapse; }
+  table.kv td { padding: {{ ".6mm" if kind == "cpr" else ".9mm" }} 0; border-bottom: 0.5px solid #ddd; vertical-align: top; }
+  table.kv td.k { color: #555; width: 36%; }
+  table.kv td.v { font-weight: 600; }
+  table.kv td.n { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+  table.kv tr.total td { border-top: 1.4px solid #111; border-bottom: 2px solid #111; font-size: 12px; font-weight: 800; }
+  table.kv tr.minus td.n { color: #444; }
+  .cols { display: table; width: 100%; border-spacing: 3mm 0; margin: 0 -3mm; }
+  .cols > div { display: table-cell; width: 50%; vertical-align: top; }
+  .h { font-size: 9.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #333; margin: 2.5mm 0 1mm; }
+  .big { margin-top: 2mm; padding: 2mm; background: #f1f3f5; border-radius: 4px; text-align: center; font-size: 11px; }
+  .big b { font-size: 16px; }
+  .foot { margin-top: 2mm; font-size: 8.5px; color: #555; }
+  .sign { margin-top: {{ "6mm" if kind == "cpr" else "9mm" }}; display: table; width: 100%; font-size: 9px; color: #333; }
+  .sign div { display: table-cell; width: 33%; border-top: 0.8px solid #333; padding-top: 1mm; text-align: center; }
+  .sign span { display: table-cell; width: 3%; }
+</style></head><body>
+{% for d in docs %}
+<div class="slip">
+  <div class="head">
+    <div><div class="mill">{{ company }}</div><div class="title">{{ d.title }} · Season {{ d.season }}</div></div>
+    <div class="no">{{ d.name }}{% if d.dup %}<br><span class="dup">DUPLICATE {{ d.dup }}</span>{% endif %}</div>
+  </div>
+  <div class="bar">{{ d.barcode }}</div>
+
+  {% if kind == "token" %}
+  <div style="margin-bottom:1.5mm"><span class="tag {{ 'ok' if d.entry_type == 'ELP Verified' else '' }}">{{ d.entry_type }}</span>
+    {% if d.lane %}<span class="tag">{{ d.lane }}</span>{% endif %}</div>
+  <table class="kv">
+    <tr><td class="k">Vehicle</td><td class="v" style="font-size:13px">{{ d.vehicle_no }} · {{ d.vehicle_type }}</td></tr>
+    <tr><td class="k">Driver</td><td class="v">{{ d.driver_name or "—" }} {% if d.driver_cnic %}· {{ d.driver_cnic }}{% endif %}</td></tr>
+    <tr><td class="k">Grower</td><td class="v">{{ d.grower_name }}{% if d.father_name %} s/o {{ d.father_name }}{% endif %}</td></tr>
+    <tr><td class="k">Grower ID</td><td class="v">{{ d.grower }}</td></tr>
+    <tr><td class="k">Village · Circle</td><td class="v">{{ d.village_name or "" }} · {{ d.circle or "" }}</td></tr>
+    <tr><td class="k">Indent</td><td class="v">{{ d.indent or "—" }}</td></tr>
+    <tr><td class="k">From</td><td class="v">{{ d.point_name or d.source }}{% if d.elp_registration %} · ELP {{ d.elp_registration }}{% endif %}</td></tr>
+    <tr><td class="k">Issued</td><td class="v">{{ d.issued_fmt }} · crushing day {{ d.day_fmt }}</td></tr>
+  </table>
+  <div class="big">Show this token at the <b>gross</b> weighbridge, the yard and the <b>tare</b> weighbridge</div>
+  <div class="foot">One vehicle, one load. The token is scanned at each step; it can't be used again. Printed {{ printed_at }} by {{ printed_by }}.</div>
+
+  {% elif kind == "bilty" %}
+  <table class="kv">
+    <tr><td class="k">Vehicle</td><td class="v" style="font-size:13px">{{ d.vehicle_no }} · {{ d.vehicle_type }}</td></tr>
+    <tr><td class="k">Driver</td><td class="v">{{ d.driver_name or "—" }}</td></tr>
+    <tr><td class="k">Driver CNIC</td><td class="v">{{ d.driver_cnic or "—" }}</td></tr>
+    <tr><td class="k">CPR · Day</td><td class="v">{{ d.cpr }} · {{ d.day_fmt }}</td></tr>
+    <tr><td class="k">Grower</td><td class="v">{{ d.grower_name }}</td></tr>
+    <tr><td class="k">From</td><td class="v">{{ d.point_name or d.source }}</td></tr>
+    <tr><td class="k">Weight</td><td class="v">{{ d.maund_fmt }} maund × Rs {{ d.rate_fmt }}</td></tr>
+  </table>
+  <div class="big">TPT (carriage) <b>Rs {{ d.amount_fmt }}</b><br>{{ d.amount_words }}</div>
+  {% if d.status == "Paid" %}<div class="big" style="background:#ebfbee">PAID {{ d.paid_fmt }} to {{ d.received_by or "" }} {% if d.received_by_cnic %}({{ d.received_by_cnic }}){% endif %}</div>{% endif %}
+  <div class="sign"><div>Cashier</div><span></span><div>Received (driver)</div><span></span><div>Thumb</div></div>
+  <div class="foot">Paid once, at the mill cash counter, against this bilty and the driver's CNIC. Printed {{ printed_at }} by {{ printed_by }}.</div>
+
+  {% else %}
+  <div class="cols">
+    <div>
+      <div class="h">Grower</div>
+      <table class="kv">
+        <tr><td class="k">Name</td><td class="v">{{ d.grower_name }}{% if d.father_name %} s/o {{ d.father_name }}{% endif %}</td></tr>
+        <tr><td class="k">Grower ID</td><td class="v">{{ d.grower }}</td></tr>
+        <tr><td class="k">CNIC</td><td class="v">{{ d.cnic or "—" }}</td></tr>
+        <tr><td class="k">Passbook</td><td class="v">{{ d.passbook_no or "—" }}</td></tr>
+        <tr><td class="k">Village · Circle</td><td class="v">{{ d.village_name or "" }} · {{ d.circle or "" }}</td></tr>
+        <tr><td class="k">Indent</td><td class="v">{{ d.indent or "—" }}</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="h">Load</div>
+      <table class="kv">
+        <tr><td class="k">Day · Posted</td><td class="v">{{ d.day_fmt }} · {{ d.posted_fmt }}</td></tr>
+        <tr><td class="k">Vehicle</td><td class="v">{{ d.vehicle_no }} · {{ d.vehicle_type }}</td></tr>
+        <tr><td class="k">Driver</td><td class="v">{{ d.driver_name or "—" }}</td></tr>
+        <tr><td class="k">From</td><td class="v">{{ d.point_name or d.source }}</td></tr>
+        <tr><td class="k">Entry</td><td class="v"><span class="tag {{ 'ok' if d.entry_type == 'ELP Verified' else '' }}">{{ d.entry_type }}</span>{% if d.elp_registration %} {{ d.elp_registration }}{% endif %}</td></tr>
+        <tr><td class="k">Token</td><td class="v">{{ d.token }}</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="cols">
+    <div>
+      <div class="h">Weight (kg)</div>
+      <table class="kv">
+        <tr><td class="k">Gross</td><td class="n">{{ d.f.gross_kg }}</td></tr>
+        <tr class="minus"><td class="k">Tare</td><td class="n">− {{ d.f.tare_kg }}</td></tr>
+        <tr><td class="k">Net</td><td class="n">{{ d.f.net_kg }}</td></tr>
+        <tr class="minus"><td class="k">Binding ({{ d.binding_kg_per_quintal }} kg/qtl)</td><td class="n">− {{ d.f.binding_kg }}</td></tr>
+        {% if d.garbage_kg %}<tr class="minus"><td class="k">Garbage</td><td class="n">− {{ d.f.garbage_kg }}</td></tr>{% endif %}
+        <tr class="total"><td class="k">Payable</td><td class="n">{{ d.f.payable_kg }} kg<br>{{ d.maund_fmt }} md</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="h">Amount (Rs)</div>
+      <table class="kv">
+        <tr><td class="k">Govt rate {{ d.f.govt_rate }}/md</td><td class="n">{{ d.f.govt_value }}</td></tr>
+        <tr class="minus"><td class="k">Road cess {{ d.road_cess_pct }}% (grower {{ d.grower_cess_share_pct }}%)</td><td class="n">− {{ d.f.road_cess_grower }}</td></tr>
+        {% if d.subsidy %}<tr><td class="k">Subsidy {{ d.f.subsidy_rate }}/md</td><td class="n">+ {{ d.f.subsidy }}</td></tr>{% endif %}
+        {% if d.additional_subsidy %}<tr><td class="k">Additional subsidy {{ d.f.additional_subsidy_rate }}/md</td><td class="n">+ {{ d.f.additional_subsidy }}</td></tr>{% endif %}
+        <tr><td class="k">Net amount</td><td class="n">{{ d.f.net_amount }}</td></tr>
+        {% if d.tpt_amount %}<tr class="minus"><td class="k">TPT {{ d.f.tpt_rate }}/md (bilty {{ d.bilty }})</td><td class="n">− {{ d.f.tpt_amount }}</td></tr>{% endif %}
+        {% if d.loan_deduction %}<tr class="minus"><td class="k">Loan deduction</td><td class="n">− {{ d.f.loan_deduction }}</td></tr>{% endif %}
+        <tr class="total"><td class="k">Payable to grower</td><td class="n">{{ d.f.payable_cpr }}</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="big">{{ d.amount_words }}</div>
+  <div class="sign"><div>Weighman</div><span></span><div>Cane office</div><span></span><div>Grower</div></div>
+  <div class="foot">Paid to the grower's bank account by payment scroll. Keep this receipt; the bank payment quotes its number. Journal {{ d.journal_entry }}. Printed {{ printed_at }} by {{ printed_by }}.</div>
+  {% endif %}
+</div>
+{% endfor %}
+</body></html>

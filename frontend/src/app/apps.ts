@@ -50,7 +50,6 @@ export interface AppTile {
 export const APP_GROUPS = ["Overview", "Cane", "Mill Operations", "Finance & Setup", "System"] as const;
 
 const MANAGERS = ["Cane Manager", "Cane Admin"];
-const soon = "bg-slate-500/10 text-slate-600 dark:text-slate-400";
 
 /** Desktop app-launcher — one tile per module, shown after login, in this order. */
 export const APPS: AppTile[] = [
@@ -82,7 +81,6 @@ export const APPS: AppTile[] = [
     roles: [...MANAGERS, "Indent Clerk", "Circle Officer", "MIS Viewer"],
     description: "Indents from surveyed area × yield × quota, scheduled to the mill's daily intake, authorized in batches and printed with barcodes.",
     colorClass: "bg-violet-500/10 text-violet-600 dark:text-violet-400", features: ["Generate & preview", "Batch authorization", "Barcode slips", "Look up"] },
-  // later phases (coming-soon pages)
   { id: "procurement", label: "Cane Procurement", tagline: "Gate · weighbridge · CPR", group: "Mill Operations", icon: Weight, to: "/procurement",
     roles: [...MANAGERS, "Token Clerk", "Gross Weighman", "Tare Weighman", "Yard Supervisor", "Cane Cashier", "Cane Accountant", "MIS Viewer"],
     description: "Gate tokens with rates, gross / tare from the weighbridge, CPRs posted to the ledgers, TPT bilty cash counter and the daily cane purchase invoice.",
@@ -103,8 +101,10 @@ export const APPS: AppTile[] = [
     roles: [...MANAGERS, "Cane Accountant", "Cane Cashier", "MIS Viewer"],
     description: "Payment scrolls by CPR barcode with bank files and letters, road cess deposits, grower loans and their recovery, grower statements, costing.",
     colorClass: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400", features: ["Payment scroll", "Bank letters", "Road cess", "Loans", "Statements"] },
-  { id: "mis", label: "MIS", tagline: "Phase 8", group: "Overview", icon: Gauge, to: "/mill/mis",
-    description: "Realtime crushing, plant levels and management dashboards.", colorClass: soon },
+  { id: "mis", label: "MIS", tagline: "The mill right now", group: "Overview", icon: Gauge, to: "/mis",
+    roles: [...MANAGERS, "MIS Viewer", "Cane Accountant", "Production Manager", "Lab Chemist", "Yard Supervisor"],
+    description: "One live screen for the mill — cane today, yard, depots, payments, DMR, stock, plant alerts, season and circles — and the grower SMS / WhatsApp messages.",
+    colorClass: "bg-teal-500/10 text-teal-600 dark:text-teal-400", features: ["Live wall", "Season progress", "Circle performance", "Grower messages"] },
   { id: "production", label: "Sugar Production", tagline: "Bags, by-products, plant", group: "Mill Operations", icon: Factory, to: "/production",
     roles: [...MANAGERS, "Production Manager", "Lab Chemist", "Cane Accountant", "MIS Viewer"],
     description: "Each approved DMR posts a Work Order and a Manufacture entry (actual cane, sugar bags, by-products at NRV); plant levels.",

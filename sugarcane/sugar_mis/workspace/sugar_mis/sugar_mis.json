@@ -1,0 +1,132 @@
+{
+ "app": "sugarcane",
+ "charts": [],
+ "content": "[{\"id\": \"sc_mis_h1\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Shortcuts</b></span>\", \"col\": 12}}, {\"id\": \"sc_mis_s0\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Mill Right Now\", \"col\": 3}}, {\"id\": \"sc_mis_s1\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Grower Messages\", \"col\": 3}}, {\"id\": \"sc_mis_s2\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Message Templates\", \"col\": 3}}, {\"id\": \"sc_mis_s3\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"MIS Reports\", \"col\": 3}}, {\"id\": \"sc_mis_sp\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"sc_mis_c0\", \"type\": \"card\", \"data\": {\"card_name\": \"Messaging\", \"col\": 4}}, {\"id\": \"sc_mis_c1\", \"type\": \"card\", \"data\": {\"card_name\": \"Reports\", \"col\": 4}}]",
+ "creation": "2026-10-19 12:00:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "dashboard",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "Sugar MIS",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Messaging",
+   "link_count": 3,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sugar SMS Log",
+   "link_count": 0,
+   "link_to": "Sugar SMS Log",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sugar SMS Template",
+   "link_count": 0,
+   "link_to": "Sugar SMS Template",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "SMS Keyword",
+   "link_count": 0,
+   "link_to": "SMS Keyword",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Reports",
+   "link_count": 3,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Season Progress",
+   "link_count": 0,
+   "link_to": "Season Progress",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Circle Wise Performance",
+   "link_count": 0,
+   "link_to": "Circle Wise Performance",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Grower Supply Ranking",
+   "link_count": 0,
+   "link_to": "Grower Supply Ranking",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-10-19 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Sugar MIS",
+ "name": "Sugar MIS",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 60.0,
+ "shortcuts": [
+  {
+   "color": "Green",
+   "label": "Mill Right Now",
+   "type": "URL",
+   "url": "/sugar/mis"
+  },
+  {
+   "color": "Blue",
+   "label": "Grower Messages",
+   "type": "URL",
+   "url": "/sugar/mis/messages"
+  },
+  {
+   "color": "Purple",
+   "label": "Message Templates",
+   "type": "URL",
+   "url": "/sugar/mis/messages?tab=templates"
+  },
+  {
+   "color": "Orange",
+   "label": "MIS Reports",
+   "type": "URL",
+   "url": "/sugar/reports?g=MIS"
+  }
+ ],
+ "title": "Sugar MIS",
+ "type": "Workspace"
+}

@@ -21,6 +21,7 @@ def after_migrate():
 	from sugarcane.setup.lab_setup import ensure as ensure_lab_masters
 
 	ensure_lab_masters()
+	ensure_sms_keywords()
 	company = frappe.db.get_single_value("Sugar Settings", "company")
 	if company and frappe.db.exists("Company", company):
 		from sugarcane.setup.accounts import setup_company
@@ -43,7 +44,9 @@ ELP_DEFAULTS = {"elp_min_sharpness": 60, "elp_min_brightness": 40, "elp_max_brig
 	"elp_overdue_grace_min": 60, "elp_gate_buffer_m": 500, "elp_not_arrived_hours": 48,
 	"tpt_requires_elp": 1, "weight_fresh_seconds": 10, "min_weight_kg": 200, "max_yard_hours": 12,
 	"ccs_recovery_factor": 0.95, "mill_capacity_tcd": 12000.0, "recover_loans_at_cpr": 1, "payable_days": 15,
-	"unloading_rate": 1.5, "idle_rate_per_hour": 1500.0, "idle_min_minutes": 30, "idle_categories": "Mechanical\nElectrical\nProcess\nPower\nNo Cane"}
+	"unloading_rate": 1.5, "idle_rate_per_hour": 1500.0, "idle_min_minutes": 30, "idle_categories": "Mechanical\nElectrical\nProcess\nPower\nNo Cane",
+	"sms_enabled": 1, "sms_gateway": "Mock", "sms_sender": "MICROMAX", "sms_language": "English", "sms_quiet_from": 22, "sms_quiet_to": 7,
+	"sms_daily_cap": 10}
 
 
 def ensure_elp_defaults():
@@ -79,3 +82,15 @@ def ensure_party_type():
 	if not frappe.db.exists("Party Type", "Grower"):
 		frappe.get_doc({"doctype": "Party Type", "party_type": "Grower", "account_type": "Payable"}).insert(
 			ignore_permissions=True)
+
+
+SMS_KEYWORDS = (("BAL", "Balance", "Unpaid CPR amount and loan outstanding"), ("CPR", "Last CPR", "The last CPR: day, maund, amount, paid or not"),
+	("IND", "Indent", "Open indents with their validity"), ("LOAN", "Loan", "Outstanding of each open loan"),
+	("PAY", "Payment", "The last payment made to the grower"), ("HELP", "Help", "The list of keywords"))
+
+
+def ensure_sms_keywords():
+	for kw, action, desc in SMS_KEYWORDS:
+		if not frappe.db.exists("SMS Keyword", kw):
+			frappe.get_doc({"doctype": "SMS Keyword", "keyword": kw, "action": action, "description": desc, "is_active": 1}).insert(
+				ignore_permissions=True)

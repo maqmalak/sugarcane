@@ -9,14 +9,9 @@ from sugarcane.eagleeye_survey.report_utils import col, grouped
 
 
 def actual_by_variety(season):
-	"""Payable maunds received per variety from submitted CPRs (Phase 3). Until CPRs exist this is empty."""
-	if not frappe.db.table_exists("Cane Purchase Receipt"):
-		return {}
-	meta = frappe.get_meta("Cane Purchase Receipt")
-	if not (meta.has_field("variety") and meta.has_field("payable_maund")):
-		return {}
-	rows = frappe.get_all("Cane Purchase Receipt", filters={"docstatus": 1, "season": season},
-		fields=["variety", "sum(payable_maund) as maund"], group_by="variety")
+	"""Payable maunds received per variety from submitted CPRs; the variety is the one on the CPR's indent (from the survey)."""
+	rows = frappe.db.sql("""select i.variety, sum(c.payable_maund) maund from `tabCane Purchase Receipt` c
+		join `tabCane Indent` i on i.name = c.indent where c.docstatus = 1 and c.season = %s group by i.variety""", season, as_dict=True)
 	return {r.variety: flt(r.maund) for r in rows}
 
 

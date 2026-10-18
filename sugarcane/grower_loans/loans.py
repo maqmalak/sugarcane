@@ -147,7 +147,11 @@ def disburse(name: str, bank_account=None, on=None):
 	], _("{0} loan {1} to {2}").format(loan.loan_type, loan.name, loan.grower_name), "Bank Entry", loan.name)
 	loan.db_set({"status": "Disbursed", "disbursed_on": day, "disbursement_journal": je, "bank_account": bank})
 	refresh(loan.name)
-	return frappe.get_doc("Grower Loan", name)
+	loan = frappe.get_doc("Grower Loan", name)
+	from sugarcane.sms import loan_disbursed
+
+	loan_disbursed(loan)
+	return loan
 
 
 def refresh(name: str):

@@ -1,0 +1,234 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "direction",
+  "status",
+  "event",
+  "mobile",
+  "cb1",
+  "grower",
+  "party_name",
+  "reference_doctype",
+  "reference_name",
+  "cb2",
+  "channel",
+  "language",
+  "template",
+  "queued_at",
+  "sent_at",
+  "sb_msg",
+  "message",
+  "segments",
+  "attempts",
+  "response",
+  "in_reply_to",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "direction",
+   "fieldtype": "Select",
+   "options": "Out\nIn",
+   "label": "Direction",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "default": "Out"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "options": "Queued\nSent\nMocked\nFailed\nSkipped",
+   "label": "Status",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "event",
+   "fieldtype": "Data",
+   "label": "Event",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "mobile",
+   "fieldtype": "Data",
+   "label": "Mobile",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "grower",
+   "fieldtype": "Link",
+   "options": "Grower",
+   "label": "Grower",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "party_name",
+   "fieldtype": "Data",
+   "label": "Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reference_doctype",
+   "fieldtype": "Link",
+   "options": "DocType",
+   "label": "Reference Type",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reference_name",
+   "fieldtype": "Dynamic Link",
+   "options": "reference_doctype",
+   "label": "Reference",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "channel",
+   "fieldtype": "Select",
+   "options": "SMS\nWhatsApp",
+   "label": "Channel",
+   "read_only": 1
+  },
+  {
+   "fieldname": "language",
+   "fieldtype": "Data",
+   "label": "Language",
+   "read_only": 1
+  },
+  {
+   "fieldname": "template",
+   "fieldtype": "Link",
+   "options": "Sugar SMS Template",
+   "label": "Template",
+   "read_only": 1
+  },
+  {
+   "fieldname": "queued_at",
+   "fieldtype": "Datetime",
+   "label": "Queued At",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "sent_at",
+   "fieldtype": "Datetime",
+   "label": "Sent At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_msg",
+   "fieldtype": "Section Break",
+   "label": "Message"
+  },
+  {
+   "fieldname": "message",
+   "fieldtype": "Small Text",
+   "label": "Message",
+   "read_only": 1
+  },
+  {
+   "fieldname": "segments",
+   "fieldtype": "Int",
+   "label": "Parts",
+   "read_only": 1
+  },
+  {
+   "fieldname": "attempts",
+   "fieldtype": "Int",
+   "label": "Attempts",
+   "read_only": 1
+  },
+  {
+   "fieldname": "response",
+   "fieldtype": "Small Text",
+   "label": "Gateway Response",
+   "read_only": 1
+  },
+  {
+   "fieldname": "in_reply_to",
+   "fieldtype": "Link",
+   "options": "Sugar SMS Log",
+   "label": "In Reply To",
+   "read_only": 1
+  },
+  {
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "label": "Demo Record",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1,
+   "default": "0"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "SMS Integration",
+ "name": "Sugar SMS Log",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Cane Admin",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Cane Manager",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Cane Accountant",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "MIS Viewer",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "sort_field": "queued_at",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0,
+ "autoname": "hash",
+ "in_create": 1,
+ "title_field": "mobile",
+ "search_fields": "mobile,grower,reference_name"
+}

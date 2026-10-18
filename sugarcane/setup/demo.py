@@ -105,6 +105,7 @@ DEMO_DOCTYPES = (  # deletion order for reset (children first)
 def run(growers: int = GROWERS):
 	rnd = random.Random(SEED)
 	frappe.flags.mute_emails = True
+	frappe.flags.sugar_sms_off = True  # replayed with their own dates by demo_messages
 	company = ensure_company()
 	_season(company)
 	_shifts()
@@ -129,6 +130,9 @@ def run(growers: int = GROWERS):
 	demo_procurement.run()
 	demo_lab.run()
 	demo_accounts.payments()
+	from sugarcane.setup import demo_messages
+
+	demo_messages.run()
 	counts = {dt: frappe.db.count(dt) for dt in ("Cane Circle", "Cane Village", "Grower", "Grower Passbook", "Sugar Vehicle",
 		"Cane Survey", "Survey Overlap Review", "Surveyor Attendance", "Surveyor Location Log", "Indent Batch", "Cane Indent", "Cane Token", "Cane Purchase Receipt", "TPT Bilty", "Daily Cane Purchase")}
 	print("Demo ready:", counts)
@@ -168,6 +172,9 @@ def _purge(doctype, names):
 def reset():
 	from sugarcane.setup import demo_accounts, demo_elp, demo_indent, demo_lab, demo_procurement, demo_survey
 
+	from sugarcane.setup import demo_messages
+
+	demo_messages.reset()
 	demo_accounts.reset_payments()
 	demo_lab.reset()
 	demo_procurement.reset()

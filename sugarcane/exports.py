@@ -35,6 +35,9 @@ FILTERS = {  # report -> filters it accepts (default by module below)
 	"CPR Paid Unpaid": ["from_date", "to_date", "circle", "payment_status"],
 	"Road Cess Deducted vs Deposited": [],
 	"Depot Dispatch Register": ["from_date", "to_date", "depot", "dispatch_status"],
+	"Season Progress": ["season", "to_date"],
+	"Circle Wise Performance": ["season", "to_date"],
+	"Grower Supply Ranking": ["season", "circle"],
 }
 MODULE_FILTERS = {"EagleEye Survey": SURVEY, "Vehicle Tracking": ["from_date", "to_date", "circle"],
 	"Cane Procurement": ["from_date", "to_date", "circle"], "Weighbridge": ["from_date", "to_date"],
@@ -66,6 +69,9 @@ DESCRIPTIONS = {
 	"ELP Arrival Audit": "Every arrival: GPS at the gate, journey vs standard and average, verdict and auditor",
 	"ELP Vehicles Not Arrived": "Vehicles still not at the mill 48 hours after registration",
 	"ELP Journey Time": "Each journey against the point's standard time and its own average",
+	"Season Progress": "Day by day: cane bought (gate / depots), crushed, sugar bags and recovery, with running totals against the season target",
+	"Circle Wise Performance": "Per circle: survey, quota, indents issued / used / expired and cane supplied — % of quota and of the survey",
+	"Grower Supply Ranking": "Growers by cane supplied: survey expected, loads, payable, paid, unpaid and loan outstanding",
 }
 # filter key -> (label, kind, source); kind: date | select | link; the report receives `param` (or the key)
 FILTER_DEFS = {

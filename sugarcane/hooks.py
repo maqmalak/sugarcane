@@ -303,10 +303,24 @@ doc_events.update({
 	"Surveyor Attendance": {"on_update": "sugarcane.notify.attendance_updated"},
 	"Crushing Season": {"on_update": "sugarcane.setup.production.season_updated"},
 })
+# grower / driver messages and the MIS wall (sugarcane.sms, sugarcane.sugar_mis.live)
+doc_events.update({
+	"Cane Indent": {"on_submit": "sugarcane.sms.indent_submitted"},
+	"Cane Token": {"on_submit": ["sugarcane.sms.token_submitted", "sugarcane.sugar_mis.live.changed"],
+		"on_cancel": "sugarcane.sugar_mis.live.changed"},
+	"Cane Purchase Receipt": {"on_submit": ["sugarcane.sms.cpr_submitted", "sugarcane.sugar_mis.live.changed"],
+		"on_cancel": "sugarcane.sugar_mis.live.changed"},
+	"TPT Bilty": {"on_submit": "sugarcane.sms.bilty_submitted"},
+	"Cane Payment Scroll": {"on_submit": ["sugarcane.sms.scroll_submitted", "sugarcane.sugar_mis.live.changed"]},
+	"Mill Stoppage": {"on_update": "sugarcane.sugar_mis.live.changed", "on_submit": "sugarcane.sugar_mis.live.changed"},
+	"Daily Manufacturing Report": {"on_submit": "sugarcane.sugar_mis.live.changed"},
+	"Depot Dispatch": {"on_submit": "sugarcane.sugar_mis.live.changed"},
+})
 
 # Indents past their last valid day become Expired (bench schedule must run for this site in production)
 scheduler_events = {
-	"daily": ["sugarcane.cane_indenting.generator.expire_due", "sugarcane.vault.refresh_statuses"],
+	"daily": ["sugarcane.cane_indenting.generator.expire_due", "sugarcane.vault.refresh_statuses", "sugarcane.sms.remind_expiring"],
+	"all": ["sugarcane.sms.flush_queue"],
 	"cron": {"15 7 * * *": ["sugarcane.cane_procurement.procurement.auto_close_previous_day"]},
 	"monthly": ["sugarcane.grower_loans.loans.monthly_markup"],
 }

@@ -1,7 +1,7 @@
 # MicroMax Sugar Mills Ltd. — Sugar ERP Architecture (Phase 0, for approval)
 
 App `sugarcane` · site `sugarcane` · Frappe 16.34 / ERPNext 16.35 / HRMS · Python 3.14 · Node 24 · MariaDB
-Status: **approved 2026-10-13** (v3: decisions below). Phases 0–6 and ELP are built; see `docs/PHASE_0.md` … `PHASE_6.md`, `ELP.md`.
+Status: **approved 2026-10-13** (v3: decisions below). Phases 0–6, 8 and ELP are built; see `docs/PHASE_0.md` … `PHASE_6.md`, `PHASE_8.md`, `ELP.md`.
 
 ### Decisions (2026-10-13)
 
@@ -250,6 +250,9 @@ Cane Costing reports.
 
 ### Phase 8 — Messaging & MIS
 Sugar SMS Template · Sugar SMS Log · SMS Keyword; MIS API + realtime events.
+*As built (see `PHASE_8.md`):*
+- One realtime event, `sugar_mis`, sent after commit; the wall reloads its snapshot (debounced) instead of patching tiles.
+- The gateway is chosen in Sugar Settings: Mock, the Frappe SMS Settings gateway, or the WhatsApp app.
 
 ---
 

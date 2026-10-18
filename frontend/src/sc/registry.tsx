@@ -26,7 +26,7 @@ const GrowerPhotos = lazy(() => import("./components/PhotoGallery").then((m) => 
 const AreaGeoEditor = lazy(() => import("./pages/AreaMapPage").then((m) => ({ default: m.Editor })));
 const later = (node: ReactNode) => <Suspense fallback={<div className="h-24 animate-pulse rounded-2xl border bg-muted/40" />}>{node}</Suspense>;
 
-export type ScApp = "setup" | "survey" | "field-force" | "indenting" | "elp" | "procurement" | "depot" | "lab" | "production" | "accounts";
+export type ScApp = "setup" | "survey" | "field-force" | "indenting" | "elp" | "procurement" | "depot" | "lab" | "production" | "accounts" | "mis";
 
 export interface ScDoc {
   doctype: string;
@@ -104,6 +104,10 @@ export const SC_DOCS: ScDoc[] = [
   { doctype: "Contractor Bill", label: "Contractor Bills", app: "accounts", group: "Contractors", icon: Truck },
   { doctype: "Unloading Contract", label: "Unloading Contracts", app: "accounts", group: "Contractors", icon: NotebookTabs },
   { doctype: "Sugar Generated Document", label: "Generated Documents", app: "accounts", group: "Documents", icon: ScrollText },
+  // ------------------------------------------------------------------ messaging
+  { doctype: "Sugar SMS Log", label: "Message Log", app: "mis", group: "Messaging", icon: Smartphone },
+  { doctype: "Sugar SMS Template", label: "Message Templates", app: "mis", group: "Messaging", icon: NotebookTabs },
+  { doctype: "SMS Keyword", label: "SMS Keywords", app: "mis", group: "Messaging", icon: Hash },
 ];
 
 export const docBase = (doctype: string) => {
@@ -228,4 +232,4 @@ export const ENHANCERS: Record<string, Enhancer> = {
   },
 };
 
-export const APP_ICON: Record<ScApp, LucideIcon> = { setup: Boxes, survey: Leaf, "field-force": Users, indenting: ClipboardList, elp: Truck, procurement: Scale, depot: Warehouse, lab: Leaf, production: Factory, accounts: Building2 };
+export const APP_ICON: Record<ScApp, LucideIcon> = { setup: Boxes, survey: Leaf, "field-force": Users, indenting: ClipboardList, elp: Truck, procurement: Scale, depot: Warehouse, lab: Leaf, production: Factory, accounts: Building2, mis: Smartphone };

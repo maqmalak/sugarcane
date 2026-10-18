@@ -36,6 +36,7 @@ const GROUP: Record<string, { icon: typeof Wallet; tone: string }> = {
   "Cane Accounts": { icon: Wallet, tone: "from-violet-500 to-fuchsia-600" },
   Laboratory: { icon: Beaker, tone: "from-cyan-500 to-sky-600" },
   Production: { icon: Factory, tone: "from-orange-500 to-rose-600" },
+  MIS: { icon: TrendingUp, tone: "from-teal-500 to-emerald-600" },
   Masters: { icon: Boxes, tone: "from-indigo-500 to-violet-600" },
 };
 const IND: Record<string, string> = { Green: "text-emerald-600", Red: "text-rose-600", Orange: "text-amber-600", Blue: "text-blue-600" };

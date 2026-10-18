@@ -4,7 +4,7 @@
  */
 import {
   BarChart3, Boxes, ClipboardList, FileSpreadsheet, Gauge, LayoutDashboard, Leaf, Map as MapIcon, MapPinned,
-  Sparkles, Target, Ticket, Inbox, Layers, Truck, UserCog, Users, Warehouse, Weight, Beaker, Factory, Banknote, type LucideIcon, Wand2, ScanBarcode, ShieldCheck, AlertTriangle, MapPin,
+  Sparkles, Target, Ticket, Inbox, Layers, Truck, UserCog, Users, Warehouse, Weight, Beaker, Factory, Banknote, MessageSquare, type LucideIcon, Wand2, ScanBarcode, ShieldCheck, AlertTriangle, MapPin,
 } from "lucide-react";
 import { SC_DOCS, docBase, type ScApp } from "@/sc/registry";
 
@@ -28,6 +28,7 @@ const PROC_ROLES = [...MANAGERS, "Token Clerk", "Gross Weighman", "Tare Weighman
 const DEPOT_ROLES = [...MANAGERS, "Depot User", "Gross Weighman", "Tare Weighman", "Yard Supervisor", "Cane Accountant", "MIS Viewer"];
 const LAB_ROLES = [...MANAGERS, "Lab Chemist", "Production Manager", "MIS Viewer"];
 const ACC_ROLES = [...MANAGERS, "Cane Accountant", "Cane Cashier", "MIS Viewer"];
+const MIS_ROLES = [...MANAGERS, "MIS Viewer", "Cane Accountant", "Production Manager", "Lab Chemist", "Yard Supervisor"];
 const SURVEY_ROLES = [...MANAGERS, "Circle Officer", "Surveyor", "MIS Viewer"];
 const FF_ROLES = [...MANAGERS, "Circle Officer"];
 
@@ -192,13 +193,16 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
   ],
   reports: [{ title: "Reports", items: [{ label: "Report Centre", to: "/reports", icon: FileSpreadsheet }] }],
   approvals: [{ title: "Approvals", items: [{ label: "Inbox", to: "/approvals/inbox", icon: Inbox }, { label: "Overlap reviews", to: "/survey/d/survey-overlap-review", icon: Layers }] }],
-  mill: [
+  mis: [
     {
-      title: "Coming in later phases",
+      title: "MIS",
       items: [
-        { label: "MIS (Phase 8)", to: "/mill/mis", icon: Gauge },
+        { label: "Mill right now", to: "/mis", icon: Gauge, roles: MIS_ROLES },
+        { label: "Grower messages", to: "/mis/messages", icon: MessageSquare, roles: MIS_ROLES },
       ],
     },
+    ...docGroups("mis", MIS_ROLES),
+    { title: "Reports", items: [{ label: "MIS reports", to: "/reports?g=MIS", icon: BarChart3 }] },
   ],
 };
 
@@ -217,6 +221,7 @@ export const APP_LABELS: Record<string, string> = {
   "field-force": "Field Force",
   setup: "Sugar Setup",
   reports: "Report Centre",
+  mis: "MIS",
   mill: "Mill Operations",
   account: "My Account",
 };
@@ -274,6 +279,8 @@ export const ROUTE_TITLES: Record<string, string> = {
   gate: "Gate",
   board: "Loads",
   users: "Users & Devices",
+  mis: "MIS",
+  messages: "Grower Messages",
   mill: "Mill Operations",
 };
 

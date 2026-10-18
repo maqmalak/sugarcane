@@ -114,6 +114,17 @@
   "signatory_2",
   "mill_address",
   "mill_phone",
+  "sb_sms",
+  "sms_enabled",
+  "sms_gateway",
+  "sms_sender",
+  "sms_language",
+  "cb_sms",
+  "sms_test_number",
+  "sms_quiet_from",
+  "sms_quiet_to",
+  "sms_daily_cap",
+  "sms_inbound_token",
   "cb_stock",
   "daily_purchase_supplier",
   "contractor_supplier_group"
@@ -753,6 +764,73 @@
    "fieldname": "mill_phone",
    "fieldtype": "Data",
    "label": "Mill Phone / Email (letterhead)"
+  },
+  {
+   "fieldname": "sb_sms",
+   "fieldtype": "Section Break",
+   "label": "SMS and WhatsApp"
+  },
+  {
+   "fieldname": "sms_enabled",
+   "fieldtype": "Check",
+   "label": "Send messages to growers and drivers",
+   "default": "1"
+  },
+  {
+   "fieldname": "sms_gateway",
+   "fieldtype": "Select",
+   "options": "Mock\nFrappe SMS Settings\nWhatsApp",
+   "label": "Gateway",
+   "default": "Mock",
+   "description": "Mock = logged as sent, nothing leaves the server. Frappe SMS Settings = the gateway set in SMS Settings. WhatsApp = the whatsapp app's account."
+  },
+  {
+   "fieldname": "sms_sender",
+   "fieldtype": "Data",
+   "label": "Sender ID",
+   "default": "MICROMAX"
+  },
+  {
+   "fieldname": "sms_language",
+   "fieldtype": "Select",
+   "options": "English\nUrdu\nRoman Urdu",
+   "label": "Default Language",
+   "default": "English"
+  },
+  {
+   "fieldname": "cb_sms",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sms_test_number",
+   "fieldtype": "Data",
+   "label": "Test Mode: send everything to",
+   "description": "While set, every message goes to this number instead"
+  },
+  {
+   "fieldname": "sms_quiet_from",
+   "fieldtype": "Int",
+   "label": "Quiet Hours From (hour)",
+   "default": "22"
+  },
+  {
+   "fieldname": "sms_quiet_to",
+   "fieldtype": "Int",
+   "label": "Quiet Hours To (hour)",
+   "default": "7",
+   "description": "Messages queued in quiet hours wait until the morning (keyword replies go at once)"
+  },
+  {
+   "fieldname": "sms_daily_cap",
+   "fieldtype": "Int",
+   "label": "Most Messages a Number Gets a Day",
+   "default": "10"
+  },
+  {
+   "fieldname": "sms_inbound_token",
+   "fieldtype": "Password",
+   "label": "Inbound Token",
+   "description": "The gateway posts incoming SMS to /api/method/sugarcane.api.v1.sms.inbound?token=…"
   },
   {
    "fieldname": "cb_stock",

@@ -1,7 +1,7 @@
 import { lazy, Suspense, type ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppShell } from "@/components/layout/app-shell";
-import { ComingSoonPage, FullPageLoader } from "@/pages/common/ComingSoonPage";
+import { FullPageLoader } from "@/pages/common/ComingSoonPage";
 import { LoginPage } from "@/pages/Auth/LoginPage";
 import { ScProviders } from "@/sc/ScProviders";
 
@@ -39,6 +39,8 @@ const LoansPage = accPage("LoansPage");
 const StatementPage = accPage("StatementPage");
 const DocumentsPage = accPage("DocumentsPage");
 const ContractorBillsPage = accPage("ContractorBillsPage");
+const MisWallPage = lazy(() => import("@/sc/pages/MisPages").then((m) => ({ default: m.MisWallPage })));
+const MessagesPage = lazy(() => import("@/sc/pages/MisPages").then((m) => ({ default: m.MessagesPage })));
 const ApprovalsInboxPage = lazy(() => import("@/sc/pages/ApprovalsInboxPage").then((m) => ({ default: m.ApprovalsInboxPage })));
 const SeasonQuotaPage = lazy(() => import("@/sc/pages/SeasonQuotaPage").then((m) => ({ default: m.SeasonQuotaPage })));
 const FieldForceInsightsPage = lazy(() => import("@/sc/pages/FieldForceInsightsPage").then((m) => ({ default: m.FieldForceInsightsPage })));
@@ -52,10 +54,6 @@ const MetaDocPage = lazy(() => import("@/sc/meta/MetaDocPage").then((m) => ({ de
 
 const lazyPage = (node: ReactNode) => <Suspense fallback={<FullPageLoader />}>{node}</Suspense>;
 const sugar = (node: ReactNode) => lazyPage(<ScProviders>{node}</ScProviders>);
-
-const PHASES: [string, string, string][] = [
-  ["mis", "MIS", "Phase 8 — realtime crushing and management dashboards"],
-];
 
 /** /sugar/* (BrowserRouter basename) — the MicroMax Sugar Mills app. */
 export function AppRoutes() {
@@ -91,9 +89,11 @@ export function AppRoutes() {
         <Route path="reports" element={sugar(<ReportsPage />)} />
 
         {/* later phases */}
-        {PHASES.map(([path, title, description]) => (
-          <Route key={path} path={`mill/${path}`} element={<ComingSoonPage title={title} description={description} />} />
-        ))}
+        <Route path="mis" element={sugar(<MisWallPage />)} />
+        <Route path="mis/messages" element={sugar(<MessagesPage />)} />
+        <Route path="mis/d/:slug" element={sugar(<MetaDocPage mode="list" />)} />
+        <Route path="mis/d/:slug/:name" element={sugar(<MetaDocPage mode="form" />)} />
+        <Route path="mill/mis" element={<Navigate to="/mis" replace />} />
 
         {/* old paths from the first sugar app */}
         <Route path="survey/dashboard" element={<Navigate to="/survey" replace />} />

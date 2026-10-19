@@ -387,7 +387,12 @@ interface Dmr {
   prepared_by?: string; prepared_at?: string; approved_by?: string; approved_at?: string;
   analyses: { sample_type: string; samples: number; brix?: number; pol?: number; purity?: number; moisture_pct?: number; out_of_range: number }[];
   stoppages: { name: string; start: string; category: string; reason: string; minutes_in_day: number }[];
+  bagasse_burnt_kg?: number; bagasse_to_yard_kg?: number; mixed_juice_kg?: number; mixed_juice_purity?: number; mill_extraction_pct?: number;
+  grades: { grade: string; item: string; bags: number }[]; grade_list: { name: string; item: string; is_default: number }[];
+  shifts: ShiftRow[];
 }
+interface ShiftRow { shift: string; cane_received_kg?: number; stoppage_minutes?: number; mill_hours?: number; sugar_bags?: number; molasses_kg?: number; bagasse_kg?: number; bagasse_burnt_kg?: number; press_mud_kg?: number }
+const SHIFT_COLS: [keyof ShiftRow, string][] = [["mill_hours", "Mill h"], ["sugar_bags", "Bags"], ["molasses_kg", "Molasses kg"], ["bagasse_kg", "Bagasse kg"], ["bagasse_burnt_kg", "Burnt kg"], ["press_mud_kg", "Press mud kg"]];
 const STATUS_TONE: Record<string, "gray" | "amber" | "green" | "red"> = { Draft: "gray", Prepared: "amber", Approved: "green", Cancelled: "red" };
 
 export function DmrPage() {
@@ -396,11 +401,15 @@ export function DmrPage() {
   const [day, setDay] = useDay(m?.day);
   const { data: d, refetch } = useQuery({ queryKey: ["sc-lab-dmr", day], enabled: !!day, queryFn: () => get<Dmr>(`${API}.dmr`, { day }) });
   const [edit, setEdit] = useState<Record<string, string>>({});
+  const [gEdit, setGEdit] = useState<Record<string, string>>({});
+  const [sEdit, setSEdit] = useState<Record<string, Record<string, string>>>({});
   const [busy, setBusy] = useState(false);
   const val = (k: keyof Dmr) => edit[k as string] ?? String(d?.[k] ?? "");
+  const gVal = (g: string) => gEdit[g] ?? String(d?.grades?.find((x) => x.grade === g)?.bags ?? "");
+  const sVal = (sh: string, k: keyof ShiftRow) => sEdit[sh]?.[k as string] ?? String(d?.shifts?.find((x) => x.shift === sh)?.[k] ?? "");
   const act = async (method: string, args: Record<string, string | number | undefined>, ok: string) => {
     setBusy(true);
-    try { await post(`${API}.${method}`, args); toast.success(ok); setEdit({}); refetch(); qc.invalidateQueries({ queryKey: ["sc-lab-insights"] }); }
+    try { await post(`${API}.${method}`, args); toast.success(ok); setEdit({}); setGEdit({}); setSEdit({}); refetch(); qc.invalidateQueries({ queryKey: ["sc-lab-insights"] }); }
     catch (e) { toast.error(err(e)); } finally { setBusy(false); }
   };
   if (!d) return <div className="p-6"><Skeleton className="h-96 rounded-2xl" /></div>;
@@ -414,7 +423,10 @@ export function DmrPage() {
       <Header title={`Daily Manufacturing Report · ${dayLabel(d.crushing_day)}`} sub={`Season ${d.season} · 07:00 → 07:00`}>
         <DayPick day={day} onChange={(x) => { setEdit({}); setDay(x); }} />
         <Badge tone={STATUS_TONE[d.status] ?? "gray"}>{d.saved ? d.status : "not saved"}</Badge>
-        {editable && <Button variant="outline" disabled={busy} onClick={() => act("save_dmr", { day: d.crushing_day, ...Object.fromEntries(["yard_closing_kg", "sugar_bags", "molasses_kg", "bagasse_kg", "press_mud_kg", "pol_pct_cane", "remarks"].map((k) => [k, val(k as keyof Dmr)])) }, "Saved")}><Save />Save</Button>}
+        {editable && <Button variant="outline" disabled={busy} onClick={() => act("save_dmr", { day: d.crushing_day,
+          ...Object.fromEntries(["yard_closing_kg", "sugar_bags", "molasses_kg", "bagasse_kg", "bagasse_burnt_kg", "press_mud_kg", "mixed_juice_kg", "pol_pct_cane", "remarks"].map((k) => [k, val(k as keyof Dmr)])),
+          grades: JSON.stringify(Object.fromEntries((d.grade_list ?? []).map((g) => [g.name, gVal(g.name)]))),
+          shifts: JSON.stringify((d.shifts ?? []).map((r) => ({ shift: r.shift, ...Object.fromEntries(SHIFT_COLS.map(([k]) => [k, sVal(r.shift, k)])) }))) }, "Saved")}><Save />Save</Button>}
         {editable && d.saved && d.status === "Draft" && <Button disabled={busy} onClick={() => act("prepare", { day: d.crushing_day }, "Prepared — waiting for approval")}><ClipboardCheck />Prepare</Button>}
         {d.docstatus === 0 && d.status === "Prepared" && m?.can_approve && <Button disabled={busy} onClick={() => act("approve", { day: d.crushing_day }, "Approved")}><CheckCircle2 />Approve</Button>}
         {d.docstatus === 1 && !d.production && m?.can_approve && (d.day_closed
@@ -436,9 +448,23 @@ export function DmrPage() {
         <section className="rounded-2xl border bg-card p-4 shadow-sm">
           <h3 className="mb-2 font-semibold">Production</h3>
           <div className="grid grid-cols-2 gap-2">
-            {field("sugar_bags", "Sugar bags (50 kg)")}{field("molasses_kg", "Final molasses kg")}
-            {field("bagasse_kg", "Bagasse kg")}{field("press_mud_kg", "Press mud kg")}
+            {(d.grade_list ?? []).length > 1 ? <KV k="Sugar bags (50 kg) = the grades below" v={num(d.sugar_bags)} strong /> : field("sugar_bags", "Sugar bags (50 kg)")}{field("molasses_kg", "Final molasses kg")}
+            {field("bagasse_kg", "Bagasse kg")}{field("bagasse_burnt_kg", "Bagasse burnt in boilers kg")}
+            {field("press_mud_kg", "Press mud kg")}{field("mixed_juice_kg", "Mixed juice kg (flow meter)")}
           </div>
+          {(d.grade_list ?? []).length > 1 && (
+            <div className="mt-3 rounded-xl border p-2">
+              <div className="mb-1 text-xs font-semibold text-muted-foreground">Bags by grade</div>
+              <div className="grid grid-cols-3 gap-2">
+                {d.grade_list.map((g) => (
+                  <label key={g.name} className="text-xs text-muted-foreground">{g.name}
+                    <Input disabled={!editable} inputMode="numeric" value={gVal(g.name)} onChange={(e) => setGEdit({ ...gEdit, [g.name]: e.target.value })} className="mt-1 font-mono" /></label>
+                ))}
+              </div>
+            </div>
+          )}
+          <KV k="Bagasse to the yard (surplus)" v={`${num(d.bagasse_to_yard_kg ?? 0)} kg`} />
+          <KV k="Mixed juice purity · mill extraction" v={`${d.mixed_juice_purity ? f2(d.mixed_juice_purity) : "—"} · ${d.mill_extraction_pct ? `${f2(d.mill_extraction_pct)}%` : "—"}`} />
           <div className="mt-3 rounded-xl bg-emerald-500/10 p-3 text-center"><div className="text-3xl font-black tabular-nums text-emerald-700 dark:text-emerald-300">{f2(d.recovery_pct, 3)}%</div><div className="text-xs text-muted-foreground">recovery · {num(d.sugar_kg)} kg sugar</div></div>
           <KV k="Molasses · bagasse · mud % cane" v={`${f2(d.molasses_pct_cane)} · ${f2(d.bagasse_pct_cane)} · ${f2(d.press_mud_pct_cane)}`} />
         </section>
@@ -451,6 +477,29 @@ export function DmrPage() {
           <KV k="Cane crushed" v={`${num(d.std_cane_crushed_kg / 1000)} t`} /><KV k="Sugar bags" v={num(d.std_sugar_bags)} /><KV k="Recovery" v={`${f2(d.std_recovery_pct, 3)}%`} strong />
         </section>
       </div>
+      {(d.shifts ?? []).length > 0 && (
+        <section className="rounded-2xl border bg-card p-4 shadow-sm">
+          <h3 className="mb-1 font-semibold">By shift</h3>
+          <p className="mb-2 text-xs text-muted-foreground">Cane received and stoppages come from the CPRs and the stoppage log. When bags or by-products are entered per shift, the day's figures are their sums.</p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead><tr className="text-left text-xs text-muted-foreground"><th className="p-1">Shift</th><th className="p-1 text-right">Cane received</th><th className="p-1 text-right">Stopped</th>
+                {SHIFT_COLS.map(([, l]) => <th key={l} className="p-1">{l}</th>)}</tr></thead>
+              <tbody>
+                {d.shifts.map((r) => (
+                  <tr key={r.shift} className="border-t">
+                    <td className="p-1 font-semibold">{r.shift}</td><td className="p-1 text-right tabular-nums">{num(r.cane_received_kg ?? 0)} kg</td><td className="p-1 text-right tabular-nums">{r.stoppage_minutes ?? 0} min</td>
+                    {SHIFT_COLS.map(([k]) => (
+                      <td key={k} className="p-1"><Input disabled={!editable} inputMode="decimal" value={sVal(r.shift, k)}
+                        onChange={(e) => setSEdit({ ...sEdit, [r.shift]: { ...(sEdit[r.shift] ?? {}), [k]: e.target.value } })} className="h-8 min-w-[80px] font-mono" /></td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
       <div className="grid gap-4 xl:grid-cols-2">
         <ChartCard title="Average analyses" bodyClass="h-auto">
           <DataTable rows={d.analyses} rowKey={(r) => r.sample_type} dense cols={[

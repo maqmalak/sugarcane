@@ -94,6 +94,10 @@ export const SC_DOCS: ScDoc[] = [
   { doctype: "Daily Production Entry", label: "Production Entries", app: "production", group: "Records", icon: Factory },
   { doctype: "Plant Level Reading", label: "Plant Readings", app: "production", group: "Records", icon: Scale },
   { doctype: "Plant Point", label: "Plant Points", app: "production", group: "Setup", icon: Settings },
+  { doctype: "Costing Run", label: "Costing Runs", app: "production", group: "Costing", icon: Banknote },
+  { doctype: "By-product Rate", label: "By-product Rates", app: "production", group: "Costing", icon: Hash },
+  { doctype: "Cost Allocation Rule", label: "Cost Allocation Rules", app: "production", group: "Costing", icon: Layers },
+  { doctype: "Sugar Grade", label: "Sugar Grades", app: "production", group: "Setup", icon: Boxes },
   // ------------------------------------------------------------------ cane accounts & loans
   { doctype: "Cane Payment Scroll", label: "Payment Scrolls", app: "accounts", group: "Records", icon: ScrollText },
   { doctype: "Road Cess Deposit", label: "Road Cess Deposits", app: "accounts", group: "Records", icon: Building2 },

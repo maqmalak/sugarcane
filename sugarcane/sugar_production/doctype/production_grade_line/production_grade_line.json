@@ -1,0 +1,91 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "grade",
+  "item",
+  "bags",
+  "cane_kg",
+  "work_order",
+  "stock_entry",
+  "sugar_value",
+  "cost_per_bag"
+ ],
+ "fields": [
+  {
+   "fieldname": "grade",
+   "fieldtype": "Link",
+   "options": "Sugar Grade",
+   "label": "Grade",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "options": "Item",
+   "label": "Item",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "bags",
+   "fieldtype": "Int",
+   "label": "Bags",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cane_kg",
+   "fieldtype": "Int",
+   "label": "Cane (kg)",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "work_order",
+   "fieldtype": "Link",
+   "options": "Work Order",
+   "label": "Work Order",
+   "read_only": 1
+  },
+  {
+   "fieldname": "stock_entry",
+   "fieldtype": "Link",
+   "options": "Stock Entry",
+   "label": "Manufacture Entry",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "sugar_value",
+   "fieldtype": "Currency",
+   "label": "Sugar Value",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cost_per_bag",
+   "fieldtype": "Currency",
+   "label": "Stock Cost per Bag",
+   "read_only": 1,
+   "in_list_view": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Sugar Production",
+ "name": "Production Grade Line",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "istable": 1,
+ "editable_grid": 0
+}

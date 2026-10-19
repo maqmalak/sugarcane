@@ -38,6 +38,15 @@
   "molasses_kg",
   "bagasse_kg",
   "press_mud_kg",
+  "bagasse_burnt_kg",
+  "bagasse_to_yard_kg",
+  "mixed_juice_kg",
+  "mixed_juice_purity",
+  "mill_extraction_pct",
+  "sb_grades",
+  "grades",
+  "sb_shifts",
+  "shifts",
   "cb_prod2",
   "molasses_pct_cane",
   "bagasse_pct_cane",
@@ -260,6 +269,62 @@
    "fieldname": "press_mud_kg",
    "fieldtype": "Int",
    "label": "Press Mud (kg)"
+  },
+  {
+   "fieldname": "bagasse_burnt_kg",
+   "fieldtype": "Int",
+   "label": "Bagasse Burnt in Boilers (kg)",
+   "description": "Most bagasse goes straight to the mill's boilers; the rest goes to the bagasse yard (surplus, for sale)"
+  },
+  {
+   "fieldname": "bagasse_to_yard_kg",
+   "fieldtype": "Int",
+   "label": "Bagasse to the Yard (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "mixed_juice_kg",
+   "fieldtype": "Int",
+   "label": "Mixed Juice (kg)",
+   "description": "From the juice flow meter, for mill extraction"
+  },
+  {
+   "fieldname": "mixed_juice_purity",
+   "fieldtype": "Percent",
+   "label": "Mixed Juice Purity %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "mill_extraction_pct",
+   "fieldtype": "Percent",
+   "label": "Mill Extraction %",
+   "read_only": 1,
+   "description": "Pol in mixed juice ÷ pol in cane × 100"
+  },
+  {
+   "fieldname": "sb_grades",
+   "fieldtype": "Section Break",
+   "label": "Sugar by Grade"
+  },
+  {
+   "fieldname": "grades",
+   "fieldtype": "Table",
+   "options": "DMR Grade Output",
+   "label": "Bags by Grade",
+   "description": "Empty = every bag is the default grade"
+  },
+  {
+   "fieldname": "sb_shifts",
+   "fieldtype": "Section Break",
+   "label": "Shifts",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "shifts",
+   "fieldtype": "Table",
+   "options": "DMR Shift Detail",
+   "label": "Per Shift",
+   "description": "Cane received and stoppages are filled from the day's CPRs and stoppages; when bags or by-products are entered per shift, the day's totals are their sums"
   },
   {
    "fieldname": "cb_prod2",

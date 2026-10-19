@@ -1,0 +1,598 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "company",
+  "season",
+  "run_type",
+  "cb1",
+  "from_date",
+  "to_date",
+  "status",
+  "capitalise",
+  "sb_vol",
+  "cane_tons",
+  "sugar_bags",
+  "sugar_kg",
+  "cb2",
+  "recovery_pct",
+  "production_entries",
+  "sb_cost",
+  "cane_price",
+  "cane_other",
+  "cane_cost",
+  "processing_cost",
+  "packing_cost",
+  "off_season_pool",
+  "off_season_spread",
+  "joint_cost",
+  "cb3",
+  "molasses_credit",
+  "bagasse_credit",
+  "press_mud_credit",
+  "by_product_credit",
+  "net_cost",
+  "sb_unit",
+  "cost_per_kg",
+  "cost_per_bag",
+  "cost_per_ton_cane",
+  "cb4",
+  "cane_share_pct",
+  "provisional_cost_per_bag",
+  "variance_per_bag",
+  "sb_structure",
+  "direct_material",
+  "direct_labour",
+  "prime_cost",
+  "cb_structure",
+  "factory_overhead",
+  "foh_per_bag",
+  "cost_of_production",
+  "sb_price",
+  "cost_before_tax",
+  "profit_margin_pct",
+  "profit_per_bag",
+  "price_before_gst",
+  "cb_price",
+  "gst_pct",
+  "gst_per_bag",
+  "price_after_gst",
+  "cost_after_gst",
+  "sb_process",
+  "processes",
+  "sb_det",
+  "details",
+  "sb_post",
+  "stock_reconciliation",
+  "revaluation_amount",
+  "cb5",
+  "variance_journal",
+  "by_product_variance",
+  "remarks",
+  "amended_from",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "options": "CR-.YY.-.####",
+   "label": "Series",
+   "read_only": 1,
+   "hidden": 1,
+   "default": "CR-.YY.-.####"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "options": "Company",
+   "label": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "season",
+   "fieldtype": "Link",
+   "options": "Crushing Season",
+   "label": "Season",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "run_type",
+   "fieldtype": "Select",
+   "options": "Monthly\nSeason Close",
+   "label": "Run",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "From",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "To",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "options": "Draft\nCalculated\nPosted\nCancelled",
+   "label": "Status",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "capitalise",
+   "fieldtype": "Check",
+   "label": "Carry the Full Cost into Sugar Stock",
+   "description": "revalues the sugar in the godown on the last day to the full cost per bag",
+   "default": "1"
+  },
+  {
+   "fieldname": "sb_vol",
+   "fieldtype": "Section Break",
+   "label": "Production"
+  },
+  {
+   "fieldname": "cane_tons",
+   "fieldtype": "Float",
+   "label": "Cane Crushed (t)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sugar_bags",
+   "fieldtype": "Float",
+   "label": "Sugar Bags",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sugar_kg",
+   "fieldtype": "Float",
+   "label": "Sugar (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "recovery_pct",
+   "fieldtype": "Percent",
+   "label": "Recovery %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "production_entries",
+   "fieldtype": "Int",
+   "label": "Production Days",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_cost",
+   "fieldtype": "Section Break",
+   "label": "Cost of Production"
+  },
+  {
+   "fieldname": "cane_price",
+   "fieldtype": "Currency",
+   "label": "Cane Price (Govt Rate Value)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cane_other",
+   "fieldtype": "Currency",
+   "label": "Cane Costs Paid by the Mill",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cane_cost",
+   "fieldtype": "Currency",
+   "label": "Total Cane Cost",
+   "read_only": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "processing_cost",
+   "fieldtype": "Currency",
+   "label": "Processing (Elements)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "packing_cost",
+   "fieldtype": "Currency",
+   "label": "Packing",
+   "read_only": 1
+  },
+  {
+   "fieldname": "off_season_pool",
+   "fieldtype": "Currency",
+   "label": "Off-season Pool",
+   "read_only": 1
+  },
+  {
+   "fieldname": "off_season_spread",
+   "fieldtype": "Currency",
+   "label": "Off-season Share",
+   "read_only": 1
+  },
+  {
+   "fieldname": "joint_cost",
+   "fieldtype": "Currency",
+   "label": "Joint Cost",
+   "read_only": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "cb3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "molasses_credit",
+   "fieldtype": "Currency",
+   "label": "Molasses Credit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bagasse_credit",
+   "fieldtype": "Currency",
+   "label": "Bagasse Credit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "press_mud_credit",
+   "fieldtype": "Currency",
+   "label": "Press Mud Credit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "by_product_credit",
+   "fieldtype": "Currency",
+   "label": "By-product Credit",
+   "read_only": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "net_cost",
+   "fieldtype": "Currency",
+   "label": "Net Cost of Sugar",
+   "read_only": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "sb_unit",
+   "fieldtype": "Section Break",
+   "label": "Unit Cost"
+  },
+  {
+   "fieldname": "cost_per_kg",
+   "fieldtype": "Currency",
+   "label": "Cost per kg",
+   "read_only": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "cost_per_bag",
+   "fieldtype": "Currency",
+   "label": "Cost per 50 kg Bag",
+   "read_only": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "cost_per_ton_cane",
+   "fieldtype": "Currency",
+   "label": "Cost per Ton of Cane",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cane_share_pct",
+   "fieldtype": "Percent",
+   "label": "Cane Share of Joint Cost",
+   "read_only": 1
+  },
+  {
+   "fieldname": "provisional_cost_per_bag",
+   "fieldtype": "Currency",
+   "label": "Provisional Cost per Bag (daily)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "variance_per_bag",
+   "fieldtype": "Currency",
+   "label": "Final − Provisional per Bag",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_structure",
+   "fieldtype": "Section Break",
+   "label": "Prime Cost and Factory Overhead"
+  },
+  {
+   "fieldname": "direct_material",
+   "fieldtype": "Currency",
+   "label": "Direct Materials (cane, chemicals, packing)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "direct_labour",
+   "fieldtype": "Currency",
+   "label": "Direct Labour (production departments)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "prime_cost",
+   "fieldtype": "Currency",
+   "label": "Prime Cost",
+   "read_only": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "cb_structure",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "factory_overhead",
+   "fieldtype": "Currency",
+   "label": "Factory Overhead (FOH)",
+   "read_only": 1,
+   "bold": 1,
+   "description": "Power and fuel, stores and spares, repairs, depreciation, factory overheads, service departments allocated in, off-season share"
+  },
+  {
+   "fieldname": "foh_per_bag",
+   "fieldtype": "Currency",
+   "label": "FOH per Bag",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cost_of_production",
+   "fieldtype": "Currency",
+   "label": "Cost of Production (prime + FOH)",
+   "read_only": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "sb_price",
+   "fieldtype": "Section Break",
+   "label": "Price per 50 kg Bag"
+  },
+  {
+   "fieldname": "cost_before_tax",
+   "fieldtype": "Currency",
+   "label": "Cost per 50 kg Bag (before tax)",
+   "read_only": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "profit_margin_pct",
+   "fieldtype": "Percent",
+   "label": "Profit Margin %",
+   "description": "From Sugar Settings; change it here before submitting"
+  },
+  {
+   "fieldname": "profit_per_bag",
+   "fieldtype": "Currency",
+   "label": "Profit per Bag",
+   "read_only": 1
+  },
+  {
+   "fieldname": "price_before_gst",
+   "fieldtype": "Currency",
+   "label": "Ex-mill Price before GST",
+   "read_only": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "cb_price",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "gst_pct",
+   "fieldtype": "Percent",
+   "label": "GST %"
+  },
+  {
+   "fieldname": "gst_per_bag",
+   "fieldtype": "Currency",
+   "label": "GST per Bag",
+   "read_only": 1
+  },
+  {
+   "fieldname": "price_after_gst",
+   "fieldtype": "Currency",
+   "label": "Price per 50 kg Bag after GST",
+   "read_only": 1,
+   "bold": 1
+  },
+  {
+   "fieldname": "cost_after_gst",
+   "fieldtype": "Currency",
+   "label": "Cost per Bag with GST (break-even)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_process",
+   "fieldtype": "Section Break",
+   "label": "Process Cost"
+  },
+  {
+   "fieldname": "processes",
+   "fieldtype": "Table",
+   "options": "Costing Run Process",
+   "label": "Cost by Process",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_det",
+   "fieldtype": "Section Break",
+   "label": "Processing Cost by Element and Cost Centre"
+  },
+  {
+   "fieldname": "details",
+   "fieldtype": "Table",
+   "options": "Costing Run Detail",
+   "label": "Details",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_post",
+   "fieldtype": "Section Break",
+   "label": "Postings"
+  },
+  {
+   "fieldname": "stock_reconciliation",
+   "fieldtype": "Link",
+   "options": "Stock Reconciliation",
+   "label": "Sugar Revaluation",
+   "read_only": 1
+  },
+  {
+   "fieldname": "revaluation_amount",
+   "fieldtype": "Currency",
+   "label": "Revaluation Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "variance_journal",
+   "fieldtype": "Link",
+   "options": "Journal Entry",
+   "label": "By-product Variance Journal",
+   "read_only": 1
+  },
+  {
+   "fieldname": "by_product_variance",
+   "fieldtype": "Currency",
+   "label": "By-product Variance (Realised − NRV)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "options": "Costing Run",
+   "label": "Amended From",
+   "read_only": 1,
+   "no_copy": 1,
+   "print_hide": 1
+  },
+  {
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "label": "Demo Record",
+   "hidden": 1,
+   "read_only": 1,
+   "no_copy": 1,
+   "default": "0"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cane Costing",
+ "name": "Costing Run",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Cane Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Cost Accountant",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "export": 1,
+   "report": 1,
+   "share": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1
+  },
+  {
+   "role": "Accounts Manager",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Production Manager",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "MIS Viewer",
+   "read": 1,
+   "print": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "sort_field": "to_date",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "is_submittable": 1,
+ "autoname": "naming_series:",
+ "title_field": "season"
+}

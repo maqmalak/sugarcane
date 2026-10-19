@@ -48,6 +48,15 @@ FILTERS = {  # report -> filters it accepts (default by module below)
 	"WPPF and WWF": ["from_date", "to_date"],
 	"Voucher Register": ["from_date", "to_date"],
 	"Late Coming Register": [],
+	"Production Summary": ["season", "from_date", "to_date", "production_group"],
+	"By-product Stock and Movement": ["season", "from_date", "to_date"],
+	"By-product Realization": ["season", "to_date"],
+	"Cost of Production Statement": ["season", "from_date", "to_date"],
+	"Cost per Bag Trend": ["season", "from_date", "to_date"],
+	"Cost Center Expense Analysis": ["season", "from_date", "to_date"],
+	"Recovery vs Cost": ["season", "from_date", "to_date", "cost_view"],
+	"Pol Loss Analysis": ["season", "from_date", "to_date"],
+	"In-process Ledger": ["season", "from_date", "to_date"],
 }
 MODULE_FILTERS = {"EagleEye Survey": SURVEY, "Vehicle Tracking": ["from_date", "to_date", "circle"],
 	"Cane Procurement": ["from_date", "to_date", "circle"], "Weighbridge": ["from_date", "to_date"],
@@ -91,6 +100,15 @@ DESCRIPTIONS = {
 	"WPPF and WWF": "Workers' Profit Participation Fund (5%) and Workers' Welfare Fund (2%) on profit before tax",
 	"Voucher Register": "Journals by voucher type — JV, BPV, BRV, CPV, CRV — posted and draft",
 	"Late Coming Register": "Late marks per employee for a month and the days to deduct",
+	"Production Summary": "Cane crushed, sugar bags by grade, recovery and by-products — by day, week or month",
+	"By-product Stock and Movement": "Molasses, bagasse and press mud: opening, produced, burnt in the boilers, sold, closing",
+	"By-product Realization": "NRV credited against the sales value realised (less selling cost) for the by-products sold",
+	"Cost of Production Statement": "Cane + processing − by-product credit = net cost of sugar per kg / bag / ton of cane, beside the previous season",
+	"Cost per Bag Trend": "Daily stock and provisional cost per bag against each costing run's final cost",
+	"Cost Center Expense Analysis": "Processing cost by cost centre and element after allocation, per ton of cane",
+	"Recovery vs Cost": "Recovery % and cost per kg side by side, by month or by circle",
+	"Pol Loss Analysis": "Pol lost in bagasse, press mud, molasses and undetermined, with recovery and mill extraction",
+	"In-process Ledger": "Day by day: cane opening, received, into process, closing (t, Rs); packing and processing added; sugar and by-products out",
 }
 # filter key -> (label, kind, source); kind: date | select | link; the report receives `param` (or the key)
 FILTER_DEFS = {
@@ -115,6 +133,8 @@ FILTER_DEFS = {
 	"payment_status": {"label": "Payment", "kind": "select", "options": ["Unpaid", "Paid"]},
 	"bilty_status": {"label": "Status", "kind": "select", "options": ["Unpaid", "Paid"], "param": "status"},
 	"token_status": {"label": "Status", "kind": "select", "options": ["Issued", "Gross", "Completed", "Cancelled"], "param": "status"},
+	"production_group": {"label": "By", "kind": "select", "options": ["Day", "Week", "Month"], "param": "group_by"},
+	"cost_view": {"label": "View", "kind": "select", "options": ["Month", "Circle"], "param": "view"},
 	"indent_status": {"label": "Status", "kind": "select", "options": ["Draft", "Authorized", "Printed", "Used", "Expired", "Cancelled"],
 		"param": "status"},
 }

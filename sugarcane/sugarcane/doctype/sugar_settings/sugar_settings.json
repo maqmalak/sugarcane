@@ -135,6 +135,16 @@
   "share_face_value",
   "wppf_pct",
   "wwf_pct",
+  "sb_costing",
+  "credit_internal_bagasse",
+  "power_steam_account",
+  "boiler_house_cost_center",
+  "cb_costing",
+  "off_season_cost_center",
+  "cost_absorbed_account",
+  "by_product_variance_account",
+  "profit_margin_pct",
+  "sugar_gst_pct",
   "cb_stock",
   "daily_purchase_supplier",
   "contractor_supplier_group"
@@ -900,6 +910,66 @@
    "fieldtype": "Percent",
    "label": "WWF % of Profit",
    "default": "2"
+  },
+  {
+   "fieldname": "sb_costing",
+   "fieldtype": "Section Break",
+   "label": "Production Costing"
+  },
+  {
+   "fieldname": "credit_internal_bagasse",
+   "fieldtype": "Check",
+   "label": "Credit Bagasse Burnt in Own Boilers",
+   "default": "1",
+   "description": "On: all bagasse is a by-product at NRV and the burnt part is charged to Power & Steam (Boiler House): sugar cost is the same, power cost is visible. Off: only the surplus to the yard is credited."
+  },
+  {
+   "fieldname": "power_steam_account",
+   "fieldtype": "Link",
+   "options": "Account",
+   "label": "Power & Steam (Bagasse Burnt) Account"
+  },
+  {
+   "fieldname": "boiler_house_cost_center",
+   "fieldtype": "Link",
+   "options": "Cost Center",
+   "label": "Boiler House Cost Centre"
+  },
+  {
+   "fieldname": "cb_costing",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "off_season_cost_center",
+   "fieldtype": "Link",
+   "options": "Cost Center",
+   "label": "Off-season Cost Centre",
+   "description": "Overhaul and off-season salaries: spread over the next season's production by the Costing Run"
+  },
+  {
+   "fieldname": "cost_absorbed_account",
+   "fieldtype": "Link",
+   "options": "Account",
+   "label": "Cost of Production Absorbed Account",
+   "description": "Credited when the Costing Run carries processing cost into sugar stock"
+  },
+  {
+   "fieldname": "by_product_variance_account",
+   "fieldtype": "Link",
+   "options": "Account",
+   "label": "By-product Variance Account"
+  },
+  {
+   "fieldname": "profit_margin_pct",
+   "fieldtype": "Percent",
+   "label": "Profit Margin % (price build-up)",
+   "default": "10"
+  },
+  {
+   "fieldname": "sugar_gst_pct",
+   "fieldtype": "Percent",
+   "label": "GST % on Sugar",
+   "default": "18"
   },
   {
    "fieldname": "cb_stock",

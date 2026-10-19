@@ -53,7 +53,7 @@ ELP_DEFAULTS = {"elp_min_sharpness": 60, "elp_min_brightness": 40, "elp_max_brig
 	"unloading_rate": 1.5, "idle_rate_per_hour": 1500.0, "idle_min_minutes": 30, "idle_categories": "Mechanical\nElectrical\nProcess\nPower\nNo Cane",
 	"sms_enabled": 1, "sms_gateway": "Mock", "sms_sender": "MICROMAX", "sms_language": "English", "sms_quiet_from": 22, "sms_quiet_to": 7,
 	"sms_daily_cap": 10, "sales_weight_tolerance_pct": 0.5, "bag_packing_kg": 0.1, "late_marks_per_day": 3,
-	"shares_outstanding": 35000000.0, "share_face_value": 10.0, "wppf_pct": 5.0, "wwf_pct": 2.0, "credit_internal_bagasse": 1}
+	"shares_outstanding": 35000000.0, "share_face_value": 10.0, "wppf_pct": 5.0, "wwf_pct": 2.0, "credit_internal_bagasse": 1, "profit_margin_pct": 10.0, "sugar_gst_pct": 18.0}
 
 
 def ensure_elp_defaults():

@@ -1,0 +1,66 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "process_name",
+  "cost_centers",
+  "amount",
+  "per_ton_cane",
+  "per_bag",
+  "share_pct"
+ ],
+ "fields": [
+  {
+   "fieldname": "process_name",
+   "fieldtype": "Data",
+   "label": "Process",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cost_centers",
+   "fieldtype": "Small Text",
+   "label": "Cost Centres"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "Cost",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "per_ton_cane",
+   "fieldtype": "Currency",
+   "label": "Per Ton of Cane",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "per_bag",
+   "fieldtype": "Currency",
+   "label": "Per Bag",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "share_pct",
+   "fieldtype": "Percent",
+   "label": "Share of Processing %",
+   "in_list_view": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cane Costing",
+ "name": "Costing Run Process",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "istable": 1,
+ "editable_grid": 0
+}

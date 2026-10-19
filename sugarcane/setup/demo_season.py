@@ -55,7 +55,7 @@ def season(company, loads_per_day):
 	doc = frappe.copy_doc(live)
 	doc.update({"season_name": SEASON, "status": "Closed", "start_date": START, "end_date": END, "govt_rate": 400, "subsidy_rate": 8,
 		"additional_subsidy_rate": 4, "tpt_rate": 28, "crushing_target_maund": 1_200_000, "is_demo": 1, "indent_start_date": None,
-		"daily_intake_maund": loads_per_day * cint(live.indent_load_maund or 200), "bag_bom": None})
+		"daily_intake_maund": loads_per_day * cint(live.indent_load_maund or 200), "bag_bom": None, "budget_processing_per_ton": 3600})
 	doc.set("circle_quotas", [])
 	doc.flags.ignore_permissions = True
 	doc.insert()
@@ -212,8 +212,15 @@ def plant_day(rnd, day):
 	d.save(ignore_permissions=True)
 	rec = rnd.uniform(9.4, 10.9)
 	crushed = cint(d.cane_crushed_kg)
-	d.update({"sugar_bags": int(crushed * rec / 100 / 50), "molasses_kg": int(crushed * rnd.uniform(0.042, 0.047)),
-		"bagasse_kg": int(crushed * rnd.uniform(0.29, 0.32)), "press_mud_kg": int(crushed * rnd.uniform(0.032, 0.038))})
+	bags = int(crushed * rec / 100 / 50)
+	bagasse = int(crushed * rnd.uniform(0.29, 0.32))
+	d.update({"sugar_bags": bags, "molasses_kg": int(crushed * rnd.uniform(0.042, 0.047)), "bagasse_kg": bagasse,
+		"bagasse_burnt_kg": int(bagasse * rnd.uniform(0.86, 0.93)), "press_mud_kg": int(crushed * rnd.uniform(0.032, 0.038)),
+		"mixed_juice_kg": int(crushed * rnd.uniform(1.0, 1.06))})
+	grades = frappe.get_all("Sugar Grade", filters={"is_active": 1}, fields=["name"], order_by="sequence asc")
+	if len(grades) >= 3:  # mostly grade A, some B, a little refined
+		b_, ref = int(bags * rnd.uniform(0.1, 0.16)), int(bags * rnd.uniform(0.03, 0.06))
+		d.set("grades", [{"grade": grades[0].name, "bags": bags - b_ - ref}, {"grade": grades[1].name, "bags": b_}, {"grade": grades[2].name, "bags": ref}])
 	d.save(ignore_permissions=True)
 	prepare_dmr(d.name)
 	_as("production")
@@ -295,6 +302,18 @@ def sell_week(rnd, day, abbr):
 		si.submit()
 
 
+def _invoice(dn, day):
+	from erpnext.stock.doctype.delivery_note.delivery_note import make_sales_invoice
+
+	si = make_sales_invoice(dn)
+	si.posting_date, si.set_posting_time, si.due_date = day, 1, add_days(day, 30)
+	si.set("payment_schedule", [])
+	si.flags.ignore_permissions = True
+	si.insert()
+	si.submit()
+	return si.name
+
+
 def by_products_month(day, abbr):
 	"""Molasses sold to the distillery; the month's bagasse burnt in the boilers."""
 	from sugarcane.stock import stock_qty
@@ -309,6 +328,7 @@ def by_products_month(day, abbr):
 		dn.flags.ignore_permissions = True
 		dn.insert()
 		dn.submit()
+		_invoice(dn.name, day)
 	bag = stock_qty(s.bagasse_item, s.byproduct_warehouse, add_days(day, -1))
 	if bag > 1000:
 		se = frappe.get_doc({"doctype": "Stock Entry", "stock_entry_type": "Material Issue", "company": s.company, "posting_date": day,
@@ -348,6 +368,10 @@ def run(loads_per_day: int = 40, until: str | None = None):
 		print("surveys", surveys(rnd), flush=True)
 		indents()
 		packing(abbr)
+		from sugarcane.setup import demo_costing as dc
+
+		dc.off_season(company, abbr, getdate("2025-07-01"), getdate("2025-10-31"))
+		dc.stores_receipt(company, abbr, "2025-10-20")
 		frappe.db.commit()
 		vehicles = frappe.get_all("Sugar Vehicle", filters={"is_demo": 1, "is_blacklisted": 0}, fields=["name", "vehicle_type", "driver_name", "driver_cnic"],
 			order_by="name")
@@ -361,6 +385,8 @@ def run(loads_per_day: int = 40, until: str | None = None):
 				frappe.set_user("Administrator")
 				if getdate(day).weekday() == 0:
 					pay_week(day)
+					frappe.set_user("Administrator")
+					dc.stores_issue(company, abbr, day)
 				if getdate(day).weekday() == 5:
 					sell_week(rnd, day, abbr)
 				nxt = add_days(day, 1)
@@ -368,6 +394,10 @@ def run(loads_per_day: int = 40, until: str | None = None):
 					first = getdate(day).replace(day=1)
 					cess_month(max(first, START), day, add_days(day, 8))
 					by_products_month(day, abbr)
+					frappe.set_user("Administrator")
+					dc.month(company, abbr, max(first, START), day)
+					frappe.db.commit()
+					dc.costing_run(company, SEASON, max(first, START), day, close=day == END)
 				frappe.db.commit()
 				print(day, "loads", n, "bags", bags, flush=True)
 			day = add_days(day, 1)
@@ -403,6 +433,12 @@ def reset():
 			d.cancel()
 		frappe.db.commit()
 
+	for name in frappe.get_all("Costing Run", filters={"season": SEASON, "docstatus": 1}, pluck="name", order_by="to_date desc"):
+		d = frappe.get_doc("Costing Run", name)
+		d.flags.ignore_permissions = True
+		d.cancel()
+	frappe.db.commit()
+	cancel("Journal Entry", {"user_remark": ["like", f"%{TAG}%"]})
 	custs = _customers() + ["Chenab Distillery Ltd"]
 	s25 = {"posting_date": ["between", [START, add_days(END, 10)]]}
 	cancel("Sales Invoice", {"customer": ["in", custs], **s25})
@@ -433,6 +469,8 @@ def reset():
 			_purge(dt, frappe.get_all(dt, filters=f, pluck="name"))
 	_purge("Lab Sample", frappe.get_all("Lab Sample", filters={"is_demo": 1, "sample_time": ["between", [f"{START} 00:00:00", f"{add_days(END, 1)} 23:59:59"]]},
 		pluck="name"))
+	_purge("Costing Run", frappe.get_all("Costing Run", filters={"season": SEASON}, pluck="name"))
+	frappe.db.delete("By-product Rate", {"season": SEASON})
 	if frappe.db.exists("Crushing Season", SEASON):
 		frappe.delete_doc("Crushing Season", SEASON, force=True, ignore_permissions=True)
 	frappe.db.commit()

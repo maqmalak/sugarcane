@@ -21,6 +21,10 @@
   "molasses_kg",
   "bagasse_kg",
   "press_mud_kg",
+  "bagasse_burnt_kg",
+  "bagasse_issue",
+  "sb_grades",
+  "grades",
   "sb_v",
   "work_order",
   "stock_entry",
@@ -30,6 +34,10 @@
   "cb_v2",
   "sugar_value",
   "cost_per_bag",
+  "packing_cost",
+  "cane_other_cost",
+  "provisional_processing",
+  "provisional_cost_per_bag",
   "amended_from",
   "is_demo"
  ],
@@ -143,6 +151,31 @@
    "read_only": 1
   },
   {
+   "fieldname": "bagasse_burnt_kg",
+   "fieldtype": "Int",
+   "label": "Bagasse Burnt (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bagasse_issue",
+   "fieldtype": "Link",
+   "options": "Stock Entry",
+   "label": "Bagasse to Boilers (Stock Entry)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_grades",
+   "fieldtype": "Section Break",
+   "label": "By Grade"
+  },
+  {
+   "fieldname": "grades",
+   "fieldtype": "Table",
+   "options": "Production Grade Line",
+   "label": "Grades",
+   "read_only": 1
+  },
+  {
    "fieldname": "sb_v",
    "fieldtype": "Section Break",
    "label": "Vouchers and Cost"
@@ -197,6 +230,31 @@
    "read_only": 1,
    "in_list_view": 1,
    "bold": 1
+  },
+  {
+   "fieldname": "packing_cost",
+   "fieldtype": "Currency",
+   "label": "Packing",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cane_other_cost",
+   "fieldtype": "Currency",
+   "label": "Cane Costs Paid by the Mill (share)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "provisional_processing",
+   "fieldtype": "Currency",
+   "label": "Processing at Budget",
+   "read_only": 1
+  },
+  {
+   "fieldname": "provisional_cost_per_bag",
+   "fieldtype": "Currency",
+   "label": "Provisional Full Cost per Bag",
+   "read_only": 1,
+   "description": "Stock cost + the mill's cane costs + the season's budgeted processing cost per ton of cane; the Costing Run replaces it"
   },
   {
    "fieldname": "amended_from",

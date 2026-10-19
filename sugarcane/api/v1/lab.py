@@ -20,7 +20,8 @@ from sugarcane.cane_laboratory import lab
 from sugarcane.cane_procurement.procurement import crushing_day, day_window
 
 VIEW = lab.LAB_ROLES | {"Cane Manager", "MIS Viewer", "Cane Accountant"}
-DMR_FIELDS = ["yard_closing_kg", "sugar_bags", "molasses_kg", "bagasse_kg", "press_mud_kg", "pol_pct_cane", "remarks"]
+DMR_FIELDS = ["yard_closing_kg", "sugar_bags", "molasses_kg", "bagasse_kg", "bagasse_burnt_kg", "press_mud_kg", "mixed_juice_kg", "pol_pct_cane", "remarks"]
+SHIFT_FIELDS = ("mill_hours", "sugar_bags", "molasses_kg", "bagasse_kg", "bagasse_burnt_kg", "press_mud_kg", "remarks")
 
 
 def _need(roles, what):
@@ -140,6 +141,9 @@ def dmr(day: str | None = None) -> dict:
 	out["production"] = frappe.db.get_value("Daily Production Entry", {"crushing_day": d, "docstatus": 1}, ["name", "stock_entry", "cost_per_bag"],
 		as_dict=True)
 	out["day_closed"] = bool(frappe.db.exists("Daily Cane Purchase", {"crushing_day": d, "docstatus": 1}))
+	from sugarcane.sugar_production.doctype.sugar_grade.sugar_grade import grades
+
+	out["grade_list"] = grades()
 	return out
 
 
@@ -156,6 +160,12 @@ def save_dmr(day: str, **values) -> dict:
 		if f in values:
 			v = values[f]
 			doc.set(f, (v if f == "remarks" else (flt(v) if f == "pol_pct_cane" else cint(v))) if v not in (None, "") else None)
+	if values.get("grades") not in (None, ""):  # {grade: bags}
+		g = frappe.parse_json(values["grades"])
+		doc.set("grades", [{"grade": k, "bags": cint(v)} for k, v in g.items() if cint(v)])
+	if values.get("shifts") not in (None, ""):  # [{shift, sugar_bags, …}]
+		doc.set("shifts", [{"shift": r.get("shift"), **{k: (r.get(k) if k == "remarks" else (flt(r.get(k)) if k == "mill_hours" else cint(r.get(k))))
+			for k in SHIFT_FIELDS if r.get(k) not in (None, "")}} for r in frappe.parse_json(values["shifts"]) if r.get("shift")])
 	doc.status = "Draft"
 	doc.flags.ignore_permissions = True
 	doc.save()

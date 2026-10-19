@@ -57,6 +57,7 @@ interface Snap {
   production: null | { name: string; crushing_day: string; status: string; cane_crushed_maund: number; sugar_bags: number; recovery_pct: number;
     std_recovery_pct: number; crush_rate_tph: number; capacity_use_pct: number; stoppage_minutes: number; running_hours: number; loss_known: number; loss_undetermined: number };
   stock: { sugar_bags: number; molasses_kg: number; cane_yard_kg: number };
+  cost?: { provisional_per_bag: number; final: { name: string; cost_per_bag: number; to_date: string; price_after_gst: number } | null };
   stoppages: { count: number; minutes: number; open: null | { name: string; start: string; minutes: number; category: string; section: string; reason: string };
     list: { name: string; start: string; end: string | null; minutes: number; category: string; section: string; reason: string }[] };
   plant: { points: number; alert_count: number; alerts: { name: string; section: string; unit: string; value: number; min_value: number; max_value: number; at: string }[] };
@@ -138,7 +139,9 @@ export function MisWallPage() {
           footer={<>Paid today <b>{money(s.payments.paid_today, { compact: true })}</b> · bilties <b>{money(s.payments.bilty_amount, { compact: true })}</b></>} />
         <KpiCard icon={Factory} label={`Sugar — DMR ${p ? dayLabel(p.crushing_day) : ""}`} value={p ? `${num(p.sugar_bags)} bags` : "—"} color={C.teal} to="/lab/dmr"
           sub={p ? `Recovery ${p.recovery_pct.toFixed(2)}% (std ${p.std_recovery_pct.toFixed(2)}%)` : "No DMR yet"}
-          footer={p && <>{p.status} · {num(Math.round(p.cane_crushed_maund))} md crushed · {p.capacity_use_pct.toFixed(0)}% capacity</>} />
+          footer={p && <>{p.status} · {num(Math.round(p.cane_crushed_maund))} md crushed · {p.capacity_use_pct.toFixed(0)}% capacity
+            {s.cost?.provisional_per_bag ? <> · cost <b>Rs {num(Math.round(s.cost.provisional_per_bag))}</b>/bag (prov.)</> : null}
+            {s.cost?.final ? <> · last final <b>Rs {num(Math.round(s.cost.final.cost_per_bag))}</b> (after GST + margin Rs {num(Math.round(s.cost.final.price_after_gst || 0))})</> : null}</>} />
         <KpiCard icon={Package} label="In stock" value={`${num(s.stock.sugar_bags)} bags`} color={C.blue} to="/production"
           sub={`Molasses ${num(Math.round(s.stock.molasses_kg / 1000))} t`} footer={<>Loans out <b>{money(s.payments.loans, { compact: true })}</b></>} />
       </div>

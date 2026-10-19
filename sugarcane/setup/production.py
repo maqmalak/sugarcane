@@ -54,10 +54,13 @@ def setup(company: str) -> dict:
 	return values
 
 
-def ensure_bom(season: str) -> str:
-	"""The season's bag BOM; a new one (made default) when the standard recovery, expected by-products or NRV rates change."""
+def ensure_bom(season: str, item: str | None = None) -> str:
+	"""The season's bag BOM for a sugar item (grade); a new one (made default) when the standard recovery, expected
+	by-products or NRV rates change. The main item's BOM is kept on the season (bag_bom)."""
 	s = frappe.get_cached_doc("Sugar Settings")
 	sea = frappe.get_doc("Crushing Season", season)
+	item = item or s.sugar_item
+	main = item == s.sugar_item
 	if not sea.standard_recovery_pct:
 		frappe.throw(_("Set the standard recovery % on season {0}").format(season))
 	q = bag_bom(sea.standard_recovery_pct, sea.bag_weight_kg or 50, sea.expected_molasses_pct or 0, sea.expected_bagasse_pct or 0,
@@ -67,15 +70,16 @@ def ensure_bom(season: str) -> str:
 	scrap = [x for x in scrap if x[1]]
 	cane_rate = flt((flt(sea.govt_rate) + flt(sea.subsidy_rate) + flt(sea.additional_subsidy_rate)) / (flt(s.maund_kg) or 40), 6)
 	price_list = _standard_prices(cane_rate)
-	if sea.bag_bom and frappe.db.get_value("BOM", sea.bag_bom, "docstatus") == 1:
-		bom = frappe.get_doc("BOM", sea.bag_bom)
+	current = sea.bag_bom if main else frappe.db.get_value("BOM", {"item": item, "is_default": 1, "is_active": 1, "docstatus": 1}, "name")
+	if current and frappe.db.get_value("BOM", current, "docstatus") == 1:
+		bom = frappe.get_doc("BOM", current)
 		cane = next((i.qty for i in bom.items if i.item_code == s.cane_item), None)
 		have = sorted((x.item_code, round(flt(x.stock_qty), 3), round(flt(x.cost), 2)) for x in bom.secondary_items)
 		want = sorted((c, round(qq, 3), round(qq * r, 2)) for c, qq, r in scrap)
 		if cane is not None and abs(flt(cane) - q["cane_kg"]) < 0.001 and have == want:
 			return bom.name
 	bom = frappe.get_doc({
-		"doctype": "BOM", "item": s.sugar_item, "quantity": 1, "company": sea.company or s.company, "is_active": 1, "is_default": 1,
+		"doctype": "BOM", "item": item, "quantity": 1, "company": sea.company or s.company, "is_active": 1, "is_default": 1,
 		"rm_cost_as_per": "Price List", "buying_price_list": price_list, "with_operations": 0,
 		"items": [
 			{"item_code": s.cane_item, "qty": q["cane_kg"], "uom": "Kg", "stock_uom": "Kg", "conversion_factor": 1, "source_warehouse": s.cane_yard_warehouse},
@@ -88,7 +92,8 @@ def ensure_bom(season: str) -> str:
 	bom.flags.ignore_permissions = True
 	bom.insert()
 	bom.submit()
-	frappe.db.set_value("Crushing Season", season, "bag_bom", bom.name, update_modified=False)
+	if main:
+		frappe.db.set_value("Crushing Season", season, "bag_bom", bom.name, update_modified=False)
 	return bom.name
 
 

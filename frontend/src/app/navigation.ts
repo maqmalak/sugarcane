@@ -179,7 +179,9 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
       ],
     },
     ...docGroups("production", LAB_ROLES),
-    { title: "Reports", items: [{ label: "Production reports", to: "/reports?g=Production", icon: BarChart3 }] },
+    { title: "Reports", items: [{ label: "Production reports", to: "/reports?g=Production", icon: BarChart3 },
+      { label: "Cost of production", to: `/reports?r=${encodeURIComponent("Cost of Production Statement")}`, icon: BarChart3 },
+      { label: "Costing reports", to: "/reports?g=Costing", icon: BarChart3 }] },
   ],
   accounts: [
     {

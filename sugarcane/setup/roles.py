@@ -21,6 +21,7 @@ ROLES = {
 	"LP Operator": "Registers loaded vehicles at loading points and depots (ELP app)",
 	"ELP Auditor": "Independent audit team: compares loading-point and gate photos, accepts or rejects the load",
 	"MIS Viewer": "Read-only dashboards and reports",
+	"Cost Accountant": "Costing runs, by-product rates and cost allocation rules",
 }
 
 

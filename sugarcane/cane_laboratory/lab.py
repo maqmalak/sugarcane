@@ -173,10 +173,72 @@ def pol_pct_cane(day) -> float | None:
 	return round(sum(vals) / len(vals), 3) if vals else None
 
 
+def shift_windows(day) -> list[tuple]:
+	"""(shift, start, end) of each active shift inside the crushing day (07:00 → 07:00)."""
+	start, _end = day_window(day)
+	out = []
+	for s in frappe.get_all("Crushing Shift", filters={"is_active": 1}, fields=["name", "start_time", "end_time"], order_by="start_time asc"):
+		a = datetime.combine(getdate(day), _t(s.start_time))
+		if a < start:
+			a += timedelta(days=1)
+		b = datetime.combine(a.date(), _t(s.end_time))
+		if b <= a:
+			b += timedelta(days=1)
+		out.append((s.name, a, b))
+	return sorted(out, key=lambda x: x[1])
+
+
+def fill_shifts(doc, day):
+	"""Cane received and stoppage minutes per shift (from the CPRs and the stoppages); the lab's entries per shift are kept,
+	and when it entered bags or by-products per shift the day's figures are their sums."""
+	entered = {r.shift: r for r in doc.get("shifts") or []}
+	rows = []
+	for name, a, b in shift_windows(day):
+		r = entered.get(name) or frappe._dict(shift=name)
+		cane = cint(frappe.db.sql("""select ifnull(sum(payable_kg), 0) from `tabCane Purchase Receipt` where docstatus = 1 and posted_at >= %s
+			and posted_at < %s and ifnull(purchase_depot, '') = ''""", (a, b))[0][0])
+		cane += cint(frappe.db.sql("""select ifnull(sum(received_kg), 0) from `tabDepot Dispatch` where docstatus = 1 and status = 'Received'
+			and mill_tare_at >= %s and mill_tare_at < %s""", (a, b))[0][0])
+		mins = 0
+		for s in frappe.db.sql("""select start, `end` from `tabMill Stoppage` where start < %s and ifnull(`end`, %s) > %s""", (b, now_datetime(), a), as_dict=True):
+			x, y = max(get_datetime(s.start), a), min(get_datetime(s.end) if s.end else now_datetime(), b)
+			mins += max(0, int((y - x).total_seconds() // 60))
+		rows.append({"shift": name, "cane_received_kg": cane, "stoppage_minutes": mins,
+			"mill_hours": flt(r.get("mill_hours")) or round(max((b - a).total_seconds() / 60 - mins, 0) / 60, 2),
+			**{k: r.get(k) for k in ("sugar_bags", "molasses_kg", "bagasse_kg", "bagasse_burnt_kg", "press_mud_kg", "remarks")}})
+	doc.set("shifts", rows)
+	for field in ("sugar_bags", "molasses_kg", "bagasse_kg", "bagasse_burnt_kg", "press_mud_kg"):
+		total = sum(cint(r.get(field)) for r in rows)
+		if total:
+			doc.set(field, total)
+
+
+def fill_grades(doc):
+	"""Bags by grade: each row's item from its grade; with rows, the day's bags are their sum."""
+	from sugarcane.sugar_production.doctype.sugar_grade.sugar_grade import default_grade
+
+	rows = [g for g in doc.get("grades") or [] if g.grade]
+	for g in rows:
+		g.item = frappe.db.get_value("Sugar Grade", g.grade, "item")
+		if cint(g.bags) < 0:
+			frappe.throw(_("Bags can't be negative ({0})").format(g.grade))
+	if rows and sum(cint(g.bags) for g in rows):
+		doc.sugar_bags = sum(cint(g.bags) for g in rows)
+	elif cint(doc.sugar_bags) and not rows:
+		d = default_grade()
+		if d.name:
+			doc.set("grades", [{"grade": d.name, "item": d.item, "bags": cint(doc.sugar_bags)}])
+
+
 def build_dmr(doc):
 	"""Fill every computed field of a DMR from the day's data and the lab's entries (yard closing, bags, by-products)."""
 	day = getdate(doc.crushing_day)
 	doc.season = season_for(day)
+	fill_shifts(doc, day)
+	fill_grades(doc)
+	if cint(doc.bagasse_burnt_kg) > cint(doc.bagasse_kg):
+		frappe.throw(_("More bagasse burnt ({0} kg) than produced ({1} kg)").format(cint(doc.bagasse_burnt_kg), cint(doc.bagasse_kg)))
+	doc.bagasse_to_yard_kg = max(cint(doc.bagasse_kg) - cint(doc.bagasse_burnt_kg), 0)
 	cane = cane_received(day)
 	doc.cane_from_gate_kg, doc.cane_from_depots_kg, doc.cane_received_kg = cane["gate"], cane["depots"], cane["total"]
 	prev = frappe.db.get_value("Daily Manufacturing Report", {"crushing_day": ["<", day], "docstatus": ["<", 2], "season": doc.season},
@@ -208,6 +270,11 @@ def build_dmr(doc):
 		stage_pol.setdefault(a["stage"], a.get("pol"))
 	if not flt(doc.pol_pct_cane):
 		doc.pol_pct_cane = pol_pct_cane(day)
+	mj = next((a for a in doc.analyses if a.sample_type == "Mixed Juice"), None)
+	doc.mixed_juice_purity = flt(mj.purity) if mj else None
+	from sugarcane.calc.costing import mill_extraction
+
+	doc.mill_extraction_pct = mill_extraction(doc.mixed_juice_kg, mj.pol if mj else None, doc.cane_crushed_kg, doc.pol_pct_cane)
 	lo = calc.losses(doc.cane_crushed_kg, doc.bagasse_kg, stage_pol.get("Bagasse"), doc.press_mud_kg, stage_pol.get("Press Mud"),
 		doc.molasses_kg, stage_pol.get("Molasses"), doc.recovery_pct, doc.pol_pct_cane)
 	doc.loss_bagasse, doc.loss_press_mud, doc.loss_molasses, doc.loss_known, doc.loss_undetermined = (lo.bagasse, lo.press_mud, lo.molasses,

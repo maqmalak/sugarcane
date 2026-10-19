@@ -30,6 +30,7 @@
   "molasses_nrv_per_kg",
   "bagasse_nrv_per_kg",
   "press_mud_nrv_per_kg",
+  "budget_processing_per_ton",
   "expected_molasses_pct",
   "expected_bagasse_pct",
   "expected_mud_pct",
@@ -199,6 +200,12 @@
    "fieldtype": "Currency",
    "label": "Press Mud NRV (per kg)",
    "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "budget_processing_per_ton",
+   "fieldtype": "Currency",
+   "label": "Budgeted Processing Cost per Ton of Cane",
+   "description": "For the daily provisional cost per bag (chemicals, stores, salaries, power, depreciation, overheads, packing excluded)"
   },
   {
    "fieldname": "expected_molasses_pct",

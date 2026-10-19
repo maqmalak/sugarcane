@@ -35,7 +35,7 @@ def configure(company: str | None = None) -> dict:
 	abbr = frappe.get_cached_value("Company", company, "abbr")
 	out = {}
 	for step in (custom_fields, chart_of_accounts, cost_centres, stock_setup, purchase_setup, taxes, banks, sales_setup,
-			fixed_assets, hr_setup):
+			fixed_assets, hr_setup, production_costing):
 		out[step.__name__] = step(company, abbr)
 	return out
 
@@ -498,3 +498,76 @@ def hr_setup(company, abbr):
 		doc.flags.ignore_permissions = True
 		doc.insert(set_name="Pakistan - 30 days per year")
 	return {"shifts": len(SHIFTS), "components": len(COMPONENTS)}
+
+
+# ---------------------------------------------------------------- production costing (cost centres, accounts, grades, rates)
+CC_TREE = {  # group -> leaves (existing leaves of the same name are moved under the group)
+	"Cane Procurement": ["Cane Yard", "Cane"],
+	"Production": ["Mill House", "Boiling House", "Process House", "Centrifugal and Packing", "Boiler House", "Power House", "Laboratory"],
+	"Service": ["Workshop", "Stores", "Administration"],
+}
+ALLOCATION = [  # rule, service cost centre, basis, {target: %}
+	("Workshop to production", "Workshop", "Fixed %", {"Mill House": 40, "Boiler House": 30, "Power House": 20, "Boiling House": 10}),
+	("Stores to production", "Stores", "Equal", {k: 0 for k in ("Mill House", "Boiling House", "Process House", "Centrifugal and Packing",
+		"Boiler House", "Power House", "Laboratory")}),
+	("Administration to production", "Administration", "Fixed %", {"Mill House": 30, "Boiling House": 25, "Process House": 15,
+		"Centrifugal and Packing": 10, "Boiler House": 10, "Power House": 5, "Laboratory": 5}),
+]
+GRADES = [("A", None, 1, 1, "Plantation white, the main grade"), ("B", "SUGAR-B-50KG", 2, 0, "Second grade"),
+	("Refined", "SUGAR-REF-50KG", 3, 0, "Refined sugar")]
+
+
+def production_costing(company, abbr):
+	root = frappe.db.get_value("Cost Center", {"company": company, "is_group": 1, "parent_cost_center": ["in", ["", None]]}, "name")
+	for group, leaves in CC_TREE.items():
+		g = ensure("Cost Center", f"{group} - {abbr}", {"cost_center_name": group, "parent_cost_center": root, "company": company, "is_group": 1})
+		for leaf in leaves:
+			name = f"{leaf} - {abbr}"
+			if frappe.db.exists("Cost Center", name):
+				if frappe.db.get_value("Cost Center", name, "parent_cost_center") != g and not frappe.db.get_value("Cost Center", name, "is_group"):
+					doc = frappe.get_doc("Cost Center", name)
+					doc.parent_cost_center = g
+					doc.flags.ignore_permissions = True
+					doc.save()
+			else:
+				ensure("Cost Center", name, {"cost_center_name": leaf, "parent_cost_center": g, "company": company, "is_group": 0})
+	ensure("Cost Center", f"Off-season - {abbr}", {"cost_center_name": "Off-season", "parent_cost_center": root, "company": company, "is_group": 0})
+	direct = frappe.db.get_value("Account", {"company": company, "account_name": "Direct Expenses", "is_group": 1}, "name")
+	byp = frappe.db.get_value("Account", {"company": company, "account_name": "By-product Sales", "is_group": 1}, "name") or \
+		frappe.db.get_value("Account", {"company": company, "account_name": "Direct Income", "is_group": 1}, "name")
+	accounts = {
+		"cost_absorbed_account": _acc(company, abbr, "Cost of Production Absorbed", direct),
+		"power_steam_account": _acc(company, abbr, "Power and Steam - Bagasse Burnt", direct),
+		"by_product_variance_account": _acc(company, abbr, "By-product Variance", byp, account_type="Income Account"),
+	}
+	st = frappe.get_single("Sugar Settings")
+	defaults = {**accounts, "boiler_house_cost_center": f"Boiler House - {abbr}", "off_season_cost_center": f"Off-season - {abbr}"}
+	for field, value in defaults.items():
+		if value and not st.get(field):
+			frappe.db.set_single_value("Sugar Settings", field, value)
+	for rule, src, basis, targets in ALLOCATION:
+		if frappe.db.exists("Cost Center", f"{src} - {abbr}"):
+			ensure("Cost Allocation Rule", rule, {"rule_name": rule, "company": company, "service_cost_center": f"{src} - {abbr}", "basis": basis,
+				"is_active": 1, "targets": [{"cost_center": f"{t} - {abbr}", "pct": pct} for t, pct in targets.items()
+					if frappe.db.exists("Cost Center", f"{t} - {abbr}")]})
+	main = st.sugar_item
+	for grade, code, seq, default, desc in GRADES:
+		item = code or main
+		if code and not frappe.db.exists("Item", code):
+			src = frappe.get_doc("Item", main) if main and frappe.db.exists("Item", main) else None
+			if not src:
+				continue
+			ensure("Item", code, {"item_code": code, "item_name": f"Sugar Grade {grade} (50 kg bag)" if grade != "Refined" else "Refined Sugar (50 kg bag)",
+				"item_group": src.item_group, "stock_uom": src.stock_uom, "is_stock_item": 1, "include_item_in_manufacturing": 1,
+				"is_sales_item": 1, "valuation_rate": src.valuation_rate or 6000, "uoms": [{"uom": u.uom, "conversion_factor": u.conversion_factor} for u in src.uoms]})
+		if item:
+			ensure("Sugar Grade", grade, {"grade_name": grade, "item": item, "sequence": seq, "is_default": default, "is_active": 1, "description": desc})
+	n = 0
+	for sea in frappe.get_all("Crushing Season", fields=["name", "start_date", "molasses_nrv_per_kg", "bagasse_nrv_per_kg", "press_mud_nrv_per_kg"]):
+		for item, nrv, cost in ((st.molasses_item, sea.molasses_nrv_per_kg, 1100), (st.bagasse_item, sea.bagasse_nrv_per_kg, 500),
+				(st.press_mud_item, sea.press_mud_nrv_per_kg, 0)):
+			if item and flt(nrv) and not frappe.db.exists("By-product Rate", {"season": sea.name, "item": item}):
+				ensure("By-product Rate", None, {"season": sea.name, "item": item, "valid_from": sea.start_date, "rate_per_ton": flt(nrv) * 1000 + cost,
+					"selling_cost_per_ton": cost, "is_active": 1, "remarks": "From the season's NRV (setup)"})
+				n += 1
+	return {"accounts": len(accounts), "by_product_rates": n}

@@ -1,0 +1,98 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-10-18 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "shift",
+  "cane_received_kg",
+  "stoppage_minutes",
+  "mill_hours",
+  "sugar_bags",
+  "molasses_kg",
+  "bagasse_kg",
+  "bagasse_burnt_kg",
+  "press_mud_kg",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "shift",
+   "fieldtype": "Link",
+   "options": "Crushing Shift",
+   "label": "Shift",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cane_received_kg",
+   "fieldtype": "Int",
+   "label": "Cane Received (kg)",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "stoppage_minutes",
+   "fieldtype": "Int",
+   "label": "Stopped (min)",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "mill_hours",
+   "fieldtype": "Float",
+   "label": "Mill Hours",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "sugar_bags",
+   "fieldtype": "Int",
+   "label": "Bags",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "molasses_kg",
+   "fieldtype": "Int",
+   "label": "Molasses (kg)",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "bagasse_kg",
+   "fieldtype": "Int",
+   "label": "Bagasse (kg)",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "bagasse_burnt_kg",
+   "fieldtype": "Int",
+   "label": "Bagasse Burnt (kg)",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "press_mud_kg",
+   "fieldtype": "Int",
+   "label": "Press Mud (kg)",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "label": "Remarks"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-18 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cane Laboratory",
+ "name": "DMR Shift Detail",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "istable": 1,
+ "editable_grid": 1
+}

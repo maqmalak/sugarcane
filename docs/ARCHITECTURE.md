@@ -242,6 +242,8 @@ Mill Stoppage Log · Vehicle Recovery Sample · Plant Level Reading · Daily Pro
 *As built (see `PHASE_5.md`):*
 - The workflow is a status (Prepared) plus submit (Approved).
 - The bag BOM uses v16 *secondary items* (By-Product, Manual cost at NRV).
+- Completed later (`PRODUCTION_COSTING.md`): shifts, grades, bagasse split, By-product Rate, Costing Run with FOH,
+  process cost and the price per bag after GST, the in-process ledger.
 
 ### Phase 6 — Accounting, Loans, Costing
 Cane Payment Scroll (Bank) (S) · Road Cess Deposit (S) · Grower Loan Type · Grower Loan (S, W; disbursement by Payment

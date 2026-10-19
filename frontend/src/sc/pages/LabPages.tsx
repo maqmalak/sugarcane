@@ -377,7 +377,7 @@ export function StoppagesPage() {
 
 // =============================================================== DMR
 interface Dmr {
-  name?: string; saved: boolean; docstatus: number; status: string; crushing_day: string; season: string; day_closed: boolean;
+  name?: string; saved: boolean; no_season?: boolean; docstatus: number; status: string; crushing_day: string; season: string; day_closed: boolean;
   production?: { name: string; stock_entry: string; cost_per_bag: number } | null;
   cane_from_gate_kg: number; cane_from_depots_kg: number; cane_received_kg: number; yard_opening_kg: number; yard_closing_kg: number; cane_crushed_kg: number; cane_crushed_maund: number;
   stoppage_minutes: number; running_hours: number; crush_rate_tph: number; capacity_use_pct: number; sugar_bags: number; sugar_kg: number; recovery_pct: number;
@@ -413,6 +413,14 @@ export function DmrPage() {
     catch (e) { toast.error(err(e)); } finally { setBusy(false); }
   };
   if (!d) return <div className="p-6"><Skeleton className="h-96 rounded-2xl" /></div>;
+  if (d.no_season) return (
+    <div className="space-y-5 p-4 sm:p-6">
+      <Header title={`Daily Manufacturing Report · ${dayLabel(d.crushing_day)}`} sub="No crushing season covers this day">
+        <DayPick day={day} onChange={(x) => { setEdit({}); setDay(x); }} />
+      </Header>
+      <section className="rounded-2xl border bg-card p-8 text-center text-sm text-muted-foreground shadow-sm">No crushing season covers {dayLabel(d.crushing_day)}, so there is no DMR for it. Pick a day inside a season.</section>
+    </div>
+  );
   const editable = d.docstatus === 0 && m?.can_record;
   const field = (k: keyof Dmr, label: string) => (
     <label className="block text-xs font-medium text-muted-foreground">{label}

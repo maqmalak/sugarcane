@@ -120,7 +120,7 @@ function DocFormPageInner({ config }: { config: DocConfig }) {
 
   // Workflow: the transitions the current user may take from the document's state (none when no workflow).
   const { data: transitions, mutate: refreshTransitions } = useSWR(
-    !isNew && doc ? `wf-transitions:${config.doctype}:${routeName}:${(doc as Doc).modified}` : null,
+    !isNew && doc && (doc as Doc).workflow_state != null ? `wf-transitions:${config.doctype}:${routeName}:${(doc as Doc).modified}` : null,
     () => postCall<{ action: string; next_state: string }[]>("frappe.model.workflow.get_transitions", { doc: JSON.stringify(doc) }).catch(() => []),
     { revalidateOnFocus: false },
   );

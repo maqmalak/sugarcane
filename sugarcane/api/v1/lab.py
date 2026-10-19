@@ -130,6 +130,8 @@ def dmr(day: str | None = None) -> dict:
 	if name:
 		doc = frappe.get_doc("Daily Manufacturing Report", name)
 		saved = True
+	elif not frappe.db.exists("Crushing Season", {"start_date": ["<=", d], "end_date": [">=", d]}):
+		return {"crushing_day": str(d), "no_season": True, "saved": False, "docstatus": 0}
 	else:
 		doc = frappe.new_doc("Daily Manufacturing Report")
 		doc.crushing_day = d

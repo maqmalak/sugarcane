@@ -6,6 +6,7 @@ import hmac
 
 import frappe
 from frappe import _
+from frappe.rate_limiter import rate_limit
 from frappe.utils import cint, flt, get_datetime, get_last_day, getdate
 
 COMPONENT = "Late Coming Penalty"
@@ -58,6 +59,7 @@ def late_penalties(month: str, submit: int = 1) -> dict:
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
+@rate_limit(limit=600, seconds=60)  # a shift change at the gate clocks
 def punch(token: str, device_id: str, user_id: str, timestamp: str, log_type: str | None = None) -> dict:
 	"""A biometric device (or its middleware) posts each punch. `user_id` is the employee's Attendance Device ID;
 	the shared token is Sugar Settings → Biometric Token. Duplicate punches are ignored."""

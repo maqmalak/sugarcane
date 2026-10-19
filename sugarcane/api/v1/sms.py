@@ -5,11 +5,13 @@ import hmac
 
 import frappe
 from frappe import _
+from frappe.rate_limiter import rate_limit
 
 from sugarcane import sms
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
+@rate_limit(limit=300, seconds=60)  # a gateway posts in bursts; a guesser is stopped
 def inbound(token: str | None = None, mobile: str | None = None, message: str | None = None, **kw) -> dict:
 	"""The gateway's callback. The shared token (Sugar Settings → Inbound Token) must match; gateways name the fields
 	differently, so from / sender / msisdn and text / body / msg are also taken."""

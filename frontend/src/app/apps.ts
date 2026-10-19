@@ -1,5 +1,5 @@
 import {
-  Banknote, Landmark, Beaker, Boxes, Warehouse, ClipboardList, Factory, FileSpreadsheet, Gauge, Leaf, MapPinned, Truck, UserCog, Users,
+  Banknote, BookOpen, Landmark, Beaker, Boxes, Warehouse, ClipboardList, Factory, FileSpreadsheet, Gauge, Leaf, MapPinned, Truck, UserCog, Users,
   Weight, type LucideIcon,
 } from "lucide-react";
 
@@ -117,6 +117,9 @@ export const APPS: AppTile[] = [
     roles: [...MANAGERS, "HR Manager", "HR User"],
     description: "Shifts, biometric attendance, late penalties, leave, EOBI / PESSI / PF, Pakistan income tax slabs, gratuity and final settlement.",
     colorClass: "bg-rose-500/10 text-rose-600 dark:text-rose-400", features: ["Shifts", "Biometric", "Payroll", "Income tax"] },
+  { id: "help", label: "Help", tagline: "User manuals", group: "Overview", icon: BookOpen, to: "/help",
+    description: "Step-by-step manuals for each role: field, gate, weighbridge, lab, accounts, stores, sales, finance, HR and management.",
+    colorClass: "bg-slate-500/10 text-slate-600 dark:text-slate-300", features: ["Your role first", "Printable"] },
   { id: "mis", label: "MIS", tagline: "The mill right now", group: "Overview", icon: Gauge, to: "/mis",
     roles: [...MANAGERS, "MIS Viewer", "Cane Accountant", "Production Manager", "Lab Chemist", "Yard Supervisor"],
     description: "One live screen for the mill — cane today, yard, depots, payments, DMR, stock, plant alerts, season and circles — and the grower SMS / WhatsApp messages.",

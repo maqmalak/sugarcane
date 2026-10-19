@@ -4,7 +4,7 @@
  */
 import {
   BarChart3, Boxes, ClipboardList, FileSpreadsheet, Gauge, LayoutDashboard, Leaf, Map as MapIcon, MapPinned,
-  Sparkles, Target, Ticket, Inbox, Layers, Truck, UserCog, Users, Warehouse, Weight, Beaker, Factory, Banknote, MessageSquare, type LucideIcon, Wand2, ScanBarcode, ShieldCheck, AlertTriangle, MapPin,
+  Sparkles, Target, Ticket, Inbox, Layers, Truck, UserCog, Users, Warehouse, Weight, Beaker, Factory, Banknote, MessageSquare, BookOpen, type LucideIcon, Wand2, ScanBarcode, ShieldCheck, AlertTriangle, MapPin,
 } from "lucide-react";
 import { SC_DOCS, docBase, type ScApp } from "@/sc/registry";
 
@@ -56,9 +56,11 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
         { label: "ELP (loading points)", to: "/elp", icon: Truck, roles: ELP_ROLES },
         { label: "Setup", to: "/setup", icon: Boxes, roles: MANAGERS },
         { label: "Report Centre", to: "/reports", icon: FileSpreadsheet },
+        { label: "Help — user manuals", to: "/help", icon: BookOpen },
       ],
     },
   ],
+  help: [{ title: "Help", items: [{ label: "User manuals", to: "/help", icon: BookOpen }] }],
   survey: [
     {
       title: "EagleEye Survey",
@@ -244,6 +246,7 @@ export const APP_LABELS: Record<string, string> = {
   setup: "Sugar Setup",
   reports: "Report Centre",
   mis: "MIS",
+  help: "Help",
   purchase: "Purchase & Stores",
   sales: "Sugar Sales",
   finance: "Finance",
@@ -306,6 +309,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   board: "Loads",
   users: "Users & Devices",
   mis: "MIS",
+  help: "Help",
   messages: "Grower Messages",
   purchase: "Purchase & Stores",
   sales: "Sugar Sales",

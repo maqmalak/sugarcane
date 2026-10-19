@@ -39,6 +39,7 @@ const LoansPage = accPage("LoansPage");
 const StatementPage = accPage("StatementPage");
 const DocumentsPage = accPage("DocumentsPage");
 const ContractorBillsPage = accPage("ContractorBillsPage");
+const HelpPage = lazy(() => import("@/sc/pages/HelpPage").then((m) => ({ default: m.HelpPage })));
 const erpPage = (name: string) => lazy(() => import("@/sc/pages/ErpPages").then((m) => ({ default: (m as unknown as Record<string, () => JSX.Element>)[name] })));
 const PurchasePage = erpPage("PurchasePage");
 const SalesPage = erpPage("SalesPage");
@@ -94,6 +95,7 @@ export function AppRoutes() {
         <Route path="reports" element={sugar(<ReportsPage />)} />
 
         {/* later phases */}
+        <Route path="help" element={sugar(<HelpPage />)} />
         <Route path="purchase" element={sugar(<PurchasePage />)} />
         <Route path="sales" element={sugar(<SalesPage />)} />
         <Route path="finance" element={sugar(<FinancePage />)} />

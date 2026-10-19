@@ -6,7 +6,7 @@ One Gradle project, one module per app plus shared code:
 |---|---|
 | `core` | Sign-in session (encrypted), Frappe API client (token + `X-Device-Id`), GPS averaging, geometry (area, point-in-polygon, geofence), photo compression + blur check, PIN hashing |
 | `eagleeye` | **EagleEye Survey** — crop surveys with field boundaries, photos, attendance with selfie + geofence, route tracking; offline-first |
-| `vehicle-tracking`, `depot-purchase` | Phase 4 |
+| `elp` | **ELP** — loading point registration (GPS, geofence, photos), offline-first |
 
 ## Build
 
@@ -23,9 +23,20 @@ export JAVA_HOME=~/.local/opt/jdk-17 ANDROID_HOME=~/Android/Sdk
 A phone on the same Wi-Fi reaches the dev server at `http://<PC LAN IP>:8006` — plain HTTP is allowed only for `sugarcane.local`,
 `localhost`, `10.0.2.2` (emulator) and the dev PC's LAN IP (`res/xml/network_security_config.xml`); production must use HTTPS.
 
-Release builds are signed with the debug key until the mill's keystore exists. To sign properly, create a keystore, add a
-`signingConfigs.release` block reading it from `~/.gradle/gradle.properties`, and point `buildTypes.release.signingConfig` at it.
-Never commit the keystore.
+**Release signing (Phase 9).** Release builds are signed with the mill's own key when `~/.gradle/gradle.properties` names it:
+
+```
+micromaxKeystore=/home/<user>/.micromax-keys/micromax-release.jks
+micromaxKeystorePassword=…
+micromaxKeyAlias=micromax
+micromaxKeyPassword=…
+```
+
+Without those lines a release build falls back to the debug key (fine for testing, never for the mill's phones). The keystore
+and its password are kept **outside the repository**. Keep two copies of both off the build machine: without them a new
+version can't be installed over the old one, and every phone would have to uninstall the app and lose its unsynced work.
+Check a build with `apksigner verify --print-certs <apk>`: the signer is `CN=MicroMax Sugar Mills, O=MicroMax Sugar Mills Ltd`.
+Raise `versionCode` (and `versionName`) in each app's `build.gradle.kts` for every release. Never commit the keystore.
 
 ## How EagleEye works
 

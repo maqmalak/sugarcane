@@ -1,0 +1,32 @@
+# MicroMax Sugar — weighbridge indicator agent, one instance per weighbridge PC / indicator (Phase 9).
+#
+#   sudo cp sugarcane-wb-agent@.service /etc/systemd/system/
+#   sudo mkdir -p /etc/sugarcane && sudo nano /etc/sugarcane/wb-gross.env     # ERP_URL, API_KEY, API_SECRET, PORT, BAUD
+#   sudo systemctl enable --now sugarcane-wb-agent@wb-gross
+#
+# /etc/sugarcane/<name>.env (chmod 600):
+#   ERP_URL=https://erp.example.com
+#   API_KEY=…            # the API key of the terminal's API user (Weighbridge Terminal → API user)
+#   API_SECRET=…
+#   PORT=/dev/ttyUSB0
+#   BAUD=9600
+[Unit]
+Description=MicroMax weighbridge agent (%i)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=weighbridge
+Group=dialout
+EnvironmentFile=/etc/sugarcane/%i.env
+ExecStart=/usr/bin/python3 /opt/sugarcane/wb_agent.py --url ${ERP_URL} --key ${API_KEY} --secret ${API_SECRET} --port ${PORT} --baud ${BAUD}
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

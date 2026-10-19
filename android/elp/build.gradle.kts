@@ -21,11 +21,23 @@ android {
         compose = true
         buildConfig = true
     }
+    signingConfigs {
+        // the mill's release key: its path and passwords live in ~/.gradle/gradle.properties, never in the repo (android/README.md)
+        val ks = project.findProperty("micromaxKeystore") as String?
+        if (ks != null) {
+            create("release") {
+                storeFile = file(ks)
+                storePassword = project.property("micromaxKeystorePassword") as String
+                keyAlias = project.property("micromaxKeyAlias") as String
+                keyPassword = project.property("micromaxKeyPassword") as String
+            }
+        }
+    }
     buildTypes {
         release {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
         }
     }
     compileOptions {

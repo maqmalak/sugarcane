@@ -592,15 +592,39 @@ export function PlantPage() {
           </LineChart>
         </ResponsiveContainer>
       </ChartCard>
-      {data.can_record && (
-        <section className="rounded-2xl border bg-card p-4 shadow-sm">
-          <div className="mb-3 flex items-center gap-2"><h3 className="font-semibold">Record this hour's readings</h3>
-            <Button className="ml-auto" onClick={async () => { try { await post(`${API}.plant_reading`, { values: vals }); toast.success("Readings saved"); setVals({}); refetch(); } catch (e) { toast.error(err(e)); } }}><Save />Save readings</Button></div>
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
-            {data.points.map((p) => <label key={p.name} className="text-xs text-muted-foreground">{p.name} ({p.unit})<Input value={vals[p.name] ?? ""} inputMode="decimal" onChange={(e) => setVals({ ...vals, [p.name]: e.target.value })} className="mt-1 font-mono" /></label>)}
-          </div>
-        </section>
-      )}
+      {data.can_record && (() => {
+        const entered = Object.values(vals).filter((v) => v.trim() !== "").length;
+        const save = async () => {
+          try { await post(`${API}.plant_reading`, { values: vals }); toast.success(`${entered} reading${entered === 1 ? "" : "s"} saved`); setVals({}); refetch(); } catch (e) { toast.error(err(e)); }
+        };
+        return (
+          <section className={cn("rounded-2xl border bg-card p-4 shadow-sm", entered && "ring-2 ring-amber-500/40")}>
+            <div className="mb-3 flex flex-wrap items-center gap-2"><h3 className="font-semibold">Record this hour's readings</h3>
+              <span className="text-xs text-muted-foreground">Fill the points you read, then press Save. Nothing is kept until you do.</span></div>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+              {data.points.map((p) => {
+                const raw = vals[p.name] ?? "";
+                const v = Number(raw);
+                const out = raw.trim() !== "" && !Number.isNaN(v) && (v < p.min_value || v > p.max_value);
+                return (
+                  <label key={p.name} className="text-xs text-muted-foreground">{p.name} ({p.unit})
+                    <Input value={raw} inputMode="decimal" onChange={(e) => setVals({ ...vals, [p.name]: e.target.value })}
+                      onKeyDown={(e) => { if (e.key === "Enter" && entered) void save(); }}
+                      className={cn("mt-1 font-mono", out && "border-red-500 text-red-600")} />
+                    <span className={cn("mt-0.5 block text-[11px]", out ? "text-red-600" : "text-muted-foreground/70")}>{out ? "outside " : "normal "}{p.min_value}–{p.max_value}</span>
+                  </label>
+                );
+              })}
+            </div>
+            <div className="mt-4 flex flex-wrap items-center justify-end gap-3 border-t pt-3">
+              <span className={cn("text-sm", entered ? "font-medium text-amber-700 dark:text-amber-400" : "text-muted-foreground")}>
+                {entered ? `${entered} of ${data.points.length} entered — not saved yet` : "No values entered"}</span>
+              {entered > 0 && <Button variant="outline" onClick={() => setVals({})}>Clear</Button>}
+              <Button disabled={!entered} onClick={save}><Save />Save readings</Button>
+            </div>
+          </section>
+        );
+      })()}
     </div>
   );
 }

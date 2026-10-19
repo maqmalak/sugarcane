@@ -1,7 +1,7 @@
 # MicroMax Sugar Mills Ltd. — Sugar ERP Architecture (Phase 0, for approval)
 
 App `sugarcane` · site `sugarcane` · Frappe 16.34 / ERPNext 16.35 / HRMS · Python 3.14 · Node 24 · MariaDB
-Status: **approved 2026-10-13** (v3: decisions below). Phases 0–8 and ELP are built; see `docs/PHASE_0.md` … `PHASE_8.md`, `ELP.md`. Phase 9 (hardening and deployment) is next.
+Status: **approved 2026-10-13** (v3: decisions below). All phases (0–9) and ELP are built; see `docs/PHASE_0.md` … `PHASE_9.md`, `ELP.md`, and `DEPLOYMENT.md` for the production setup.
 
 ### Decisions (2026-10-13)
 
@@ -260,6 +260,15 @@ Sugar SMS Template · Sugar SMS Log · SMS Keyword; MIS API + realtime events.
 *As built (see `PHASE_8.md`):*
 - One realtime event, `sugar_mis`, sent after commit; the wall reloads its snapshot (debounced) instead of patching tiles.
 - The gateway is chosen in Sugar Settings: Mock, the Frappe SMS Settings gateway, or the WhatsApp app.
+
+### Phase 9 — Hardening & deployment
+*As built (see `PHASE_9.md`):*
+- Indexes for a full season (`setup/indexes.py`, on migrate), measured with `setup/benchmark.py`.
+- Health check (`api/v1/health.status`); guest endpoints audited and rate-limited; `setup/hardening.py` for go-live security.
+- `DEPLOYMENT.md` (Nginx, Supervisor, SSL, workers, backups with an off-site copy and a restore drill, monitoring,
+  weighbridge agents as systemd services, updates, go-live checklist); scripts in `deploy/`.
+- Role manuals (`sugarcane/manuals/`, the app's Help page); signed Android release builds.
+- A full closed season, 2025-26, behind the live demo (`sc-season-demo`).
 
 ---
 

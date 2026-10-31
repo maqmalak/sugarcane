@@ -328,7 +328,7 @@ chmod o+x "$HOME_DIR" "$BENCH_DIR" "${BENCH_DIR}/sites"
 chmod -R o+rX "${BENCH_DIR}/sites/assets" "${BENCH_DIR}"/apps/*/*/public 2>/dev/null || true
 sudo nginx -t
 sudo systemctl reload nginx
-sudo supervisorctl restart all
+sudo supervisorctl restart all || warn "a process did not start — see: sudo supervisorctl status, and ~/frappe-bench/logs/"
 sudo supervisorctl status || true
 
 # ------------------------------------------------------------------------------------------------ 10. react host

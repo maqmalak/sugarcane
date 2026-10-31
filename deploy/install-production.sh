@@ -178,7 +178,6 @@ bind-address = 127.0.0.1
 innodb_file_per_table = 1
 innodb_buffer_pool_size = 1G
 max_allowed_packet = 256M
-skip-name-resolve
 
 [mysql]
 default-character-set = utf8mb4
@@ -247,6 +246,11 @@ for a in frappe erpnext hrms whatsapp mm_core sugarcane; do info "$a  $(git -C "
 # ------------------------------------------------------------------------------------------------ 8. site
 step "Site ${SITE}"
 ADMIN_PASSWORD="$(secret ADMIN_PASSWORD)"
+if [ -d "sites/${SITE}" ] && ! bench --site "$SITE" list-apps >/dev/null 2>&1; then
+	warn "sites/${SITE} is left over from a failed run (its database does not answer) — removing it"
+	bench drop-site "$SITE" --db-root-username root --db-root-password "$DB_ROOT_PASSWORD" --force --no-backup 2>/dev/null || true
+	rm -rf "sites/${SITE}"
+fi
 if [ -d "sites/${SITE}" ]; then
 	info "site exists — skipping new-site"
 else

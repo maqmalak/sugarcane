@@ -1,0 +1,313 @@
+#!/usr/bin/env bash
+# =====================================================================================================================
+#  MicroMax Sugar Mills ERP — fresh production install on Ubuntu 24.04 LTS
+#
+#  Frappe v16.54.0 · ERPNext 16 · HRMS 16 · mm_core · sugarcane
+#  Follows the forum guide "How to install ERPNext v16 on Ubuntu 24.04" (Python 3.14 via uv, Node 24 via nvm,
+#  MariaDB 11.8, bench from uv), with production hardening of a few of its steps (see the notes marked NOTE).
+#
+#  Run as the Linux user that will own the bench (it must have sudo), NOT as root:
+#
+#      bash install-production.sh                       # everything, with the defaults below
+#      SITE=erp.micromaxsugar.com DOMAIN=erp.micromaxsugar.com LETSENCRYPT_EMAIL=it@micromaxsugar.com \
+#          bash install-production.sh                   # with your domain and an SSL certificate
+#
+#  Every value below can be overridden from the environment. The script can be re-run: finished steps are skipped.
+#  Passwords are generated once and kept in ~/.frappe-install-secrets (mode 600). A full log goes to ~/install-production-*.log.
+# =====================================================================================================================
+set -Eeuo pipefail
+
+# ------------------------------------------------------------------------------------------------ settings
+FRAPPE_USER="${FRAPPE_USER:-maqmalak}"
+HOME_DIR="${HOME_DIR:-/home/maqmalak}"
+BENCH_NAME="${BENCH_NAME:-frappe-bench}"
+BENCH_DIR="${HOME_DIR}/${BENCH_NAME}"
+
+# NOTE: Frappe refuses a site with the same name as an app on the bench ("Your bench has an app called sugarcane,
+# please choose another name for the site"), so the site cannot be called plain "sugarcane". Use sugarcane.local
+# for a server reached by IP, or the real domain (e.g. erp.micromaxsugar.com) when there is one.
+SITE="${SITE:-sugarcane.local}"
+DOMAIN="${DOMAIN:-}"                       # e.g. erp.micromaxsugar.com — adds the domain and asks Let's Encrypt for SSL
+LETSENCRYPT_EMAIL="${LETSENCRYPT_EMAIL:-}" # needed with DOMAIN
+
+FRAPPE_REPO="${FRAPPE_REPO:-https://github.com/frappe/frappe}"
+FRAPPE_BRANCH="${FRAPPE_BRANCH:-v16.54.0}"            # a tag: the exact Frappe release
+ERPNEXT_BRANCH="${ERPNEXT_BRANCH:-version-16}"
+HRMS_BRANCH="${HRMS_BRANCH:-version-16}"
+MM_CORE_REPO="${MM_CORE_REPO:-https://github.com/maqmalak/mm_core.git}"   # sugarcane imports mm_core: required
+MM_CORE_BRANCH="${MM_CORE_BRANCH:-main}"
+SUGARCANE_REPO="${SUGARCANE_REPO:-https://github.com/maqmalak/sugarcane.git}"
+SUGARCANE_BRANCH="${SUGARCANE_BRANCH:-main}"
+
+PYTHON_VERSION="${PYTHON_VERSION:-3.14}"
+NODE_VERSION="${NODE_VERSION:-24}"
+MARIADB_VERSION="${MARIADB_VERSION:-11.8}"   # from the MariaDB repository; set to "" to use Ubuntu's own MariaDB
+TIMEZONE="${TIMEZONE:-Asia/Karachi}"
+ENABLE_UFW="${ENABLE_UFW:-1}"                # firewall: only SSH, HTTP and HTTPS
+HARDEN="${HARDEN:-0}"                        # 1 = run sugarcane's production hardening (turns on 2FA for managers)
+
+SECRETS="${HOME_DIR}/.frappe-install-secrets"
+LOG="${HOME_DIR}/install-production-$(date +%Y%m%d-%H%M%S).log"
+
+# ------------------------------------------------------------------------------------------------ helpers
+exec > >(tee -a "$LOG") 2>&1
+STEP=0
+step() { STEP=$((STEP + 1)); printf '\n\033[1;36m══ %02d · %s\033[0m\n' "$STEP" "$*"; }
+info() { printf '   \033[0;32m✓\033[0m %s\n' "$*"; }
+warn() { printf '   \033[0;33m!\033[0m %s\n' "$*"; }
+die()  { printf '\n\033[1;31m✗ %s\033[0m\n' "$*"; exit 1; }
+trap 'die "Failed at line $LINENO (step $STEP). See $LOG"' ERR
+
+load_env() {
+	export PATH="${HOME_DIR}/.local/bin:${PATH}"
+	export NVM_DIR="${HOME_DIR}/.nvm"
+	if [ -s "$NVM_DIR/nvm.sh" ]; then
+		set +u   # nvm reads unset variables
+		# shellcheck disable=SC1091
+		. "$NVM_DIR/nvm.sh"
+		nvm use "$NODE_VERSION" >/dev/null 2>&1 || true
+		set -u
+	fi
+}
+
+secret() {  # secret NAME → value, generated once and kept in $SECRETS
+	local name="$1" val
+	touch "$SECRETS" && chmod 600 "$SECRETS"
+	val="$(grep -E "^${name}=" "$SECRETS" | cut -d= -f2- || true)"
+	if [ -z "$val" ]; then
+		val="$(openssl rand -base64 24 | tr -d '/+=' | cut -c1-24)"
+		echo "${name}=${val}" >>"$SECRETS"
+	fi
+	printf '%s' "$val"
+}
+
+# ------------------------------------------------------------------------------------------------ 0. checks
+step "Checks"
+[ "$(id -u)" -ne 0 ] || die "Run this as ${FRAPPE_USER}, not as root (it uses sudo where needed)."
+[ "$(id -un)" = "$FRAPPE_USER" ] || die "Run this as ${FRAPPE_USER} (now: $(id -un)), or set FRAPPE_USER."
+[ "$HOME" = "$HOME_DIR" ] || warn "HOME is $HOME, the bench goes to $HOME_DIR"
+sudo -v || die "${FRAPPE_USER} needs sudo."
+. /etc/os-release
+[ "${VERSION_ID:-}" = "24.04" ] || warn "This script is written for Ubuntu 24.04; found ${PRETTY_NAME:-unknown}."
+case "$(dpkg --print-architecture)" in
+	amd64) ARCH=amd64 ;; arm64) ARCH=arm64 ;; *) die "Unsupported CPU architecture $(dpkg --print-architecture)" ;;
+esac
+if [ -n "$DOMAIN" ] && [ -z "$LETSENCRYPT_EMAIL" ]; then die "DOMAIN needs LETSENCRYPT_EMAIL for the SSL certificate."; fi
+GIT_TERMINAL_PROMPT=0 git ls-remote "$SUGARCANE_REPO" HEAD >/dev/null 2>&1 || warn "Cannot reach $SUGARCANE_REPO yet (git may not be installed); checked again later."
+info "user ${FRAPPE_USER} · bench ${BENCH_DIR} · site ${SITE} · Frappe ${FRAPPE_BRANCH} · ${ARCH}"
+( while true; do sudo -n true; sleep 50; kill -0 "$$" 2>/dev/null || exit; done ) 2>/dev/null &   # keep sudo alive
+
+# ------------------------------------------------------------------------------------------------ 1. server
+step "Server: time zone and system update"
+sudo timedatectl set-timezone "$TIMEZONE" || warn "could not set the time zone"
+sudo apt-get update -y
+sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
+info "$(date)"
+
+# ------------------------------------------------------------------------------------------------ 2. packages
+step "Packages"
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
+	git curl wget ca-certificates gnupg openssl cron software-properties-common \
+	python3-dev python3-pip python3-setuptools python3-venv \
+	build-essential pkg-config libmysqlclient-dev libffi-dev libssl-dev \
+	xvfb libfontconfig fontconfig xfonts-75dpi xfonts-base \
+	redis-server nginx supervisor ansible ufw
+info "git $(git --version | awk '{print $3}') · redis $(redis-server --version | awk '{print $3}')"
+
+step "wkhtmltopdf (patched Qt, for PDF prints)"
+if wkhtmltopdf --version 2>/dev/null | grep -q "with patched qt"; then
+	info "already installed: $(wkhtmltopdf --version)"
+else
+	deb="wkhtmltox_0.12.6.1-2.jammy_${ARCH}.deb"
+	wget -q -O "/tmp/${deb}" "https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/${deb}"
+	sudo dpkg -i "/tmp/${deb}" || sudo DEBIAN_FRONTEND=noninteractive apt-get -f install -y
+	sudo dpkg -i "/tmp/${deb}"
+	info "$(wkhtmltopdf --version)"
+fi
+
+# ------------------------------------------------------------------------------------------------ 3. python
+step "Python ${PYTHON_VERSION} (uv)"
+if ! command -v uv >/dev/null 2>&1 && [ ! -x "${HOME_DIR}/.local/bin/uv" ]; then
+	curl -LsSf https://astral.sh/uv/install.sh | sh
+fi
+load_env
+uv python install "$PYTHON_VERSION" --default || uv python install "$PYTHON_VERSION"
+PYTHON_BIN="$(env -u VIRTUAL_ENV uv python find --managed-python "$PYTHON_VERSION")"   # never an active virtualenv
+info "uv $(uv --version | awk '{print $2}') · $("$PYTHON_BIN" --version) at ${PYTHON_BIN}"
+
+# ------------------------------------------------------------------------------------------------ 4. mariadb
+step "MariaDB ${MARIADB_VERSION:-from Ubuntu}"
+if ! command -v mariadb >/dev/null 2>&1; then
+	if [ -n "$MARIADB_VERSION" ]; then
+		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --mariadb-server-version="mariadb-${MARIADB_VERSION}" --skip-maxscale
+		sudo apt-get update -y
+	fi
+	sudo DEBIAN_FRONTEND=noninteractive apt-get install -y mariadb-server mariadb-client
+fi
+sudo tee /etc/mysql/mariadb.conf.d/99-frappe.cnf >/dev/null <<'CNF'
+# Frappe / ERPNext (written by install-production.sh)
+[mysqld]
+character-set-client-handshake = FALSE
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+bind-address = 127.0.0.1
+innodb_file_per_table = 1
+innodb_buffer_pool_size = 1G
+max_allowed_packet = 256M
+skip-name-resolve
+
+[mysql]
+default-character-set = utf8mb4
+CNF
+sudo systemctl enable --now mariadb
+sudo systemctl restart mariadb
+# Non-interactive mysql_secure_installation: root by password (bench uses it) or by the unix socket; no anonymous
+# users, no remote root, no test database.
+DB_ROOT_PASSWORD="$(secret DB_ROOT_PASSWORD)"
+if sudo mariadb -e "SELECT 1" >/dev/null 2>&1; then
+	sudo mariadb <<SQL
+ALTER USER 'root'@'localhost' IDENTIFIED VIA unix_socket OR mysql_native_password USING PASSWORD('${DB_ROOT_PASSWORD}');
+DELETE FROM mysql.global_priv WHERE User='';
+DELETE FROM mysql.global_priv WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+DROP DATABASE IF EXISTS test;
+DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
+FLUSH PRIVILEGES;
+SQL
+fi
+mariadb -uroot -p"$DB_ROOT_PASSWORD" -e "SELECT 1" >/dev/null || die "MariaDB root password check failed (see $SECRETS)."
+info "$(mariadb --version)"
+
+# ------------------------------------------------------------------------------------------------ 5. node
+step "Node ${NODE_VERSION} (nvm) and yarn"
+if [ ! -s "${HOME_DIR}/.nvm/nvm.sh" ]; then
+	curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+fi
+load_env
+set +u
+nvm install "$NODE_VERSION"
+nvm alias default "$NODE_VERSION"
+nvm use "$NODE_VERSION"
+set -u
+command -v yarn >/dev/null 2>&1 || npm install -g yarn
+info "node $(node --version) · npm $(npm --version) · yarn $(yarn --version)"
+
+# ------------------------------------------------------------------------------------------------ 6. bench
+step "bench CLI"
+command -v bench >/dev/null 2>&1 || uv tool install frappe-bench
+load_env
+info "bench $(bench --version 2>/dev/null)"
+
+step "bench init: Frappe ${FRAPPE_BRANCH}"
+if [ -d "${BENCH_DIR}/apps/frappe" ]; then
+	info "${BENCH_DIR} exists — skipping init"
+else
+	cd "$HOME_DIR"
+	bench init "$BENCH_NAME" --frappe-path "$FRAPPE_REPO" --frappe-branch "$FRAPPE_BRANCH" --python "$PYTHON_BIN" --verbose
+fi
+cd "$BENCH_DIR"
+info "frappe $(git -C apps/frappe describe --tags 2>/dev/null || true)"
+
+# ------------------------------------------------------------------------------------------------ 7. apps
+step "Apps: erpnext, hrms, mm_core, sugarcane"
+get_app() {  # get_app NAME REPO BRANCH
+	if [ -d "apps/$1" ]; then info "$1 already in apps/"; return; fi
+	bench get-app --branch "$3" "$2"
+}
+get_app erpnext https://github.com/frappe/erpnext "$ERPNEXT_BRANCH"
+get_app hrms https://github.com/frappe/hrms "$HRMS_BRANCH"
+get_app mm_core "$MM_CORE_REPO" "$MM_CORE_BRANCH"
+get_app sugarcane "$SUGARCANE_REPO" "$SUGARCANE_BRANCH"
+for a in frappe erpnext hrms mm_core sugarcane; do info "$a  $(git -C "apps/$a" describe --tags --always 2>/dev/null)"; done
+
+# ------------------------------------------------------------------------------------------------ 8. site
+step "Site ${SITE}"
+ADMIN_PASSWORD="$(secret ADMIN_PASSWORD)"
+if [ -d "sites/${SITE}" ]; then
+	info "site exists — skipping new-site"
+else
+	bench new-site "$SITE" --db-root-username root --db-root-password "$DB_ROOT_PASSWORD" \
+		--admin-password "$ADMIN_PASSWORD" --set-default
+fi
+installed="$(bench --site "$SITE" list-apps 2>/dev/null || true)"
+for a in erpnext hrms mm_core sugarcane; do
+	if grep -qw "^$a" <<<"$installed"; then info "$a already installed"; else bench --site "$SITE" install-app "$a"; fi
+done
+BASE_URL="http://${SITE}"; [ -n "$DOMAIN" ] && BASE_URL="https://${DOMAIN}"
+bench --site "$SITE" set-config host_name "$BASE_URL"
+bench --site "$SITE" set-config sugar_app_url "${BASE_URL}/sugar"
+bench --site "$SITE" set-config developer_mode 0
+bench --site "$SITE" migrate
+bench build --production
+info "apps on ${SITE}: $(bench --site "$SITE" list-apps | tr '\n' ' ')"
+
+# ------------------------------------------------------------------------------------------------ 9. production
+step "Production: scheduler, nginx, supervisor"
+bench --site "$SITE" enable-scheduler
+bench --site "$SITE" set-maintenance-mode off
+sudo env "PATH=$PATH" bench setup production "$FRAPPE_USER" --yes
+bench setup nginx --yes
+if ! sudo supervisorctl status 2>/dev/null | grep -q "${BENCH_NAME}"; then
+	warn "supervisor did not pick up the bench — linking its config"
+	sudo ln -sf "${BENCH_DIR}/config/supervisor.conf" "/etc/supervisor/conf.d/${BENCH_NAME}.conf"
+	sudo supervisorctl reread && sudo supervisorctl update
+fi
+# NOTE: the guide runs `chmod -R o+rx` on the whole home folder. That also makes ~/.ssh keys world-readable (ssh then
+# refuses them) and exposes site_config.json with the database password. nginx only needs to walk into the bench and
+# read the apps' public files, so only that is opened.
+chmod o+x "$HOME_DIR" "$BENCH_DIR" "${BENCH_DIR}/sites"
+chmod -R o+rX "${BENCH_DIR}/sites/assets" "${BENCH_DIR}"/apps/*/*/public 2>/dev/null || true
+sudo nginx -t
+sudo systemctl reload nginx
+sudo supervisorctl restart all
+sudo supervisorctl status || true
+
+# ------------------------------------------------------------------------------------------------ 10. domain + ssl
+if [ -n "$DOMAIN" ]; then
+	step "Domain ${DOMAIN} and SSL"
+	bench config dns_multitenant on
+	[ "$DOMAIN" = "$SITE" ] || bench setup add-domain "$DOMAIN" --site "$SITE"
+	bench setup nginx --yes
+	sudo systemctl reload nginx
+	command -v certbot >/dev/null 2>&1 || { sudo snap install core; sudo snap refresh core; sudo snap install --classic certbot; sudo ln -sf /snap/bin/certbot /usr/bin/certbot; }
+	sudo certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m "$LETSENCRYPT_EMAIL" --redirect
+fi
+
+# ------------------------------------------------------------------------------------------------ 11. firewall
+if [ "$ENABLE_UFW" = "1" ]; then
+	step "Firewall (ufw): SSH, HTTP, HTTPS only"
+	# NOTE: the guide also opens 3306 (MariaDB) and 8000 (bench dev server). In production MariaDB stays on 127.0.0.1
+	# and nginx serves the site on 80/443, so neither is opened.
+	sudo ufw allow OpenSSH
+	sudo ufw allow 80/tcp
+	sudo ufw allow 443/tcp
+	sudo ufw --force enable
+	sudo ufw status verbose | head -12
+fi
+
+# ------------------------------------------------------------------------------------------------ 12. hardening
+if [ "$HARDEN" = "1" ]; then
+	step "Sugarcane production hardening"
+	bench --site "$SITE" execute sugarcane.setup.hardening.apply
+fi
+
+# ------------------------------------------------------------------------------------------------ done
+step "Done"
+bench version --format table || bench version
+URL="$BASE_URL"
+cat <<EOF
+
+  Site        ${URL}            (desk: ${URL}/desk · sugar app: ${URL}/sugar)
+  Login       Administrator / password in ${SECRETS}
+  Bench       ${BENCH_DIR}
+  Log         ${LOG}
+
+  Next:
+   1. Open ${URL}/desk and finish the ERPNext setup wizard (company, currency PKR, fiscal year).
+   2. Sugar Settings → Company → choose the company, save, then run:
+        cd ${BENCH_DIR} && bench --site ${SITE} migrate
+      (sugarcane then builds its chart of accounts, cost centres and ERP configuration for that company).
+   3. Production checklist: ${BENCH_DIR}/apps/sugarcane/docs/DEPLOYMENT.md (backups, workers, gate PCs, Android apps).
+   4. When users are set up: HARDEN=1 bash install-production.sh, or
+        bench --site ${SITE} execute sugarcane.setup.hardening.apply
+EOF
+[ -n "$DOMAIN" ] || echo "  No DOMAIN given: add '${SITE}' to the hosts file of the PCs that use it, or re-run with DOMAIN=… for SSL."

@@ -292,8 +292,18 @@ REACT_URL="${SCHEME}://${REACT_DOMAIN:-$SITE}/sugar"
 bench --site "$SITE" set-config host_name "$BASE_URL"
 bench --site "$SITE" set-config sugar_app_url "$REACT_URL"   # QR codes on prints open the React app
 bench --site "$SITE" set-config developer_mode 0
+# migrate needs the bench's Redis, which supervisor only runs after step 9: start it here for a moment.
+TMP_REDIS=()
+for conf in config/redis_cache.conf config/redis_queue.conf; do
+	port="$(awk '$1=="port"{print $2}' "$conf")"
+	if ! redis-cli -p "$port" ping >/dev/null 2>&1; then
+		redis-server "$conf" --daemonize yes >/dev/null && TMP_REDIS+=("$port")
+	fi
+done
+for _ in 1 2 3 4 5 6 7 8 9 10; do redis-cli -p "$(awk '$1=="port"{print $2}' config/redis_cache.conf)" ping >/dev/null 2>&1 && break; sleep 1; done
 bench --site "$SITE" migrate
 bench build --production
+for port in "${TMP_REDIS[@]}"; do redis-cli -p "$port" shutdown nosave >/dev/null 2>&1 || true; done
 info "apps on ${SITE}: $(bench --site "$SITE" list-apps | tr '\n' ' ')"
 
 # ------------------------------------------------------------------------------------------------ 9. production

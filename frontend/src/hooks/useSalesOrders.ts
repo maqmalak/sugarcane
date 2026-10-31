@@ -26,7 +26,6 @@ const SALES_ORDER_FIELDS = [
   "status",
   "docstatus",
   "export_status",
-  "lc_proforma",
   "lc_no",
   "lc_date",
   "lc_issuing_bank",

@@ -104,29 +104,60 @@ export function PurchasePage() {
   const back = async (name: string) => {
     try { await post(`${API}.gate_pass_return`, { name }); toast.success(`${name}: items back`); void qc.invalidateQueries({ queryKey: ["erp-purchase"] }); } catch (e) { toast.error(err(e)); }
   };
-  const steps: [string, string, number | string, string, string][] = [
-    ["Purchase demands", "Material Request", d.flow.demands, "open", "Material Request"],
-    ["Inquiries (RFQ)", "Request for Quotation", d.flow.inquiries, "sent", "Request for Quotation"],
-    ["Quotations", "Supplier Quotation", d.flow.quotations, "received", "Supplier Quotation"],
-    ["Orders to receive", "Purchase Order", d.flow.to_receive.n, rs(d.flow.to_receive.amt), "Purchase Order"],
-    ["GRN this month", "Purchase Receipt", d.flow.grn_month.n, rs(d.flow.grn_month.amt), "Purchase Receipt"],
-    ["Bills to pay", "Purchase Invoice", d.flow.to_pay.n, rs(d.flow.to_pay.amt), "Purchase Invoice"],
-  ];
+  const toReceive = d.orders.filter((o) => o.per_received < 100 && o.status !== "Closed");
   return (
     <div className="space-y-4">
-      <Header kicker="Purchase & stores" icon={ShoppingCart} title="Purchase and stores" sub="Purchase demand → inquiry → comparative statement → order → GRN with quality check → bill with withholding → payment. Store issues by department; gate passes for everything leaving the mill." />
-      <div className="grid gap-2 sm:grid-cols-3 xl:grid-cols-6">
-        {steps.map(([label, , n, sub, dt], i) => (
-          <a key={label} href={`/app/${slug(dt)}`} target="_blank" rel="noreferrer" className="relative rounded-2xl border bg-card p-4 shadow-sm hover:shadow-md">
-            <p className="text-xs text-muted-foreground">{i + 1}. {label}</p>
-            <p className="mt-1 text-2xl font-bold tabular-nums">{n}</p>
-            <p className="text-xs text-muted-foreground">{sub}</p>
-          </a>
-        ))}
+      <Header kicker="Purchase & stores" icon={ShoppingCart} title="Purchase and stores" sub="Purchase demand → inquiry → comparative statement → order → GRN with quality check → bill with withholding → payment. Store issues by department; gate passes for everything leaving the mill.">
+        <Button size="sm" asChild><Link to="/import/material-requests/new">+ Purchase demand</Link></Button>
+        <Button size="sm" variant="outline" asChild><Link to="/import/purchase-orders/new">+ Purchase order</Link></Button>
+      </Header>
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
+        <KpiCard icon={ClipboardList} label="1 · Purchase demands" value={num(d.flow.demands)} color={C.violet} sub="open" to="/import/material-requests" />
+        <KpiCard icon={FileText} label="2 · Inquiries (RFQ)" value={num(d.flow.inquiries)} color={C.blue} sub="sent to suppliers" to="/import/rfqs" />
+        <KpiCard icon={Scale} label="3 · Quotations" value={num(d.flow.quotations)} color={C.slate} sub="received · compare" to={`/reports?r=${encodeURIComponent("Comparative Statement")}`} />
+        <KpiCard icon={ShoppingCart} label="4 · Orders to receive" value={num(d.flow.to_receive.n)} color={C.amber} sub={rs(d.flow.to_receive.amt)} to="/import/purchase-orders" />
+        <KpiCard icon={Package} label="5 · GRN this month" value={num(d.flow.grn_month.n)} color={C.teal} sub={rs(d.flow.grn_month.amt)} to="/purchase/receipts" />
+        <KpiCard icon={Wallet} label="6 · Bills to pay" value={num(d.flow.to_pay.n)} color={C.rose} sub={rs(d.flow.to_pay.amt)} to="/purchase/invoices" />
       </div>
       {d.flow.qi_pending > 0 && <p className="text-sm text-amber-600">{d.flow.qi_pending} quality inspection(s) waiting — <Desk dt="Quality Inspection">open</Desk></p>}
+      <section className="rounded-2xl border bg-card shadow-sm">
+        <div className="flex items-center gap-2 px-5 pt-4"><Truck className="size-4 text-teal-600" /><p className="font-semibold">Receiving board</p></div>
+        <p className="px-5 pb-3 text-xs text-muted-foreground">Orders waiting for goods, and what is out on returnable gate passes. Receive an order as a GRN; mark a pass returned when the items come back.</p>
+        <div className="grid gap-0 divide-y border-t md:grid-cols-2 md:divide-x md:divide-y-0">
+          <div className="p-4">
+            <p className="mb-2 text-sm font-semibold">1 · Orders to receive ({toReceive.length})</p>
+            {toReceive.length === 0 && <p className="text-sm text-muted-foreground">Every order is received.</p>}
+            <div className="space-y-2">
+              {toReceive.map((o) => (
+                <div key={o.name} className="flex flex-wrap items-center gap-2 rounded-xl border bg-background/40 px-3 py-2 text-sm">
+                  <Link to={`/import/purchase-orders/${encodeURIComponent(o.name)}`} className="font-mono text-teal-600 hover:underline">{o.name}</Link>
+                  <span className="flex-1">{o.supplier_name} · {rs(o.grand_total)} · {Math.round(o.per_received)}% received</span>
+                  <Button size="sm" asChild><Link to={`/import/purchase-orders/${encodeURIComponent(o.name)}`}>Receive →</Link></Button>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="p-4">
+            <p className="mb-2 text-sm font-semibold">2 · Out on returnable gate passes ({d.passes.length})</p>
+            {d.passes.length === 0 && <p className="text-sm text-muted-foreground">Nothing out.</p>}
+            <div className="space-y-2">
+              {d.passes.map((p) => {
+                const late = p.expected_return_date < d.today;
+                return (
+                  <div key={p.name} className="flex flex-wrap items-center gap-2 rounded-xl border bg-background/40 px-3 py-2 text-sm">
+                    <Link to={`/purchase/d/gate-pass/${p.name}`} className="font-mono text-teal-600 hover:underline">{p.name}</Link>
+                    <span className="flex-1">{p.party_name} · {p.vehicle_no}</span>
+                    <Badge tone={late ? "red" : "amber"}>back by {dayLabel(p.expected_return_date)}</Badge>
+                    <Button size="sm" variant="outline" onClick={() => back(p.name)}>Mark returned</Button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
       <div className="grid gap-4 xl:grid-cols-3">
-        <ChartCard title="Stock by store" sub="Stock value per warehouse (ERPNext valuation)" className="xl:col-span-2" bodyClass="h-72">
+        <ChartCard title="Stock by store" sub="Stock value per warehouse (ERPNext valuation)" className="xl:col-span-2" bodyClass="h-80">
           <ResponsiveContainer>
             <BarChart data={d.stock.map((s) => ({ ...s, label: s.warehouse.replace(/ - \w+$/, "") }))} layout="vertical" margin={{ left: 20, right: 16 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={t.grid} horizontal={false} />
@@ -138,24 +169,6 @@ export function PurchasePage() {
           </ResponsiveContainer>
         </ChartCard>
         <div className="space-y-4">
-          <Shortcuts items={[["Purchase demand", "Material Request"], ["Inquiry (RFQ)", "Request for Quotation"], ["Purchase order", "Purchase Order"], ["GRN", "Purchase Receipt"], ["Store issue", "Stock Entry"], ["Gate pass", "Gate Pass"]]} />
-          <Reports items={["Comparative Statement", "Gate Pass Outstanding", "Payables Projection"]} />
-        </div>
-      </div>
-      <div className="grid gap-4 xl:grid-cols-2">
-        <ChartCard title="Purchase orders" sub="Latest orders, received and billed" bodyClass="">
-          <div className="px-3 pb-3">
-            <DataTable rows={d.orders} rowKey={(r) => r.name} dense cols={[
-              { key: "name", label: "PO", render: (r) => <Desk dt="Purchase Order" name={r.name} /> },
-              { key: "supplier_name", label: "Supplier" },
-              { key: "transaction_date", label: "Date", render: (r) => dayLabel(r.transaction_date), hideSm: true },
-              { key: "grand_total", label: "Amount", align: "right", render: (r) => rs(r.grand_total) },
-              { key: "per_received", label: "Received", align: "right", render: (r) => `${Math.round(r.per_received)}%` },
-              { key: "per_billed", label: "Billed", align: "right", render: (r) => `${Math.round(r.per_billed)}%`, hideSm: true },
-            ]} />
-          </div>
-        </ChartCard>
-        <div className="space-y-4">
           <ChartCard title="Store issues this month" sub="By stock entry type" bodyClass="">
             <div className="px-3 pb-3">
               <DataTable rows={d.issues} rowKey={(r) => r.stock_entry_type} dense cols={[
@@ -165,24 +178,32 @@ export function PurchasePage() {
               {!d.issues.length && <p className="p-3 text-sm text-muted-foreground">No issues this month.</p>}
             </div>
           </ChartCard>
-          <ChartCard title="Out on returnable gate passes" sub="Items expected back" bodyClass="">
-            <div className="divide-y px-4 pb-3">
-              {d.passes.length === 0 && <p className="py-3 text-sm text-muted-foreground">Nothing out.</p>}
-              {d.passes.map((p) => {
-                const late = p.expected_return_date < d.today;
-                return (
-                  <div key={p.name} className="flex flex-wrap items-center gap-2 py-2 text-sm">
-                    <Link to={`/purchase/d/gate-pass/${p.name}`} className="font-mono text-teal-600 hover:underline">{p.name}</Link>
-                    <span className="flex-1">{p.party_name} · {p.vehicle_no}</span>
-                    <Badge tone={late ? "red" : "amber"}>back by {dayLabel(p.expected_return_date)}</Badge>
-                    <Button size="sm" variant="outline" onClick={() => back(p.name)}>Mark returned</Button>
-                  </div>
-                );
-              })}
-            </div>
-          </ChartCard>
+          <Reports items={["Comparative Statement", "Gate Pass Outstanding", "Payables Projection"]} />
         </div>
       </div>
+      <ChartCard title="Purchase orders" sub="Latest orders, received and billed" bodyClass="">
+        <div className="px-3 pb-3">
+          <DataTable rows={d.orders} rowKey={(r) => r.name} dense cols={[
+            { key: "name", label: "PO", render: (r) => <Link to={`/import/purchase-orders/${encodeURIComponent(r.name)}`} className="font-mono text-teal-600 hover:underline">{r.name}</Link> },
+            { key: "supplier_name", label: "Supplier" },
+            { key: "transaction_date", label: "Date", render: (r) => dayLabel(r.transaction_date), hideSm: true },
+            { key: "status", label: "Status", hideSm: true },
+            { key: "grand_total", label: "Amount", align: "right", render: (r) => rs(r.grand_total) },
+            { key: "per_received", label: "Received", align: "right", render: (r) => `${Math.round(r.per_received)}%` },
+            { key: "per_billed", label: "Billed", align: "right", render: (r) => `${Math.round(r.per_billed)}%`, hideSm: true },
+          ]} />
+        </div>
+      </ChartCard>
+      <section className="rounded-2xl border bg-card p-4 shadow-sm">
+        <p className="mb-2 text-sm font-semibold">New</p>
+        <div className="flex flex-wrap gap-2">
+          {([["Purchase demand", "/import/material-requests/new"], ["Inquiry (RFQ)", "/import/rfqs/new"], ["Purchase order", "/import/purchase-orders/new"],
+            ["GRN", "/purchase/receipts/new"], ["Purchase invoice", "/purchase/invoices/new"], ["Store issue", "/inventory/stock-entries/new"],
+            ["Gate pass", "/purchase/d/gate-pass/new"], ["Supplier", "/masters/suppliers/new"], ["Item", "/masters/items/new"]] as const).map(([label, to]) => (
+            <Link key={to} to={to} className="rounded-lg border px-3 py-1.5 text-sm hover:bg-accent">+ {label}</Link>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

@@ -11,7 +11,7 @@ import { whatsappUrl } from "@/utils/whatsapp";
 import { useAggregate, useDocList, count, sum } from "@/hooks/useDoc";
 import { formatDate, startOfMonthISO, todayISO } from "@/utils/dates";
 import { formatMoney } from "@/utils/currency";
-import { asNumber } from "@/utils/cn";
+import { asNumber, cn } from "@/utils/cn";
 
 /** Whole years + months between an ISO date and today, e.g. "3 y 4 m". */
 export function tenure(from?: string): string {
@@ -46,7 +46,7 @@ function Fact({ icon, children }: { icon: ReactNode; children: ReactNode }) {
 
 function Metric({ label, value, hint }: { label: string; value: ReactNode; hint?: ReactNode }) {
   return (
-    <div className="min-w-0 rounded-lg border border-border/70 bg-background/60 px-3 py-2.5">
+    <div className="min-w-0 surface-inset rounded-lg px-3 py-2.5">
       <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className="mt-0.5 truncate text-base font-semibold tabular-nums">{value}</p>
       {hint && <p className="truncate text-xs text-muted-foreground">{hint}</p>}
@@ -101,7 +101,8 @@ export function EmployeeProfileHero({
       <div className="relative flex flex-col gap-5 p-5 pt-8 lg:flex-row lg:items-end">
         <div className="flex items-end gap-4">
           <div className="relative">
-            <EmployeePhoto name={displayName} src={doc.image} docname={emp} size="xl" onChange={onPhotoChange} />
+            <EmployeePhoto name={displayName} src={doc.image} docname={emp} size="lg" passport onChange={onPhotoChange}
+              caption={[doc.designation, doc.employee_number, doc.employee_cnic && `CNIC ${doc.employee_cnic}`].filter(Boolean).join(" · ")} />
             {doc.image && (
               <button
                 type="button"
@@ -118,8 +119,11 @@ export function EmployeeProfileHero({
               <h2 className="truncate text-xl font-semibold">{displayName}</h2>
               <StatusBadge status={doc.status} />
             </div>
+            {doc.mm_urdu_name && <p className="urdu text-left text-lg leading-[2.1] text-foreground/80" dir="rtl">{doc.mm_urdu_name}</p>}
             <p className="text-sm text-muted-foreground">
               {doc.designation || "No designation"} · <span className="font-mono text-xs">{emp}</span>
+              {doc.employee_number && <> · <span className="font-mono text-xs">{doc.employee_number}</span></>}
+              {doc.employee_cnic && <> · CNIC <span className="font-mono text-xs">{doc.employee_cnic}</span></>}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">Hover the photo to upload or change it</p>
           </div>
@@ -152,31 +156,44 @@ export function EmployeeProfileHero({
         </div>
       </div>
 
-      <div className="relative flex flex-wrap items-center gap-1.5 border-t border-border/60 px-5 py-3">
+      <div className="relative flex flex-wrap items-center gap-2 border-t border-border/60 px-5 py-3">
         {[
-          { label: "Apply leave", to: `/hr/leave-applications?employee=${encodeURIComponent(emp)}`, icon: CalendarOff },
-          { label: "Attendance", to: `/hr/attendance?employee=${encodeURIComponent(emp)}`, icon: CalendarCheck },
-          { label: "Assign shift", to: `/hr/shift-assignments/new?employee=${encodeURIComponent(emp)}`, icon: Clock3 },
-          { label: "Salary slips", to: `/payroll/salary-slips?employee=${encodeURIComponent(emp)}`, icon: Wallet },
-          { label: "Promote", to: `/hr/promotions/new?employee=${encodeURIComponent(emp)}`, icon: TrendingUp },
-          { label: "Transfer", to: `/hr/transfers/new?employee=${encodeURIComponent(emp)}`, icon: ArrowRightLeft },
-          { label: "Separation", to: `/hr/separations/new?employee=${encodeURIComponent(emp)}`, icon: DoorOpen },
+          // each link has its own colour: gradient icon tile + tinted chip (classes written out so Tailwind keeps them)
+          { label: "Apply leave", to: `/hr/leave-applications?employee=${encodeURIComponent(emp)}`, icon: CalendarOff,
+            tile: "from-amber-400 to-orange-500 shadow-orange-500/30", chip: "border-amber-500/30 bg-amber-500/10 text-amber-700 hover:border-amber-500/60 hover:bg-amber-500/15 dark:text-amber-300" },
+          { label: "Attendance", to: `/hr/attendance?employee=${encodeURIComponent(emp)}`, icon: CalendarCheck,
+            tile: "from-sky-400 to-blue-600 shadow-blue-500/30", chip: "border-sky-500/30 bg-sky-500/10 text-sky-700 hover:border-sky-500/60 hover:bg-sky-500/15 dark:text-sky-300" },
+          { label: "Assign shift", to: `/hr/shift-assignments/new?employee=${encodeURIComponent(emp)}`, icon: Clock3,
+            tile: "from-indigo-400 to-violet-600 shadow-violet-500/30", chip: "border-indigo-500/30 bg-indigo-500/10 text-indigo-700 hover:border-indigo-500/60 hover:bg-indigo-500/15 dark:text-indigo-300" },
+          { label: "Salary slips", to: `/payroll/salary-slips?employee=${encodeURIComponent(emp)}`, icon: Wallet,
+            tile: "from-emerald-400 to-teal-600 shadow-emerald-500/30", chip: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 hover:border-emerald-500/60 hover:bg-emerald-500/15 dark:text-emerald-300" },
+          { label: "Promote", to: `/hr/promotions/new?employee=${encodeURIComponent(emp)}`, icon: TrendingUp,
+            tile: "from-lime-400 to-green-600 shadow-green-500/30", chip: "border-lime-500/30 bg-lime-500/10 text-lime-700 hover:border-lime-500/60 hover:bg-lime-500/15 dark:text-lime-300" },
+          { label: "Transfer", to: `/hr/transfers/new?employee=${encodeURIComponent(emp)}`, icon: ArrowRightLeft,
+            tile: "from-cyan-400 to-sky-600 shadow-cyan-500/30", chip: "border-cyan-500/30 bg-cyan-500/10 text-cyan-700 hover:border-cyan-500/60 hover:bg-cyan-500/15 dark:text-cyan-300" },
+          { label: "Separation", to: `/hr/separations/new?employee=${encodeURIComponent(emp)}`, icon: DoorOpen,
+            tile: "from-rose-400 to-red-600 shadow-rose-500/30", chip: "border-rose-500/30 bg-rose-500/10 text-rose-700 hover:border-rose-500/60 hover:bg-rose-500/15 dark:text-rose-300" },
         ].map((a) => (
-          <Link key={a.label} to={a.to} className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-background px-3 text-xs font-medium transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-primary">
-            <a.icon className="h-3.5 w-3.5" /> {a.label}
+          <Link key={a.label} to={a.to}
+            className={cn("group inline-flex h-9 items-center gap-2 rounded-xl border py-1 pl-1 pr-3 text-xs font-semibold shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md", a.chip)}>
+            <span className={cn("relative flex h-7 w-7 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-b text-white shadow-md ring-1 ring-inset ring-white/25", a.tile)}>
+              <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/35 to-white/0" />
+              <a.icon className="relative h-3.5 w-3.5" />
+            </span>
+            {a.label}
           </Link>
         ))}
         <span className="ml-auto flex gap-1.5">
           {doc.cell_number && (
             <>
-              <a href={`tel:${doc.cell_number}`} title="Call" className="flex h-8 w-8 items-center justify-center rounded-full border border-border hover:bg-accent"><Phone className="h-3.5 w-3.5" /></a>
+              <a href={`tel:${doc.cell_number}`} title="Call" className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-500/30 bg-sky-500/10 text-sky-600 transition hover:-translate-y-0.5 hover:bg-sky-500/20 dark:text-sky-300"><Phone className="h-3.5 w-3.5" /></a>
               {whatsappUrl(doc.cell_number) && (
-                <a href={whatsappUrl(doc.cell_number)!} target="_blank" rel="noreferrer" title="WhatsApp" className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-emerald-600 hover:bg-emerald-500/10"><MessageCircle className="h-3.5 w-3.5" /></a>
+                <a href={whatsappUrl(doc.cell_number)!} target="_blank" rel="noreferrer" title="WhatsApp" className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 transition hover:-translate-y-0.5 hover:bg-emerald-500/20 dark:text-emerald-300"><MessageCircle className="h-3.5 w-3.5" /></a>
               )}
             </>
           )}
           {(doc.company_email || doc.personal_email) && (
-            <a href={`mailto:${doc.company_email || doc.personal_email}`} title="Email" className="flex h-8 w-8 items-center justify-center rounded-full border border-border hover:bg-accent"><Mail className="h-3.5 w-3.5" /></a>
+            <a href={`mailto:${doc.company_email || doc.personal_email}`} title="Email" className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-500/30 bg-violet-500/10 text-violet-600 transition hover:-translate-y-0.5 hover:bg-violet-500/20 dark:text-violet-300"><Mail className="h-3.5 w-3.5" /></a>
           )}
         </span>
       </div>

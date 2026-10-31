@@ -4,6 +4,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { FullPageLoader } from "@/pages/common/ComingSoonPage";
 import { LoginPage } from "@/pages/Auth/LoginPage";
 import { ScProviders } from "@/sc/ScProviders";
+import { erpRoutes } from "@/app/erp-routes";
 
 // Heavier / less-frequently visited pages are code-split.
 const DesktopPage = lazy(() => import("@/pages/Desktop/DesktopPage").then((m) => ({ default: m.DesktopPage })));
@@ -44,7 +45,6 @@ const erpPage = (name: string) => lazy(() => import("@/sc/pages/ErpPages").then(
 const PurchasePage = erpPage("PurchasePage");
 const SalesPage = erpPage("SalesPage");
 const FinancePage = erpPage("FinancePage");
-const HrPage = erpPage("HrPage");
 const MisWallPage = lazy(() => import("@/sc/pages/MisPages").then((m) => ({ default: m.MisWallPage })));
 const MessagesPage = lazy(() => import("@/sc/pages/MisPages").then((m) => ({ default: m.MessagesPage })));
 const ApprovalsInboxPage = lazy(() => import("@/sc/pages/ApprovalsInboxPage").then((m) => ({ default: m.ApprovalsInboxPage })));
@@ -99,7 +99,6 @@ export function AppRoutes() {
         <Route path="purchase" element={sugar(<PurchasePage />)} />
         <Route path="sales" element={sugar(<SalesPage />)} />
         <Route path="finance" element={sugar(<FinancePage />)} />
-        <Route path="hr" element={sugar(<HrPage />)} />
         {["purchase", "sales"].map((a) => [
           <Route key={`${a}-l`} path={`${a}/d/:slug`} element={sugar(<MetaDocPage mode="list" />)} />,
           <Route key={`${a}-f`} path={`${a}/d/:slug/:name`} element={sugar(<MetaDocPage mode="form" />)} />,
@@ -167,6 +166,8 @@ export function AppRoutes() {
         <Route path="mill/cpr" element={<Navigate to="/procurement" replace />} />
         <Route path="approvals" element={<Navigate to="/approvals/inbox" replace />} />
         <Route path="approvals/inbox" element={sugar(<ApprovalsInboxPage />)} />
+        {/* Buying, stores, selling, stock, masters, finance (from MicroMax ERP); HR and payroll (from Baogee) */}
+        {erpRoutes()}
         <Route path="*" element={<Navigate to="/home" replace />} />
       </Route>
     </Routes>

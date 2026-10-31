@@ -12,12 +12,12 @@ export function useDebounced<T>(value: T, ms = 300): T {
   return v;
 }
 
-/** GET a `micromax.hr_insights.*` method; empty params are dropped, the previous result stays shown while the next loads. */
+/** GET a `sugarcane.erp_insights.hr_insights.*` method; empty params are dropped, the previous result stays shown while the next loads. */
 export function useHrInsights<T>(method: string, params: Record<string, unknown>, enabled = true) {
   const clean = Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== ""));
   return useSWR<T>(
-    enabled ? [`micromax.hr_insights.${method}`, JSON.stringify(clean)] : null,
-    () => getCall<T>(`micromax.hr_insights.${method}`, clean),
+    enabled ? [`sugarcane.erp_insights.hr_insights.${method}`, JSON.stringify(clean)] : null,
+    () => getCall<T>(`sugarcane.erp_insights.hr_insights.${method}`, clean),
     { keepPreviousData: true, revalidateOnFocus: false },
   );
 }

@@ -11,7 +11,7 @@ import {
   Printer,
   Search,
   X,
-
+  LayoutDashboard,
 } from "lucide-react";
 import { type FormFieldMeta } from "@/components/forms/field-primitives";
 import { PageHeader } from "@/components/common/page-header";
@@ -33,7 +33,10 @@ import { notifyDataChanged } from "@/hooks/useRealtime";
 import { humanizeError } from "@/services/frappe";
 import { DateRangeFilterControls, useDateRangeFilter } from "@/components/filters/date-range-filter";
 
-type ViewMode = "list" | "kanban";
+type ViewMode = "list" | "kanban" | "grid";
+
+/** Row actions handed to a Cards-view card (the same ones as the list's action column). */
+export interface CrmCardActions { edit: () => void; remove: () => void; open?: () => void }
 
 export interface CrmStatSpec<T = any> extends Omit<StatCardProps, "onClick" | "active"> {
   /**
@@ -110,6 +113,21 @@ export interface CrmManagementConfig<T extends Record<string, any>> {
   /** Adds a per-row Print action (formatted single-document print preview → browser "Save as PDF"), distinct from the list-level table export/print. */
   onPrintRow?: (r: T) => void;
   renderCard?: (r: T) => ReactNode;
+  /** Adds a Cards view: one card per row in a responsive grid (e.g. Departments). */
+  renderGridCard?: (r: T, actions: CrmCardActions) => ReactNode;
+  /** Replace the create / edit dialog with your own page (e.g. a full-page form). */
+  onCreate?: () => void;
+  onEdit?: (r: T) => void;
+  /** View shown first (default "list"). */
+  defaultView?: ViewMode;
+  /** Label of the status filter's "all" option (default "All Statuses"). */
+  statusAllLabel?: string;
+  /** Server-side sort of the rows (default: last modified first). */
+  orderBy?: { field: string; order: "asc" | "desc" };
+  /** Hide the kanban view (its toggle) where grouping by a field means nothing. */
+  hideKanban?: boolean;
+  /** Label of the kanban view's toggle (default "Pipeline"). */
+  kanbanLabel?: string;
   /** Charts / insight cards shown between the KPI strip and the filter bar. */
   insights?: ReactNode;
   emptyTitle: string;
@@ -132,7 +150,7 @@ function deriveColumns<T extends Record<string, any>>(
 }
 
 export function CrmManagementPage<T extends Record<string, any>>({ config }: { config: CrmManagementConfig<T> }) {
-  const [view, setView] = useState<ViewMode>("list");
+  const [view, setView] = useState<ViewMode>(config.defaultView ?? "list");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [activeStat, setActiveStat] = useState<string | null>(null);
@@ -149,7 +167,7 @@ export function CrmManagementPage<T extends Record<string, any>>({ config }: { c
       doctype: config.doctype,
       fields: config.fields,
       filters: config.filters,
-      orderBy: { field: "modified", order: "desc" },
+      orderBy: config.orderBy ?? { field: "modified", order: "desc" },
     });
 
   // Deep-link support: other pages (e.g. a Lead/Deal's Connections panel)
@@ -266,7 +284,9 @@ export function CrmManagementPage<T extends Record<string, any>>({ config }: { c
         sortable: false,
         align: "right" as const,
         render: (r) => (
-          <div className="flex items-center justify-end gap-1">
+          // The row itself opens the record (onRowClick → config.onOpen); keep the action buttons' clicks from also
+          // reaching the row, or Edit would open the edit dialog and then navigate away (Departments → Employees).
+          <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
             {config.onOpen && (
               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => config.onOpen!(r)}>
                 <Eye className="h-3.5 w-3.5" />
@@ -281,12 +301,7 @@ export function CrmManagementPage<T extends Record<string, any>>({ config }: { c
               variant="ghost"
               size="icon"
               className="h-7 w-7"
-              onClick={() => {
-                setEditing(r);
-                setFormValues({ ...r });
-                setFormErrors({});
-                setDialogOpen(true);
-              }}
+              onClick={() => openEdit(r)}
             >
               <Pencil className="h-3.5 w-3.5" />
             </Button>
@@ -306,7 +321,16 @@ export function CrmManagementPage<T extends Record<string, any>>({ config }: { c
   );
 
 
+  const openEdit = (r: T) => {
+    if (config.onEdit) return config.onEdit(r);
+    setEditing(r);
+    setFormValues({ ...r });
+    setFormErrors({});
+    setDialogOpen(true);
+  };
+
   const openCreate = () => {
+    if (config.onCreate) return config.onCreate();
     setEditing(null);
     setFormValues({ ...(config.defaults ?? {}) } as Record<string, any>);
     setFormErrors({});
@@ -400,6 +424,16 @@ export function CrmManagementPage<T extends Record<string, any>>({ config }: { c
         actions={
           <div className="flex items-center gap-2">
             <div className="flex rounded-lg border border-input bg-popover p-0.5 shadow-sm">
+              {config.renderGridCard && (
+                <button
+                  onClick={() => setView("grid")}
+                  className={`flex h-7 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium transition-colors ${
+                    view === "grid" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <LayoutDashboard className="h-3.5 w-3.5" /> Cards
+                </button>
+              )}
               <button
                 onClick={() => setView("list")}
                 className={`flex h-7 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium transition-colors ${
@@ -408,16 +442,18 @@ export function CrmManagementPage<T extends Record<string, any>>({ config }: { c
               >
                 <List className="h-3.5 w-3.5" /> List
               </button>
+              {!config.hideKanban && (
               <button
                 onClick={() => setView("kanban")}
                 className={`flex h-7 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium transition-colors ${
                   view === "kanban" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <LayoutGrid className="h-3.5 w-3.5" /> Pipeline
+                <LayoutGrid className="h-3.5 w-3.5" /> {config.kanbanLabel ?? "Pipeline"}
               </button>
+              )}
             </div>
-            <Button onClick={openCreate}>
+            <Button variant="create" onClick={openCreate}>
               <Plus className="h-4 w-4" /> {config.newLabel}
             </Button>
           </div>
@@ -465,7 +501,7 @@ export function CrmManagementPage<T extends Record<string, any>>({ config }: { c
         </div>
         <div className="w-full sm:w-48">
           <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-            <option value="all">All Statuses</option>
+            <option value="all">{config.statusAllLabel ?? "All Statuses"}</option>
             {statusOptions.map((s) => (
               <option key={s} value={s}>
                 {s}
@@ -476,7 +512,31 @@ export function CrmManagementPage<T extends Record<string, any>>({ config }: { c
         {config.dateField && <DateRangeFilterControls filter={dateFilter} label={config.dateLabel ?? "Date"} />}
       </FilterBar>
 
-      {view === "list" ? (
+      {view === "grid" && config.renderGridCard ? (
+        isLoading && !filtered.length ? (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => <div key={i} className="h-44 animate-pulse rounded-2xl border border-border bg-card/60" />)}
+          </div>
+        ) : filtered.length ? (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 min-[1900px]:grid-cols-5">
+            {filtered.map((r) => (
+              <div key={String(r.name)}>
+                {config.renderGridCard!(r, {
+                  edit: () => openEdit(r),
+                  remove: () => setDeleteTarget(r),
+                  open: config.onOpen ? () => config.onOpen!(r) : undefined,
+                })}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-border py-16 text-center">
+            <p className="font-medium">{config.emptyTitle}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{config.emptyDescription}</p>
+            <Button className="mt-4" size="sm" onClick={openCreate}><Plus className="h-4 w-4" /> {config.newLabel}</Button>
+          </div>
+        )
+      ) : view === "list" ? (
         <FrappeDataTable
           columns={listColumns}
           rows={filtered}
@@ -525,12 +585,7 @@ export function CrmManagementPage<T extends Record<string, any>>({ config }: { c
             );
           }}
           onCardMove={handleCardMove}
-          onCardClick={(r) => {
-            setEditing(r);
-            setFormValues({ ...r });
-            setFormErrors({});
-            setDialogOpen(true);
-          }}
+          onCardClick={(r) => openEdit(r)}
           loading={isLoading}
           emptyDescription={config.emptyDescription}
         />

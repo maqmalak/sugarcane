@@ -7,6 +7,7 @@ import {
   Sparkles, Target, Ticket, Inbox, Layers, Truck, UserCog, Users, Warehouse, Weight, Beaker, Factory, Banknote, MessageSquare, BookOpen, type LucideIcon, Wand2, ScanBarcode, ShieldCheck, AlertTriangle, MapPin,
 } from "lucide-react";
 import { SC_DOCS, docBase, type ScApp } from "@/sc/registry";
+import { FINANCE_NAV, HR_NAV, PAYROLL_NAV, SALES_NAV, STORE_NAV } from "@/app/erp-navigation";
 
 export interface NavItem {
   label: string;
@@ -30,8 +31,6 @@ const LAB_ROLES = [...MANAGERS, "Lab Chemist", "Production Manager", "MIS Viewer
 const ACC_ROLES = [...MANAGERS, "Cane Accountant", "Cane Cashier", "MIS Viewer"];
 const STORE_ROLES = [...MANAGERS, "Stock Manager", "Stock User", "Purchase Manager", "Purchase User", "MIS Viewer", "Accounts User"];
 const SALES_ROLES = [...MANAGERS, "Sales Manager", "Sales User", "Stock Manager", "MIS Viewer", "Accounts User", "Gross Weighman", "Tare Weighman"];
-const FIN_ROLES = [...MANAGERS, "Accounts Manager", "Accounts User", "MIS Viewer"];
-const HR_ROLES = [...MANAGERS, "HR Manager", "HR User"];
 const MIS_ROLES = [...MANAGERS, "MIS Viewer", "Cane Accountant", "Production Manager", "Lab Chemist", "Yard Supervisor"];
 const SURVEY_ROLES = [...MANAGERS, "Circle Officer", "Surveyor", "MIS Viewer"];
 const FF_ROLES = [...MANAGERS, "Circle Officer"];
@@ -201,24 +200,16 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
   ],
   reports: [{ title: "Reports", items: [{ label: "Report Centre", to: "/reports", icon: FileSpreadsheet }] }],
   approvals: [{ title: "Approvals", items: [{ label: "Inbox", to: "/approvals/inbox", icon: Inbox }, { label: "Overlap reviews", to: "/survey/d/survey-overlap-review", icon: Layers }] }],
-  purchase: [
-    { title: "Purchase & stores", items: [{ label: "Dashboard", to: "/purchase", icon: Sparkles, roles: STORE_ROLES }] },
-    ...docGroups("purchase", STORE_ROLES),
-    { title: "Reports", items: [{ label: "Purchase & stores reports", to: "/reports?g=Purchase%20%26%20Stores", icon: BarChart3 }] },
-  ],
-  sales: [
-    { title: "Sugar sales", items: [{ label: "Dashboard & dispatch", to: "/sales", icon: Sparkles, roles: SALES_ROLES }] },
-    ...docGroups("sales", SALES_ROLES),
-    { title: "Reports", items: [{ label: "Sales reports", to: "/reports?g=Sugar%20Sales", icon: BarChart3 }] },
-  ],
-  finance: [
-    { title: "Finance", items: [{ label: "Dashboard & vouchers", to: "/finance", icon: Sparkles, roles: FIN_ROLES }] },
-    { title: "Reports", items: [{ label: "Finance reports", to: "/reports?g=Finance", icon: BarChart3 }] },
-  ],
-  hr: [
-    { title: "HR & payroll", items: [{ label: "Dashboard", to: "/hr", icon: Sparkles, roles: HR_ROLES }] },
-    { title: "Reports", items: [{ label: "HR reports", to: "/reports?g=HR%20%26%20Payroll", icon: BarChart3 }] },
-  ],
+  purchase: [...STORE_NAV, ...docGroups("purchase", STORE_ROLES)],
+  sales: [...SALES_NAV, ...docGroups("sales", SALES_ROLES)],
+  finance: [...FINANCE_NAV],
+  hr: [...HR_NAV],
+  import: [...STORE_NAV, ...docGroups("purchase", STORE_ROLES)],
+  inventory: [...STORE_NAV, ...docGroups("purchase", STORE_ROLES)],
+  masters: [...STORE_NAV, ...docGroups("purchase", STORE_ROLES)],
+  selling: [...SALES_NAV, ...docGroups("sales", SALES_ROLES)],
+  accounting: FINANCE_NAV,
+  payroll: PAYROLL_NAV,
   mis: [
     {
       title: "MIS",

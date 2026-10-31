@@ -39,23 +39,23 @@
     /* Deep-navy / teal enterprise theme */
     --background: 221 66% 6%;
     --foreground: 220 20% 96%;
-    --card: 218 44% 12.5%;
+    --card: 218 40% 15.5%; /* a clear step up from the page (6%) so cards stand out */
     --card-foreground: 220 20% 96%;
-    --popover: 218 48% 12%;
+    --popover: 218 42% 15%;
     --popover-foreground: 220 20% 96%;
     --primary: 173 80% 40%;
     --primary-foreground: 0 0% 100%;
     --secondary: 220 66% 14%;
     --secondary-foreground: 220 13% 91%;
-    --muted: 218 40% 17%;
+    --muted: 218 36% 20%;
     --muted-foreground: 218 22% 77%;
     --accent: 220 66% 14%;
     --accent-foreground: 220 13% 91%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 218 30% 28%;
-    --input: 216 20% 50%;
-    --input-bg: 222 50% 8.5%; /* darker than cards so fields read as inset wells */
+    --border: 216 28% 34%;
+    --input: 214 26% 46%;
+    --input-bg: 222 52% 8%; /* darker than cards so fields read as inset wells */
     --success: 142 60% 48%;
     --warning: 35 92% 55%;
     --ring: 173 80% 40%;
@@ -101,20 +101,21 @@
   .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),
   .dark select,
   .dark textarea {
-    background-color: hsl(218 48% 12.5%);
-    border-color: hsl(217 32% 31%);
-    color: hsl(220 20% 94%);
+    background-color: hsl(222 52% 8%);
+    border-color: hsl(214 28% 40%);
+    color: hsl(220 20% 96%);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.45);
     transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
   }
   .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(:disabled):hover,
   .dark select:not(:disabled):hover,
   .dark textarea:not(:disabled):hover {
-    border-color: hsl(215 30% 44%);
+    border-color: hsl(213 32% 54%);
   }
   .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus-visible,
   .dark select:focus-visible,
   .dark textarea:focus-visible {
-    background-color: hsl(218 48% 14.5%);
+    background-color: hsl(222 50% 10%);
     border-color: hsl(var(--primary));
     box-shadow: 0 0 0 3px hsl(var(--primary) / 0.22);
   }
@@ -122,16 +123,16 @@
   .dark select:disabled,
   .dark textarea:disabled {
     opacity: 1;
-    background-color: hsl(218 40% 10%);
+    background-color: hsl(220 40% 11%);
     border-style: dashed;
-    color: hsl(220 18% 78%);
+    color: hsl(220 18% 82%);
   }
   .dark input::placeholder,
   .dark textarea::placeholder {
-    color: hsl(220 16% 52%);
+    color: hsl(220 16% 58%);
   }
   .dark select option {
-    background-color: hsl(218 48% 12.5%);
+    background-color: hsl(222 52% 10%);
   }
   /* Native date/time pickers: light calendar icon on the dark field. */
   .dark input::-webkit-calendar-picker-indicator {
@@ -298,7 +299,17 @@
     box-shadow: 0 1px 2px hsl(220 30% 20% / 0.06), 0 4px 14px -6px hsl(220 30% 20% / 0.14);
   }
   .dark .bg-card.border, .dark .bg-card.rounded-2xl, .dark .bg-card.rounded-xl {
-    box-shadow: 0 1px 0 hsl(0 0% 100% / 0.04) inset, 0 6px 18px -8px hsl(0 0% 0% / 0.6);
+    border-color: hsl(216 30% 30%);
+    box-shadow: 0 1px 0 hsl(0 0% 100% / 0.07) inset, 0 0 0 1px hsl(0 0% 100% / 0.02), 0 10px 26px -10px hsl(0 0% 0% / 0.75);
+  }
+  /* Field labels and section titles on cards: brighter in dark mode */
+  .dark .frappe-form label, .dark label.text-muted-foreground { color: hsl(220 20% 84%); }
+  /* HR pages (from Baogee): inset panels and hover glow on cards */
+  .surface-inset { @apply border border-border bg-background/50; }
+  .dark .surface-inset { background-color: hsl(222 50% 9%); border-color: hsl(216 30% 30%); }
+  .dark .surface-hover:hover {
+    border-color: hsl(var(--primary) / 0.6);
+    box-shadow: inset 0 1px 0 0 hsl(0 0% 100% / 0.08), 0 16px 32px -12px hsl(0 0% 0% / 0.8), 0 0 0 1px hsl(var(--primary) / 0.25);
   }
 }
 
@@ -308,7 +319,7 @@
     @apply overflow-hidden rounded-2xl border border-border bg-card;
     box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 10px 28px -14px rgb(15 23 42 / 0.22);
   }
-  .dark .form-card { box-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 30px -14px rgb(0 0 0 / 0.6); }
+  .dark .form-card { border-color: hsl(216 30% 30%); box-shadow: 0 1px 0 hsl(0 0% 100% / 0.07) inset, 0 12px 30px -14px rgb(0 0 0 / 0.75); }
   .form-card-head {
     @apply flex items-center gap-2.5 border-b border-border px-4 py-2.5 text-[13px] font-semibold tracking-tight sm:px-5;
     background: linear-gradient(90deg, hsl(var(--primary) / 0.08), hsl(var(--primary) / 0.02) 45%, transparent);
@@ -328,4 +339,12 @@
     box-shadow: 0 0 0 3px hsl(var(--ring) / 0.2);
   }
   .frappe-form label { @apply text-[12px] font-medium text-foreground/80; }
+}
+
+/* Urdu names (HR): right-to-left Nastaliq */
+.urdu,
+[data-field$="urdu_name"] input {
+  direction: rtl;
+  font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif;
+  line-height: 2;
 }

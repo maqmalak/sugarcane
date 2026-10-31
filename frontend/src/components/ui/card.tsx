@@ -7,7 +7,7 @@ export const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDi
       ref={ref}
       className={cn(
         "rounded-lg border border-border bg-card text-card-foreground shadow-sm",
-        "dark:border-white/10 dark:bg-card dark:shadow-[0_18px_60px_rgb(2_6_23_/_0.45)]",
+        "dark:border-white/[0.16] dark:bg-card dark:shadow-[inset_0_1px_0_rgb(255_255_255_/_0.07),0_18px_50px_-12px_rgb(2_6_23_/_0.7)]",
         // Every card gets the subtle glow-on-hover treatment by default —
         // opt in to `hover-lift` as well (see globals.css) on cards that are
         // actually clickable/navigational, so movement only implies action.

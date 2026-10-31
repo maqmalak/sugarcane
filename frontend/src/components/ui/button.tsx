@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "@/utils/cn";
 
-type Variant = "default" | "primary" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "save" | "submit" | "workflow" | "danger" | "neutral" | "menu";
+type Variant = "default" | "primary" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "save" | "submit" | "workflow" | "danger" | "neutral" | "menu" | "create";
 type Size = "xs" | "sm" | "md" | "lg" | "icon";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -19,6 +19,9 @@ const variantClasses: Record<Variant, string> = {
   secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/70",
   ghost: "hover:bg-accent hover:text-accent-foreground",
   link: "text-primary underline-offset-4 hover:underline",
+  // "New …" / "Create …" — the page's main add action: a bright teal → emerald → cyan gradient with a glow
+  create:
+    "rounded-lg bg-gradient-to-r from-teal-500 via-emerald-500 to-cyan-500 text-white font-semibold shadow-lg shadow-emerald-500/30 ring-1 ring-inset ring-white/20 hover:-translate-y-px hover:brightness-110 hover:shadow-xl hover:shadow-emerald-500/40 active:translate-y-0 disabled:from-slate-400 disabled:via-slate-400 disabled:to-slate-400 disabled:shadow-none transition-all",
   // form actions — glossy gradients with a coloured glow; lift on hover
   save:
     "rounded-lg bg-gradient-to-b from-primary to-[hsl(var(--primary)/0.82)] text-primary-foreground shadow-md shadow-primary/30 ring-1 ring-inset ring-white/15 hover:-translate-y-px hover:shadow-lg hover:shadow-primary/40 active:translate-y-0 transition-all",

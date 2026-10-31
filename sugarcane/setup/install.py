@@ -25,6 +25,9 @@ def after_migrate():
 	from sugarcane.setup.indexes import ensure as ensure_indexes
 
 	ensure_indexes()
+	from sugarcane.setup.hr_fields import ensure as ensure_hr_fields
+
+	ensure_hr_fields()
 	company = frappe.db.get_single_value("Sugar Settings", "company")
 	if company and frappe.db.exists("Company", company):
 		from sugarcane.setup.accounts import setup_company

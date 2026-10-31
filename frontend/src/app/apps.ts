@@ -1,4 +1,5 @@
 import {
+  Wallet,
   Banknote, BookOpen, Landmark, Beaker, Boxes, Warehouse, ClipboardList, Factory, FileSpreadsheet, Gauge, Leaf, MapPinned, Truck, UserCog, Users,
   Weight, type LucideIcon,
 } from "lucide-react";
@@ -117,6 +118,14 @@ export const APPS: AppTile[] = [
     roles: [...MANAGERS, "HR Manager", "HR User"],
     description: "Shifts, biometric attendance, late penalties, leave, EOBI / PESSI / PF, Pakistan income tax slabs, gratuity and final settlement.",
     colorClass: "bg-rose-500/10 text-rose-600 dark:text-rose-400", features: ["Shifts", "Biometric", "Payroll", "Income tax"] },
+  { id: "inventory", label: "Stock", tagline: "Stock, warehouses, movement", group: "Finance & Setup", icon: Warehouse, to: "/inventory/stock",
+    roles: [...MANAGERS, "Stock Manager", "Stock User", "Purchase Manager", "MIS Viewer"],
+    description: "Stock balance by warehouse, material movement (issue, receipt, transfer), reconciliation, item prices, batches and the stock ledger.",
+    colorClass: "bg-teal-500/10 text-teal-600 dark:text-teal-400", features: ["Stock balance", "Material movement", "Stock ledger"] },
+  { id: "payroll", label: "Payroll", tagline: "Salary structures & slips", group: "Finance & Setup", icon: Wallet, to: "/payroll",
+    roles: [...MANAGERS, "HR Manager", "HR User"],
+    description: "Salary components and structures, assignments, payroll runs, salary slips, additional salary, income tax slabs and gratuity.",
+    colorClass: "bg-pink-500/10 text-pink-600 dark:text-pink-400", features: ["Salary structures", "Payroll runs", "Salary slips"] },
   { id: "help", label: "Help", tagline: "User manuals", group: "Overview", icon: BookOpen, to: "/help",
     description: "Step-by-step manuals for each role: field, gate, weighbridge, lab, accounts, stores, sales, finance, HR and management.",
     colorClass: "bg-slate-500/10 text-slate-600 dark:text-slate-300", features: ["Your role first", "Printable"] },

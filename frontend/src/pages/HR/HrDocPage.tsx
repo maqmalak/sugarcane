@@ -1,0 +1,57 @@
+import { DocFormPage } from "@/components/doc/doc-form-page";
+import { DocListPage } from "@/components/doc/doc-list-page";
+import { ADDITIONAL_SALARY_CONFIG, INCOME_TAX_SLAB_CONFIG, LEAVE_TYPE_CONFIG, PAYROLL_ENTRY_CONFIG, PAYROLL_PERIOD_CONFIG } from "@/pages/Payroll/payroll-configs";
+import {
+  ATTENDANCE_REQUEST_CONFIG, CHECKIN_CONFIG, COMPENSATORY_LEAVE_CONFIG, EMPLOYEE_GRADE_CONFIG, EMPLOYEE_INCENTIVE_CONFIG,
+  EMPLOYEE_PROMOTION_CONFIG, EMPLOYEE_SEPARATION_CONFIG, EMPLOYEE_TRANSFER_CONFIG, EMPLOYMENT_TYPE_CONFIG, EXPENSE_CLAIM_TYPE_CONFIG,
+  GRATUITY_RULE_CONFIG, HOLIDAY_LIST_ASSIGNMENT_CONFIG, HR_SETTINGS_CONFIG, LEAVE_ENCASHMENT_CONFIG, LEAVE_PERIOD_CONFIG,
+  LEAVE_POLICY_ASSIGNMENT_CONFIG, LEAVE_POLICY_CONFIG, OVERTIME_SLIP_CONFIG, OVERTIME_TYPE_CONFIG, PAYROLL_SETTINGS_CONFIG,
+  RETENTION_BONUS_CONFIG, LEAVE_APPLICATION_CONFIG, EXPENSE_CLAIM_CONFIG, EMPLOYEE_ADVANCE_CONFIG, SHIFT_LOCATION_CONFIG, SHIFT_SCHEDULE_CONFIG, SHIFT_SCHEDULE_ASSIGNMENT_CONFIG, SALARY_WITHHOLDING_CONFIG, SHIFT_ASSIGNMENT_CONFIG, SHIFT_REQUEST_CONFIG, SHIFT_TYPE_CONFIG, TAX_DECLARATION_CONFIG,
+} from "./hr-configs";
+
+export const HR_DOC_CONFIGS = {
+  entries: PAYROLL_ENTRY_CONFIG,
+  additionalSalary: ADDITIONAL_SALARY_CONFIG,
+  periods: PAYROLL_PERIOD_CONFIG,
+  taxSlabs: INCOME_TAX_SLAB_CONFIG,
+  leaveTypes: LEAVE_TYPE_CONFIG,
+  shiftTypes: SHIFT_TYPE_CONFIG,
+  shiftAssignments: SHIFT_ASSIGNMENT_CONFIG,
+  shiftRequests: SHIFT_REQUEST_CONFIG,
+  leaveApplication: LEAVE_APPLICATION_CONFIG,
+  expenseClaim: EXPENSE_CLAIM_CONFIG,
+  employeeAdvance: EMPLOYEE_ADVANCE_CONFIG,
+  shiftLocations: SHIFT_LOCATION_CONFIG,
+  shiftSchedules: SHIFT_SCHEDULE_CONFIG,
+  shiftScheduleAssignments: SHIFT_SCHEDULE_ASSIGNMENT_CONFIG,
+  attendanceRequests: ATTENDANCE_REQUEST_CONFIG,
+  checkins: CHECKIN_CONFIG,
+  leavePolicies: LEAVE_POLICY_CONFIG,
+  leavePolicyAssignments: LEAVE_POLICY_ASSIGNMENT_CONFIG,
+  leavePeriods: LEAVE_PERIOD_CONFIG,
+  compensatoryLeave: COMPENSATORY_LEAVE_CONFIG,
+  leaveEncashment: LEAVE_ENCASHMENT_CONFIG,
+  holidayListAssignments: HOLIDAY_LIST_ASSIGNMENT_CONFIG,
+  employmentTypes: EMPLOYMENT_TYPE_CONFIG,
+  employeeGrades: EMPLOYEE_GRADE_CONFIG,
+  promotions: EMPLOYEE_PROMOTION_CONFIG,
+  transfers: EMPLOYEE_TRANSFER_CONFIG,
+  separations: EMPLOYEE_SEPARATION_CONFIG,
+  expenseClaimTypes: EXPENSE_CLAIM_TYPE_CONFIG,
+  gratuityRules: GRATUITY_RULE_CONFIG,
+  incentives: EMPLOYEE_INCENTIVE_CONFIG,
+  retentionBonus: RETENTION_BONUS_CONFIG,
+  salaryWithholding: SALARY_WITHHOLDING_CONFIG,
+  taxDeclarations: TAX_DECLARATION_CONFIG,
+  overtimeTypes: OVERTIME_TYPE_CONFIG,
+  overtimeSlips: OVERTIME_SLIP_CONFIG,
+  hrSettings: HR_SETTINGS_CONFIG,
+  payrollSettings: PAYROLL_SETTINGS_CONFIG,
+};
+export type HrDocKey = keyof typeof HR_DOC_CONFIGS;
+
+/** List (or, with `form`, the `:name` / `new` form — or the single settings form) of a config-driven HR / payroll DocType. One lazy chunk for all of them. */
+export default function HrDocPage({ which, form }: { which: HrDocKey; form?: boolean }) {
+  const config = HR_DOC_CONFIGS[which];
+  return form || config.single ? <DocFormPage config={config} /> : <DocListPage config={config} />;
+}

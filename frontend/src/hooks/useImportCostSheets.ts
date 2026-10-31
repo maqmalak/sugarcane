@@ -20,6 +20,9 @@ const COST_FIELDS = [
   "total_landed_cost",
 ] as const;
 
+/** False on sugar sites: the micromax import doctypes are not installed. */
+const IMPORT_DOCTYPES = false;
+
 export function useImportCostSheets(args?: { filters?: unknown[][]; limit?: number; enabled?: boolean }) {
   const { filters = [], limit = 200, enabled = true } = args ?? {};
   return useFrappeGetDocList<ImportCostSheet>(
@@ -30,7 +33,8 @@ export function useImportCostSheets(args?: { filters?: unknown[][]; limit?: numb
       limit,
       orderBy: { field: "modified", order: "desc" },
     },
-    enabled ? `micromax.impcost.${JSON.stringify({ filters, limit })}` : null,
+    // Import Shipment / Import Cost Sheet are MicroMax ERP doctypes, not on sugar sites: never query them here.
+    enabled && IMPORT_DOCTYPES ? `micromax.impcost.${JSON.stringify({ filters, limit })}` : null,
   );
 }
 

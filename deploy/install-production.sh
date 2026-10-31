@@ -8,10 +8,13 @@
 #
 #  Run as the Linux user that will own the bench (it must have sudo), NOT as root:
 #
-#      LETSENCRYPT_EMAIL=you@example.com bash install-production.sh     # site micromaxonline.uk with an SSL certificate
-#      DOMAIN= SITE=sugarcane.local bash install-production.sh          # no domain / SSL (server reached by IP)
+#      LETSENCRYPT_EMAIL=you@example.com bash install-production.sh
 #
-#  Before running: point the DNS A record of micromaxonline.uk at this server's public IP (Let's Encrypt checks it).
+#      → https://cane.micromaxonline.uk        the Frappe site (desk at /desk)
+#      → https://sugarcane.micromaxonline.uk   the React app (its / opens /sugar), served by the same site
+#
+#  Before running: point the DNS A records of both names at this server's public IP (Let's Encrypt checks them).
+#  Without a domain:  SSL=0 REACT_DOMAIN= SITE=sugarcane.local bash install-production.sh
 #
 #  Every value below can be overridden from the environment. The script can be re-run: finished steps are skipped.
 #  Passwords are generated once and kept in ~/.frappe-install-secrets (mode 600). A full log goes to ~/install-production-*.log.
@@ -25,10 +28,11 @@ BENCH_NAME="${BENCH_NAME:-frappe-bench}"
 BENCH_DIR="${HOME_DIR}/${BENCH_NAME}"
 
 # NOTE: Frappe refuses a site with the same name as an app on the bench ("Your bench has an app called sugarcane,
-# please choose another name for the site"), so the site cannot be called plain "sugarcane"; it is named after the domain.
-SITE="${SITE:-micromaxonline.uk}"
-DOMAIN="${DOMAIN-micromaxonline.uk}"       # the public domain: SSL from Let's Encrypt. DOMAIN= (empty) skips domain and SSL
-LETSENCRYPT_EMAIL="${LETSENCRYPT_EMAIL:-}" # needed with DOMAIN: Let's Encrypt sends certificate expiry notices here
+# please choose another name for the site"), so the site cannot be called plain "sugarcane"; it is named after its host.
+SITE="${SITE:-cane.micromaxonline.uk}"                   # Frappe site = its public host name (desk, API)
+REACT_DOMAIN="${REACT_DOMAIN-sugarcane.micromaxonline.uk}" # React app host, served by the same site; empty = none
+SSL="${SSL:-1}"                                          # 1 = Let's Encrypt certificate for SITE and REACT_DOMAIN
+LETSENCRYPT_EMAIL="${LETSENCRYPT_EMAIL:-}"               # needed with SSL=1: certificate expiry notices go here
 
 FRAPPE_REPO="${FRAPPE_REPO:-https://github.com/frappe/frappe}"
 FRAPPE_BRANCH="${FRAPPE_BRANCH:-v16.54.0}"            # a tag: the exact Frappe release
@@ -92,17 +96,19 @@ sudo -v || die "${FRAPPE_USER} needs sudo."
 case "$(dpkg --print-architecture)" in
 	amd64) ARCH=amd64 ;; arm64) ARCH=arm64 ;; *) die "Unsupported CPU architecture $(dpkg --print-architecture)" ;;
 esac
-if [ -n "$DOMAIN" ]; then
-	[ -n "$LETSENCRYPT_EMAIL" ] || die "Set LETSENCRYPT_EMAIL=… for the SSL certificate of ${DOMAIN} (or DOMAIN= to install without SSL)."
-	DNS_IP="$(getent ahostsv4 "$DOMAIN" | awk 'NR==1{print $1}')"
+if [ "$SSL" = "1" ]; then
+	[ -n "$LETSENCRYPT_EMAIL" ] || die "Set LETSENCRYPT_EMAIL=… for the SSL certificate (or SSL=0 to install without SSL)."
 	PUBLIC_IP="$(curl -4 -fsS --max-time 8 https://api.ipify.org 2>/dev/null || true)"
-	if [ -z "$DNS_IP" ]; then
-		warn "${DOMAIN} does not resolve yet — add its DNS A record, or the SSL step will fail."
-	elif [ -n "$PUBLIC_IP" ] && [ "$DNS_IP" != "$PUBLIC_IP" ]; then
-		warn "${DOMAIN} points to ${DNS_IP}, this server is ${PUBLIC_IP} — the SSL step will fail until DNS is updated."
-	else
-		info "${DOMAIN} → ${DNS_IP}"
-	fi
+	for host in "$SITE" ${REACT_DOMAIN:+"$REACT_DOMAIN"}; do
+		DNS_IP="$(getent ahostsv4 "$host" | awk 'NR==1{print $1}')"
+		if [ -z "$DNS_IP" ]; then
+			warn "${host} does not resolve yet — add its DNS A record, or the SSL step will fail."
+		elif [ -n "$PUBLIC_IP" ] && [ "$DNS_IP" != "$PUBLIC_IP" ]; then
+			warn "${host} points to ${DNS_IP}, this server is ${PUBLIC_IP} — the SSL step will fail until DNS is updated."
+		else
+			info "${host} → ${DNS_IP}"
+		fi
+	done
 fi
 GIT_TERMINAL_PROMPT=0 git ls-remote "$SUGARCANE_REPO" HEAD >/dev/null 2>&1 || warn "Cannot reach $SUGARCANE_REPO yet (git may not be installed); checked again later."
 info "user ${FRAPPE_USER} · bench ${BENCH_DIR} · site ${SITE} · Frappe ${FRAPPE_BRANCH} · ${ARCH}"
@@ -243,9 +249,11 @@ installed="$(bench --site "$SITE" list-apps 2>/dev/null || true)"
 for a in erpnext hrms mm_core sugarcane; do
 	if grep -qw "^$a" <<<"$installed"; then info "$a already installed"; else bench --site "$SITE" install-app "$a"; fi
 done
-BASE_URL="http://${SITE}"; [ -n "$DOMAIN" ] && BASE_URL="https://${DOMAIN}"
+SCHEME="http"; [ "$SSL" = "1" ] && SCHEME="https"
+BASE_URL="${SCHEME}://${SITE}"
+REACT_URL="${SCHEME}://${REACT_DOMAIN:-$SITE}/sugar"
 bench --site "$SITE" set-config host_name "$BASE_URL"
-bench --site "$SITE" set-config sugar_app_url "${BASE_URL}/sugar"
+bench --site "$SITE" set-config sugar_app_url "$REACT_URL"   # QR codes on prints open the React app
 bench --site "$SITE" set-config developer_mode 0
 bench --site "$SITE" migrate
 bench build --production
@@ -253,6 +261,7 @@ info "apps on ${SITE}: $(bench --site "$SITE" list-apps | tr '\n' ' ')"
 
 # ------------------------------------------------------------------------------------------------ 9. production
 step "Production: scheduler, nginx, supervisor"
+bench config dns_multitenant on            # nginx picks the site by host name
 bench --site "$SITE" enable-scheduler
 bench --site "$SITE" set-maintenance-mode off
 sudo env "PATH=$PATH" bench setup production "$FRAPPE_USER" --yes
@@ -272,18 +281,91 @@ sudo systemctl reload nginx
 sudo supervisorctl restart all
 sudo supervisorctl status || true
 
-# ------------------------------------------------------------------------------------------------ 10. domain + ssl
-if [ -n "$DOMAIN" ]; then
-	step "Domain ${DOMAIN} and SSL"
-	bench config dns_multitenant on
-	[ "$DOMAIN" = "$SITE" ] || bench setup add-domain "$DOMAIN" --site "$SITE"
-	bench setup nginx --yes
-	sudo systemctl reload nginx
-	command -v certbot >/dev/null 2>&1 || { sudo snap install core; sudo snap refresh core; sudo snap install --classic certbot; sudo ln -sf /snap/bin/certbot /usr/bin/certbot; }
-	sudo certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m "$LETSENCRYPT_EMAIL" --redirect
+# ------------------------------------------------------------------------------------------------ 10. react host
+# The React app is built into sugarcane (served at /sugar). REACT_DOMAIN gets its own nginx server block that sends every
+# request to the same Frappe site (X-Frappe-Site-Name), and opens /sugar at its root. It lives in its own file, so
+# `bench setup nginx` (which rewrites the bench's nginx.conf) never touches it.
+REACT_CONF="/etc/nginx/conf.d/${REACT_DOMAIN}.conf"
+react_nginx() {  # react_nginx [CERT_DIR] — writes the React host's server block (with SSL when a certificate is given)
+	local cert="${1:-}" listen="listen 80; listen [::]:80;" tls="" redirect=""
+	if [ -n "$cert" ]; then
+		listen="listen 443 ssl; listen [::]:443 ssl;"
+		tls="ssl_certificate ${cert}/fullchain.pem; ssl_certificate_key ${cert}/privkey.pem;
+	ssl_protocols TLSv1.2 TLSv1.3; ssl_session_cache shared:SSL_react:10m; ssl_session_timeout 5m;
+	add_header Strict-Transport-Security \"max-age=63072000; includeSubDomains\";"
+		redirect="server { listen 80; listen [::]:80; server_name ${REACT_DOMAIN}; return 301 https://\$host\$request_uri; }"
+	fi
+	sudo tee "$REACT_CONF" >/dev/null <<NGINX
+# ${REACT_DOMAIN} → React app of ${SITE} (written by install-production.sh; bench does not manage this file)
+server {
+	${listen}
+	server_name ${REACT_DOMAIN};
+	root ${BENCH_DIR}/sites;
+	${tls}
+	add_header X-Frame-Options "SAMEORIGIN";
+	add_header X-Content-Type-Options nosniff;
+	add_header Referrer-Policy "same-origin, strict-origin-when-cross-origin";
+	client_max_body_size 50m;
+	proxy_buffer_size 128k; proxy_buffers 4 256k; proxy_busy_buffers_size 256k;
+	gzip on; gzip_proxied any; gzip_vary on; gzip_min_length 256;
+	gzip_types application/javascript application/json text/css text/plain image/svg+xml application/xml;
+
+	location = / { return 302 /sugar; }
+	location /assets { try_files \$uri =404; add_header Cache-Control "max-age=31536000"; }
+	location ~ ^/protected/(.*) { internal; try_files /${SITE}/\$1 =404; }
+	location /socket.io {
+		proxy_http_version 1.1;
+		proxy_set_header Upgrade \$http_upgrade;
+		proxy_set_header Connection "upgrade";
+		proxy_set_header X-Frappe-Site-Name ${SITE};
+		proxy_set_header Origin \$scheme://\$http_host;
+		proxy_set_header Host \$host;
+		proxy_pass http://${BENCH_NAME}-socketio-server;
+	}
+	location / {
+		location ~* ^/files/.*.(htm|html|svg|xml) { add_header Content-disposition "attachment"; try_files /${SITE}/public/\$uri @webserver; }
+		try_files /${SITE}/public/\$uri @webserver;
+	}
+	location @webserver {
+		proxy_http_version 1.1;
+		proxy_set_header X-Forwarded-For \$remote_addr;
+		proxy_set_header X-Forwarded-Proto \$scheme;
+		proxy_set_header X-Frappe-Site-Name ${SITE};
+		proxy_set_header Host \$host;
+		proxy_set_header X-Use-X-Accel-Redirect True;
+		proxy_read_timeout 120;
+		proxy_redirect off;
+		proxy_pass http://${BENCH_NAME}-frappe;
+	}
+}
+${redirect}
+NGINX
+	sudo nginx -t && sudo systemctl reload nginx
+}
+if [ -n "$REACT_DOMAIN" ]; then
+	step "React host ${REACT_DOMAIN} → ${SITE}/sugar"
+	react_nginx
+	info "nginx: ${REACT_CONF}"
 fi
 
-# ------------------------------------------------------------------------------------------------ 11. firewall
+# ------------------------------------------------------------------------------------------------ 11. ssl
+if [ "$SSL" = "1" ]; then
+	step "SSL (Let's Encrypt): ${SITE}${REACT_DOMAIN:+, ${REACT_DOMAIN}}"
+	command -v certbot >/dev/null 2>&1 || { sudo snap install core; sudo snap refresh core; sudo snap install --classic certbot; sudo ln -sf /snap/bin/certbot /usr/bin/certbot; }
+	# One certificate for both names. `certonly` leaves the nginx files alone; the certificate goes into the site's config
+	# so a later `bench setup nginx` keeps SSL, and every renewal reloads nginx.
+	sudo certbot certonly --nginx --non-interactive --agree-tos -m "$LETSENCRYPT_EMAIL" --cert-name "$SITE" \
+		-d "$SITE" ${REACT_DOMAIN:+-d "$REACT_DOMAIN"} --deploy-hook "systemctl reload nginx"
+	CERT_DIR="/etc/letsencrypt/live/${SITE}"
+	bench --site "$SITE" set-config ssl_certificate "${CERT_DIR}/fullchain.pem"
+	bench --site "$SITE" set-config ssl_certificate_key "${CERT_DIR}/privkey.pem"
+	bench setup nginx --yes
+	[ -z "$REACT_DOMAIN" ] || react_nginx "$CERT_DIR"
+	sudo nginx -t && sudo systemctl reload nginx
+	sudo certbot renew --dry-run --cert-name "$SITE" >/dev/null && info "automatic renewal works"
+fi
+
+# ------------------------------------------------------------------------------------------------ 12. firewall
 if [ "$ENABLE_UFW" = "1" ]; then
 	step "Firewall (ufw): SSH, HTTP, HTTPS only"
 	# NOTE: the guide also opens 3306 (MariaDB) and 8000 (bench dev server). In production MariaDB stays on 127.0.0.1
@@ -295,7 +377,7 @@ if [ "$ENABLE_UFW" = "1" ]; then
 	sudo ufw status verbose | head -12
 fi
 
-# ------------------------------------------------------------------------------------------------ 12. hardening
+# ------------------------------------------------------------------------------------------------ 13. hardening
 if [ "$HARDEN" = "1" ]; then
 	step "Sugarcane production hardening"
 	bench --site "$SITE" execute sugarcane.setup.hardening.apply
@@ -307,7 +389,8 @@ bench version --format table || bench version
 URL="$BASE_URL"
 cat <<EOF
 
-  Site        ${URL}            (desk: ${URL}/desk · sugar app: ${URL}/sugar)
+  Frappe      ${URL}            (desk: ${URL}/desk)
+  React app   ${REACT_URL}
   Login       Administrator / password in ${SECRETS}
   Bench       ${BENCH_DIR}
   Log         ${LOG}
@@ -321,4 +404,4 @@ cat <<EOF
    4. When users are set up: HARDEN=1 bash install-production.sh, or
         bench --site ${SITE} execute sugarcane.setup.hardening.apply
 EOF
-[ -n "$DOMAIN" ] || echo "  No DOMAIN given: add '${SITE}' to the hosts file of the PCs that use it, or re-run with DOMAIN=… for SSL."
+[ "$SSL" = "1" ] || echo "  No SSL: add '${SITE}'${REACT_DOMAIN:+ and '${REACT_DOMAIN}'} to the hosts file of the PCs that use it, or re-run with SSL=1."

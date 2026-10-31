@@ -117,6 +117,11 @@ if [ "$SSL" = "1" ]; then
 		fi
 	done
 fi
+if [ -n "$RESTORE_DIR" ]; then
+	[ -d "$RESTORE_DIR" ] || die "RESTORE_DIR ${RESTORE_DIR} does not exist — copy the backup folder to this server first."
+	ls "$RESTORE_DIR"/*-database.sql* >/dev/null 2>&1 || die "No *-database.sql.gz in ${RESTORE_DIR}."
+	info "restore from ${RESTORE_DIR}: $(ls "$RESTORE_DIR" | tr '\n' ' ')"
+fi
 GIT_TERMINAL_PROMPT=0 git ls-remote "$SUGARCANE_REPO" HEAD >/dev/null 2>&1 || warn "Cannot reach $SUGARCANE_REPO yet (git may not be installed); checked again later."
 info "user ${FRAPPE_USER} · bench ${BENCH_DIR} · site ${SITE} · Frappe ${FRAPPE_BRANCH} · ${ARCH}"
 ( while true; do sudo -n true; sleep 50; kill -0 "$$" 2>/dev/null || exit; done ) 2>/dev/null &   # keep sudo alive

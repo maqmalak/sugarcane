@@ -16,6 +16,10 @@
 #  Before running: point the DNS A records of both names at this server's public IP (Let's Encrypt checks them).
 #  Without a domain:  SSL=0 REACT_DOMAIN= SITE=sugarcane.local bash install-production.sh
 #
+#  With the data of an existing site (a `bench backup --with-files` folder copied to the server):
+#      RESTORE_DIR=~/sugarcane-data LETSENCRYPT_EMAIL=you@example.com bash install-production.sh
+#  The folder holds *-database.sql.gz, *-files.tar, *-private-files.tar and *-site_config_backup.json.
+#
 #  Every value below can be overridden from the environment. The script can be re-run: finished steps are skipped.
 #  Passwords are generated once and kept in ~/.frappe-install-secrets (mode 600). A full log goes to ~/install-production-*.log.
 # =====================================================================================================================
@@ -42,6 +46,9 @@ MM_CORE_REPO="${MM_CORE_REPO:-https://github.com/maqmalak/mm_core.git}"   # suga
 MM_CORE_BRANCH="${MM_CORE_BRANCH:-main}"
 SUGARCANE_REPO="${SUGARCANE_REPO:-https://github.com/maqmalak/sugarcane.git}"
 SUGARCANE_BRANCH="${SUGARCANE_BRANCH:-main}"
+WHATSAPP_REPO="${WHATSAPP_REPO:-https://github.com/frappe/whatsapp}"     # installed on the source site, so needed for a restore
+WHATSAPP_BRANCH="${WHATSAPP_BRANCH:-main}"
+RESTORE_DIR="${RESTORE_DIR:-}"               # a backup folder: restore its data into the new site (see the top)
 
 PYTHON_VERSION="${PYTHON_VERSION:-3.14}"
 NODE_VERSION="${NODE_VERSION:-24}"
@@ -225,7 +232,7 @@ cd "$BENCH_DIR"
 info "frappe $(git -C apps/frappe describe --tags 2>/dev/null || true)"
 
 # ------------------------------------------------------------------------------------------------ 7. apps
-step "Apps: erpnext, hrms, mm_core, sugarcane"
+step "Apps: erpnext, hrms, whatsapp, mm_core, sugarcane"
 get_app() {  # get_app NAME REPO BRANCH
 	if [ -d "apps/$1" ]; then info "$1 already in apps/"; return; fi
 	bench get-app --branch "$3" "$2"
@@ -233,8 +240,9 @@ get_app() {  # get_app NAME REPO BRANCH
 get_app erpnext https://github.com/frappe/erpnext "$ERPNEXT_BRANCH"
 get_app hrms https://github.com/frappe/hrms "$HRMS_BRANCH"
 get_app mm_core "$MM_CORE_REPO" "$MM_CORE_BRANCH"
+get_app whatsapp "$WHATSAPP_REPO" "$WHATSAPP_BRANCH"
 get_app sugarcane "$SUGARCANE_REPO" "$SUGARCANE_BRANCH"
-for a in frappe erpnext hrms mm_core sugarcane; do info "$a  $(git -C "apps/$a" describe --tags --always 2>/dev/null)"; done
+for a in frappe erpnext hrms whatsapp mm_core sugarcane; do info "$a  $(git -C "apps/$a" describe --tags --always 2>/dev/null)"; done
 
 # ------------------------------------------------------------------------------------------------ 8. site
 step "Site ${SITE}"
@@ -245,8 +253,28 @@ else
 	bench new-site "$SITE" --db-root-username root --db-root-password "$DB_ROOT_PASSWORD" \
 		--admin-password "$ADMIN_PASSWORD" --set-default
 fi
+if [ -n "$RESTORE_DIR" ] && [ ! -f "sites/${SITE}/.restored" ]; then
+	step "Restore data from ${RESTORE_DIR}"
+	pick() { find "$RESTORE_DIR" -maxdepth 1 -name "$1" | sort | tail -1; }
+	DB_FILE="$(pick '*-database.sql.gz')"; [ -n "$DB_FILE" ] || DB_FILE="$(pick '*-database.sql')"
+	PUB_FILE="$(pick '*-files.tar')"; PRIV_FILE="$(pick '*-private-files.tar')"; CFG_FILE="$(pick '*site_config_backup.json')"
+	[ -n "$DB_FILE" ] || die "No *-database.sql.gz in ${RESTORE_DIR}"
+	info "database ${DB_FILE##*/}${PUB_FILE:+ · ${PUB_FILE##*/}}${PRIV_FILE:+ · ${PRIV_FILE##*/}}"
+	# The same encryption key, or the stored passwords (email accounts, API secrets, bank details) cannot be read.
+	if [ -n "$CFG_FILE" ]; then
+		KEY="$("$PYTHON_BIN" -c "import json,sys; print(json.load(open(sys.argv[1])).get('encryption_key',''))" "$CFG_FILE")"
+		if [ -n "$KEY" ]; then bench --site "$SITE" set-config encryption_key "$KEY"; info "encryption key carried over"; fi
+	else
+		warn "no site_config_backup.json: stored passwords of the old site will not decrypt"
+	fi
+	bench --site "$SITE" restore "$DB_FILE" ${PUB_FILE:+--with-public-files "$PUB_FILE"} ${PRIV_FILE:+--with-private-files "$PRIV_FILE"} \
+		--db-root-username root --db-root-password "$DB_ROOT_PASSWORD" --force
+	bench --site "$SITE" set-admin-password "$ADMIN_PASSWORD"   # Administrator gets this server's password (see $SECRETS)
+	touch "sites/${SITE}/.restored"
+	info "restored; Administrator password reset — other users keep their passwords from the old site"
+fi
 installed="$(bench --site "$SITE" list-apps 2>/dev/null || true)"
-for a in erpnext hrms mm_core sugarcane; do
+for a in erpnext hrms whatsapp mm_core sugarcane; do
 	if grep -qw "^$a" <<<"$installed"; then info "$a already installed"; else bench --site "$SITE" install-app "$a"; fi
 done
 SCHEME="http"; [ "$SSL" = "1" ] && SCHEME="https"
@@ -396,12 +424,11 @@ cat <<EOF
   Log         ${LOG}
 
   Next:
-   1. Open ${URL}/desk and finish the ERPNext setup wizard (company, currency PKR, fiscal year).
-   2. Sugar Settings → Company → choose the company, save, then run:
-        cd ${BENCH_DIR} && bench --site ${SITE} migrate
-      (sugarcane then builds its chart of accounts, cost centres and ERP configuration for that company).
+   1. New site only (no RESTORE_DIR): open ${URL}/desk and finish the ERPNext setup wizard; then Sugar Settings →
+      Company → choose it, save, and run: cd ${BENCH_DIR} && bench --site ${SITE} migrate
+   2. Restored site: sign in and check the data; users keep their old passwords.
    3. Production checklist: ${BENCH_DIR}/apps/sugarcane/docs/DEPLOYMENT.md (backups, workers, gate PCs, Android apps).
-   4. When users are set up: HARDEN=1 bash install-production.sh, or
+   4. When users are set up (and demo data is removed — hardening refuses a site with demo records): HARDEN=1 bash install-production.sh, or
         bench --site ${SITE} execute sugarcane.setup.hardening.apply
 EOF
 [ "$SSL" = "1" ] || echo "  No SSL: add '${SITE}'${REACT_DOMAIN:+ and '${REACT_DOMAIN}'} to the hosts file of the PCs that use it, or re-run with SSL=1."

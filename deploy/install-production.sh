@@ -105,6 +105,7 @@ case "$(dpkg --print-architecture)" in
 esac
 if [ "$SSL" = "1" ]; then
 	[ -n "$LETSENCRYPT_EMAIL" ] || die "Set LETSENCRYPT_EMAIL=… for the SSL certificate (or SSL=0 to install without SSL)."
+	case "$LETSENCRYPT_EMAIL" in *@example.com|*@example.org|*@localhost|*@*.local) die "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL} is a placeholder — Let's Encrypt refuses it. Use a real address.";; esac
 	PUBLIC_IP="$(curl -4 -fsS --max-time 8 https://api.ipify.org 2>/dev/null || true)"
 	for host in "$SITE" ${REACT_DOMAIN:+"$REACT_DOMAIN"}; do
 		DNS_IP="$(getent ahostsv4 "$host" | awk 'NR==1{print $1}')"

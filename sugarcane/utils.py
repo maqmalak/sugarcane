@@ -4,6 +4,15 @@ from frappe import _
 from sugarcane.calc.identity import FormatError, normalize_cnic, normalize_code
 
 
+def check_app_permission():
+	"""Show the Sugar Mills tile on the Apps screen to desk users who can read growers."""
+	if frappe.session.user == "Administrator":
+		return True
+	if frappe.get_cached_value("User", frappe.session.user, "user_type") == "Website User":
+		return False
+	return bool(frappe.has_permission("Grower", ptype="read"))
+
+
 def settings():
 	return frappe.get_cached_doc("Sugar Settings")
 

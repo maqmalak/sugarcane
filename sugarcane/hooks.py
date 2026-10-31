@@ -10,16 +10,16 @@ app_license = "mit"
 
 # required_apps = []
 
-# Each item in the list will be shown as an app in the apps page
-# add_to_apps_screen = [
-# 	{
-# 		"name": "sugarcane",
-# 		"logo": "/assets/sugarcane/logo.png",
-# 		"title": "Sugarcane",
-# 		"route": "/sugarcane",
-# 		"has_permission": "sugarcane.api.permission.has_app_permission"
-# 	}
-# ]
+# The app's tile on the desk's Apps screen and in the app switcher.
+add_to_apps_screen = [
+	{
+		"name": "sugarcane",
+		"logo": "/assets/sugarcane/images/sugarcane.svg",
+		"title": "Sugar Mills",
+		"route": "/desk/sugarcane",
+		"has_permission": "sugarcane.utils.check_app_permission",
+	}
+]
 
 # Includes in <head>
 # ------------------

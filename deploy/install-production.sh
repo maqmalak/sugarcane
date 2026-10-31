@@ -222,6 +222,9 @@ info "node $(node --version) · npm $(npm --version) · yarn $(yarn --version)"
 # ------------------------------------------------------------------------------------------------ 6. bench
 step "bench CLI"
 command -v bench >/dev/null 2>&1 || uv tool install frappe-bench
+# Later logins need ~/.local/bin (bench, uv) on the PATH too, not only this script.
+grep -q 'HOME/.local/bin' "${HOME_DIR}/.bashrc" 2>/dev/null ||
+	echo 'export PATH="$HOME/.local/bin:$PATH"' >>"${HOME_DIR}/.bashrc"
 load_env
 info "bench $(bench --version 2>/dev/null)"
 

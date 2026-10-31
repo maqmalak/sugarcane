@@ -13,8 +13,8 @@ android {
         applicationId = "com.micromax.sugar.eagleeye"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.0.1"
         // the mill's ERP; can be changed on the sign-in screen
         buildConfigField("String", "DEFAULT_SERVER", "\"${project.findProperty("sugarServer") ?: "http://sugarcane.local:8006"}\"")
     }

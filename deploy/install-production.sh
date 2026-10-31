@@ -312,7 +312,7 @@ bench config dns_multitenant on            # nginx picks the site by host name
 bench --site "$SITE" enable-scheduler
 bench --site "$SITE" set-maintenance-mode off
 sudo env "PATH=$PATH" bench setup production "$FRAPPE_USER" --yes
-bench setup nginx --yes
+bench setup nginx --yes --log_format combined
 if ! sudo supervisorctl status 2>/dev/null | grep -q "${BENCH_NAME}"; then
 	warn "supervisor did not pick up the bench — linking its config"
 	sudo ln -sf "${BENCH_DIR}/config/supervisor.conf" "/etc/supervisor/conf.d/${BENCH_NAME}.conf"
@@ -406,7 +406,7 @@ if [ "$SSL" = "1" ]; then
 	CERT_DIR="/etc/letsencrypt/live/${SITE}"
 	bench --site "$SITE" set-config ssl_certificate "${CERT_DIR}/fullchain.pem"
 	bench --site "$SITE" set-config ssl_certificate_key "${CERT_DIR}/privkey.pem"
-	bench setup nginx --yes
+	bench setup nginx --yes --log_format combined
 	[ -z "$REACT_DOMAIN" ] || react_nginx "$CERT_DIR"
 	sudo nginx -t && sudo systemctl reload nginx
 	sudo certbot renew --dry-run --cert-name "$SITE" >/dev/null && info "automatic renewal works"

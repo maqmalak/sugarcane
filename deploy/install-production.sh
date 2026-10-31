@@ -8,9 +8,10 @@
 #
 #  Run as the Linux user that will own the bench (it must have sudo), NOT as root:
 #
-#      bash install-production.sh                       # everything, with the defaults below
-#      SITE=erp.micromaxsugar.com DOMAIN=erp.micromaxsugar.com LETSENCRYPT_EMAIL=it@micromaxsugar.com \
-#          bash install-production.sh                   # with your domain and an SSL certificate
+#      LETSENCRYPT_EMAIL=you@example.com bash install-production.sh     # site micromaxonline.uk with an SSL certificate
+#      DOMAIN= SITE=sugarcane.local bash install-production.sh          # no domain / SSL (server reached by IP)
+#
+#  Before running: point the DNS A record of micromaxonline.uk at this server's public IP (Let's Encrypt checks it).
 #
 #  Every value below can be overridden from the environment. The script can be re-run: finished steps are skipped.
 #  Passwords are generated once and kept in ~/.frappe-install-secrets (mode 600). A full log goes to ~/install-production-*.log.
@@ -24,11 +25,10 @@ BENCH_NAME="${BENCH_NAME:-frappe-bench}"
 BENCH_DIR="${HOME_DIR}/${BENCH_NAME}"
 
 # NOTE: Frappe refuses a site with the same name as an app on the bench ("Your bench has an app called sugarcane,
-# please choose another name for the site"), so the site cannot be called plain "sugarcane". Use sugarcane.local
-# for a server reached by IP, or the real domain (e.g. erp.micromaxsugar.com) when there is one.
-SITE="${SITE:-sugarcane.local}"
-DOMAIN="${DOMAIN:-}"                       # e.g. erp.micromaxsugar.com — adds the domain and asks Let's Encrypt for SSL
-LETSENCRYPT_EMAIL="${LETSENCRYPT_EMAIL:-}" # needed with DOMAIN
+# please choose another name for the site"), so the site cannot be called plain "sugarcane"; it is named after the domain.
+SITE="${SITE:-micromaxonline.uk}"
+DOMAIN="${DOMAIN-micromaxonline.uk}"       # the public domain: SSL from Let's Encrypt. DOMAIN= (empty) skips domain and SSL
+LETSENCRYPT_EMAIL="${LETSENCRYPT_EMAIL:-}" # needed with DOMAIN: Let's Encrypt sends certificate expiry notices here
 
 FRAPPE_REPO="${FRAPPE_REPO:-https://github.com/frappe/frappe}"
 FRAPPE_BRANCH="${FRAPPE_BRANCH:-v16.54.0}"            # a tag: the exact Frappe release
@@ -92,7 +92,18 @@ sudo -v || die "${FRAPPE_USER} needs sudo."
 case "$(dpkg --print-architecture)" in
 	amd64) ARCH=amd64 ;; arm64) ARCH=arm64 ;; *) die "Unsupported CPU architecture $(dpkg --print-architecture)" ;;
 esac
-if [ -n "$DOMAIN" ] && [ -z "$LETSENCRYPT_EMAIL" ]; then die "DOMAIN needs LETSENCRYPT_EMAIL for the SSL certificate."; fi
+if [ -n "$DOMAIN" ]; then
+	[ -n "$LETSENCRYPT_EMAIL" ] || die "Set LETSENCRYPT_EMAIL=… for the SSL certificate of ${DOMAIN} (or DOMAIN= to install without SSL)."
+	DNS_IP="$(getent ahostsv4 "$DOMAIN" | awk 'NR==1{print $1}')"
+	PUBLIC_IP="$(curl -4 -fsS --max-time 8 https://api.ipify.org 2>/dev/null || true)"
+	if [ -z "$DNS_IP" ]; then
+		warn "${DOMAIN} does not resolve yet — add its DNS A record, or the SSL step will fail."
+	elif [ -n "$PUBLIC_IP" ] && [ "$DNS_IP" != "$PUBLIC_IP" ]; then
+		warn "${DOMAIN} points to ${DNS_IP}, this server is ${PUBLIC_IP} — the SSL step will fail until DNS is updated."
+	else
+		info "${DOMAIN} → ${DNS_IP}"
+	fi
+fi
 GIT_TERMINAL_PROMPT=0 git ls-remote "$SUGARCANE_REPO" HEAD >/dev/null 2>&1 || warn "Cannot reach $SUGARCANE_REPO yet (git may not be installed); checked again later."
 info "user ${FRAPPE_USER} · bench ${BENCH_DIR} · site ${SITE} · Frappe ${FRAPPE_BRANCH} · ${ARCH}"
 ( while true; do sudo -n true; sleep 50; kill -0 "$$" 2>/dev/null || exit; done ) 2>/dev/null &   # keep sudo alive

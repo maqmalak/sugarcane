@@ -218,6 +218,8 @@ nvm use "$NODE_VERSION"
 set -u
 command -v yarn >/dev/null 2>&1 || npm install -g yarn
 info "node $(node --version) · npm $(npm --version) · yarn $(yarn --version)"
+# supervisor runs `bench socketio`, which looks for node on the system PATH; nvm's node lives in the home folder.
+sudo ln -sf "$(command -v node)" /usr/local/bin/node
 
 # ------------------------------------------------------------------------------------------------ 6. bench
 step "bench CLI"

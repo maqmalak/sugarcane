@@ -17,7 +17,6 @@ export const ROUTE_APPS: { prefix: string; apps: string[] }[] = [
   { prefix: "/analytics/import", apps: ["micromax"] },
   { prefix: "/analytics/suite/trade", apps: ["micromax"] },
   { prefix: "/analytics/suite/production", apps: ["micromax"] },
-  { prefix: "/analytics/pnl-simulator", apps: ["micromax"] },
   { prefix: "/dashboard/export", apps: ["micromax"] },
   { prefix: "/export/dashboard", apps: ["micromax"] },
   { prefix: "/reports/import", apps: ["micromax"] },

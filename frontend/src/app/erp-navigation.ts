@@ -16,6 +16,8 @@ const HR_ROLES = [...MANAGERS, "HR Manager", "HR User"];
 export const STORE_NAV: NavGroup[] = [
   { title: "Purchase & stores", items: [
     { label: "Dashboard", to: "/purchase", icon: Sparkles, roles: STORE_ROLES },
+    { label: "Buying analysis", to: "/analytics/suite/purchase", icon: BarChart3, roles: STORE_ROLES },
+    { label: "Stock dashboard", to: "/analytics/stock", icon: BarChart3, roles: STORE_ROLES },
   ] },
   { title: "Procurement", items: [
     { label: "Purchase Demands", to: "/import/material-requests", icon: ClipboardList, roles: STORE_ROLES },
@@ -58,6 +60,7 @@ export const STORE_NAV: NavGroup[] = [
 export const SALES_NAV: NavGroup[] = [
   { title: "Sugar sales", items: [
     { label: "Dashboard & dispatch", to: "/sales", icon: Sparkles, roles: SALES_ROLES },
+    { label: "Sales analysis", to: "/analytics/suite/sales", icon: BarChart3, roles: SALES_ROLES },
   ] },
   { title: "Selling", items: [
     { label: "Quotations", to: "/selling/quotations", icon: FileText, roles: SALES_ROLES },
@@ -94,6 +97,9 @@ export const SALES_NAV: NavGroup[] = [
 export const FINANCE_NAV: NavGroup[] = [
   { title: "Finance", items: [
     { label: "Dashboard & vouchers", to: "/finance", icon: Sparkles, roles: FIN_ROLES },
+    { label: "Accounts dashboard", to: "/accounting", icon: BarChart3, roles: FIN_ROLES },
+    { label: "Financial statements", to: "/analytics/financials", icon: BarChart3, roles: FIN_ROLES },
+    { label: "P&L simulator", to: "/analytics/pnl-simulator", icon: BarChart3, roles: FIN_ROLES },
   ] },
   { title: "Overview", items: [
     { label: "Getting Started", to: "/accounting/getting-started", icon: Rocket, roles: FIN_ROLES },
@@ -142,6 +148,7 @@ export const FINANCE_NAV: NavGroup[] = [
 
 export const HR_NAV: NavGroup[] = [
   { items: [
+    { label: "HR dashboard", to: "/analytics/hr", icon: BarChart3, roles: HR_ROLES },
     { label: "Overview", to: "/hr", icon: LayoutDashboard, roles: HR_ROLES },
     { label: "Setup", to: "/hr/setup", icon: ListChecks, roles: HR_ROLES },
   ] },
@@ -204,6 +211,7 @@ export const HR_NAV: NavGroup[] = [
 
 export const PAYROLL_NAV: NavGroup[] = [
   { items: [
+    { label: "Payroll dashboard", to: "/analytics/payroll", icon: BarChart3, roles: HR_ROLES },
     { label: "Overview", to: "/payroll", icon: LayoutDashboard, roles: HR_ROLES },
   ] },
   { title: "Run payroll", items: [
@@ -236,5 +244,21 @@ export const PAYROLL_NAV: NavGroup[] = [
   ] },
   { title: "Reports", items: [
     { label: "Payroll reports", to: "/reports?g=HR%20%26%20Payroll", icon: BarChart3, roles: HR_ROLES },
+  ] },
+];
+
+/** /analytics/*: every dashboard in one sidebar. */
+export const ANALYTICS_NAV: NavGroup[] = [
+  { title: "Dashboards", items: [
+    { label: "Accounts", to: "/analytics/accounts", icon: BarChart3, roles: FIN_ROLES },
+    { label: "Financial statements", to: "/analytics/financials", icon: BarChart3, roles: FIN_ROLES },
+    { label: "P&L simulator", to: "/analytics/pnl-simulator", icon: BarChart3, roles: FIN_ROLES },
+    { label: "Sales", to: "/analytics/suite/sales", icon: BarChart3, roles: SALES_ROLES },
+    { label: "Buying", to: "/analytics/suite/purchase", icon: BarChart3, roles: STORE_ROLES },
+    { label: "Stock", to: "/analytics/stock", icon: BarChart3, roles: STORE_ROLES },
+    { label: "Quality", to: "/analytics/quality", icon: BarChart3, roles: STORE_ROLES },
+    { label: "Assets", to: "/analytics/assets", icon: BarChart3, roles: FIN_ROLES },
+    { label: "HR", to: "/analytics/hr", icon: BarChart3, roles: HR_ROLES },
+    { label: "Payroll", to: "/analytics/payroll", icon: BarChart3, roles: HR_ROLES },
   ] },
 ];

@@ -7,7 +7,7 @@ import {
   Sparkles, Target, Ticket, Inbox, Layers, Truck, UserCog, Users, Warehouse, Weight, Beaker, Factory, Banknote, MessageSquare, BookOpen, type LucideIcon, Wand2, ScanBarcode, ShieldCheck, AlertTriangle, MapPin,
 } from "lucide-react";
 import { SC_DOCS, docBase, type ScApp } from "@/sc/registry";
-import { FINANCE_NAV, HR_NAV, PAYROLL_NAV, SALES_NAV, STORE_NAV } from "@/app/erp-navigation";
+import { ANALYTICS_NAV, FINANCE_NAV, HR_NAV, PAYROLL_NAV, SALES_NAV, STORE_NAV } from "@/app/erp-navigation";
 
 export interface NavItem {
   label: string;
@@ -210,6 +210,7 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
   selling: [...SALES_NAV, ...docGroups("sales", SALES_ROLES)],
   accounting: FINANCE_NAV,
   payroll: PAYROLL_NAV,
+  analytics: ANALYTICS_NAV,
   mis: [
     {
       title: "MIS",

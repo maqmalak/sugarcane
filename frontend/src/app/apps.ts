@@ -1,4 +1,5 @@
 import {
+  BarChart3,
   Wallet,
   Banknote, BookOpen, Landmark, Beaker, Boxes, Warehouse, ClipboardList, Factory, FileSpreadsheet, Gauge, Leaf, MapPinned, Truck, UserCog, Users,
   Weight, type LucideIcon,
@@ -126,6 +127,10 @@ export const APPS: AppTile[] = [
     roles: [...MANAGERS, "HR Manager", "HR User"],
     description: "Salary components and structures, assignments, payroll runs, salary slips, additional salary, income tax slabs and gratuity.",
     colorClass: "bg-pink-500/10 text-pink-600 dark:text-pink-400", features: ["Salary structures", "Payroll runs", "Salary slips"] },
+  { id: "analytics", label: "Analytics", tagline: "Accounts, sales, buying, stock, HR", group: "Overview", icon: BarChart3, to: "/analytics/accounts",
+    roles: [...MANAGERS, "Accounts Manager", "Accounts User", "Sales Manager", "Purchase Manager", "Stock Manager", "HR Manager", "MIS Viewer"],
+    description: "Dashboards for the whole company: profit and loss, financial statements, sales, buying, stock, quality, assets, HR and payroll, with drill-down and a P&L simulator.",
+    colorClass: "bg-violet-500/10 text-violet-600 dark:text-violet-400", features: ["Accounts", "Sales & buying", "Stock", "HR & payroll"] },
   { id: "help", label: "Help", tagline: "User manuals", group: "Overview", icon: BookOpen, to: "/help",
     description: "Step-by-step manuals for each role: field, gate, weighbridge, lab, accounts, stores, sales, finance, HR and management.",
     colorClass: "bg-slate-500/10 text-slate-600 dark:text-slate-300", features: ["Your role first", "Printable"] },

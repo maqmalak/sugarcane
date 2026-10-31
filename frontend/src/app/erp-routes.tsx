@@ -113,6 +113,9 @@ const STOCK_MASTER_BASES = ["/inventory/stock", "/inventory/warehouses", "/inven
 
 const SupplierQuotationsPage = lazy(() => import("@/pages/Import/SupplierQuotationPages").then((m) => ({ default: m.SupplierQuotationsPage })));
 const SupplierQuotationPage = lazy(() => import("@/pages/Import/SupplierQuotationPages").then((m) => ({ default: m.SupplierQuotationPage })));
+const AnalyticsDashboardPage = lazy(() => import("@/pages/Analytics/AnalyticsDashboardPage").then((m) => ({ default: m.AnalyticsDashboardPage })));
+const AnalyticsSuitePage = lazy(() => import("@/pages/Analytics/AnalyticsSuitePage").then((m) => ({ default: m.AnalyticsSuitePage })));
+const PnlSimulatorPage = lazy(() => import("@/pages/Analytics/PnlSimulatorPage").then((m) => ({ default: m.PnlSimulatorPage })));
 const BankingDoc = lazy(() => import("@/pages/Accounting/BankingDocPage"));
 const HrDocPage = lazy(() => import("@/pages/HR/HrDocPage"));
 
@@ -202,7 +205,7 @@ export function erpRoutes() {
     <Route key="masters/supplier-groups" path="masters/supplier-groups" element={<Suspense fallback={<FullPageLoader />}><SupplierGroupsPage /></Suspense>} />,
     <Route key="masters/supplier-groups/new" path="masters/supplier-groups/new" element={<Suspense fallback={<FullPageLoader />}><SupplierGroupFormPage /></Suspense>} />,
     <Route key="masters/supplier-groups/:name" path="masters/supplier-groups/:name" element={<Suspense fallback={<FullPageLoader />}><SupplierGroupFormPage /></Suspense>} />,
-    <Route key="accounting" path="accounting" element={<Navigate to="/finance" replace />} />,
+    <Route key="accounting" path="accounting" element={<Suspense fallback={<FullPageLoader />}><AnalyticsDashboardPage module="accounts" /></Suspense>} />,
     <Route key="accounting/banks" path="accounting/banks" element={<Suspense fallback={<FullPageLoader />}><BankingDoc which="bank" /></Suspense>} />,
     <Route key="accounting/banks/:name" path="accounting/banks/:name" element={<Suspense fallback={<FullPageLoader />}><BankingDoc which="bank" form /></Suspense>} />,
     <Route key="accounting/bank-accounts" path="accounting/bank-accounts" element={<Suspense fallback={<FullPageLoader />}><BankingDoc which="bankAccount" /></Suspense>} />,
@@ -282,6 +285,13 @@ export function erpRoutes() {
     <Route key="import/supplier-quotations/new" path="import/supplier-quotations/new" element={<Suspense fallback={<FullPageLoader />}><SupplierQuotationPage /></Suspense>} />,
     <Route key="import/supplier-quotations/:name" path="import/supplier-quotations/:name" element={<Suspense fallback={<FullPageLoader />}><SupplierQuotationPage /></Suspense>} />,
     <Route key="import/supplier-quotations/:name/edit" path="import/supplier-quotations/:name/edit" element={<Suspense fallback={<FullPageLoader />}><SupplierQuotationPage /></Suspense>} />,
+    // Dashboards (mm_core.dashboards): the spinning-mill ones (production, work orders, export / import) are not used here.
+    <Route key="analytics" path="analytics" element={<Navigate to="/analytics/accounts" replace />} />,
+    ...["analytics/suite/production", "analytics/production", "analytics/wo_analysis", "analytics/jc_analysis", "analytics/export_analysis", "analytics/import_analysis", "analytics/suite/trade"]
+      .map((path) => <Route key={path} path={path} element={<Navigate to="/production" replace />} />),
+    <Route key="analytics/suite/:suite" path="analytics/suite/:suite" element={<Suspense fallback={<FullPageLoader />}><AnalyticsSuitePage /></Suspense>} />,
+    <Route key="analytics/pnl-simulator" path="analytics/pnl-simulator" element={<Suspense fallback={<FullPageLoader />}><PnlSimulatorPage /></Suspense>} />,
+    <Route key="analytics/:module" path="analytics/:module" element={<Suspense fallback={<FullPageLoader />}><AnalyticsDashboardPage /></Suspense>} />,
     ...STOCK_MASTER_BASES.flatMap((base) => [
       <Route key={base} path={base.slice(1)} element={<Suspense fallback={<FullPageLoader />}><StockMasterList base={base} /></Suspense>} />,
       <Route key={`${base}/:name`} path={`${base.slice(1)}/:name`} element={<Suspense fallback={<FullPageLoader />}><StockMasterForm base={base} /></Suspense>} />,

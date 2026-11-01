@@ -51,7 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Roles of the logged-in user (server-evaluated). sugarcane.api.v1.spa.boot returns them for any signed-in user — a
   // "Has Role" list query needs read access to User, which agents and other non-admin roles don't have.
-  const { data: bootData } = useFrappeGetCall<{ message: { roles?: string[] } }>(
+  const { data: bootData } = useFrappeGetCall<{ message: { roles?: string[]; company?: string } }>(
     "sugarcane.api.v1.spa.boot",
     undefined,
     isAuthenticated ? `realestate.roles.${currentUser}` : null,
@@ -59,16 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const roles = React.useMemo(() => bootData?.message?.roles ?? [], [bootData]);
 
-  // Default company from ERPNext Global Defaults / user defaults.
-  const { data: defaults } = useFrappeGetCall<{ default_company?: string }>(
-    "frappe.client.get_value",
-    {
-      doctype: "Global Defaults",
-      fieldname: JSON.stringify(["default_company"]),
-      filters: JSON.stringify({}),
-    },
-    isAuthenticated ? "micromax.defaults.company" : null,
-  );
+  // Default company: the mill's (Sugar Settings → company) from the boot — Global Defaults is readable by System Managers only.
 
   /**
    * Frappe's `/api/method/login` only accepts **form-encoded** `usr`/`pwd`.
@@ -151,7 +142,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     currentUser,
     user: userDoc as FrappeUser | undefined,
     roles,
-    defaultCompany: (defaults as any)?.default_company,
+    defaultCompany: bootData?.message?.company,
     isLoading: authLoading || (isAuthenticated && userLoading),
     isAuthenticated,
     error,

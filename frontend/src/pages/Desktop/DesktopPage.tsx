@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { useFrappeGetCall } from "frappe-react-sdk";
 import toast from "react-hot-toast";
@@ -350,7 +351,7 @@ function PanelTile({ to, icon: Icon, tone, title, label, count, sub, warn, warnT
 }
 
 /** Home page only: cards not shown here (still reachable from the menu), and cards shown in another section. */
-const HOME_HIDDEN = new Set(["account", "pos", "analytics"]);
+const HOME_HIDDEN = new Set(["account", "pos"]);
 /** Icons per row for these sections ("all" = the whole section on one line); others wrap at 120px. */
 const SECTION_COLUMNS: Record<string, number | "all"> = {
   "Finance & Setup": "all",
@@ -427,8 +428,34 @@ function AppIcon({ app, size = "lg" }: { app: AppTile; size?: "lg" | "sm" }) {
 function AppTileCard({ app, stat }: { app: AppTile; stat?: { value: number; label: string } }) {
   const { isPathAvailable } = useInstalledApps();
   const playbook = playbookFor(app, isPathAvailable);
+  const anchor = useRef<HTMLDivElement>(null);
+  const pop = useRef<HTMLDivElement>(null);
+  const timer = useRef<number>();
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ left: number; top: number; above: boolean; arrow: number } | null>(null);
+  const show = useCallback(() => { window.clearTimeout(timer.current); timer.current = window.setTimeout(() => setOpen(true), 150); }, []);
+  const hide = useCallback(() => { window.clearTimeout(timer.current); timer.current = window.setTimeout(() => setOpen(false), 120); }, []);
+  // Place the playbook under the tile, or above it when there is no room below; keep it inside the window.
+  useLayoutEffect(() => {
+    if (!open || !anchor.current) { setPos(null); return; }
+    const r = anchor.current.getBoundingClientRect();
+    const w = 320, gap = 10, margin = 12;
+    const h = pop.current?.offsetHeight ?? 360;
+    const above = r.bottom + gap + h > window.innerHeight - margin && r.top - gap - h > margin;
+    const center = r.left + r.width / 2;
+    const left = Math.min(Math.max(center - w / 2, margin), window.innerWidth - w - margin);
+    setPos({ left, top: above ? r.top - gap - h : r.bottom + gap, above, arrow: Math.min(Math.max(center - left, 20), w - 20) });
+  }, [open]);
+  useEffect(() => {
+    if (!open) return;
+    const close = () => setOpen(false);
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("resize", close);
+    return () => { window.removeEventListener("scroll", close, true); window.removeEventListener("resize", close); };
+  }, [open]);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
   return (
-    <div className="group/tile relative">
+    <div ref={anchor} className="relative" onMouseEnter={show} onMouseLeave={hide} onFocus={show} onBlur={hide}>
     <Link to={app.to} className="group flex w-full flex-col items-center gap-1.5 rounded-2xl p-2 text-center outline-none transition focus-visible:ring-2 focus-visible:ring-primary">
       <AppIcon app={app} />
       <span className="w-full truncate text-[13px] font-semibold leading-tight">{app.label}</span>
@@ -440,8 +467,12 @@ function AppTileCard({ app, stat }: { app: AppTile; stat?: { value: number; labe
     </Link>
     {playbook.steps.length > 0 && (
       // Playbook: appears on hover / keyboard focus, stays while the pointer is over it.
-      <div className="invisible absolute left-1/2 top-full z-30 w-80 -translate-x-1/2 pt-2 opacity-0 transition-all delay-150 duration-200 group-hover/tile:visible group-hover/tile:translate-y-0 group-hover/tile:opacity-100 group-focus-within/tile:visible group-focus-within/tile:opacity-100 translate-y-1">
-        <span aria-hidden className="absolute left-1/2 top-[3px] h-3 w-3 -translate-x-1/2 rotate-45 rounded-sm border-l border-t border-border bg-popover" />
+      open && createPortal(
+      <div ref={pop} onMouseEnter={show} onMouseLeave={hide} role="dialog" aria-label={`${app.label} playbook`}
+        style={{ position: "fixed", left: pos?.left ?? -9999, top: pos?.top ?? -9999, width: 320, visibility: pos ? "visible" : "hidden" }}
+        className="z-[60] animate-in fade-in-0 zoom-in-95 duration-150">
+        <span aria-hidden style={{ left: (pos?.arrow ?? 160) - 6 }}
+          className={cn("absolute z-10 h-3 w-3 rotate-45 rounded-sm border-border bg-popover", pos?.above ? "-bottom-1.5 border-b border-r" : "-top-1.5 border-l border-t")} />
         <div className="relative overflow-hidden rounded-2xl border border-border bg-popover/95 text-popover-foreground shadow-2xl backdrop-blur">
           {/* header in the app's colours */}
           <div className={cn("relative overflow-hidden bg-gradient-to-br px-4 py-3 text-white", ICON_GRADIENT[hueOf(app.colorClass)] ?? ICON_GRADIENT.slate)}>
@@ -487,7 +518,7 @@ function AppTileCard({ app, stat }: { app: AppTile; stat?: { value: number; labe
             Open {app.label} <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
-      </div>
+      </div>, document.body)
     )}
     </div>
   );

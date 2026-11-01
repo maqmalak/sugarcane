@@ -59,6 +59,7 @@ export const SC_DOCS: ScDoc[] = [
   { doctype: "Crop Disease", label: "Crop Diseases", app: "setup", group: "Crop", icon: Bug },
   { doctype: "Vehicle Type", label: "Vehicle Types", app: "setup", group: "Vehicles & Weighbridge", icon: Truck },
   { doctype: "Sugar Vehicle", label: "Vehicles", app: "setup", group: "Vehicles & Weighbridge", icon: Truck },
+  { doctype: "Cane Driver", label: "Drivers", app: "setup", group: "Vehicles & Weighbridge", icon: Users },
   { doctype: "Vehicle Lane", label: "Lanes", app: "setup", group: "Vehicles & Weighbridge", icon: Route },
   { doctype: "Weighbridge Terminal", label: "Weighbridge Terminals", app: "setup", group: "Vehicles & Weighbridge", icon: Scale },
   // ------------------------------------------------------------------ survey
@@ -212,6 +213,10 @@ export const ENHANCERS: Record<string, Enhancer> = {
   "Cane Indent": {
     subtitle: "Supply permits — one vehicle load each",
     extend: (config) => ({ ...config, extra: (c) => <>{!c.isNew && later(<IndentCard ctx={c} />)}{config.extra?.(c)}</> }),
+  },
+  "Cane Driver": {
+    subtitle: "Drivers bringing cane — the driver code fills name, CNIC and vehicle at the gate",
+    extend: (config) => ({ ...config, validate: (v, rows) => ({ ...config.validate?.(v, rows), ...idErrors(v, { cnic: "cnic", mobile: ["mobile"] }) }) }),
   },
   Grower: { extend: (config) => ({ ...config,
     validate: (v, rows) => ({ ...config.validate?.(v, rows), ...idErrors(v, { cnic: "cnic", mobile: ["mobile"], iban: "iban" }) }), extra: (c) => <>{config.extra?.(c)}{!c.isNew && later(<GrowerPhotos name={c.name ?? ""} />)}</> }) },

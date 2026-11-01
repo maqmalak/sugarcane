@@ -1,0 +1,275 @@
+{
+ "actions": [],
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified_by": "Administrator",
+ "module": "Sugarcane",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Token Clerk",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Yard Supervisor",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Circle Officer"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Surveyor"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Indent Clerk"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Gross Weighman"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tare Weighman"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Cashier"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lab Chemist"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Production Manager"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Cane Accountant"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Depot User"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "MIS Viewer"
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "name": "Cane Driver",
+ "autoname": "naming_series:",
+ "naming_rule": "By \"Naming Series\" field",
+ "description": "Drivers who bring cane to the gate. The driver code (DRV-#####) is typed at token issue to fill name, CNIC, mobile and vehicle.",
+ "creation": "2026-11-01 12:00:00.000000",
+ "modified": "2026-11-01 12:00:00.000000",
+ "search_fields": "driver_name,cnic,mobile",
+ "title_field": "driver_name",
+ "show_title_field_in_link": 1,
+ "field_order": [
+  "naming_series",
+  "driver_name",
+  "father_name",
+  "cnic",
+  "mobile",
+  "cb_main",
+  "license_no",
+  "vehicle",
+  "vehicle_type",
+  "last_token",
+  "sb_status",
+  "disabled",
+  "is_blacklisted",
+  "blacklist_reason",
+  "cb_status",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "DRV-.#####",
+   "default": "DRV-.#####",
+   "hidden": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "driver_name",
+   "fieldtype": "Data",
+   "label": "Driver Name",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "in_global_search": 1
+  },
+  {
+   "fieldname": "father_name",
+   "fieldtype": "Data",
+   "label": "Father Name"
+  },
+  {
+   "fieldname": "cnic",
+   "fieldtype": "Data",
+   "label": "CNIC",
+   "reqd": 1,
+   "unique": 1,
+   "length": 15,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "in_global_search": 1,
+   "description": "13 digits, e.g. 33100-8680138-5"
+  },
+  {
+   "fieldname": "mobile",
+   "fieldtype": "Data",
+   "label": "Mobile",
+   "options": "Phone",
+   "in_list_view": 1,
+   "description": "11 digits, e.g. 03007212058"
+  },
+  {
+   "fieldname": "cb_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "license_no",
+   "fieldtype": "Data",
+   "label": "Driving Licence No."
+  },
+  {
+   "fieldname": "vehicle",
+   "fieldtype": "Link",
+   "label": "Last Vehicle",
+   "options": "Sugar Vehicle",
+   "in_list_view": 1,
+   "description": "Updated each time a token is issued to this driver"
+  },
+  {
+   "fieldname": "vehicle_type",
+   "fieldtype": "Link",
+   "label": "Vehicle Type",
+   "options": "Vehicle Type"
+  },
+  {
+   "fieldname": "last_token",
+   "fieldtype": "Link",
+   "label": "Last Token",
+   "options": "Cane Token",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_status",
+   "fieldtype": "Section Break",
+   "label": "Status"
+  },
+  {
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
+  },
+  {
+   "fieldname": "is_blacklisted",
+   "fieldtype": "Check",
+   "label": "Blacklisted"
+  },
+  {
+   "fieldname": "blacklist_reason",
+   "fieldtype": "Small Text",
+   "label": "Blacklist Reason",
+   "depends_on": "is_blacklisted",
+   "mandatory_depends_on": "is_blacklisted"
+  },
+  {
+   "fieldname": "cb_status",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "label": "Is Demo",
+   "read_only": 1,
+   "hidden": 1
+  }
+ ]
+}

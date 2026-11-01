@@ -21,7 +21,7 @@ from sugarcane.cane_procurement import procurement as p
 
 TOKEN_FIELDS = ["name", "status", "entry_type", "purchase_depot", "crushing_day", "issued_at", "issued_by", "indent", "elp_registration", "lp_verified",
 	"grower", "grower_name", "father_name", "circle", "village_name", "source", "claimed_source", "point_name", "vehicle_no",
-	"vehicle_type", "lane", "driver_name", "driver_cnic", "weighment", "gross_at", "cpr", "completed_at", "gate_reason",
+	"vehicle_type", "lane", "driver", "driver_name", "driver_cnic", "weighment", "gross_at", "cpr", "completed_at", "gate_reason",
 	"govt_rate", "tpt_rate", "subsidy_rate", "additional_subsidy_rate", "road_cess_pct", "binding_kg_per_quintal", "print_count"]
 
 
@@ -63,10 +63,17 @@ def offer(indent: str | None = None, elp_registration: str | None = None, vehicl
 
 @frappe.whitelist(methods=["POST"])
 def issue(indent=None, elp_registration=None, vehicle_no=None, vehicle_type=None, driver_name=None, driver_cnic=None,
-		driver_mobile=None, gate_reason=None, purchase_depot=None) -> dict:
+		driver_mobile=None, gate_reason=None, purchase_depot=None, driver=None) -> dict:
 	tok = p.issue_token(indent or None, elp_registration or None, vehicle_no, vehicle_type, driver_name, driver_cnic, driver_mobile,
-		gate_reason, purchase_depot=purchase_depot or None)
-	return token(tok.name)
+		gate_reason, purchase_depot=purchase_depot or None, driver=driver or None)
+	return {**token(tok.name), "new_driver": tok.get("driver") if tok.flags.new_driver else None}
+
+
+@frappe.whitelist(methods=["GET"])
+def driver(q: str) -> dict | None:
+	"""Gate lookup: driver code (DRV-00012 or 12) or CNIC → name, CNIC, mobile, last vehicle; None when not registered."""
+	p.need(p.GATE_ROLES, _("look up drivers"))
+	return p.find_driver(q)
 
 
 @frappe.whitelist(methods=["POST"])

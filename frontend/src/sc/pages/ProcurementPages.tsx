@@ -27,6 +27,7 @@ import { money, num } from "@/sc/lib/format";
 import { useRealtime } from "@/sc/lib/realtime";
 import { cn } from "@/sc/lib/utils";
 import { useTheme } from "@/sc/providers/theme";
+import { cnicError, mobileError } from "@/sc/validators";
 
 const API = "sugarcane.api.v1.procurement";
 const err = (e: unknown) => (e instanceof Error ? e.message : String(e));
@@ -189,22 +190,53 @@ interface Offer {
   vehicle?: { vehicle_no?: string; vehicle_type?: string; driver_name?: string; driver_cnic?: string; driver_mobile?: string };
   rates?: Record<string, number | string>;
 }
+interface DriverRow { name: string; driver_name: string; cnic: string; mobile?: string; vehicle?: string; vehicle_no?: string; vehicle_type?: string; disabled?: number; is_blacklisted?: number; blacklist_reason?: string }
 interface VType { name: string; default_lane?: string; min_gross_kg: number; max_gross_kg: number; min_tare_kg: number; max_tare_kg: number }
 interface TokenRow { name: string; status: string; entry_type: string; issued_at: string; vehicle_no: string; vehicle_type: string; grower_name: string; point_name?: string; source: string; lane?: string; cpr?: string; print_count?: number }
 
 function OfferCard({ o, types, onIssued, depot }: { o: Offer; types: VType[]; onIssued: (name: string) => void; depot?: string }) {
-  const [v, setV] = useState({ vehicle_no: o.vehicle?.vehicle_no ?? "", vehicle_type: o.vehicle?.vehicle_type ?? "", driver_name: o.vehicle?.driver_name ?? "",
+  const [v, setV] = useState({ vehicle_no: o.vehicle?.vehicle_no ?? "", vehicle_type: o.vehicle?.vehicle_type ?? "", driver: "", driver_name: o.vehicle?.driver_name ?? "",
     driver_cnic: o.vehicle?.driver_cnic ?? "", driver_mobile: o.vehicle?.driver_mobile ?? "", gate_reason: "" });
   const [busy, setBusy] = useState(false);
   const fromElp = !!o.vehicle?.vehicle_no;
+  // Driver: by code (DRV-00012 / 12) or by typing name + CNIC — a known CNIC picks the registered driver, a new one is added on issue.
+  const [drv, setDrv] = useState<{ state: "idle" | "found" | "new" | "missing" | "bad"; msg?: string }>({ state: "idle" });
+  const findDriver = async (q: string, by: "code" | "cnic") => {
+    if (!q.trim()) { setDrv({ state: "idle" }); return; }
+    try {
+      const d = await get<DriverRow | null>(`${API}.driver`, { q });
+      if (!d) {
+        if (by === "code") setDrv({ state: "missing", msg: `No driver with code ${q}` });
+        else setDrv({ state: "new", msg: "New driver — will be registered with a driver code when the token is issued" });
+        if (by === "cnic") setV((x) => ({ ...x, driver: "" }));
+        return;
+      }
+      if (d.is_blacklisted) { setDrv({ state: "bad", msg: `Driver ${d.name} is blacklisted: ${d.blacklist_reason ?? ""}` }); return; }
+      if (d.disabled) { setDrv({ state: "bad", msg: `Driver ${d.name} is disabled` }); return; }
+      setV((x) => ({ ...x, driver: d.name, driver_name: d.driver_name, driver_cnic: d.cnic, driver_mobile: d.mobile || x.driver_mobile,
+        ...(!fromElp && !x.vehicle_no && d.vehicle_no ? { vehicle_no: d.vehicle_no } : {}),
+        ...(!x.vehicle_type && d.vehicle_type ? { vehicle_type: d.vehicle_type } : {}) }));
+      setDrv({ state: "found", msg: `${d.name} · ${d.driver_name}${d.vehicle ? ` · last vehicle ${d.vehicle}` : ""}` });
+    } catch (e) { setDrv({ state: "missing", msg: err(e) }); }
+  };
+  useEffect(() => {
+    const c = o.vehicle?.driver_cnic;
+    if (c && !cnicError(c)) findDriver(c, "cnic");
+    // once per offer card
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const cnicErr = cnicError(v.driver_cnic);
+  const mobErr = mobileError(v.driver_mobile);
+  const driverBlocked = drv.state === "bad" || drv.state === "missing" || !!cnicErr || !!mobErr || (!!v.driver_name.trim() && !v.driver_cnic.trim() && !v.driver);
   const { data: preview } = useQuery({ queryKey: ["sc-proc-offer", o.indent, o.elp_registration, v.vehicle_type, depot], enabled: !o.blocks.length && !!v.vehicle_type,
     queryFn: () => get<Offer>(`${API}.offer`, { indent: o.indent, elp_registration: o.elp_registration, vehicle_type: v.vehicle_type, purchase_depot: depot }) });
   const rates = preview?.rates;
   const issue = async () => {
     setBusy(true);
     try {
-      const t = await post<{ name: string }>(`${API}.issue`, { indent: o.indent, elp_registration: o.elp_registration, purchase_depot: depot, ...v });
-      toast.success(`Token ${t.name} issued`);
+      const t = await post<{ name: string; new_driver?: string }>(`${API}.issue`, { indent: o.indent, elp_registration: o.elp_registration, purchase_depot: depot, ...v });
+      const r = t as { name: string; new_driver?: string };
+      toast.success(r.new_driver ? `Token ${t.name} issued · new driver ${r.new_driver} registered` : `Token ${t.name} issued`);
       printSlip("token", t.name);
       onIssued(t.name);
     } catch (e) { toast.error(err(e)); } finally { setBusy(false); }
@@ -233,11 +265,22 @@ function OfferCard({ o, types, onIssued, depot }: { o: Offer; types: VType[]; on
           <label className="block text-xs font-medium text-muted-foreground">Vehicle type
             <select value={v.vehicle_type} onChange={(e) => setV({ ...v, vehicle_type: e.target.value })} className="mt-1 h-9 w-full rounded-lg border bg-background px-2 text-sm text-foreground">
               <option value="">—</option>{types.map((x) => <option key={x.name} value={x.name}>{x.name}</option>)}</select></label>
+          <label className="block text-xs font-medium text-muted-foreground">Driver code <span className="font-normal">(or type name + CNIC below)</span>
+            <Input value={v.driver} onChange={(e) => { setV({ ...v, driver: e.target.value.toUpperCase() }); setDrv({ state: "idle" }); }}
+              onBlur={() => v.driver && findDriver(v.driver, "code")} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); findDriver(v.driver, "code"); } }}
+              className="mt-1 font-mono" placeholder="DRV-00012 · Enter to fetch" /></label>
           <div className="grid grid-cols-2 gap-2">
             <label className="block text-xs font-medium text-muted-foreground">Driver<Input value={v.driver_name} onChange={(e) => setV({ ...v, driver_name: e.target.value })} className="mt-1" /></label>
-            <label className="block text-xs font-medium text-muted-foreground">Driver CNIC<Input value={v.driver_cnic} onChange={(e) => setV({ ...v, driver_cnic: e.target.value })} className="mt-1" placeholder="#####-#######-#" /></label>
+            <label className="block text-xs font-medium text-muted-foreground">Driver CNIC<Input value={v.driver_cnic}
+              onChange={(e) => { setV({ ...v, driver_cnic: e.target.value, driver: "" }); setDrv({ state: "idle" }); }}
+              onBlur={() => !cnicError(v.driver_cnic) && v.driver_cnic && !v.driver && findDriver(v.driver_cnic, "cnic")}
+              className={cn("mt-1", cnicErr && "border-red-500")} placeholder="33100-8680138-5" /></label>
           </div>
-          <label className="block text-xs font-medium text-muted-foreground">Driver mobile<Input value={v.driver_mobile} onChange={(e) => setV({ ...v, driver_mobile: e.target.value })} className="mt-1" /></label>
+          {cnicErr && <p className="text-xs text-red-600">{cnicErr}</p>}
+          <label className="block text-xs font-medium text-muted-foreground">Driver mobile<Input value={v.driver_mobile} onChange={(e) => setV({ ...v, driver_mobile: e.target.value })}
+            className={cn("mt-1", mobErr && "border-red-500")} placeholder="03007212058" /></label>
+          {mobErr && <p className="text-xs text-red-600">{mobErr}</p>}
+          {drv.msg && <Notice tone={drv.state === "found" ? "good" : drv.state === "new" ? "info" : "bad"}>{drv.msg}</Notice>}
         </div>
         <div className="space-y-2">
           {o.blocks.map((b) => <Notice key={b} tone="bad">{b}</Notice>)}
@@ -254,7 +297,7 @@ function OfferCard({ o, types, onIssued, depot }: { o: Offer; types: VType[]; on
             <label className="block text-xs font-medium text-muted-foreground">Why take it at the gate rates?
               <Input value={v.gate_reason} onChange={(e) => setV({ ...v, gate_reason: e.target.value })} className="mt-1" placeholder="e.g. audit team not on duty, grower agrees" /></label>
           )}
-          <Button className="h-11 w-full" disabled={busy || !!o.blocks.length || !v.vehicle_no || !v.vehicle_type || (o.needs_reason && !v.gate_reason.trim())} onClick={issue}>
+          <Button className="h-11 w-full" disabled={busy || driverBlocked || !!o.blocks.length || !v.vehicle_no || !v.vehicle_type || (o.needs_reason && !v.gate_reason.trim())} onClick={issue}>
             <Ticket />{busy ? "Issuing…" : "Issue token & print"}</Button>
         </div>
       </div>

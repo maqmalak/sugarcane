@@ -105,8 +105,13 @@ class ProcurementBase(IntegrationTestCase):
 		return add_to_date(get_datetime(f"{indent.valid_from} {hour:02d}:00:00"), minutes=minutes)
 
 	def _token(self, indent, **kw):
-		return p.issue_token(indent=indent.name, vehicle_no=kw.pop("vehicle_no", self.vno), vehicle_type=VT, driver_name="Test Driver",
+		tok = p.issue_token(indent=indent.name, vehicle_no=kw.pop("vehicle_no", self.vno), vehicle_type=VT, driver_name="Test Driver",
 			driver_cnic="91401-1111111-1", issued_at=kw.pop("at", self._at(indent)), **kw)
+		# Name + CNIC typed at the gate → one Cane Driver, reused for every later token with that CNIC.
+		self.assertTrue(tok.driver)
+		self.assertEqual(frappe.db.count("Cane Driver", {"cnic": "91401-1111111-1"}), 1)
+		self.assertEqual(p.find_driver(tok.driver).cnic, "91401-1111111-1")
+		return tok
 
 	def _weigh(self, tok, gross=15000, tare=4000, at=None):
 		at = get_datetime(at or tok.issued_at)

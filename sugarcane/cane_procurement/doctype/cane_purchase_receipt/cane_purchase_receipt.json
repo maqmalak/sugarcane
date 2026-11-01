@@ -41,6 +41,7 @@
   "vehicle_no",
   "vehicle_type",
   "cb_vehicle",
+  "driver",
   "driver_name",
   "driver_cnic",
   "driver_mobile",
@@ -346,6 +347,13 @@
   {
    "fieldname": "cb_vehicle",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "driver",
+   "fieldtype": "Link",
+   "label": "Driver Code",
+   "options": "Cane Driver",
+   "read_only": 1
   },
   {
    "fieldname": "driver_name",
@@ -680,7 +688,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-10-18 15:00:00.000000",
+ "modified": "2026-11-01 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Cane Procurement",
  "name": "Cane Purchase Receipt",

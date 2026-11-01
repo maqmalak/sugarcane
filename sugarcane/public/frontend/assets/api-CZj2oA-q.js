@@ -1,0 +1,1 @@
+import{cn as r,g as o}from"./index-stBlPfUS.js";async function n(e,t){return o("frappe.client.get",{doctype:e,name:t})}function a(e){return r("get_items_from_purchase_receipts",{doctype:"Landed Cost Voucher",...e})}export{n as g,a as r};

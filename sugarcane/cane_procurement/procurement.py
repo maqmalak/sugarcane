@@ -275,7 +275,7 @@ def _same_vehicle(column="vehicle_no"):
 
 # ---------------------------------------------------------------- gate: issue
 def issue_token(indent=None, elp_registration=None, vehicle_no=None, vehicle_type=None, driver_name=None, driver_cnic=None,
-		driver_mobile=None, gate_reason=None, issued_at=None, is_demo=0, purchase_depot=None):
+		driver_mobile=None, gate_reason=None, issued_at=None, is_demo=0, purchase_depot=None, driver=None):
 	need(GATE_ROLES, _("issue cane tokens"))
 	check_place(purchase_depot, GATE_ROLES - {DEPOT_ROLE}, _("issue cane tokens"))
 	cfg = settings()
@@ -306,6 +306,10 @@ def issue_token(indent=None, elp_registration=None, vehicle_no=None, vehicle_typ
 	if not vehicle_type:
 		frappe.throw(_("Choose the vehicle type"))
 
+	drv = resolve_driver(driver, driver_name or o.vehicle.driver_name or master.driver_name,
+		driver_cnic or o.vehicle.driver_cnic or master.driver_cnic, driver_mobile or o.vehicle.driver_mobile or master.driver_mobile,
+		is_demo=is_demo)
+
 	g = o.grower_info
 	tok = frappe.get_doc({
 		"doctype": "Cane Token", "entry_type": o.entry_type, "purchase_depot": purchase_depot or None, "season": o.season, "company": cfg.company, "crushing_day": day,
@@ -317,9 +321,7 @@ def issue_token(indent=None, elp_registration=None, vehicle_no=None, vehicle_typ
 		"source": o.source, "claimed_source": o.claimed_source, "loading_point": o.loading_point, "depot": o.depot,
 		"point_name": o.point_name, "vehicle": master.name, "vehicle_no": vehicle_no, "vehicle_type": vehicle_type,
 		"lane": frappe.db.get_value("Vehicle Type", vehicle_type, "default_lane"),
-		"driver_name": driver_name or o.vehicle.driver_name or master.driver_name,
-		"driver_cnic": driver_cnic or o.vehicle.driver_cnic or master.driver_cnic,
-		"driver_mobile": driver_mobile or o.vehicle.driver_mobile or master.driver_mobile,
+		"driver": drv.name, "driver_name": drv.driver_name, "driver_cnic": drv.cnic, "driver_mobile": drv.mobile,
 		"is_demo": cint(is_demo),
 		**resolve_rates(o.season, o.circle, o.source, vehicle_type),
 	})
@@ -330,7 +332,72 @@ def issue_token(indent=None, elp_registration=None, vehicle_no=None, vehicle_typ
 		frappe.db.set_value("Cane Indent", o.indent, {"status": "Used", "token": tok.name, "used_on": at}, update_modified=False)
 	if o.elp_registration:
 		frappe.db.set_value("LP Vehicle Registration", o.elp_registration, "token", tok.name, update_modified=False)
+	if drv.name:
+		frappe.db.set_value("Cane Driver", drv.name, {"vehicle": master.name or drv.vehicle, "vehicle_type": vehicle_type,
+			"last_token": tok.name}, update_modified=False)
+	tok.flags.new_driver = drv.created
 	return tok
+
+
+# ---------------------------------------------------------------- drivers
+def find_driver(q) -> dict | None:
+	"""Driver by code (DRV-00012, or just 12) or by CNIC (with or without dashes)."""
+	q = (q or "").strip().upper()
+	if not q:
+		return None
+	fields = ["name", "driver_name", "father_name", "cnic", "mobile", "vehicle", "vehicle_type", "disabled", "is_blacklisted",
+		"blacklist_reason"]
+	name = q if frappe.db.exists("Cane Driver", q) else None
+	if not name and q.isdigit() and len(q) <= 5:
+		name = frappe.db.exists("Cane Driver", f"DRV-{int(q):05d}")
+	if not name:
+		d = "".join(ch for ch in q if ch.isdigit())
+		if len(d) == 13:
+			name = frappe.db.get_value("Cane Driver", {"cnic": f"{d[:5]}-{d[5:12]}-{d[12]}"})
+	if not name:
+		return None
+	row = frappe.db.get_value("Cane Driver", name, fields, as_dict=True)
+	if row.vehicle:
+		row.vehicle_no = row.vehicle
+	return row
+
+
+def resolve_driver(code=None, name=None, cnic=None, mobile=None, is_demo=0):
+	"""The token's driver, either from the driver code, or from the typed name + CNIC: an existing driver with that CNIC is reused,
+	otherwise a new Cane Driver is created (its code goes on the token). No driver details at all → an empty driver."""
+	from sugarcane.utils import clean_cnic, clean_mobile
+
+	out = frappe._dict(name=None, driver_name=(name or "").strip() or None, cnic=None, mobile=None, vehicle=None, created=False)
+	if code:
+		row = find_driver(code)
+		if not row:
+			frappe.throw(_("No driver with code or CNIC {0}").format(frappe.bold(code)), title=_("Unknown driver"))
+	else:
+		cnic = clean_cnic(cnic, _("Driver CNIC"), required=False)
+		row = find_driver(cnic) if cnic else None
+		if not row:
+			if not cnic:
+				if out.driver_name:
+					frappe.throw(_("Enter the driver's CNIC (or the driver code) so the driver can be registered"),
+						title=_("Driver CNIC needed"))
+				return out
+			if not out.driver_name:
+				frappe.throw(_("Enter the driver's name to register CNIC {0} as a new driver").format(cnic), title=_("Driver name needed"))
+			doc = frappe.get_doc({"doctype": "Cane Driver", "driver_name": out.driver_name, "cnic": cnic,
+				"mobile": clean_mobile(mobile, _("Driver mobile")) if mobile else None, "is_demo": cint(is_demo)})
+			doc.insert(ignore_permissions=True)
+			return frappe._dict(name=doc.name, driver_name=doc.driver_name, cnic=doc.cnic, mobile=doc.mobile, vehicle=None, created=True)
+	if cint(row.is_blacklisted):
+		frappe.throw(_("Driver {0} ({1}) is blacklisted: {2}").format(row.name, row.driver_name, row.blacklist_reason or ""),
+			title=_("Blacklisted driver"))
+	if cint(row.disabled):
+		frappe.throw(_("Driver {0} ({1}) is disabled").format(row.name, row.driver_name), title=_("Disabled driver"))
+	# A newer mobile typed at the gate is kept on the driver.
+	new_mobile = clean_mobile(mobile, _("Driver mobile")) if mobile else None
+	if new_mobile and new_mobile != row.mobile:
+		frappe.db.set_value("Cane Driver", row.name, "mobile", new_mobile, update_modified=False)
+		row.mobile = new_mobile
+	return frappe._dict(name=row.name, driver_name=row.driver_name, cnic=row.cnic, mobile=row.mobile, vehicle=row.vehicle, created=False)
 
 
 def cancel_token(name: str, reason: str):
@@ -512,7 +579,7 @@ def capture(token: str, operation: str, manual_kg=None, note=None, terminal=None
 # ---------------------------------------------------------------- CPR
 TOKEN_TO_CPR = ("season", "company", "entry_type", "purchase_depot", "elp_registration", "lp_verified", "indent", "grower", "grower_name", "father_name",
 	"cnic", "passbook_no", "circle", "village", "village_name", "source", "claimed_source", "loading_point", "depot", "point_name",
-	"vehicle", "vehicle_no", "vehicle_type", "driver_name", "driver_cnic", "driver_mobile", *rate_calc.RATE_FIELDS, "rate_levels",
+	"vehicle", "vehicle_no", "vehicle_type", "driver", "driver_name", "driver_cnic", "driver_mobile", *rate_calc.RATE_FIELDS, "rate_levels",
 	"is_demo")
 
 
@@ -575,7 +642,7 @@ def make_bilty(cpr) -> str | None:
 		return None
 	b = frappe.get_doc({"doctype": "TPT Bilty", "cpr": cpr.name, "token": cpr.token, "crushing_day": cpr.posting_date,
 		"season": cpr.season, "company": cpr.company, "grower": cpr.grower, "grower_name": cpr.grower_name, "source": cpr.source,
-		"point_name": cpr.point_name, "vehicle_no": cpr.vehicle_no, "vehicle_type": cpr.vehicle_type, "driver_name": cpr.driver_name,
+		"point_name": cpr.point_name, "vehicle_no": cpr.vehicle_no, "vehicle_type": cpr.vehicle_type, "driver": cpr.get("driver"), "driver_name": cpr.driver_name,
 		"driver_cnic": cpr.driver_cnic, "driver_mobile": cpr.driver_mobile, "payable_maund": cpr.payable_maund,
 		"tpt_rate": cpr.tpt_rate, "amount": cpr.tpt_amount, "is_demo": cpr.is_demo})
 	b.flags.ignore_permissions = True

@@ -113,6 +113,7 @@ const STOCK_MASTER_BASES = ["/inventory/stock", "/inventory/warehouses", "/inven
 
 const SupplierQuotationsPage = lazy(() => import("@/pages/Import/SupplierQuotationPages").then((m) => ({ default: m.SupplierQuotationsPage })));
 const SupplierQuotationPage = lazy(() => import("@/pages/Import/SupplierQuotationPages").then((m) => ({ default: m.SupplierQuotationPage })));
+const ExecutiveDashboardPage = lazy(() => import("@/pages/Dashboard/DashboardPage").then((m) => ({ default: m.DashboardPage })));
 const AnalyticsDashboardPage = lazy(() => import("@/pages/Analytics/AnalyticsDashboardPage").then((m) => ({ default: m.AnalyticsDashboardPage })));
 const AnalyticsSuitePage = lazy(() => import("@/pages/Analytics/AnalyticsSuitePage").then((m) => ({ default: m.AnalyticsSuitePage })));
 const PnlSimulatorPage = lazy(() => import("@/pages/Analytics/PnlSimulatorPage").then((m) => ({ default: m.PnlSimulatorPage })));
@@ -291,6 +292,7 @@ export function erpRoutes() {
       .map((path) => <Route key={path} path={path} element={<Navigate to="/production" replace />} />),
     <Route key="analytics/suite/:suite" path="analytics/suite/:suite" element={<Suspense fallback={<FullPageLoader />}><AnalyticsSuitePage /></Suspense>} />,
     <Route key="analytics/pnl-simulator" path="analytics/pnl-simulator" element={<Suspense fallback={<FullPageLoader />}><PnlSimulatorPage /></Suspense>} />,
+    <Route key="dashboard" path="dashboard" element={<Suspense fallback={<FullPageLoader />}><ExecutiveDashboardPage /></Suspense>} />,
     <Route key="analytics/:module" path="analytics/:module" element={<Suspense fallback={<FullPageLoader />}><AnalyticsDashboardPage /></Suspense>} />,
     ...STOCK_MASTER_BASES.flatMap((base) => [
       <Route key={base} path={base.slice(1)} element={<Suspense fallback={<FullPageLoader />}><StockMasterList base={base} /></Suspense>} />,

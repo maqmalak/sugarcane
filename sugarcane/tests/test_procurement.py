@@ -257,6 +257,21 @@ class TestProcurement(ProcurementBase):
 			cpr.cancel()
 		p.reverse_bilty_payment(b.name, "test")
 		self.assertEqual(frappe.db.get_value("Journal Entry", pay.name, "docstatus"), 2)
+
+		# JazzCash: wallet number and TID are required and checked; the payment credits the JazzCash wallet account
+		with self.assertRaises(frappe.ValidationError):
+			p.pay_bilty(b.name, payment_mode="JazzCash", wallet_number="0300721205", wallet_txn_id="044518327716")
+		with self.assertRaises(frappe.ValidationError):
+			p.pay_bilty(b.name, payment_mode="JazzCash", wallet_number="03007212058", wallet_txn_id="")
+		p.pay_bilty(b.name, payment_mode="JazzCash", wallet_number="+92 300 7212058", wallet_txn_id="0445 1832 7716",
+			paid_at=add_to_date(cpr.posted_at, hours=2))
+		b.reload()
+		self.assertEqual((b.payment_mode, b.wallet_number, b.wallet_txn_id), ("JazzCash", "03007212058", "044518327716"))
+		jz = frappe.get_doc("Journal Entry", b.payment_journal_entry)
+		self.assertEqual({a.account: (flt(a.debit), flt(a.credit)) for a in jz.accounts},
+			{s.tpt_payable_account: (flt(b.amount), 0), s.jazzcash_account: (0, flt(b.amount))})
+		p.reverse_bilty_payment(b.name, "test")
+		self.assertFalse(frappe.db.get_value("TPT Bilty", b.name, "wallet_txn_id"))
 		cpr.reload()
 		cpr.cancel()
 		self.assertEqual(frappe.db.get_value("Journal Entry", cpr.journal_entry, "docstatus"), 2)

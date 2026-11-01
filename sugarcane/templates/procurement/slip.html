@@ -80,9 +80,9 @@
     <tr><td class="k">Weight</td><td class="v">{{ d.maund_fmt }} maund × Rs {{ d.rate_fmt }}</td></tr>
   </table>
   <div class="big">TPT (carriage) <b>Rs {{ d.amount_fmt }}</b><br>{{ d.amount_words }}</div>
-  {% if d.status == "Paid" %}<div class="big" style="background:#ebfbee">PAID {{ d.paid_fmt }} to {{ d.received_by or "" }} {% if d.received_by_cnic %}({{ d.received_by_cnic }}){% endif %}</div>{% endif %}
+  {% if d.status == "Paid" %}<div class="big" style="background:#ebfbee">PAID {% if d.payment_mode == "JazzCash" %}by <b style="font-size:13px">JazzCash</b> to {{ d.wallet_number }} · TID {{ d.wallet_txn_id }}<br>{% else %}in cash {% endif %}{{ d.paid_fmt }} to {{ d.received_by or "" }} {% if d.received_by_cnic %}({{ d.received_by_cnic }}){% endif %}</div>{% endif %}
   <div class="sign"><div>Cashier</div><span></span><div>Received (driver)</div><span></span><div>Thumb</div></div>
-  <div class="foot">Paid once, at the mill cash counter, against this bilty and the driver's CNIC. Printed {{ printed_at }} by {{ printed_by }}.</div>
+  <div class="foot">Paid once — cash at the mill counter or JazzCash to the driver's wallet — against this bilty and the driver's CNIC. Printed {{ printed_at }} by {{ printed_by }}.</div>
 
   {% else %}
   <div class="cols">

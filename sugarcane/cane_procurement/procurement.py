@@ -67,6 +67,7 @@ def settings() -> frappe._dict:
 		min_kg=cint(s.get("min_weight_kg")) or 200, max_yard_hours=cint(s.get("max_yard_hours")) or 12,
 		supplier=s.daily_purchase_supplier, item=s.cane_item, warehouse=s.cane_yard_warehouse, cost_center=s.cost_center,
 		clearing=s.cane_purchase_clearing_account, tpt_account=s.tpt_payable_account, cash_account=s.cash_counter_account,
+		jazzcash_account=s.get("jazzcash_account"),
 		transit=s.get("transit_warehouse"), freight_account=s.get("freight_account"), commission_account=s.get("depot_commission_account"),
 		shortage_account=s.get("transit_shortage_account"),
 		accounts={k: s.get(k) for k in ("cane_purchase_clearing_account", "subsidy_purchase_account", "additional_subsidy_account",
@@ -666,27 +667,58 @@ def make_bilty(cpr) -> str | None:
 
 
 # ---------------------------------------------------------------- bilty at the cash counter
-def pay_bilty(name: str, received_by: str | None = None, received_by_cnic: str | None = None, paid_at=None):
+PAY_MODES = ("Cash", "JazzCash")
+
+
+def pay_bilty(name: str, received_by: str | None = None, received_by_cnic: str | None = None, paid_at=None, payment_mode="Cash",
+		wallet_number=None, wallet_txn_id=None):
+	"""Pay the driver's carriage: cash from the counter, or JazzCash from the mill's business wallet (the cashier sends it in the
+	JazzCash app / portal and records the driver's wallet number and the transaction ID it shows)."""
+	from sugarcane.calc.identity import FormatError, normalize_mobile
+
 	need(CASH_ROLES, _("pay TPT bilties"))
 	cfg = settings()
+	payment_mode = payment_mode or "Cash"
+	if payment_mode not in PAY_MODES:
+		frappe.throw(_("Pay by Cash or JazzCash"))
 	b = frappe.get_doc("TPT Bilty", name)
 	if b.docstatus != 1 or b.status != "Unpaid":
 		frappe.throw(_("Bilty {0} is {1}").format(name, _(b.status if b.docstatus == 1 else "not submitted")))
-	if not cfg.cash_account or not cfg.tpt_account:
-		frappe.throw(_("Set the TPT-Bilty Payable and Cash Counter accounts in Sugar Settings"))
+	credit = cfg.jazzcash_account if payment_mode == "JazzCash" else cfg.cash_account
+	if not credit or not cfg.tpt_account:
+		frappe.throw(_("Set the TPT-Bilty Payable and {0} accounts in Sugar Settings").format(
+			_("JazzCash Wallet") if payment_mode == "JazzCash" else _("Cash Counter")))
+	if payment_mode == "JazzCash":
+		try:
+			wallet_number = normalize_mobile(wallet_number)
+		except FormatError:
+			frappe.throw(_("JazzCash wallet {0} is not valid: 11 digits starting 03").format(frappe.bold(wallet_number or "")))
+		if not wallet_number:
+			frappe.throw(_("Enter the driver's JazzCash wallet number"))
+		wallet_txn_id = "".join(ch for ch in str(wallet_txn_id or "") if ch.isalnum()).upper()
+		if len(wallet_txn_id) < 6:
+			frappe.throw(_("Enter the JazzCash transaction ID (TID) shown after sending the money"))
+		used = frappe.db.get_value("TPT Bilty", {"wallet_txn_id": wallet_txn_id, "name": ("!=", name)})
+		if used:
+			frappe.throw(_("Transaction ID {0} is already recorded on bilty {1}").format(wallet_txn_id, used), title=_("Duplicate TID"))
+	else:
+		wallet_number = wallet_txn_id = None
 	at = get_datetime(paid_at) if paid_at else now_datetime()
-	je = frappe.get_doc({"doctype": "Journal Entry", "voucher_type": "Cash Entry", "company": b.company, "posting_date": at.date(),
-		"title": f"Bilty {b.name}", "cheque_no": b.name, "cheque_date": at.date(),
-		"user_remark": _("TPT bilty {0} (CPR {1}) paid to {2}, vehicle {3}").format(b.name, b.cpr, received_by or b.driver_name, b.vehicle_no),
+	je = frappe.get_doc({"doctype": "Journal Entry", "voucher_type": "Bank Entry" if payment_mode == "JazzCash" else "Cash Entry",
+		"company": b.company, "posting_date": at.date(), "title": f"Bilty {b.name}", "cheque_no": wallet_txn_id or b.name,
+		"cheque_date": at.date(),
+		"user_remark": _("TPT bilty {0} (CPR {1}) paid to {2}, vehicle {3}").format(b.name, b.cpr, received_by or b.driver_name, b.vehicle_no)
+			+ (_(" — JazzCash {0}, TID {1}").format(wallet_number, wallet_txn_id) if payment_mode == "JazzCash" else ""),
 		"accounts": [
 			{"account": cfg.tpt_account, "debit_in_account_currency": flt(b.amount), "cost_center": cfg.cost_center},
-			{"account": cfg.cash_account, "credit_in_account_currency": flt(b.amount), "cost_center": cfg.cost_center},
+			{"account": credit, "credit_in_account_currency": flt(b.amount), "cost_center": cfg.cost_center},
 		]})
 	je.flags.ignore_permissions = True
 	je.insert()
 	je.submit()
 	b.db_set({"status": "Paid", "paid_at": at, "paid_by": frappe.session.user, "payment_journal_entry": je.name,
-		"received_by": received_by or b.driver_name, "received_by_cnic": received_by_cnic or b.driver_cnic})
+		"received_by": received_by or b.driver_name, "received_by_cnic": received_by_cnic or b.driver_cnic,
+		"payment_mode": payment_mode, "wallet_number": wallet_number, "wallet_txn_id": wallet_txn_id})
 	return b
 
 
@@ -702,7 +734,7 @@ def reverse_bilty_payment(name: str, reason: str):
 	je.flags.ignore_permissions = True
 	je.cancel()
 	b.db_set({"status": "Unpaid", "paid_at": None, "paid_by": None, "payment_journal_entry": None, "received_by": None,
-		"received_by_cnic": None})
+		"received_by_cnic": None, "payment_mode": None, "wallet_number": None, "wallet_txn_id": None})
 	b.add_comment("Info", _("Payment reversed ({0}): {1}").format(je.name, frappe.utils.escape_html(reason)))
 	return b
 

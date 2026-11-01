@@ -11,7 +11,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle, Banknote, CheckCircle2, ClipboardCheck, Clock, Factory, Hourglass, Printer, Receipt, RotateCcw, Scale, ScanBarcode,
-  Search, ShieldCheck, Ticket, Timer, Truck, Wallet, Warehouse, Weight, XCircle,
+  Search, ShieldCheck, Smartphone, Ticket, Timer, Truck, Wallet, Warehouse, Weight, XCircle,
 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import toast from "react-hot-toast";
@@ -670,26 +670,52 @@ export function YardPage() {
 }
 
 // =============================================================== cash counter
-interface Bilty { name: string; status: string; cpr: string; token: string; crushing_day: string; grower_name: string; point_name?: string; source: string; vehicle_no: string; vehicle_type: string; driver_name?: string; driver_cnic?: string; payable_maund: number; tpt_rate: number; amount: number; paid_at?: string; received_by?: string }
-interface Counter { rows: Bilty[]; paid_today: { n: number; amt: number }; paid_by_me: { n: number; amt: number }; unpaid: { n: number; amt: number }; can_pay: boolean; can_reverse: boolean }
+interface Bilty { name: string; status: string; cpr: string; token: string; crushing_day: string; grower_name: string; point_name?: string; source: string; vehicle_no: string; vehicle_type: string; driver_name?: string; driver_cnic?: string; payable_maund: number; tpt_rate: number; amount: number; paid_at?: string; received_by?: string;
+  driver_mobile?: string; payment_mode?: string; wallet_number?: string; wallet_txn_id?: string }
+interface Counter { rows: Bilty[]; paid_today: { n: number; amt: number }; paid_by_me: { n: number; amt: number }; jazzcash_today?: { n: number; amt: number }; unpaid: { n: number; amt: number }; can_pay: boolean; can_reverse: boolean }
 
 function PayDialog({ b, onDone, onClose }: { b: Bilty; onDone: () => void; onClose: () => void }) {
   const [who, setWho] = useState({ received_by: b.driver_name ?? "", received_by_cnic: b.driver_cnic ?? "" });
+  const [mode, setMode] = useState<"Cash" | "JazzCash">("Cash");
+  const [wallet, setWallet] = useState({ wallet_number: b.driver_mobile ?? "", wallet_txn_id: "" });
   const [busy, setBusy] = useState(false);
+  const walletErr = mode === "JazzCash" ? mobileError(wallet.wallet_number) || (!wallet.wallet_number ? "Enter the wallet number" : undefined) : undefined;
+  const tidOk = mode === "Cash" || wallet.wallet_txn_id.replace(/[^A-Za-z0-9]/g, "").length >= 6;
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" onClick={onClose}>
       <div className="w-full max-w-md space-y-3 rounded-2xl border bg-card p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
         <h3 className="text-lg font-semibold">Pay bilty {b.name}</h3>
         <div className="rounded-xl bg-muted/40 p-3 text-center"><div className="text-3xl font-black tabular-nums">{money(b.amount)}</div>
-          <div className="text-xs text-muted-foreground">{md(b.payable_maund)} md × Rs {b.tpt_rate} · <Plate no={b.vehicle_no} /></div></div>
+          <div className="text-xs text-muted-foreground">{md(b.payable_maund)} md × Rs {b.tpt_rate} · <Plate no={b.vehicle_no} /> · CPR {b.cpr}</div></div>
+        <div className="grid grid-cols-2 gap-2">
+          {(["Cash", "JazzCash"] as const).map((m) => (
+            <button key={m} type="button" onClick={() => setMode(m)} className={cn("flex items-center justify-center gap-2 rounded-xl border-2 p-3 text-sm font-bold",
+              mode === m ? (m === "JazzCash" ? "border-red-500 bg-red-500/10 text-red-600 dark:text-red-400" : "border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300") : "text-muted-foreground")}>
+              {m === "Cash" ? <Banknote className="size-4" /> : <Smartphone className="size-4" />}{m === "Cash" ? "Cash" : "JazzCash"}</button>
+          ))}
+        </div>
         <label className="block text-xs font-medium text-muted-foreground">Paid to<Input value={who.received_by} onChange={(e) => setWho({ ...who, received_by: e.target.value })} className="mt-1" /></label>
         <label className="block text-xs font-medium text-muted-foreground">CNIC (check the card)<Input value={who.received_by_cnic} onChange={(e) => setWho({ ...who, received_by_cnic: e.target.value })} className="mt-1" /></label>
+        {mode === "JazzCash" && (
+          <div className="space-y-2 rounded-xl border border-red-500/30 bg-red-500/5 p-3">
+            <p className="text-xs text-muted-foreground">Send <b>{money(b.amount)}</b> from the mill's JazzCash business account to the driver's wallet, then record it here.</p>
+            <label className="block text-xs font-medium text-muted-foreground">Driver's JazzCash wallet no.
+              <Input value={wallet.wallet_number} onChange={(e) => setWallet({ ...wallet, wallet_number: e.target.value })} className={cn("mt-1 font-mono", walletErr && "border-red-500")} placeholder="03XXXXXXXXX" /></label>
+            {walletErr && <p className="text-xs text-red-600">{walletErr}</p>}
+            <label className="block text-xs font-medium text-muted-foreground">Transaction ID (TID) from JazzCash
+              <Input value={wallet.wallet_txn_id} onChange={(e) => setWallet({ ...wallet, wallet_txn_id: e.target.value.toUpperCase() })} className="mt-1 font-mono" placeholder="e.g. 044518327716" /></label>
+          </div>
+        )}
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={onClose}>Close</Button>
-          <Button disabled={busy || !who.received_by.trim()} onClick={async () => {
+          <Button disabled={busy || !who.received_by.trim() || !!walletErr || !tidOk} onClick={async () => {
             setBusy(true);
-            try { await post(`${API}.pay`, { name: b.name, ...who }); toast.success(`Paid ${money(b.amount)}`); printSlip("bilty", b.name); onDone(); } catch (e) { toast.error(err(e)); } finally { setBusy(false); }
-          }}><Banknote />{busy ? "Paying…" : "Pay cash & print"}</Button>
+            try {
+              await post(`${API}.pay`, { name: b.name, ...who, payment_mode: mode, ...(mode === "JazzCash" ? wallet : {}) });
+              toast.success(mode === "JazzCash" ? `Paid ${money(b.amount)} by JazzCash · TID ${wallet.wallet_txn_id}` : `Paid ${money(b.amount)} in cash`);
+              printSlip("bilty", b.name); onDone();
+            } catch (e) { toast.error(err(e)); } finally { setBusy(false); }
+          }}>{mode === "JazzCash" ? <Smartphone /> : <Banknote />}{busy ? "Paying…" : mode === "JazzCash" ? "Record JazzCash & print" : "Pay cash & print"}</Button>
         </div>
       </div>
     </div>
@@ -702,6 +728,13 @@ export function CounterPage() {
   const [status, setStatus] = useState("Unpaid");
   const [paying, setPaying] = useState<Bilty | null>(null);
   const { data, refetch } = useQuery({ queryKey: ["sc-proc-bilties", q, status], queryFn: () => get<Counter>(`${API}.bilties`, { q, status }), refetchInterval: 30_000 });
+  const scanned = useRef("");
+  useEffect(() => {
+    // A scanned bilty (or its CPR) with one unpaid match opens the payment straight away.
+    const key = q.trim().toUpperCase();
+    const hit = data?.rows.filter((r) => r.status === "Unpaid" && (r.name === key || r.cpr === key));
+    if (data?.can_pay && hit?.length === 1 && scanned.current !== key) { scanned.current = key; setPaying(hit[0]); }
+  }, [data, q]);
   const reverse = async (b: Bilty) => {
     const reason = window.prompt(`Reverse the payment of ${b.name}? Give the reason:`);
     if (!reason) return;
@@ -709,11 +742,12 @@ export function CounterPage() {
   };
   return (
     <div className="space-y-5 p-4 sm:p-6">
-      <Header title="TPT cash counter" sub="Drivers are paid their carriage (TPT) against the bilty printed with the CPR. Each payment posts Dr TPT-Bilty Payable / Cr Cash Counter - Cane." />
-      <div className="grid gap-3 sm:grid-cols-3">
+      <Header title="TPT cash counter" sub="Scan the bilty and pay the driver's carriage (TPT) in cash or by JazzCash. Each payment posts Dr TPT-Bilty Payable / Cr Cash Counter or JazzCash Wallet." />
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard icon={Hourglass} label="Unpaid bilties" value={money(data?.unpaid.amt ?? 0)} color={C.amber} sub={`${num(data?.unpaid.n)} bilties`} />
         <KpiCard icon={Wallet} label="Paid today (counter)" value={money(data?.paid_today.amt ?? 0)} color={C.green} sub={`${num(data?.paid_today.n)} bilties`} />
-        <KpiCard icon={Banknote} label="Paid today by me" value={money(data?.paid_by_me.amt ?? 0)} color={C.teal} sub={`${num(data?.paid_by_me.n)} bilties — count your cash`} />
+        <KpiCard icon={Banknote} label="Cash paid today by me" value={money(data?.paid_by_me.amt ?? 0)} color={C.teal} sub={`${num(data?.paid_by_me.n)} bilties — count your cash`} />
+        <KpiCard icon={Smartphone} label="JazzCash today" value={money(data?.jazzcash_today?.amt ?? 0)} color={C.red} sub={`${num(data?.jazzcash_today?.n ?? 0)} bilties to wallets`} />
       </div>
       <div className="flex flex-wrap items-center gap-2">
         {[["Unpaid", "Unpaid"], ["Paid", "Paid"], ["", "All"]].map(([s, l]) => (
@@ -734,7 +768,8 @@ export function CounterPage() {
           { key: "status", label: "", value: (r) => r.status, render: (r) => (
             <div className="flex items-center justify-end gap-2">
               {r.status === "Unpaid" && data?.can_pay && <Button size="sm" onClick={() => setPaying(r)}><Banknote />Pay</Button>}
-              {r.status === "Paid" && <Badge tone="green" title={`${r.received_by ?? ""} ${fmt(r.paid_at)}`}>Paid {fmt(r.paid_at)}</Badge>}
+              {r.status === "Paid" && <Badge tone={r.payment_mode === "JazzCash" ? "red" : "green"} title={`${r.received_by ?? ""} ${fmt(r.paid_at)}${r.wallet_txn_id ? ` · TID ${r.wallet_txn_id}` : ""}`}>
+                {r.payment_mode === "JazzCash" ? "JazzCash" : "Cash"} {fmt(r.paid_at)}</Badge>}
               {r.status === "Paid" && data?.can_reverse && <button type="button" title="Reverse payment" onClick={() => reverse(r)} className="text-muted-foreground hover:text-red-600"><RotateCcw className="size-4" /></button>}
               <button type="button" title="Print bilty" onClick={() => printSlip("bilty", r.name)} className="text-muted-foreground hover:text-foreground"><Printer className="size-4" /></button>
             </div>) },

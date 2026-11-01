@@ -205,7 +205,7 @@ def yard(depot: str | None = None) -> dict:
 # ---------------------------------------------------------------- cash counter
 BILTY_FIELDS = ["name", "status", "cpr", "token", "crushing_day", "grower_name", "source", "point_name", "vehicle_no", "vehicle_type",
 	"driver_name", "driver_cnic", "driver_mobile", "payable_maund", "tpt_rate", "amount", "paid_at", "paid_by", "received_by",
-	"received_by_cnic", "payment_journal_entry", "print_count"]
+	"received_by_cnic", "payment_journal_entry", "print_count", "payment_mode", "wallet_number", "wallet_txn_id"]
 
 
 @frappe.whitelist(methods=["GET"])
@@ -229,16 +229,20 @@ def bilties(q: str | None = None, status: str | None = "Unpaid", day: str | None
 	paid_today = frappe.db.sql("""select count(*) n, ifnull(sum(amount), 0) amt from `tabTPT Bilty` where status = 'Paid'
 		and date(paid_at) = %s""", today, as_dict=True)[0]
 	mine = frappe.db.sql("""select count(*) n, ifnull(sum(amount), 0) amt from `tabTPT Bilty` where status = 'Paid'
-		and date(paid_at) = %s and paid_by = %s""", (today, frappe.session.user), as_dict=True)[0]
+		and date(paid_at) = %s and paid_by = %s and ifnull(payment_mode, 'Cash') = 'Cash'""", (today, frappe.session.user), as_dict=True)[0]
+	jazz = frappe.db.sql("""select count(*) n, ifnull(sum(amount), 0) amt from `tabTPT Bilty` where status = 'Paid'
+		and date(paid_at) = %s and payment_mode = 'JazzCash'""", today, as_dict=True)[0]
 	unpaid = frappe.db.sql("select count(*) n, ifnull(sum(amount), 0) amt from `tabTPT Bilty` where docstatus = 1 and status = 'Unpaid'",
 		as_dict=True)[0]
-	return {"rows": rows, "paid_today": paid_today, "paid_by_me": mine, "unpaid": unpaid,
+	return {"rows": rows, "paid_today": paid_today, "paid_by_me": mine, "jazzcash_today": jazz, "unpaid": unpaid,
 		"can_pay": bool(p.CASH_ROLES & set(frappe.get_roles())), "can_reverse": bool({"System Manager", "Cane Admin"} & set(frappe.get_roles()))}
 
 
 @frappe.whitelist(methods=["POST"])
-def pay(name: str, received_by: str | None = None, received_by_cnic: str | None = None) -> dict:
-	b = p.pay_bilty(name, received_by, received_by_cnic)
+def pay(name: str, received_by: str | None = None, received_by_cnic: str | None = None, payment_mode: str = "Cash",
+		wallet_number: str | None = None, wallet_txn_id: str | None = None) -> dict:
+	b = p.pay_bilty(name, received_by, received_by_cnic, payment_mode=payment_mode, wallet_number=wallet_number,
+		wallet_txn_id=wallet_txn_id)
 	return frappe.db.get_value("TPT Bilty", b.name, BILTY_FIELDS, as_dict=True)
 
 

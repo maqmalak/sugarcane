@@ -73,6 +73,7 @@ def setup_company(company: str) -> dict:
 		"depot_commission_account": _account(company, abbr, "Depot Commission", cost_of_sales),
 		"transit_shortage_account": _account(company, abbr, "Cane Transit Shortage", cost_of_sales),
 		"cane_bank_account": _account(company, abbr, "Cane Payments Bank", _group(company, "Bank Accounts", root_type="Asset"), "Bank"),
+		"jazzcash_account": _account(company, abbr, "JazzCash Wallet - TPT", _group(company, "Bank Accounts", root_type="Asset"), "Bank"),
 		"markup_income_account": _account(company, abbr, "Loan Markup Income", _group(company, "Indirect Income", "Direct Income",
 			root_type="Income"), "Income Account"),
 	}

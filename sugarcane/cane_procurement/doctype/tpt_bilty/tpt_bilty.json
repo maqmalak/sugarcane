@@ -38,6 +38,9 @@
   "cb_paid",
   "received_by",
   "received_by_cnic",
+  "payment_mode",
+  "wallet_number",
+  "wallet_txn_id",
   "print_count",
   "amended_from",
   "is_demo"
@@ -266,6 +269,30 @@
    "no_copy": 1
   },
   {
+   "fieldname": "payment_mode",
+   "fieldtype": "Select",
+   "options": "\nCash\nJazzCash",
+   "label": "Paid By",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "wallet_number",
+   "fieldtype": "Data",
+   "label": "JazzCash Wallet No.",
+   "read_only": 1,
+   "depends_on": "eval:doc.payment_mode=='JazzCash'"
+  },
+  {
+   "fieldname": "wallet_txn_id",
+   "fieldtype": "Data",
+   "label": "JazzCash Transaction ID (TID)",
+   "read_only": 1,
+   "search_index": 1,
+   "depends_on": "eval:doc.payment_mode=='JazzCash'"
+  },
+  {
    "fieldname": "print_count",
    "fieldtype": "Int",
    "label": "Prints",
@@ -293,7 +320,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-11-01 12:00:00.000000",
+ "modified": "2026-11-01 21:00:00.000000",
  "modified_by": "Administrator",
  "module": "Cane Procurement",
  "name": "TPT Bilty",

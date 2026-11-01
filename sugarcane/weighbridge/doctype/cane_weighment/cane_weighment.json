@@ -35,6 +35,8 @@
   "cb_tare2",
   "tare_reading",
   "tare_note",
+  "tare_body_match",
+  "print_count",
   "sb_net",
   "net_kg",
   "yard_minutes",
@@ -239,6 +241,20 @@
    "read_only": 1
   },
   {
+   "fieldname": "tare_body_match",
+   "fieldtype": "Check",
+   "label": "Body matched the gross photos",
+   "read_only": 1,
+   "description": "Tare weighman compared the live cameras with the gross photos"
+  },
+  {
+   "fieldname": "print_count",
+   "fieldtype": "Int",
+   "label": "Gross slips printed",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
    "fieldname": "sb_net",
    "fieldtype": "Section Break",
    "label": "Result"
@@ -289,7 +305,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-10-18 15:00:00.000000",
+ "modified": "2026-11-01 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Weighbridge",
  "name": "Cane Weighment",

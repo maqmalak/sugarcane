@@ -1,0 +1,245 @@
+{
+ "actions": [],
+ "creation": "2026-11-01 12:00:00.000000",
+ "modified": "2026-11-01 12:00:00.000000",
+ "modified_by": "Administrator",
+ "owner": "Administrator",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "module": "Weighbridge",
+ "name": "CCTV Camera",
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "states": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "track_changes": 1,
+ "field_order": [
+  "camera_name",
+  "place",
+  "terminal",
+  "depot",
+  "view",
+  "sort_order",
+  "cb1",
+  "is_active",
+  "take_snapshots",
+  "sb_conn",
+  "snapshot_url",
+  "auth",
+  "cb2",
+  "username",
+  "password",
+  "timeout_s",
+  "sb_demo",
+  "demo_loaded",
+  "cb3",
+  "demo_empty"
+ ],
+ "fields": [
+  {
+   "fieldname": "camera_name",
+   "fieldtype": "Data",
+   "label": "Camera Name",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1,
+   "description": "e.g. GATE 1 · CAM 3 LEFT — shown on the live tile"
+  },
+  {
+   "fieldname": "place",
+   "fieldtype": "Select",
+   "label": "Place",
+   "options": "Mill Gate\nWeighbridge\nDepot Gate",
+   "default": "Mill Gate",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "terminal",
+   "fieldtype": "Link",
+   "label": "Weighbridge Terminal",
+   "options": "Weighbridge Terminal",
+   "depends_on": "eval:doc.place=='Weighbridge'",
+   "mandatory_depends_on": "eval:doc.place=='Weighbridge'",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "depot",
+   "fieldtype": "Link",
+   "label": "Depot",
+   "options": "Cane Depot",
+   "depends_on": "eval:doc.place=='Depot Gate'",
+   "mandatory_depends_on": "eval:doc.place=='Depot Gate'"
+  },
+  {
+   "fieldname": "view",
+   "fieldtype": "Select",
+   "label": "View",
+   "options": "ANPR\nFront\nRear\nLeft\nRight\nTop\nCabin",
+   "reqd": 1,
+   "in_list_view": 1,
+   "description": "Which side of the vehicle it sees. Gross and tare photos are compared view by view."
+  },
+  {
+   "fieldname": "sort_order",
+   "fieldtype": "Int",
+   "label": "Order on screen"
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Active",
+   "default": "1",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "take_snapshots",
+   "fieldtype": "Check",
+   "label": "Save a photo with each token / weight",
+   "default": "1"
+  },
+  {
+   "fieldname": "sb_conn",
+   "fieldtype": "Section Break",
+   "label": "Connection"
+  },
+  {
+   "fieldname": "snapshot_url",
+   "fieldtype": "Data",
+   "label": "Snapshot URL",
+   "description": "HTTP(S) address that returns one JPEG, e.g. Hikvision http://10.10.1.21/ISAPI/Streaming/channels/101/picture · Dahua http://10.10.1.22/cgi-bin/snapshot.cgi. Leave empty to use the demo pictures."
+  },
+  {
+   "fieldname": "auth",
+   "fieldtype": "Select",
+   "label": "Login",
+   "options": "None\nBasic\nDigest",
+   "default": "Digest"
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "username",
+   "fieldtype": "Data",
+   "label": "Username"
+  },
+  {
+   "fieldname": "password",
+   "fieldtype": "Password",
+   "label": "Password"
+  },
+  {
+   "fieldname": "timeout_s",
+   "fieldtype": "Float",
+   "label": "Timeout (s)",
+   "default": "3"
+  },
+  {
+   "fieldname": "sb_demo",
+   "fieldtype": "Section Break",
+   "label": "Demo pictures (used when there is no snapshot URL)",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "demo_loaded",
+   "fieldtype": "Attach Image",
+   "label": "Loaded vehicle"
+  },
+  {
+   "fieldname": "cb3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "demo_empty",
+   "fieldtype": "Attach Image",
+   "label": "Empty vehicle"
+  }
+ ],
+ "autoname": "field:camera_name",
+ "naming_rule": "By fieldname",
+ "allow_rename": 1,
+ "description": "CCTV cameras at the mill gate and weighbridges: live tiles on the gate and weighbridge screens, and a photo of every vehicle at token, gross and tare.",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "share": 1,
+   "email": 1
+  },
+  {
+   "role": "Cane Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "share": 1,
+   "email": 1
+  },
+  {
+   "role": "Cane Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "share": 1,
+   "email": 1
+  },
+  {
+   "role": "Gross Weighman",
+   "read": 1,
+   "report": 1,
+   "print": 1
+  },
+  {
+   "role": "Tare Weighman",
+   "read": 1,
+   "report": 1,
+   "print": 1
+  },
+  {
+   "role": "Token Clerk",
+   "read": 1,
+   "report": 1,
+   "print": 1
+  },
+  {
+   "role": "Yard Supervisor",
+   "read": 1,
+   "report": 1,
+   "print": 1
+  },
+  {
+   "role": "Depot User",
+   "read": 1,
+   "report": 1,
+   "print": 1
+  },
+  {
+   "role": "MIS Viewer",
+   "read": 1,
+   "report": 1,
+   "print": 1
+  }
+ ]
+}

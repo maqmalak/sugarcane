@@ -1,0 +1,7 @@
+Demo CCTV pictures (used only when a camera has no snapshot URL).
+Built from Wikimedia Commons photos — see the EagleEye/ELP video credits:
+- "Transportation of sugarcane from field to Factory.jpg" — Shailaja jadhavpatil, CC BY-SA 4.0 (loaded tractor-trolley views)
+- "Cut sugarcane.jpg" — ruurmo, CC BY-SA 2.0 (top view of the load)
+- "Gur making.15.jpg" — Khalid Mahmood, CC BY-SA 3.0 (cabin / driver)
+- "Utsav tractor.jpg" — Clément Bardot, CC BY-SA 4.0 (empty tractor-trolley views)
+Number plate SGD 4417 drawn for the demo (not a real vehicle).

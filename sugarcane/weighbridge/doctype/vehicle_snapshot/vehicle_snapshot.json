@@ -1,0 +1,176 @@
+{
+ "actions": [],
+ "creation": "2026-11-01 12:00:00.000000",
+ "modified": "2026-11-01 12:00:00.000000",
+ "modified_by": "Administrator",
+ "owner": "Administrator",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "module": "Weighbridge",
+ "name": "Vehicle Snapshot",
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "states": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "track_changes": 1,
+ "field_order": [
+  "token",
+  "weighment",
+  "stage",
+  "view",
+  "cb1",
+  "camera",
+  "vehicle_no",
+  "taken_at",
+  "sb_photo",
+  "photo",
+  "error",
+  "is_demo"
+ ],
+ "fields": [
+  {
+   "fieldname": "token",
+   "fieldtype": "Link",
+   "label": "Token",
+   "options": "Cane Token",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "weighment",
+   "fieldtype": "Link",
+   "label": "Weighment",
+   "options": "Cane Weighment",
+   "search_index": 1
+  },
+  {
+   "fieldname": "stage",
+   "fieldtype": "Select",
+   "label": "Stage",
+   "options": "Gate\nGross\nTare",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "view",
+   "fieldtype": "Select",
+   "label": "View",
+   "options": "ANPR\nFront\nRear\nLeft\nRight\nTop\nCabin",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "camera",
+   "fieldtype": "Link",
+   "label": "Camera",
+   "options": "CCTV Camera"
+  },
+  {
+   "fieldname": "vehicle_no",
+   "fieldtype": "Data",
+   "label": "Vehicle No.",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "taken_at",
+   "fieldtype": "Datetime",
+   "label": "Taken At"
+  },
+  {
+   "fieldname": "sb_photo",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "photo",
+   "fieldtype": "Attach Image",
+   "label": "Photo"
+  },
+  {
+   "fieldname": "error",
+   "fieldtype": "Small Text",
+   "label": "Camera Error",
+   "description": "Why no photo was saved (camera offline, timeout…)"
+  },
+  {
+   "fieldname": "is_demo",
+   "fieldtype": "Check",
+   "label": "Is Demo",
+   "hidden": 1
+  }
+ ],
+ "autoname": "hash",
+ "in_create": 1,
+ "image_field": "photo",
+ "description": "A camera photo of a vehicle at the gate, gross or tare — saved automatically, never typed.",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1
+  },
+  {
+   "role": "Cane Admin",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1
+  },
+  {
+   "role": "Cane Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1
+  },
+  {
+   "role": "Gross Weighman",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1
+  },
+  {
+   "role": "Tare Weighman",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1
+  },
+  {
+   "role": "Token Clerk",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1
+  },
+  {
+   "role": "Yard Supervisor",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1
+  },
+  {
+   "role": "Depot User",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1
+  },
+  {
+   "role": "MIS Viewer",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1
+  }
+ ]
+}

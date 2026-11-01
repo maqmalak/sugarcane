@@ -335,6 +335,11 @@ def issue_token(indent=None, elp_registration=None, vehicle_no=None, vehicle_typ
 	if drv.name:
 		frappe.db.set_value("Cane Driver", drv.name, {"vehicle": master.name or drv.vehicle, "vehicle_type": vehicle_type,
 			"last_token": tok.name}, update_modified=False)
+	if not issued_at:  # live gate only — back-dated / demo tokens get no camera photos
+		from sugarcane.weighbridge.cctv import safe_snap
+
+		safe_snap("Gate", tok.name, vehicle_no, "Depot Gate" if purchase_depot else "Mill Gate", depot=purchase_depot or None,
+			is_demo=cint(is_demo))
 	tok.flags.new_driver = drv.created
 	return tok
 
@@ -528,8 +533,9 @@ def terminal_depot(t: str) -> str | None:
 	return frappe.db.get_value("Weighbridge Terminal", t, "depot") or None
 
 
-def capture(token: str, operation: str, manual_kg=None, note=None, terminal=None, at=None, is_demo=0) -> dict:
-	"""Take the gross or tare weight for a token from the terminal the request comes from."""
+def capture(token: str, operation: str, manual_kg=None, note=None, terminal=None, at=None, is_demo=0, body_match=0) -> dict:
+	"""Take the gross or tare weight for a token from the terminal the request comes from. At tare, when the gross weighbridge
+	saved vehicle photos, the weighman must confirm the live cameras show the same vehicle body (`body_match`)."""
 	from sugarcane.weighbridge.doctype.weighbridge_terminal.weighbridge_terminal import terminal_for_request
 
 	if operation not in ("Gross", "Tare"):
@@ -546,6 +552,10 @@ def capture(token: str, operation: str, manual_kg=None, note=None, terminal=None
 	want = {"Gross": "Issued", "Tare": "Gross"}[operation]
 	if tok.status != want:
 		frappe.throw(_("Token {0} is {1}: the {2} weight was already taken or isn't due").format(token, _(tok.status), _(operation)))
+	if operation == "Tare" and not at and not cint(body_match) and frappe.db.exists("Vehicle Snapshot",
+			{"token": tok.name, "stage": "Gross", "photo": ("is", "set")}):
+		frappe.throw(_("Compare the live cameras with the gross photos and tick <b>Same vehicle</b> before taking the tare"),
+			title=_("Check the vehicle"))
 	kg, reading, note = take_weight(t, operation, manual_kg, note, at, tok.vehicle_type, operation)
 	if operation == "Tare":
 		gross = cint(frappe.db.get_value("Cane Weighment", tok.weighment, "gross_kg"))
@@ -565,12 +575,16 @@ def capture(token: str, operation: str, manual_kg=None, note=None, terminal=None
 	else:
 		w = frappe.get_doc("Cane Weighment", tok.weighment)
 		w.update({"tare_kg": kg, "tare_at": when, "tare_by": frappe.session.user, "tare_terminal": t, "tare_reading": log.name,
-			"tare_note": note or None})
+			"tare_note": note or None, "tare_body_match": 1 if cint(body_match) else 0})
 		if reading["source"] == "Manual":
 			w.manual_entry = 1
 		w.flags.ignore_permissions = True
 		w.submit()  # → CPR (Cane Weighment.on_submit)
 	frappe.db.set_value("Weighment Reading Log", log.name, "weighment", w.name, update_modified=False)
+	if not at:  # live weights only
+		from sugarcane.weighbridge.cctv import safe_snap
+
+		safe_snap(operation, tok.name, tok.vehicle_no, "Weighbridge", terminal=t, weighment=w.name, is_demo=cint(is_demo))
 	w.reload()
 	return {"token": tok.name, "weighment": w.name, "operation": operation, "weight_kg": kg, "net_kg": w.net_kg, "cpr": w.cpr,
 		"note": note or None}

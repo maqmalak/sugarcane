@@ -55,6 +55,20 @@
   <div class="big">Show this token at the <b>gross</b> weighbridge, the yard and the <b>tare</b> weighbridge</div>
   <div class="foot">One vehicle, one load. The token is scanned at each step; it can't be used again. Printed {{ printed_at }} by {{ printed_by }}.</div>
 
+  {% elif kind == "gross" %}
+  <table class="kv">
+    <tr><td class="k">Vehicle</td><td class="v" style="font-size:13px">{{ d.vehicle_no }} · {{ d.vehicle_type }}</td></tr>
+    <tr><td class="k">Driver</td><td class="v">{{ d.tok.driver_name or "—" }}{% if d.tok.driver %} · {{ d.tok.driver }}{% endif %}</td></tr>
+    <tr><td class="k">Grower</td><td class="v">{{ d.grower_name }} · {{ d.grower }}</td></tr>
+    <tr><td class="k">Token · Indent</td><td class="v">{{ d.token }} · {{ d.tok.indent or "—" }}</td></tr>
+    <tr><td class="k">From</td><td class="v">{{ d.tok.point_name or d.tok.source or "—" }}</td></tr>
+    <tr><td class="k">Weighbridge</td><td class="v">{{ d.gross_terminal }} · {{ d.gross_at_fmt }}{% if d.manual_entry %} · <span class="tag warn">typed</span>{% endif %}</td></tr>
+    {% if d.photos %}<tr><td class="k">Camera photos</td><td class="v">{{ d.photos }} views saved at gross</td></tr>{% endif %}
+  </table>
+  <div class="big">GROSS <b>{{ d.gross_fmt }} kg</b></div>
+  <div class="big">Unload in the yard{% if d.tok.lane %} ({{ d.tok.lane }}){% endif %}, then show this slip at the <b>tare</b> weighbridge</div>
+  <div class="foot">The tare weighman scans this slip and compares the vehicle with the gross photos. Printed {{ printed_at }} by {{ printed_by }}.</div>
+
   {% elif kind == "bilty" %}
   <table class="kv">
     <tr><td class="k">Vehicle</td><td class="v" style="font-size:13px">{{ d.vehicle_no }} · {{ d.vehicle_type }}</td></tr>

@@ -9,6 +9,7 @@ from sugarcane.calc.barcode import svg
 
 KINDS = {
 	"token": ("Cane Token", "Cane Token", "A6"),
+	"gross": ("Cane Weighment", "Gross Weight Slip", "A6"),
 	"cpr": ("Cane Purchase Receipt", "Cane Purchase Receipt (CPR)", "A4"),
 	"bilty": ("TPT Bilty", "TPT Bilty (carriage slip)", "A6"),
 }
@@ -23,6 +24,11 @@ def _fmt(d, kind):
 	d.day_fmt = formatdate(d.get("crushing_day") or d.get("posting_date"), "dd MMM yyyy")
 	if kind == "token":
 		d.issued_fmt = format_datetime(d.issued_at, "dd MMM HH:mm")
+	elif kind == "gross":
+		d.gross_fmt, d.gross_at_fmt = f"{cint(d.gross_kg):,}", format_datetime(d.gross_at, "dd MMM HH:mm")
+		d.tok = frappe.db.get_value("Cane Token", d.token, ["vehicle_type", "driver", "driver_name", "point_name", "source", "lane", "indent"],
+			as_dict=True) or frappe._dict()
+		d.photos = frappe.db.count("Vehicle Snapshot", {"token": d.token, "stage": "Gross", "photo": ("is", "set")})
 	elif kind == "bilty":
 		d.maund_fmt, d.rate_fmt, d.amount_fmt = f"{flt(d.payable_maund):,.3f}", f"{flt(d.tpt_rate):,.2f}", f"{flt(d.amount):,.2f}"
 		d.amount_words = money_in_words(d.amount, "PKR")
@@ -43,7 +49,7 @@ def render(kind: str, names: list[str]) -> bytes:
 	for n in names:
 		doc = frappe.get_doc(doctype, n)
 		doc.check_permission("print")
-		if doc.docstatus != 1:
+		if doc.docstatus != 1 and not (kind == "gross" and doc.docstatus == 0):
 			frappe.throw(_("{0} {1} is not submitted").format(_(doctype), n))
 		d = _fmt(frappe._dict(doc.as_dict()), kind)
 		d.title = title

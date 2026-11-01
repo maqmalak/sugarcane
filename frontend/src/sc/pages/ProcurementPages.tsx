@@ -28,6 +28,7 @@ import { useRealtime } from "@/sc/lib/realtime";
 import { cn } from "@/sc/lib/utils";
 import { useTheme } from "@/sc/providers/theme";
 import { cnicError, mobileError } from "@/sc/validators";
+import { CameraWall, GrossVsTare, useSnapshots } from "@/sc/components/Cctv";
 
 const API = "sugarcane.api.v1.procurement";
 const err = (e: unknown) => (e instanceof Error ? e.message : String(e));
@@ -37,7 +38,7 @@ const kg = (v?: number | null) => (v ? `${num(v)} kg` : "—");
 const md = (v?: number | null) => (v ?? 0).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const mins = (m: number) => (m >= 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m} min`);
 
-export const printSlip = (kind: "token" | "cpr" | "bilty", name: string) =>
+export const printSlip = (kind: "token" | "gross" | "cpr" | "bilty", name: string) =>
   postDownload(`${API}.slip`, { kind, name }, `${kind}-${name}.pdf`).catch((e) => toast.error(err(e)));
 
 const TOKEN_TONE: Record<string, Tone> = { Issued: "blue", Gross: "amber", Completed: "green", Cancelled: "gray" };
@@ -331,6 +332,7 @@ export function GatePage() {
         <NavBtn to={depot ? `/procurement/yard?depot=${encodeURIComponent(depot)}` : "/procurement/yard"} icon={Warehouse}>Yard</NavBtn>
       </Header>
       <Scan onFind={(x) => setParams({ q: x, ...(depot ? { depot } : {}) })} placeholder={depot ? "Indent no. (scan)" : "Indent no. (scan), ELP-… registration or vehicle no."} />
+      <CameraWall place={depot ? "Depot Gate" : "Mill Gate"} depot={depot || undefined} title={depot ? `${depot} gate cameras` : "Mill gate cameras — live"} />
       {isFetching && <div className="h-56 animate-pulse rounded-2xl border bg-muted/40" />}
       {!isFetching && q && found && !found.length && <Notice tone="bad">Nothing found for <b className="font-mono">{q}</b>: no indent, ELP registration or open load with that number.</Notice>}
       {!isFetching && found?.map((o) => o.token
@@ -448,6 +450,18 @@ export function WeighbridgePage() {
   const qc = useQueryClient();
   const [params] = useSearchParams();
   const [token, setToken] = useState(params.get("no") ?? "");
+  const [scanned, setScanned] = useState("");
+  const [bodyOk, setBodyOk] = useState(false);
+  const onScan = async (q: string) => {
+    const x = q.trim().toUpperCase();
+    if (!x) return;
+    if (x.startsWith("DSP-")) { setToken(x); setScanned(""); return; }
+    try {
+      const r = await get<{ token: string; scanned: string }>(`${API}.scan`, { q: x });
+      setToken(r.token); setBodyOk(false);
+      setScanned(r.token !== x ? `${x} → token ${r.token}` : "");
+    } catch (e) { toast.error(err(e)); }
+  };
   const isDsp = token.startsWith("DSP-");
   const [manual, setManual] = useState({ open: false, kg: "", note: "" });
   const [busy, setBusy] = useState(false);
@@ -458,13 +472,18 @@ export function WeighbridgePage() {
   const { data: tok, refetch: reTok } = useQuery({ queryKey: ["sc-proc-token", token], enabled: !!token && !isDsp, queryFn: () => get<TokenDoc>(`${API}.token`, { name: token }) });
   const { data: dsp, refetch: reDsp } = useQuery({ queryKey: ["sc-depot-dispatch", token], enabled: isDsp, queryFn: () => get<DispatchDoc>("sugarcane.api.v1.depot.dispatch", { name: token }) });
   const op = tok?.status === "Issued" ? "Gross" : tok?.status === "Gross" ? "Tare" : null;
+  const { data: snaps } = useSnapshots(!isDsp && op === "Tare" ? token : null);
+  const needBody = op === "Tare" && Object.values(snaps?.Gross ?? {}).some((x) => x.photo);
   const allowed = (o: string) => !!info?.terminal && ["All", o, ...(o !== "Misc" ? ["Gross and Tare"] : [])].includes(info.terminal.allowed_operations);
   const sim = info?.terminal?.indicator_protocol === "Simulator";
   const run = async (fn: () => Promise<unknown>) => { setBusy(true); try { await fn(); } catch (e) { toast.error(err(e)); } finally { setBusy(false); } };
   const capture = () => run(async () => {
-    const r = await post<{ weight_kg: number; cpr?: string; net_kg?: number }>(`${API}.capture`, { token, operation: op, ...(manual.open ? { manual_kg: manual.kg, note: manual.note } : {}) });
-    toast.success(op === "Gross" ? `Gross ${num(r.weight_kg)} kg recorded` : `Tare ${num(r.weight_kg)} kg · net ${num(r.net_kg)} kg · CPR ${r.cpr}`);
+    const r = await post<{ weight_kg: number; cpr?: string; net_kg?: number; weighment: string }>(`${API}.capture`, { token, operation: op,
+      ...(op === "Tare" && bodyOk ? { body_match: 1 } : {}), ...(manual.open ? { manual_kg: manual.kg, note: manual.note } : {}) });
+    toast.success(op === "Gross" ? `Gross ${num(r.weight_kg)} kg recorded · gross slip printed` : `Tare ${num(r.weight_kg)} kg · net ${num(r.net_kg)} kg · CPR ${r.cpr}`);
+    if (op === "Gross") printSlip("gross", r.weighment);
     if (r.cpr) printSlip("cpr", r.cpr);
+    setBodyOk(false);
     setManual({ open: false, kg: "", note: "" });
     reTok(); refetch(); qc.invalidateQueries({ queryKey: ["sc-proc-yard"] });
   });
@@ -483,6 +502,8 @@ export function WeighbridgePage() {
       <div className="grid gap-4 lg:grid-cols-5">
         <div className="space-y-3 lg:col-span-2">
           <LiveWeight r={reading} fresh={info?.fresh_s ?? 10} />
+          <CameraWall place="Weighbridge" terminal={info?.terminal?.name} state={op === "Tare" ? "empty" : "loaded"} cols={2}
+            title={`${info?.terminal?.terminal_name ?? "Weighbridge"} cameras — live`} />
           {sim && (
             <div className="rounded-xl border border-dashed p-3">
               <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Simulator (no indicator on this terminal)</p>
@@ -495,7 +516,8 @@ export function WeighbridgePage() {
           )}
         </div>
         <div className="space-y-3 lg:col-span-3">
-          <Scan onFind={setToken} placeholder="Scan the token (TKN-…) or a depot truck (DSP-…)" />
+          <Scan onFind={onScan} placeholder="Scan the indent, token (TKN-…), gross slip (WGT-…), depot truck (DSP-…) or type the vehicle no." />
+          {scanned && <p className="text-xs text-muted-foreground">Scanned <span className="font-mono">{scanned}</span></p>}
           {isDsp && dsp && <DispatchWeigh d={dsp} info={info} reading={reading} manual={manual} setManual={setManual} busy={busy} run={run}
             onDone={() => { reDsp(); refetch(); qc.invalidateQueries({ queryKey: ["sc-depot-board"] }); }} />}
           {!isDsp && tok && (
@@ -510,6 +532,7 @@ export function WeighbridgePage() {
                 <div>
                   <KV k="Gross" v={tok.weighment_doc ? `${kg(tok.weighment_doc.gross_kg)} · ${fmt(tok.weighment_doc.gross_at)}` : "—"} />
                   <KV k="Tare" v={kg(tok.weighment_doc?.tare_kg)} /><KV k="Net" v={kg(tok.weighment_doc?.net_kg)} />
+                  {tok.weighment && <div className="pt-1 text-right"><Button size="sm" variant="outline" onClick={() => printSlip("gross", tok.weighment!)}><Printer />Gross slip</Button></div>}
                 </div>
               </div>
               {limits && op && <p className="mt-2 text-xs text-muted-foreground">{tok.vehicle_type} {op.toLowerCase()} limits: {num(op === "Gross" ? limits.min_gross_kg : limits.min_tare_kg)}–{num(op === "Gross" ? limits.max_gross_kg : limits.max_tare_kg)} kg</p>}
@@ -529,8 +552,9 @@ export function WeighbridgePage() {
                       <Input value={manual.note} onChange={(e) => setManual({ ...manual, note: e.target.value })} placeholder="Why typed in (indicator offline…)" className="sm:col-span-2" />
                     </div>
                   )}
+                  {op === "Tare" && <GrossVsTare token={tok.name} terminal={info?.terminal?.name} checked={bodyOk} onCheck={setBodyOk} />}
                   <div className="flex flex-wrap gap-2">
-                    <Button className="h-12 flex-1 text-base" disabled={busy || !allowed(op) || (!manual.open && !(reading?.stable && reading.age_s <= (info?.fresh_s ?? 10) && reading.age_s > -5))} onClick={capture}>
+                    <Button className="h-12 flex-1 text-base" disabled={busy || !allowed(op) || (needBody && !bodyOk) || (!manual.open && !(reading?.stable && reading.age_s <= (info?.fresh_s ?? 10) && reading.age_s > -5))} onClick={capture}>
                       <Weight />{busy ? "Saving…" : `Take ${op} weight${manual.open ? ` (${manual.kg || 0} kg typed)` : reading ? ` · ${num(reading.weight_kg)} kg` : ""}`}</Button>
                     {info?.can_manual && <Button variant="outline" className="h-12" onClick={() => setManual({ ...manual, open: !manual.open })}>{manual.open ? "Use the indicator" : "Type the weight"}</Button>}
                   </div>

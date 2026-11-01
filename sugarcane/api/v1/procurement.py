@@ -70,6 +70,30 @@ def issue(indent=None, elp_registration=None, vehicle_no=None, vehicle_type=None
 
 
 @frappe.whitelist(methods=["GET"])
+def scan(q: str) -> dict:
+	"""Weighbridge scanner: token, indent, gross slip (weighment), ELP registration or vehicle no. → the token it belongs to."""
+	q = (q or "").strip().upper()
+	if not q:
+		frappe.throw(_("Scan or type a number"))
+	name = None
+	if q.startswith("DSP-"):
+		return {"token": None, "dispatch": q}
+	if frappe.db.exists("Cane Token", q):
+		name = q
+	for doctype, field in (("Cane Indent", "token"), ("Cane Weighment", "token"), ("LP Vehicle Registration", "token")):
+		if not name and frappe.db.exists(doctype, q):
+			name = frappe.db.get_value(doctype, q, field)
+			if not name:
+				frappe.throw(_("{0} {1} has no token yet — issue the token at the gate first").format(_(doctype), q), title=_("No token"))
+	if not name:
+		name = p.open_token_for_vehicle(q)
+	if not name:
+		frappe.throw(_("Nothing found for {0}: scan the token, indent, gross slip or type the vehicle no.").format(frappe.bold(q)),
+			title=_("Not found"))
+	return {"token": name, "scanned": q}
+
+
+@frappe.whitelist(methods=["GET"])
 def driver(q: str) -> dict | None:
 	"""Gate lookup: driver code (DRV-00012 or 12) or CNIC → name, CNIC, mobile, last vehicle; None when not registered."""
 	p.need(p.GATE_ROLES, _("look up drivers"))
@@ -144,8 +168,8 @@ def simulate(token=None, operation=None, weight_kg=None, stable=1, dispatch=None
 
 
 @frappe.whitelist(methods=["POST"])
-def capture(token: str, operation: str, manual_kg=None, note=None) -> dict:
-	out = p.capture(token, operation, manual_kg, note)
+def capture(token: str, operation: str, manual_kg=None, note=None, body_match=0) -> dict:
+	out = p.capture(token, operation, manual_kg, note, body_match=body_match)
 	out["token_doc"] = globals()["token"](token)
 	return out
 

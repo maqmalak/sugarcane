@@ -6,7 +6,7 @@
 import {
   BadgeCheck, Boxes, Building2, CalendarDays, CircleDot, Clock, Factory, Grid3x3, House, Layers, Leaf, Map, MapPin,
   MapPinned, Navigation, NotebookTabs, RefreshCw, Route, Scale, Settings, ShieldBan, Smartphone, Sprout, Target, Truck,
-  Upload, UserCheck, Users, Warehouse, Bug, type LucideIcon, Ticket, Hash, ClipboardList, ScrollText, Printer, Banknote,
+  Upload, UserCheck, Users, Warehouse, Bug, type LucideIcon, Ticket, Hash, ClipboardList, ScrollText, Printer, Banknote, Video, Camera,
 } from "lucide-react";
 import { postDownload } from "./lib/api";
 import toast from "react-hot-toast";
@@ -23,6 +23,7 @@ const SurveyPhotos = lazy(() => import("./components/PhotoGallery").then((m) => 
 const ElpCompare = lazy(() => import("./components/ElpCompare").then((m) => ({ default: m.ElpCompare })));
 const BatchPanel = lazy(() => import("./components/IndentPanels").then((m) => ({ default: m.BatchPanel })));
 const IndentCard = lazy(() => import("./components/IndentPanels").then((m) => ({ default: m.IndentCard })));
+const SnapshotStrip = lazy(() => import("./components/Cctv").then((m) => ({ default: m.SnapshotStrip })));
 const GrowerPhotos = lazy(() => import("./components/PhotoGallery").then((m) => ({ default: m.GrowerPhotos })));
 const AreaGeoEditor = lazy(() => import("./pages/AreaMapPage").then((m) => ({ default: m.Editor })));
 const later = (node: ReactNode) => <Suspense fallback={<div className="h-24 animate-pulse rounded-2xl border bg-muted/40" />}>{node}</Suspense>;
@@ -60,6 +61,8 @@ export const SC_DOCS: ScDoc[] = [
   { doctype: "Vehicle Type", label: "Vehicle Types", app: "setup", group: "Vehicles & Weighbridge", icon: Truck },
   { doctype: "Sugar Vehicle", label: "Vehicles", app: "setup", group: "Vehicles & Weighbridge", icon: Truck },
   { doctype: "Cane Driver", label: "Drivers", app: "setup", group: "Vehicles & Weighbridge", icon: Users },
+  { doctype: "CCTV Camera", label: "CCTV Cameras", app: "setup", group: "Vehicles & Weighbridge", icon: Video },
+  { doctype: "Vehicle Snapshot", label: "Vehicle Photos (CCTV)", app: "procurement", group: "Records", icon: Camera },
   { doctype: "Vehicle Lane", label: "Lanes", app: "setup", group: "Vehicles & Weighbridge", icon: Route },
   { doctype: "Weighbridge Terminal", label: "Weighbridge Terminals", app: "setup", group: "Vehicles & Weighbridge", icon: Scale },
   // ------------------------------------------------------------------ survey
@@ -195,7 +198,11 @@ const printAction = (kind: "token" | "cpr" | "bilty"): FormAction => ({
 });
 
 export const ENHANCERS: Record<string, Enhancer> = {
-  "Cane Token": { subtitle: "Gate tokens — one vehicle, one load; rates copied at issue", extend: withActions([printAction("token")]) },
+  "Cane Token": {
+    subtitle: "Gate tokens — one vehicle, one load; rates copied at issue",
+    extend: (config) => { const c = withActions([printAction("token")])(config);
+      return { ...c, extra: (x) => <>{c.extra?.(x)}{!x.isNew && later(<SnapshotStrip token={x.name ?? ""} />)}</> }; },
+  },
   "Cane Purchase Receipt": { subtitle: "Posted on tare — Journal Entry, TPT bilty, daily purchase invoice", extend: withActions([printAction("cpr")]) },
   "TPT Bilty": { subtitle: "Carriage paid to the driver at the cash counter", extend: withActions([printAction("bilty"),
     { label: "Open the cash counter", icon: Banknote, show: (c: ExtraContext) => !c.isNew, run: (c: ExtraContext) => go(`/procurement/counter?q=${encodeURIComponent(c.name ?? "")}`)() }]) },

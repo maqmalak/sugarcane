@@ -25,6 +25,9 @@ def after_migrate():
 	from sugarcane.setup.banks import ensure as ensure_banks
 
 	ensure_banks()
+	from sugarcane.setup.demo_cctv import setup as demo_cameras
+
+	demo_cameras()
 	from sugarcane.setup.indexes import ensure as ensure_indexes
 
 	ensure_indexes()

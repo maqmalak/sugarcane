@@ -205,13 +205,28 @@ def yard(depot: str | None = None) -> dict:
 # ---------------------------------------------------------------- cash counter
 BILTY_FIELDS = ["name", "status", "cpr", "token", "crushing_day", "grower_name", "source", "point_name", "vehicle_no", "vehicle_type",
 	"driver_name", "driver_cnic", "driver_mobile", "payable_maund", "tpt_rate", "amount", "paid_at", "paid_by", "received_by",
-	"received_by_cnic", "payment_journal_entry", "print_count", "payment_mode", "wallet_number", "wallet_txn_id"]
+	"received_by_cnic", "payment_journal_entry", "print_count", "payment_mode", "wallet_number", "wallet_txn_id", "cash_counter",
+	"counter_session", "payment_batch"]
 
 
 @frappe.whitelist(methods=["GET"])
-def bilties(q: str | None = None, status: str | None = "Unpaid", day: str | None = None, limit: int = 100) -> dict:
+def bilties(q: str | None = None, status: str | None = "Unpaid", day: str | None = None, limit: int = 100, mine: int = 0,
+		session: str | None = None, from_date: str | None = None, to_date: str | None = None) -> dict:
 	p.need(p.CASH_ROLES | {"Cane Accountant", "Cane Manager", "MIS Viewer"}, _("see bilties"))
 	cond, vals = ["docstatus = 1"], {}
+	# a cashier's own payment history: paid by me (optionally one shift / a date range), newest first
+	if cint(mine):
+		cond.append("paid_by = %(me)s")
+		vals["me"] = frappe.session.user
+	if session:
+		cond.append("counter_session = %(session)s")
+		vals["session"] = session
+	if from_date:
+		cond.append("paid_at >= %(from_date)s")
+		vals["from_date"] = f"{getdate(from_date)} 00:00:00"
+	if to_date:
+		cond.append("paid_at < %(to_date)s")
+		vals["to_date"] = f"{add_days(getdate(to_date), 1)} 00:00:00"
 	if status:
 		cond.append("status = %(status)s")
 		vals["status"] = status
@@ -223,7 +238,8 @@ def bilties(q: str | None = None, status: str | None = "Unpaid", day: str | None
 		cond.append("""(name like %(q)s or cpr like %(q)s or token like %(q)s or driver_name like %(q)s or driver_cnic like %(q)s
 			or replace(driver_cnic, '-', '') like concat('%%', %(v)s, '%%')
 			or replace(replace(upper(vehicle_no), '-', ''), ' ', '') like concat('%%', %(v)s, '%%'))""")
-	rows = frappe.db.sql(f"select {', '.join(BILTY_FIELDS)} from `tabTPT Bilty` where {' and '.join(cond)} order by crushing_day desc, name desc "
+	order = "paid_at desc" if (cint(mine) or session) else "crushing_day desc, name desc"
+	rows = frappe.db.sql(f"select {', '.join(BILTY_FIELDS)} from `tabTPT Bilty` where {' and '.join(cond)} order by {order} "
 		f"limit {cint(limit) or 100}", vals, as_dict=True)
 	today = getdate()
 	paid_today = frappe.db.sql("""select count(*) n, ifnull(sum(amount), 0) amt from `tabTPT Bilty` where status = 'Paid'

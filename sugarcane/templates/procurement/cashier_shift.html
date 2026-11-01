@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+  body { font-family: "Helvetica Neue", Arial, sans-serif; color: #111; font-size: 10.5px; margin: 0; }
+  .head { display: table; width: 100%; border-bottom: 2px solid #111; padding-bottom: 2mm; margin-bottom: 3mm; }
+  .head > div { display: table-cell; vertical-align: bottom; }
+  .mill { font-size: 15px; font-weight: 700; } .title { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: #333; }
+  .rep { text-align: right; font-size: 22px; font-weight: 900; } .rep small { display: block; font-size: 10px; font-weight: 600; color: #555; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 3mm; }
+  th, td { border-bottom: 0.5px solid #ccc; padding: 1.4mm 2mm; text-align: left; vertical-align: top; }
+  th { background: #eef1f5; font-size: 9px; text-transform: uppercase; letter-spacing: .03em; }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  td.k { color: #555; width: 45%; }
+  tr.tot td { border-top: 1.4px solid #111; border-bottom: 2px solid #111; font-weight: 800; font-size: 12px; }
+  .h { font-size: 11.5px; font-weight: 700; margin: 4mm 0 1.5mm; border-bottom: 1.5px solid #111; padding-bottom: .8mm; }
+  .cols { display: table; width: 100%; border-spacing: 4mm 0; margin: 0 -4mm; } .cols > div { display: table-cell; width: 50%; vertical-align: top; }
+  .short { color: #c92a2a; } .excess { color: #b45309; } .ok { color: #2b8a3e; }
+  .big { font-size: 15px; font-weight: 900; }
+  .sign { margin-top: 14mm; display: table; width: 100%; font-size: 9.5px; }
+  .sign div { display: table-cell; width: 30%; border-top: 0.8px solid #333; padding-top: 1mm; text-align: center; } .sign span { display: table-cell; width: 5%; }
+  .muted { color: #666; font-size: 9.5px; }
+</style></head><body>
+{% macro m(v) %}{{ "{:,.2f}".format(v or 0) }}{% endmacro %}
+{% set cash = s.bilties | selectattr("payment_mode", "ne", "JazzCash") | list %}
+{% set jazz = s.bilties | selectattr("payment_mode", "equalto", "JazzCash") | list %}
+<div class="head">
+  <div><div class="mill">{{ s.company }}</div><div class="title">TPT cash counter · cashier shift report</div></div>
+  <div class="rep">{{ s.report }} REPORT<small>{{ "Shift so far — counter still open" if s.report == "X" else "Shift closed" }}</small></div>
+</div>
+<div class="cols">
+  <div>
+    <table>
+      <tr><td class="k">Counter</td><td><b>{{ s.counter }}</b></td></tr>
+      <tr><td class="k">Shift</td><td><b>{{ s.shift or "—" }}</b></td></tr>
+      <tr><td class="k">Cashier</td><td>{{ s.cashier_name }}</td></tr>
+      <tr><td class="k">Session</td><td>{{ s.name }}</td></tr>
+      <tr><td class="k">Opened</td><td>{{ frappe.utils.format_datetime(s.opened_at, "dd MMM yyyy HH:mm") }}</td></tr>
+      <tr><td class="k">Closed</td><td>{{ frappe.utils.format_datetime(s.closed_at, "dd MMM yyyy HH:mm") if s.closed_at else "— (open)" }}</td></tr>
+    </table>
+  </div>
+  <div>
+    <table>
+      <tr><td class="k">Opening balance (last close)</td><td class="n">{{ m(s.opening_balance) }}</td></tr>
+      <tr><td class="k">+ Received from strong room</td><td class="n">{{ m(s.received_total) }}</td></tr>
+      <tr><td class="k">− Returned to strong room</td><td class="n">{{ m(s.returned_total) }}</td></tr>
+      <tr><td class="k">− Cash paid ({{ s.cash_paid_count|int }} bilties)</td><td class="n">{{ m(s.cash_paid_total) }}</td></tr>
+      <tr class="tot"><td>= Expected in the till</td><td class="n">{{ m(s.expected_balance) }}</td></tr>
+      {% if s.report == "Z" %}
+      <tr><td class="k">Counted cash (closing balance)</td><td class="n"><b>{{ m(s.counted_balance) }}</b></td></tr>
+      <tr><td class="k">{{ "SHORT" if s.difference < 0 else "EXCESS" if s.difference > 0 else "Difference" }}</td>
+        <td class="n big {{ 'short' if s.difference < 0 else 'excess' if s.difference > 0 else 'ok' }}">{{ m(s.difference|abs) }}</td></tr>
+      {% endif %}
+    </table>
+    {% if s.close_note %}<div class="muted">Reason: {{ s.close_note }}{% if s.difference_journal_entry %} · posted {{ s.difference_journal_entry }}{% endif %}</div>{% endif %}
+  </div>
+</div>
+
+<div class="cols">
+  <div>
+    <div class="h">Strong room cash in / out</div>
+    <table>
+      <tr><th>Time</th><th>Movement</th><th>Voucher / by</th><th class="n">Amount</th></tr>
+      {% for mv in s.movements %}<tr><td>{{ frappe.utils.format_datetime(mv.at, "HH:mm") }}</td><td>{{ mv.movement_type }}</td><td>{{ mv.reference or "" }}</td><td class="n">{{ m(mv.amount) }}</td></tr>
+      {% else %}<tr><td colspan="4" class="muted">None</td></tr>{% endfor %}
+    </table>
+  </div>
+  <div>
+    <div class="h">Cash counted at close</div>
+    <table>
+      <tr><th>Note</th><th class="n">Count</th><th class="n">Amount</th></tr>
+      {% for d in s.denominations %}<tr><td>{{ "Rs {:,}".format(d.denomination) if d.denomination else "Coins / loose" }}</td><td class="n">{{ d.count if d.denomination else "" }}</td><td class="n">{{ m(d.amount) }}</td></tr>
+      {% else %}<tr><td colspan="3" class="muted">{{ "Not counted yet (counter open)" if s.report == "X" else "—" }}</td></tr>{% endfor %}
+      {% if s.denominations %}<tr class="tot"><td>Total counted</td><td></td><td class="n">{{ m(s.counted_balance) }}</td></tr>{% endif %}
+    </table>
+  </div>
+</div>
+
+<div class="h">Bilties paid this shift — cash {{ cash|length }} ({{ m(s.cash_paid_total) }}) · JazzCash {{ jazz|length }} ({{ m(s.jazzcash_total) }}, not from the till)</div>
+<table>
+  <tr><th>#</th><th>Bilty</th><th>CPR</th><th>Vehicle</th><th>Driver</th><th>Paid to</th><th>How</th><th>Time</th><th class="n">Amount</th></tr>
+  {% for b in s.bilties %}
+  <tr><td>{{ loop.index }}</td><td>{{ b.name }}</td><td>{{ b.cpr }}</td><td>{{ b.vehicle_no }}</td><td>{{ b.driver_name or "" }}</td><td>{{ b.received_by or "" }}</td>
+    <td>{{ b.payment_mode or "Cash" }}{% if b.wallet_txn_id %} · TID {{ b.wallet_txn_id }}{% endif %}</td><td>{{ frappe.utils.format_datetime(b.paid_at, "HH:mm") }}</td><td class="n">{{ m(b.amount) }}</td></tr>
+  {% else %}<tr><td colspan="9" class="muted">No bilties paid</td></tr>{% endfor %}
+</table>
+<div class="muted">Printed {{ printed_at }} by {{ printed_by }}.</div>
+<div class="sign"><div>Cashier — {{ s.cashier_name }}</div><span></span><div>Strong room in-charge</div><span></span><div>Cane accountant</div></div>
+</body></html>

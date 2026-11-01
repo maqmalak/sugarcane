@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+  body { font-family: "Helvetica Neue", Arial, sans-serif; color: #111; font-size: 9.5px; margin: 0; }
+  h1 { font-size: 16px; margin: 0; } .sub { color: #555; margin: 1mm 0 3mm; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 3mm; }
+  th, td { border-bottom: 0.5px solid #ccc; padding: 1.2mm 1.5mm; text-align: left; vertical-align: top; }
+  th { background: #eef1f5; font-size: 8.5px; text-transform: uppercase; letter-spacing: .03em; }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.total td { border-top: 1.4px solid #111; font-weight: 800; }
+  .h { font-size: 11px; font-weight: 700; margin: 4mm 0 1.5mm; border-bottom: 1.5px solid #111; padding-bottom: .8mm; }
+  .short { color: #c92a2a; font-weight: 700; } .excess { color: #b45309; font-weight: 700; } .open { color: #1971c2; font-weight: 700; }
+  .sign { margin-top: 10mm; display: table; width: 100%; font-size: 9px; }
+  .sign div { display: table-cell; width: 23%; border-top: 0.8px solid #333; padding-top: 1mm; text-align: center; } .sign span { display: table-cell; width: 2.6%; }
+  .muted { color: #666; }
+</style></head><body>
+{% macro m(v) %}{{ "{:,.2f}".format(v or 0) }}{% endmacro %}
+<h1>{{ company }} — Daily cashier summary · TPT cash counters</h1>
+<div class="sub">{{ frappe.utils.formatdate(day, "dd MMM yyyy") }} · {{ total.sessions }} session(s){% if total.open %} · <span class="open">{{ total.open }} still open</span>{% endif %}
+  · printed {{ printed_at }} by {{ printed_by }}</div>
+
+<div class="h">By counter</div>
+<table>
+  <tr><th>Counter</th><th class="n">Sessions</th><th class="n">Opening</th><th class="n">+ Strong room</th><th class="n">− To strong room</th>
+    <th class="n">− Cash paid</th><th class="n">Bilties</th><th class="n">Expected</th><th class="n">Counted</th><th class="n">Short / excess</th><th class="n">JazzCash</th><th class="n">Bilties</th></tr>
+  {% for t in by_counter %}
+  <tr><td><b>{{ t.counter }}</b></td><td class="n">{{ t.sessions }}</td><td class="n">{{ m(t.opening_balance) }}</td><td class="n">{{ m(t.received_total) }}</td>
+    <td class="n">{{ m(t.returned_total) }}</td><td class="n">{{ m(t.cash_paid_total) }}</td><td class="n">{{ t.cash_paid_count|int }}</td>
+    <td class="n">{{ m(t.expected_balance) }}</td><td class="n">{{ m(t.counted_balance) }}</td>
+    <td class="n {{ 'short' if t.difference < 0 else 'excess' if t.difference > 0 else '' }}">{{ m(t.difference) }}</td>
+    <td class="n">{{ m(t.jazzcash_total) }}</td><td class="n">{{ t.jazzcash_count|int }}</td></tr>
+  {% endfor %}
+  <tr class="total"><td>Total</td><td class="n">{{ total.sessions }}</td><td class="n">{{ m(total.opening_balance) }}</td><td class="n">{{ m(total.received_total) }}</td>
+    <td class="n">{{ m(total.returned_total) }}</td><td class="n">{{ m(total.cash_paid_total) }}</td><td class="n">{{ total.cash_paid_count|int }}</td>
+    <td class="n">{{ m(total.expected_balance) }}</td><td class="n">{{ m(total.counted_balance) }}</td><td class="n">{{ m(total.difference) }}</td>
+    <td class="n">{{ m(total.jazzcash_total) }}</td><td class="n">{{ total.jazzcash_count|int }}</td></tr>
+</table>
+<div class="muted">Strong room net issue to the counters: {{ m(total.strong_room_net) }} · shortages {{ m(total.short) }} · excesses {{ m(total.excess) }}.
+  Cash paid comes from the tills; JazzCash is paid from the mill's JazzCash wallet, not from the tills.</div>
+
+<div class="h">By shift</div>
+<table>
+  <tr><th>Shift</th><th>Cashier(s)</th><th class="n">Sessions</th><th class="n">Opening</th><th class="n">+ Strong room</th><th class="n">− To strong room</th>
+    <th class="n">− Cash paid</th><th class="n">Bilties</th><th class="n">Counted</th><th class="n">Short / excess</th><th class="n">JazzCash</th></tr>
+  {% for t in by_shift %}
+  <tr><td><b>{{ t.shift }}</b></td><td>{{ t.cashiers }}</td><td class="n">{{ t.sessions }}</td><td class="n">{{ m(t.opening_balance) }}</td><td class="n">{{ m(t.received_total) }}</td>
+    <td class="n">{{ m(t.returned_total) }}</td><td class="n">{{ m(t.cash_paid_total) }}</td><td class="n">{{ t.cash_paid_count|int }}</td><td class="n">{{ m(t.counted_balance) }}</td>
+    <td class="n {{ 'short' if t.difference < 0 else 'excess' if t.difference > 0 else '' }}">{{ m(t.difference) }}</td><td class="n">{{ m(t.jazzcash_total) }}</td></tr>
+  {% endfor %}
+</table>
+
+<div class="h">Sessions (shift opening → closing)</div>
+<table>
+  <tr><th>Session</th><th>Counter</th><th>Shift</th><th>Cashier</th><th>Opened → closed</th><th class="n">Opening</th><th class="n">+ In</th><th class="n">− Out</th>
+    <th class="n">− Cash paid</th><th class="n">Expected</th><th class="n">Counted</th><th class="n">Short / excess</th><th class="n">JazzCash</th><th>Note</th></tr>
+  {% for s in sessions %}
+  <tr><td>{{ s.name }}{% if s.status == "Open" %} <span class="open">OPEN</span>{% endif %}</td><td>{{ s.counter }}</td><td>{{ s.shift or "" }}</td><td>{{ s.cashier_name }}</td>
+    <td>{{ frappe.utils.format_datetime(s.opened_at, "HH:mm") }} → {{ frappe.utils.format_datetime(s.closed_at, "HH:mm") if s.closed_at else "—" }}</td>
+    <td class="n">{{ m(s.opening_balance) }}</td><td class="n">{{ m(s.received_total) }}</td><td class="n">{{ m(s.returned_total) }}</td>
+    <td class="n">{{ m(s.cash_paid_total) }} ({{ s.cash_paid_count|int }})</td><td class="n">{{ m(s.expected_balance) }}</td>
+    <td class="n">{{ m(s.counted_balance) if s.status == "Closed" else "—" }}</td>
+    <td class="n {{ 'short' if s.difference < 0 else 'excess' if s.difference > 0 else '' }}">{{ m(s.difference) if s.status == "Closed" else "—" }}</td>
+    <td class="n">{{ m(s.jazzcash_total) }} ({{ s.jazzcash_count|int }})</td><td>{{ s.close_note or "" }}</td></tr>
+  {% endfor %}
+</table>
+
+{% for s in sessions %}{% if s.bilties %}
+<div class="h">{{ s.name }} · {{ s.counter }} · {{ s.cashier_name }} — bilties paid ({{ s.bilties|length }})</div>
+<table>
+  <tr><th>Bilty</th><th>CPR</th><th>Vehicle</th><th>Driver</th><th>Paid to</th><th>How</th><th>Time</th><th class="n">Amount</th></tr>
+  {% for b in s.bilties %}
+  <tr><td>{{ b.name }}</td><td>{{ b.cpr }}</td><td>{{ b.vehicle_no }}</td><td>{{ b.driver_name or "" }}</td><td>{{ b.received_by or "" }}</td>
+    <td>{{ b.payment_mode or "Cash" }}{% if b.wallet_txn_id %} · TID {{ b.wallet_txn_id }}{% endif %}</td><td>{{ frappe.utils.format_datetime(b.paid_at, "HH:mm") }}</td>
+    <td class="n">{{ m(b.amount) }}</td></tr>
+  {% endfor %}
+</table>
+{% endif %}{% endfor %}
+
+<div class="sign"><div>Cashier(s)</div><span></span><div>Strong room in-charge</div><span></span><div>Cane accountant</div><span></span><div>Cane manager</div></div>
+</body></html>

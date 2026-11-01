@@ -17,6 +17,12 @@ from frappe import _
 from frappe.utils import cint, flt, now_datetime
 
 DENOMS = (5000, 1000, 500, 100, 50, 20, 10, 0)  # 0 = coins (count = rupees)
+SHIFTS = ("A (07–15)", "B (15–23)", "C (23–07)")  # the crushing day starts at 07:00
+
+
+def shift_now(at=None) -> str:
+	h = (at or now_datetime()).hour
+	return SHIFTS[0] if 7 <= h < 15 else SHIFTS[1] if 15 <= h < 23 else SHIFTS[2]
 
 
 def _need():
@@ -56,8 +62,11 @@ def refresh(name: str) -> frappe._dict:
 	return frappe._dict({**s.as_dict(), **vals})
 
 
-def open_session(counter: str) -> str:
+def open_session(counter: str, shift: str | None = None) -> str:
 	_need()
+	shift = shift or shift_now()
+	if shift not in SHIFTS:
+		frappe.throw(_("Choose the shift"))
 	if not frappe.db.get_value("Cash Counter", counter, "is_active"):
 		frappe.throw(_("Counter {0} is not active").format(counter))
 	other = open_session_of(counter=counter)
@@ -69,7 +78,7 @@ def open_session(counter: str) -> str:
 		frappe.throw(_("You already have {0} open").format(mine))
 	last = frappe.db.get_value("Cash Counter Session", {"counter": counter, "status": "Closed"}, "counted_balance",
 		order_by="closed_at desc")
-	s = frappe.get_doc({"doctype": "Cash Counter Session", "counter": counter, "cashier": frappe.session.user, "status": "Open",
+	s = frappe.get_doc({"doctype": "Cash Counter Session", "counter": counter, "cashier": frappe.session.user, "status": "Open", "shift": shift,
 		"opened_at": now_datetime(), "opening_balance": flt(last), "expected_balance": flt(last)})
 	s.insert(ignore_permissions=True)
 	return s.name
@@ -155,11 +164,13 @@ def close(name: str, denominations: list[dict], note: str | None = None) -> frap
 	counted = 0.0
 	for d in denominations or []:
 		den, cnt = cint(d.get("denomination")), cint(d.get("count"))
-		if cnt <= 0:
+		# notes: a count; coins / loose change: an amount in rupees and paisa
+		amt = flt(d.get("amount"), 2) if not den and d.get("amount") not in (None, "") else cnt * (den or 1)
+		if amt <= 0:
 			continue
-		amt = cnt * (den or 1)
 		counted += amt
-		s.append("denominations", {"denomination": den, "count": cnt, "amount": amt})
+		s.append("denominations", {"denomination": den, "count": cnt if den else 0, "amount": amt})
+	counted = round(counted, 2)
 	diff = round(counted - flt(cur.expected_balance), 2)
 	if diff and not (note or "").strip():
 		frappe.throw(_("The count is {0} {1} — give the reason").format(abs(diff), _("excess") if diff > 0 else _("short")))
@@ -231,3 +242,97 @@ def ensure_counters(company: str):
 		frappe.get_doc({"doctype": "Cash Counter", "counter_name": f"Cash Counter {n}", "cash_account": acc, "is_active": 1,
 			"display_title": f"TPT Cash Counter {n}", "display_note": "Show your bilty and CNIC · بلٹی اور شناختی کارڈ دکھائیں"}).insert(
 			ignore_permissions=True)
+
+
+# ---------------------------------------------------------------- daily cashier summary
+SUMMARY_FIELDS = ["name", "counter", "cashier", "shift", "status", "opened_at", "closed_at", "opening_balance", "received_total", "returned_total",
+	"cash_paid_total", "cash_paid_count", "jazzcash_total", "jazzcash_count", "expected_balance", "counted_balance", "difference",
+	"difference_journal_entry", "close_note"]
+TOTAL_KEYS = ("opening_balance", "received_total", "returned_total", "cash_paid_total", "cash_paid_count", "jazzcash_total", "jazzcash_count",
+	"expected_balance", "counted_balance", "difference")
+
+
+def _detail(r):
+	if r.status == "Open":
+		r.update({k: v for k, v in refresh(r.name).items() if k in SUMMARY_FIELDS})
+	r.cashier_name = frappe.utils.get_fullname(r.cashier)
+	r.movements = frappe.get_all("Cash Counter Movement", filters={"parent": r.name, "parenttype": "Cash Counter Session"},
+		fields=["movement_type", "amount", "at", "reference"], order_by="idx asc")
+	r.denominations = frappe.get_all("Cash Counter Denomination", filters={"parent": r.name, "parenttype": "Cash Counter Session"},
+		fields=["denomination", "count", "amount"], order_by="idx asc")
+	r.bilties = frappe.get_all("TPT Bilty", filters={"counter_session": r.name, "status": "Paid"}, fields=["name", "cpr", "vehicle_no",
+		"driver_name", "received_by", "amount", "payment_mode", "wallet_txn_id", "paid_at", "payment_batch"], order_by="paid_at asc")
+	return r
+
+
+def session_detail(name: str) -> frappe._dict:
+	"""One shift with its moves, count and bilties — for the X (open) / Z (closed) report."""
+	r = frappe.db.get_value("Cash Counter Session", name, SUMMARY_FIELDS, as_dict=True)
+	if not r:
+		frappe.throw(_("Counter session {0} not found").format(name))
+	r = _detail(r)
+	r.company = frappe.db.get_single_value("Sugar Settings", "company")
+	r.report = "Z" if r.status == "Closed" else "X"
+	return r
+
+
+def daily_summary(day) -> dict:
+	"""Every counter session opened on the day, by counter and cashier, with totals; open sessions show live figures."""
+	from frappe.utils import add_days, getdate
+
+	day = getdate(day)
+	rows = frappe.get_all("Cash Counter Session", filters={"opened_at": ["between", [f"{day} 00:00:00", f"{add_days(day, 1)} 00:00:00"]]},
+		fields=SUMMARY_FIELDS, order_by="opened_at asc, counter asc")
+	out = [_detail(r) for r in rows]
+	by_counter: dict = {}
+	for r in out:
+		t = by_counter.setdefault(r.counter, frappe._dict({k: 0 for k in TOTAL_KEYS}, counter=r.counter, sessions=0))
+		t.sessions += 1
+		for k in TOTAL_KEYS:
+			t[k] += flt(r.get(k))
+	by_shift: dict = {}
+	for r in out:
+		t = by_shift.setdefault(r.shift or "—", frappe._dict({k: 0 for k in TOTAL_KEYS}, shift=r.shift or "—", sessions=0, cashiers=set()))
+		t.sessions += 1
+		t.cashiers.add(r.cashier_name)
+		for k in TOTAL_KEYS:
+			t[k] += flt(r.get(k))
+	for t in by_shift.values():
+		t.cashiers = ", ".join(sorted(t.cashiers))
+	total = frappe._dict({k: sum(flt(r.get(k)) for r in out) for k in TOTAL_KEYS}, sessions=len(out))
+	total.open = sum(1 for r in out if r.status == "Open")
+	total.short = sum(flt(r.difference) for r in out if flt(r.difference) < 0)
+	total.excess = sum(flt(r.difference) for r in out if flt(r.difference) > 0)
+	total.strong_room_net = total.received_total - total.returned_total
+	return {"day": str(day), "sessions": out, "by_counter": list(by_counter.values()),
+		"by_shift": sorted(by_shift.values(), key=lambda t: t.shift), "total": total,
+		"company": frappe.db.get_single_value("Sugar Settings", "company")}
+
+
+def short_excess(from_date, to_date, cashier: str | None = None) -> dict:
+	"""Every counter close with a short or excess between two dates, and the totals per cashier."""
+	from frappe.utils import add_days, getdate
+
+	f = {"status": "Closed", "difference": ["!=", 0],
+		"closed_at": ["between", [f"{getdate(from_date)} 00:00:00", f"{add_days(getdate(to_date), 1)} 00:00:00"]]}
+	if cashier:
+		f["cashier"] = cashier
+	rows = frappe.get_all("Cash Counter Session", filters=f, fields=["name", "counter", "cashier", "shift", "closed_at", "expected_balance",
+		"counted_balance", "difference", "close_note", "difference_journal_entry"], order_by="closed_at desc")
+	people: dict = {}
+	for r in rows:
+		r.cashier_name = frappe.utils.get_fullname(r.cashier)
+		t = people.setdefault(r.cashier, frappe._dict(cashier=r.cashier, cashier_name=r.cashier_name, closes=0, short=0.0, excess=0.0, short_n=0, excess_n=0))
+		t.closes += 1
+		if flt(r.difference) < 0:
+			t.short += flt(r.difference)
+			t.short_n += 1
+		else:
+			t.excess += flt(r.difference)
+			t.excess_n += 1
+	for t in people.values():
+		t.net = t.short + t.excess
+		t.all_closes = frappe.db.count("Cash Counter Session", {"cashier": t.cashier, "status": "Closed",
+			"closed_at": ["between", [f"{getdate(from_date)} 00:00:00", f"{add_days(getdate(to_date), 1)} 00:00:00"]]})
+	return {"rows": rows, "by_cashier": sorted(people.values(), key=lambda t: t.net),
+		"short": sum(flt(r.difference) for r in rows if flt(r.difference) < 0), "excess": sum(flt(r.difference) for r in rows if flt(r.difference) > 0)}

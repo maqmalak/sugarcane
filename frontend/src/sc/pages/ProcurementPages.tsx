@@ -10,8 +10,8 @@
  */
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  AlertTriangle, Banknote, CheckCircle2, ClipboardCheck, Clock, Factory, Hourglass, Printer, Receipt, RotateCcw, Scale, ScanBarcode,
-  Search, ShieldCheck, Smartphone, ArrowDownToLine, ArrowUpFromLine, Lock, Unlock, MonitorSmartphone, Plus, X, Ticket, Timer, Truck, Wallet, Warehouse, Weight, XCircle,
+  AlertTriangle, Banknote, CheckCircle2, ClipboardCheck, ClipboardList, Clock, Factory, Hourglass, Printer, Receipt, RotateCcw, Scale, ScanBarcode,
+  Search, ShieldCheck, Smartphone, List, LayoutGrid, ArrowDownToLine, ArrowUpFromLine, Lock, Unlock, MonitorSmartphone, Plus, X, Ticket, Timer, Truck, Wallet, Warehouse, Weight, XCircle,
 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import toast from "react-hot-toast";
@@ -28,6 +28,7 @@ import { useRealtime } from "@/sc/lib/realtime";
 import { cn } from "@/sc/lib/utils";
 import { useTheme } from "@/sc/providers/theme";
 import { cnicError, mobileError } from "@/sc/validators";
+import { printShiftReport } from "@/sc/lib/shiftReport";
 import { CameraWall, GrossVsTare, useSnapshots } from "@/sc/components/Cctv";
 
 const API = "sugarcane.api.v1.procurement";
@@ -749,17 +750,17 @@ export function YardPage() {
 
 // =============================================================== cash counter
 interface Bilty { name: string; status: string; cpr: string; token: string; crushing_day: string; grower_name: string; point_name?: string; source: string; vehicle_no: string; vehicle_type: string; driver_name?: string; driver_cnic?: string; payable_maund: number; tpt_rate: number; amount: number; paid_at?: string; received_by?: string;
-  driver_mobile?: string; payment_mode?: string; wallet_number?: string; wallet_txn_id?: string }
+  driver_mobile?: string; payment_mode?: string; wallet_number?: string; wallet_txn_id?: string; cash_counter?: string; counter_session?: string; payment_batch?: string }
 interface Counter { rows: Bilty[]; paid_today: { n: number; amt: number }; paid_by_me: { n: number; amt: number }; jazzcash_today?: { n: number; amt: number }; unpaid: { n: number; amt: number }; can_pay: boolean; can_reverse: boolean }
 
 const CAPI = "sugarcane.api.v1.counter";
 interface Session {
-  name: string; counter: string; cashier: string; status: string; opened_at: string; opening_balance: number; received_total: number; returned_total: number;
+  name: string; counter: string; cashier: string; shift?: string; status: string; opened_at: string; opening_balance: number; received_total: number; returned_total: number;
   cash_paid_total: number; cash_paid_count: number; jazzcash_total: number; jazzcash_count: number; expected_balance: number;
   movements: { movement_type: string; amount: number; at: string; reference?: string; journal_entry?: string }[];
 }
 interface CounterStatus {
-  session: Session | null; can_pay: boolean; denominations: number[];
+  session: Session | null; can_pay: boolean; denominations: number[]; shifts: string[]; shift_now: string;
   counters: { name: string; display_title?: string; open?: { name: string; cashier: string; opened_at: string; expected_balance: number } | null;
     last_close?: { name: string; counted_balance: number; closed_at: string } | null }[];
 }
@@ -856,7 +857,7 @@ function CloseDialog({ session, denoms, onDone, onClose }: { session: Session; d
   const [count, setCount] = useState<Record<number, string>>({});
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
-  const counted = denoms.reduce((a, d) => a + (Number(count[d]) || 0) * (d || 1), 0);
+  const counted = Math.round(denoms.reduce((a, d) => a + (Number(count[d]) || 0) * (d || 1), 0) * 100) / 100;
   const diff = Math.round((counted - session.expected_balance) * 100) / 100;
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" onClick={onClose}>
@@ -866,7 +867,8 @@ function CloseDialog({ session, denoms, onDone, onClose }: { session: Session; d
           {denoms.map((d) => (
             <label key={d} className="flex items-center gap-2 text-sm">
               <span className="w-20 text-right font-semibold tabular-nums">{d ? `Rs ${num(d)}` : "Coins (Rs)"}</span><span className="text-muted-foreground">×</span>
-              <Input value={count[d] ?? ""} onChange={(e) => setCount({ ...count, [d]: e.target.value.replace(/\D/g, "") })} className="h-8 w-20 text-right font-mono" />
+              <Input value={count[d] ?? ""} onChange={(e) => setCount({ ...count, [d]: d ? e.target.value.replace(/\D/g, "") : e.target.value.replace(/[^\d.]/g, "") })}
+                placeholder={d ? "notes" : "Rs.paisa"} className="h-8 w-20 text-right font-mono" />
             </label>
           ))}
         </div>
@@ -881,9 +883,11 @@ function CloseDialog({ session, denoms, onDone, onClose }: { session: Session; d
           <Button disabled={busy || (diff !== 0 && !note.trim())} onClick={async () => {
             setBusy(true);
             try {
-              await post(`${CAPI}.close`, { session: session.name, denominations: JSON.stringify(denoms.map((d) => ({ denomination: d, count: Number(count[d]) || 0 }))), note });
+              await post(`${CAPI}.close`, { session: session.name, note,
+                denominations: JSON.stringify(denoms.map((d) => d ? { denomination: d, count: Number(count[d]) || 0 } : { denomination: 0, amount: Number(count[d]) || 0 })) });
               toast.success(`${session.counter} closed · ${money(counted)} in the till`);
               pushDisplay(session.counter, { state: "closed" });
+              printShiftReport(session.name).catch(() => {});  // Z report on the receipt printer
               onDone();
             } catch (e) { toast.error(err(e)); } finally { setBusy(false); }
           }}><Lock />{busy ? "Closing…" : "Close counter"}</Button>
@@ -901,11 +905,24 @@ export function CounterPage() {
   const [basket, setBasket] = useState<Bilty[]>([]);
   const [dialog, setDialog] = useState<null | "pay" | "in" | "out" | "close">(null);
   const { data: st, refetch: reSt } = useQuery({ queryKey: ["sc-counter-status"], queryFn: () => get<CounterStatus>(`${CAPI}.status`), refetchInterval: 10_000 });
-  const { data, refetch } = useQuery({ queryKey: ["sc-proc-bilties", q, status], queryFn: () => get<Counter>(`${API}.bilties`, { q, status }), refetchInterval: 30_000 });
   const ses = st?.session ?? null;
+  // history: "shift" = this shift's payments, "mine" = everything I paid (date range)
+  const [from, setFrom] = useState(new Date().toISOString().slice(0, 10));
+  const [to, setTo] = useState(new Date().toISOString().slice(0, 10));
+  const [view, setViewRaw] = useState<"list" | "cards">(() => { try { return (localStorage.getItem("sc-counter-view") as "list" | "cards") || "list"; } catch { return "list"; } });
+  const setView = (v: "list" | "cards") => { setViewRaw(v); try { localStorage.setItem("sc-counter-view", v); } catch { /* private window */ } };
+  const listParams = status === "shift" ? { q, status: "Paid", session: ses?.name ?? "-", limit: 500 }
+    : status === "mine" ? { q, status: "Paid", mine: 1, from_date: from, to_date: to, limit: 500 } : { q, status };
+  const { data, refetch } = useQuery({ queryKey: ["sc-proc-bilties", listParams], queryFn: () => get<Counter>(`${API}.bilties`, listParams), refetchInterval: 30_000 });
+  const history = status === "shift" || status === "mine";
+  const histTotal = history ? (data?.rows ?? []).reduce((a, b) => a + b.amount, 0) : 0;
   const total = basket.reduce((a, b) => a + b.amount, 0);
+  const [shift, setShift] = useState("");
+  const paidAt = useRef(0);
   useEffect(() => {
     if (!ses) return;
+    const hold = 12_000 - (Date.now() - paidAt.current);
+    if (!basket.length && hold > 0) { const t = setTimeout(() => pushDisplay(ses.counter, { state: "idle" }), hold); return () => clearTimeout(t); }
     pushDisplay(ses.counter, basket.length ? { state: "basket", total, payee: basket[0].driver_name, cnic: basket[0].driver_cnic,
       items: basket.map((b) => ({ name: b.name, vehicle_no: b.vehicle_no, amount: b.amount, cpr: b.cpr })) } : { state: "idle" });
   }, [ses?.counter, basket]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -926,11 +943,20 @@ export function CounterPage() {
   return (
     <div className="space-y-5 p-4 sm:p-6">
       <Header title={ses ? `${ses.counter} · TPT cash counter` : "TPT cash counter"}
-        sub={ses ? `Session ${ses.name} · ${ses.cashier} · opened ${fmt(ses.opened_at)}` : "Open a counter to start: the opening balance is carried from that counter's last close."}>
+        sub={ses ? `Shift ${ses.shift ?? "—"} · session ${ses.name} · ${ses.cashier} · opened ${fmt(ses.opened_at)}` : "Open a counter for your shift: the opening balance is carried from that counter's last close."}>
+        <NavBtn to="/procurement/cashier-summary" icon={ClipboardList}>Daily cashier summary</NavBtn>
+        {ses && <Button variant="outline" size="sm" className="h-9" onClick={() => printShiftReport(ses.name).catch((e) => toast.error(err(e)))}><Printer />X report</Button>}
         {ses && <a href={`/sugar/display?screen=${encodeURIComponent(`counter:${ses.counter}`)}`} target="_blank" rel="noreferrer"
           className="inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm font-medium hover:bg-muted"><MonitorSmartphone className="size-4" />Payee display</a>}
       </Header>
 
+      {!ses && st && (
+        <div className="flex flex-wrap items-center gap-2 text-sm"><span className="font-medium">Shift</span>
+          {st.shifts.map((x) => (
+            <button key={x} type="button" onClick={() => setShift(x)} className={cn("rounded-full border px-3 py-1 text-xs font-semibold",
+              (shift || st.shift_now) === x ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground")}>{x}</button>))}
+          <span className="text-xs text-muted-foreground">— {shift ? "chosen" : "by the clock"}</span></div>
+      )}
       {!ses && st && (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {st.counters.map((k) => (
@@ -943,7 +969,7 @@ export function CounterPage() {
                 {k.open && <KV k="In the till now" v={money(k.open.expected_balance)} />}
               </div>
               <Button className="mt-3 w-full" disabled={!!k.open || !st.can_pay} onClick={async () => {
-                try { await post(`${CAPI}.open_counter`, { counter: k.name }); toast.success(`${k.name} opened`); reSt(); } catch (e) { toast.error(err(e)); }
+                try { await post(`${CAPI}.open_counter`, { counter: k.name, shift: shift || st.shift_now }); toast.success(`${k.name} opened · shift ${shift || st.shift_now}`); reSt(); } catch (e) { toast.error(err(e)); }
               }}><Unlock />{k.open ? "In use" : "Open this counter"}</Button>
             </section>
           ))}
@@ -1005,13 +1031,52 @@ export function CounterPage() {
       )}
 
       <div className="flex flex-wrap items-center gap-2">
-        {[["Unpaid", "Unpaid"], ["Paid", "Paid"], ["", "All"]].map(([s, l]) => (
+        {[["Unpaid", "Unpaid"], ["Paid", "Paid"], ["", "All"], ...(ses ? [["shift", "This shift"]] : []), ["mine", "My payments"]].map(([s, l]) => (
           <button key={s} type="button" onClick={() => setStatus(s)} className={cn("rounded-full border px-3 py-1 text-xs font-medium", status === s ? "border-primary/40 bg-primary/10 text-primary" : "text-muted-foreground")}>{l}</button>
         ))}
-        <div className="relative ml-auto"><Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find: bilty / CPR, vehicle no., driver CNIC…" className="h-10 w-80 pl-8 font-mono" /></div>
+        {status === "mine" && <span className="flex items-center gap-1.5 text-xs"><Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="h-8 w-36" />to
+          <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="h-8 w-36" /></span>}
+        <div className="ml-auto flex items-center gap-2">
+          <div className="flex rounded-lg border p-0.5">
+            {(["list", "cards"] as const).map((v) => (
+              <button key={v} type="button" title={v === "list" ? "List view" : "Card view"} onClick={() => setView(v)}
+                className={cn("rounded-md px-2 py-1", view === v ? "bg-primary/10 text-primary" : "text-muted-foreground")}>{v === "list" ? <List className="size-4" /> : <LayoutGrid className="size-4" />}</button>))}
+          </div>
+          <div className="relative"><Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find: bilty / CPR, vehicle no., driver CNIC…" className="h-10 w-80 pl-8 font-mono" /></div>
+        </div>
       </div>
-      <ChartCard title="Bilties" bodyClass="h-auto">
+      {history && (
+        <div className="flex flex-wrap items-center gap-4 rounded-xl border bg-muted/30 px-4 py-2 text-sm">
+          <b>{status === "shift" ? `This shift (${ses?.shift ?? ""} · ${ses?.counter ?? ""})` : "My payments"}</b>
+          <span>{num(data?.rows.length ?? 0)} bilties · <b>{money(histTotal)}</b></span>
+          <span className="text-emerald-600">cash {money((data?.rows ?? []).filter((r) => r.payment_mode !== "JazzCash").reduce((a, b) => a + b.amount, 0))}</span>
+          <span className="text-red-600">JazzCash {money((data?.rows ?? []).filter((r) => r.payment_mode === "JazzCash").reduce((a, b) => a + b.amount, 0))}</span>
+        </div>
+      )}
+      {view === "cards" ? (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {(data?.rows ?? []).map((r) => (
+            <section key={r.name} className={cn("rounded-2xl border bg-card p-3 shadow-sm", basket.some((x) => x.name === r.name) && "border-primary")}>
+              <div className="flex items-center gap-2"><span className="font-mono text-xs font-semibold">{r.name}</span>
+                {r.status === "Paid" ? <Badge tone={r.payment_mode === "JazzCash" ? "red" : "green"} className="ml-auto">{r.payment_mode === "JazzCash" ? "JazzCash" : "Cash"}</Badge>
+                  : <Badge tone="amber" className="ml-auto">Unpaid</Badge>}</div>
+              <div className="mt-2 flex items-center gap-2"><Plate no={r.vehicle_no} /><span className="truncate text-sm">{r.driver_name ?? "—"}</span></div>
+              <div className="text-[11px] text-muted-foreground">{r.driver_cnic} · {r.point_name || r.source} · CPR {r.cpr}</div>
+              <div className="mt-2 flex items-end gap-2">
+                <div className="text-xl font-black tabular-nums">{money(r.amount)}</div>
+                <div className="ml-auto flex items-center gap-1.5">
+                  {r.status === "Unpaid" && ses && st?.can_pay && <Button size="sm" variant="outline" disabled={basket.some((x) => x.name === r.name)} onClick={() => add(r)}><Plus />Add</Button>}
+                  <button type="button" title="Print bilty" onClick={() => printSlip("bilty", r.name)} className="text-muted-foreground hover:text-foreground"><Printer className="size-4" /></button>
+                </div>
+              </div>
+              {r.status === "Paid" && <div className="mt-1.5 border-t pt-1.5 text-[11px] text-muted-foreground">Paid {fmt(r.paid_at)} to {r.received_by ?? ""}{r.wallet_txn_id ? ` · TID ${r.wallet_txn_id}` : ""}{r.cash_counter ? ` · ${r.cash_counter}` : ""}</div>}
+            </section>
+          ))}
+          {!data?.rows.length && <p className="col-span-full p-6 text-center text-sm text-muted-foreground">Nothing here.</p>}
+        </div>
+      ) : (
+      <ChartCard title={history ? "Payments" : "Bilties"} bodyClass="h-auto">
         <DataTable rows={data?.rows ?? []} rowKey={(r) => r.name} dense cols={[
           { key: "name", label: "Bilty", value: (r) => r.name, render: (r) => <span className="font-mono text-xs font-semibold">{r.name}</span> },
           { key: "day", label: "Day", value: (r) => r.crushing_day, render: (r) => dayLabel(r.crushing_day) },
@@ -1028,9 +1093,11 @@ export function CounterPage() {
               {r.status === "Paid" && data?.can_reverse && <button type="button" title="Reverse payment" onClick={() => reverse(r)} className="text-muted-foreground hover:text-red-600"><RotateCcw className="size-4" /></button>}
               <button type="button" title="Print bilty" onClick={() => printSlip("bilty", r.name)} className="text-muted-foreground hover:text-foreground"><Printer className="size-4" /></button>
             </div>) },
+          ...(history ? [{ key: "paid", label: "Paid", value: (r: Bilty) => r.paid_at ?? "", render: (r: Bilty) => <span className="text-xs">{fmt(r.paid_at)}<div className="text-muted-foreground">{r.received_by}{r.wallet_txn_id ? ` · TID ${r.wallet_txn_id}` : ""}</div></span> }] : []),
         ]} />
       </ChartCard>
-      {ses && dialog === "pay" && <PayDialog basket={basket} session={ses} onClose={() => setDialog(null)} onDone={() => { setBasket([]); done(); }} />}
+      )}
+      {ses && dialog === "pay" && <PayDialog basket={basket} session={ses} onClose={() => setDialog(null)} onDone={() => { paidAt.current = Date.now(); setBasket([]); done(); }} />}
       {ses && (dialog === "in" || dialog === "out") && <MoveDialog session={ses} kind={dialog === "in" ? "Received from Strong Room" : "Returned to Strong Room"} onClose={() => setDialog(null)} onDone={done} />}
       {ses && dialog === "close" && <CloseDialog session={ses} denoms={st?.denominations ?? [5000, 1000, 500, 100, 50, 20, 10, 0]} onClose={() => setDialog(null)} onDone={done} />}
     </div>

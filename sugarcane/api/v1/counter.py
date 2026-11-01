@@ -29,12 +29,12 @@ def status() -> dict:
 			as_dict=True, order_by="closed_at desc")
 		counters.append({**k, "open": busy.get(k.name), "last_close": last})
 	return {"session": c.refresh(mine) if mine else None, "counters": counters, "can_pay": bool(p.CASH_ROLES & set(frappe.get_roles())),
-		"denominations": list(c.DENOMS)}
+		"denominations": list(c.DENOMS), "shifts": list(c.SHIFTS), "shift_now": c.shift_now()}
 
 
 @frappe.whitelist(methods=["POST"])
-def open_counter(counter: str) -> dict:
-	return c.refresh(c.open_session(counter))
+def open_counter(counter: str, shift: str | None = None) -> dict:
+	return c.refresh(c.open_session(counter, shift or None))
 
 
 @frappe.whitelist(methods=["POST"])
@@ -85,3 +85,51 @@ def display_push(screen: str, state=None):
 def display(screen: str) -> dict:
 	p.need(VIEW | p.WEIGH_ROLES | p.GATE_ROLES, _("see the display"))
 	return c.display_get(screen)
+
+
+# ---------------------------------------------------------------- daily cashier summary
+@frappe.whitelist(methods=["GET"])
+def daily_summary(day: str | None = None) -> dict:
+	p.need(VIEW, _("see the cashier summary"))
+	return c.daily_summary(day or frappe.utils.today())
+
+
+@frappe.whitelist()
+def daily_summary_pdf(day: str | None = None):
+	from frappe.utils.pdf import get_pdf
+
+	p.need(VIEW, _("print the cashier summary"))
+	data = c.daily_summary(day or frappe.utils.today())
+	html = frappe.render_template("sugarcane/templates/procurement/cashier_summary.html", {**data,
+		"printed_at": frappe.utils.now_datetime().strftime("%d %b %Y %H:%M"), "printed_by": frappe.utils.get_fullname(frappe.session.user)})
+	frappe.local.response.filename = f"Cashier summary {data['day']}.pdf"
+	frappe.local.response.filecontent = get_pdf(html, {"page-size": "A4", "orientation": "Landscape", "margin-top": "8mm",
+		"margin-bottom": "8mm", "margin-left": "8mm", "margin-right": "8mm"})
+	frappe.local.response.type = "download"
+
+
+@frappe.whitelist(methods=["GET"])
+def short_excess(from_date: str, to_date: str, cashier: str | None = None) -> dict:
+	p.need(VIEW, _("see counter shortages"))
+	return c.short_excess(from_date, to_date, cashier or None)
+
+
+@frappe.whitelist(methods=["GET"])
+def shift_report(session: str) -> dict:
+	p.need(VIEW, _("see the shift report"))
+	return c.session_detail(session)
+
+
+@frappe.whitelist()
+def shift_report_pdf(session: str):
+	"""X (open) / Z (closed) cashier shift report, A4."""
+	from frappe.utils.pdf import get_pdf
+
+	p.need(VIEW, _("print the shift report"))
+	s = c.session_detail(session)
+	html = frappe.render_template("sugarcane/templates/procurement/cashier_shift.html", {"s": s,
+		"printed_at": frappe.utils.now_datetime().strftime("%d %b %Y %H:%M"), "printed_by": frappe.utils.get_fullname(frappe.session.user)})
+	frappe.local.response.filename = f"{s.report} report {s.counter} {s.name}.pdf"
+	frappe.local.response.filecontent = get_pdf(html, {"page-size": "A4", "margin-top": "10mm", "margin-bottom": "10mm",
+		"margin-left": "10mm", "margin-right": "10mm"})
+	frappe.local.response.type = "download"

@@ -69,11 +69,11 @@ class TestCounter(ProcurementBase):
 		with self.assertRaises(frappe.ValidationError):  # can't return more than the till holds
 			c.move(s, "Returned to Strong Room", expected + 1)
 		short = expected - 100
-		count = [{"denomination": 1000, "count": int(short // 1000)}, {"denomination": 0, "count": int(round(short % 1000))}]
+		count = [{"denomination": 1000, "count": int(short // 1000)}, {"denomination": 0, "amount": round(short % 1000, 2)}]
 		with self.assertRaises(frappe.ValidationError):  # 100 short: a reason is needed
 			c.close(s, count)
 		closed = c.close(s, count, "counted twice")
-		self.assertAlmostEqual(flt(closed.difference), -100, places=0)
+		self.assertAlmostEqual(flt(closed.difference), -100, places=2)
 		self.assertTrue(closed.difference_journal_entry)
 		s2 = c.open_session(COUNTER)
 		self.assertAlmostEqual(flt(frappe.db.get_value("Cash Counter Session", s2, "opening_balance")), flt(closed.counted_balance), places=2)

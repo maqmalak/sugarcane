@@ -18,6 +18,7 @@ const ElpGatePage = lazy(() => import("@/sc/pages/ElpPages").then((m) => ({ defa
 const proc = (name: string) => lazy(() => import("@/sc/pages/ProcurementPages").then((m) => ({ default: (m as unknown as Record<string, () => JSX.Element>)[name] })));
 const ProcurementDashboardPage = proc("ProcurementDashboardPage");
 const GatePage = proc("GatePage");
+const CashierSummaryPage = lazy(() => import("@/sc/pages/CashierSummaryPage").then((m) => ({ default: m.CashierSummaryPage })));
 const DisplayPage = lazy(() => import("@/sc/pages/DisplayPage").then((m) => ({ default: m.DisplayPage })));
 const DisplaysPage = lazy(() => import("@/sc/pages/DisplayPage").then((m) => ({ default: m.DisplaysPage })));
 const WeighbridgePage = lazy(() => import("@/sc/pages/ProcurementPages").then((m) => ({ default: m.WeighbridgePage })));
@@ -134,6 +135,7 @@ export function AppRoutes() {
         <Route path="procurement/gross" element={sugar(<WeighbridgePage key="gross" mode="gross" />)} />
         <Route path="procurement/tare" element={sugar(<WeighbridgePage key="tare" mode="tare" />)} />
         <Route path="procurement/displays" element={sugar(<DisplaysPage />)} />
+        <Route path="procurement/cashier-summary" element={sugar(<CashierSummaryPage />)} />
         <Route path="procurement/yard" element={sugar(<YardPage />)} />
         <Route path="procurement/counter" element={sugar(<CounterPage />)} />
         <Route path="procurement/day-close" element={sugar(<DayClosePage />)} />

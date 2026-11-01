@@ -72,6 +72,10 @@ class TestAccounts(ProcurementBase):
 		with self.assertRaises(frappe.ValidationError):  # no IBAN, bank transfer
 			sc.submit()
 		frappe.db.set_value("Grower", self.grower, {"iban": "PK36SCBL0000001123456702", "bank_name": "Test Bank"})
+		from sugarcane.api.v1 import accounts as api
+
+		kept = api.save_scroll(name=sc.name, reference_no="IBFT-T2")  # changing a detail keeps the CPRs
+		self.assertEqual(kept["cpr_count"], 2)
 		sc = frappe.get_doc("Cane Payment Scroll", sc.name)
 		sc.save()
 		with self.assertRaises(frappe.ValidationError):  # the same CPR can't sit on a second scroll

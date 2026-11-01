@@ -17,6 +17,7 @@ def fund(cane_bank_target=4_500_000, second_bank=2_500_000):
 	finance = _account(company, abbr, "Running Finance - Cane Payments", _group(company, "Loans (Liabilities)", "Current Liabilities",
 		root_type="Liability"))
 	meezan = _account(company, abbr, "Meezan Bank - Cane Payments", frappe.db.get_value("Account", s.cane_bank_account, "parent_account"), "Bank")
+	_bank_account(company, meezan)
 	rows = []
 	need = flt(cane_bank_target - bank_balance(s.cane_bank_account), 2)
 	if need > 0:
@@ -35,3 +36,16 @@ def fund(cane_bank_target=4_500_000, second_bank=2_500_000):
 	je.submit()
 	frappe.db.commit()
 	return {"journal_entry": je.name, "cane_bank": bank_balance(s.cane_bank_account), "meezan": bank_balance(meezan)}
+
+
+def _bank_account(company, gl_account):
+	"""The company Bank Account the bank letters debit for the Meezan account (A/c no., IBAN, branch)."""
+	if frappe.db.exists("Bank Account", {"account": gl_account}):
+		return
+	from sugarcane.calc.identity import make_iban
+
+	if not frappe.db.exists("Bank", "Meezan Bank"):
+		frappe.get_doc({"doctype": "Bank", "bank_name": "Meezan Bank"}).insert(ignore_permissions=True)
+	frappe.get_doc({"doctype": "Bank Account", "account_name": "MicroMax Sugar Mills Ltd. — Cane Payments (Meezan)", "bank": "Meezan Bank",
+		"account": gl_account, "is_company_account": 1, "company": company, "bank_account_no": "0211-0105678901",
+		"iban": make_iban("PK", "MEZN" + "0002110105678901"), "branch_code": "Bhalwal Branch, Sargodha Road"}).insert(ignore_permissions=True)

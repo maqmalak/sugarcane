@@ -51,6 +51,22 @@ def _ctx(**kw) -> dict:
 		"words": lambda v: money_in_words(flt(v), "PKR"), "fmt_date": lambda d: formatdate(d, "dd MMM yyyy") if d else "", **kw}
 
 
+def _payer(gl_account: str | None) -> dict:
+	"""Who the bank debits: the company Bank Account linked to the scroll's GL bank account (bank, A/c no., IBAN, branch); Sugar Settings
+	only for the default cane bank when no Bank Account record is set up."""
+	if not gl_account:
+		return {}
+	ba = frappe.db.get_value("Bank Account", {"account": gl_account, "is_company_account": 1, "disabled": 0},
+		["account_name", "bank", "bank_account_no", "iban", "branch_code"], as_dict=True)
+	if ba:
+		return {"payer_bank_name": ba.bank, "payer_account_no": ba.bank_account_no, "payer_iban": ba.iban,
+			"payer_branch": ba.branch_code or "", "payer_account_title": ba.account_name}
+	if gl_account != frappe.db.get_single_value("Sugar Settings", "cane_bank_account"):
+		frappe.throw(_("Set up the Bank Account (bank, account no., IBAN) for {0} before printing its bank documents").format(
+			frappe.bold(gl_account)), title=_("Bank details missing"))
+	return {}
+
+
 def _pdf(template: str, ctx: dict) -> bytes:
 	from frappe.utils.pdf import get_pdf
 
@@ -90,7 +106,8 @@ def scroll_groups(doc) -> list[dict]:
 def payment_schedule(name: str) -> tuple[str, bytes]:
 	_need(VIEW)
 	doc = frappe.get_doc("Cane Payment Scroll", name)
-	pdf = _pdf("payment_schedule", _ctx(doc=doc, groups=scroll_groups(doc), qr=qr(app_url(f"/accounts/scroll?name={doc.name}"))))
+	pdf = _pdf("payment_schedule", _ctx(doc=doc, groups=scroll_groups(doc), qr=qr(app_url(f"/accounts/scroll?name={doc.name}")),
+		**_payer(doc.bank_account)))
 	return f"Payment schedule {doc.name}.pdf", pdf
 
 
@@ -105,7 +122,8 @@ def instruction_letters(name: str, bank: str | None = None) -> tuple[str, bytes]
 		g["rows"] = [r for r in g["rows"] if not r.stop_requested]
 		g["amount"] = flt(sum(flt(r.amount) for r in g["rows"]), 2)
 	groups = [g for g in groups if g["rows"]]
-	pdf = _pdf("instruction_letter", _ctx(doc=doc, groups=groups, qr=qr(app_url(f"/accounts/scroll?name={doc.name}"))))
+	pdf = _pdf("instruction_letter", _ctx(doc=doc, groups=groups, qr=qr(app_url(f"/accounts/scroll?name={doc.name}")),
+		**_payer(doc.bank_account)))
 	return f"Bank instructions {doc.name}{' ' + bank if bank else ''}.pdf", pdf
 
 
@@ -164,5 +182,5 @@ def stop_payment(name: str, grower: str, reason: str, instrument: str | None = N
 			frappe.utils.escape_html(reason), ref))
 	instrument = instrument or (doc.reference_no if doc.mode_of_payment == "Cheque" else f"{doc.reference_no or doc.name}/{p.grower}")
 	pdf = _pdf("stop_payment_letter", _ctx(doc=doc, p=p, ref=ref, reason=reason, on=now_datetime().date(), instrument=instrument,
-		qr=qr(app_url(f"/accounts/scroll?name={doc.name}"))))
+		qr=qr(app_url(f"/accounts/scroll?name={doc.name}")), **_payer(doc.bank_account)))
 	return f"Stop payment {doc.name} {p.grower}.pdf", pdf

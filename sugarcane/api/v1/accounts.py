@@ -125,7 +125,8 @@ def scroll(name: str) -> dict:
 def save_scroll(name: str | None = None, posting_date=None, bank_account=None, mode_of_payment=None, reference_no=None, cprs=None,
 		remarks=None) -> dict:
 	acc._need()
-	cprs = frappe.parse_json(cprs) if isinstance(cprs, str) else (cprs or [])
+	# only a call that sends the CPR list replaces it — changing the date, bank, mode or reference keeps the CPRs
+	cprs = frappe.parse_json(cprs) if isinstance(cprs, str) and cprs.strip() else (cprs if isinstance(cprs, list) else None)
 	doc = frappe.get_doc("Cane Payment Scroll", name) if name else frappe.new_doc("Cane Payment Scroll")
 	if doc.docstatus:
 		frappe.throw(_("Scroll {0} is already paid").format(doc.name))

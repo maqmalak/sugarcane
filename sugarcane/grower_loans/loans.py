@@ -185,8 +185,8 @@ def verify(name: str, verified_acres, crop_condition, crop_stage, expected_maund
 	doc.db_set({"verification_status": "Verified", "surveyor": doc.surveyor or frappe.session.user, "verified_on": frappe.utils.now_datetime(),
 		"verified_acres": flt(verified_acres), "crop_condition": crop_condition, "crop_stage": crop_stage or None,
 		"expected_maund_per_acre": flt(expected_maund_per_acre), "recommendation": recommendation, "recommended_amount": rec_amt,
-		"verification_remarks": (remarks or "").strip() or None, "verification_latitude": flt(latitude) or None,
-		"verification_longitude": flt(longitude) or None, "verification_photo_1": photo_1, "verification_photo_2": photo_2 or None})
+		"verification_remarks": (remarks or "").strip() or None, "verification_latitude": flt(latitude),
+		"verification_longitude": flt(longitude), "verification_photo_1": photo_1, "verification_photo_2": photo_2 or None})
 	return frappe.get_doc("Grower Loan", name)
 
 

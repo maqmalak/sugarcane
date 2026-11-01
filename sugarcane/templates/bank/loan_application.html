@@ -33,6 +33,18 @@
 <table class="grid"><tr><th>Check</th><th>Result</th><th>Detail</th></tr>
 {% for label, ok, detail in el.checks %}<tr><td>{{ label }}</td><td>{% if ok %}<b style="color:#15803d">Yes</b>{% else %}<span class="red">No</span>{% endif %}</td><td>{{ detail }}</td></tr>{% endfor %}</table>
 
+{% if loan.verification_status and loan.verification_status != "Not needed" %}
+<h3>Field survey (loan verification)</h3>
+{% if loan.verification_status == "Verified" %}
+<table class="grid"><tr><th>Surveyor</th><th>Visited</th><th>Acres seen (season survey)</th><th>Crop condition · stage</th><th>Expected yield</th><th>Recommendation</th></tr>
+<tr><td>{{ loan.surveyor }}</td><td>{{ fmt_date(loan.verified_on) }}</td><td>{{ loan.verified_acres }} ({{ loan.surveyed_acres }})</td>
+<td>{{ loan.crop_condition }}{% if loan.crop_stage %} · {{ loan.crop_stage }}{% endif %}</td><td>{{ loan.expected_maund_per_acre }} md / acre</td>
+<td><b>{{ loan.recommendation }}</b>{% if loan.recommended_amount %} — Rs {{ money(loan.recommended_amount) }}{% endif %}</td></tr></table>
+{% if loan.verification_remarks %}<div class="box">Surveyor: “{{ loan.verification_remarks }}”{% if loan.verification_latitude %} · photos taken at {{ loan.verification_latitude }}, {{ loan.verification_longitude }}{% endif %}</div>{% endif %}
+{% else %}<div class="box">Field survey pending{% if loan.surveyor %} — sent to {{ loan.surveyor }}{% endif %}.</div>{% endif %}
+{% endif %}
+{% if loan.status == "Rejected" %}<div class="box red">Rejected: {{ loan.reject_reason }}</div>{% endif %}
+
 <h3>Request and approval</h3>
 <table class="grid"><tr><th>Applied for</th><th>Eligible</th><th>Approved</th><th>Markup</th><th>Recovered from each CPR</th></tr>
 <tr><td class="r">{{ money(loan.requested_amount or loan.amount) }}</td><td class="r">{{ money(el.eligible) }}</td>

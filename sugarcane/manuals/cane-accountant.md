@@ -25,8 +25,20 @@ order: 100
 - **Grower loans → Accrue markup** for the month (the scheduler does it on the 1st).
 - **Contractor bills**: unloading (with idle payment for stoppages), loading and depot statements. Post them.
 
-## Loans
-Enter or check applications. The Cane Manager approves; you **disburse**. Recovery from each CPR is automatic.
+## Grower loans (guide **Grower loans** above)
+1. **Cane Accounts → Grower loans → New loan application.** Type the grower ID:
+   - his **history** shows every previous loan with the % recovered, and the cane he supplied each season;
+   - choose the type: **eligibility** shows the limits, the eligible amount and every check.
+2. **Apply** (not more than eligible).
+3. **Send for field survey** to the area surveyor or circle officer. The surveyor visits and records acres, crop condition, photos, GPS and a recommendation.
+4. The **Cane Manager** approves (not above the recommended amount) or rejects with a reason.
+5. You **disburse**: a bank entry is posted and the grower gets an SMS. **Application (PDF)** prints the whole case.
+6. Recovery from each CPR is automatic. Record cash repayments on the loan.
+
+## TPT cash counters (guide **TPT cash counter** above)
+**Daily cashier summary** shows every counter shift of a day: opening → closing, strong room cash, cash paid, JazzCash, counted, short / excess, with the A4 day summary.
+- The **Excess & short** tab lists every short or excess over any dates, by cashier, with the reason.
+- You reverse wrong bilty payments; the cash goes back into the till.
 
 ## Reports
 *Grower Ledger*, *Grower Payable Aging*, *Grower Trial Balance*, *CPR Paid Unpaid*, *Road Cess Deducted vs Deposited*, *Grower Loan Register*, *Cane Cost per Maund*.

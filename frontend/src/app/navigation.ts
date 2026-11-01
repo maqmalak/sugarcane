@@ -5,7 +5,7 @@
 import {
   BarChart3, Boxes, ClipboardList, FileSpreadsheet, Gauge, LayoutDashboard, Leaf, Map as MapIcon, MapPinned,
   Sparkles, Target, Ticket, Inbox, Layers, Truck, UserCog, Users, Warehouse, Weight, Beaker, Factory, Banknote, MessageSquare, BookOpen, type LucideIcon, Wand2, ScanBarcode, ShieldCheck, AlertTriangle, MapPin,
-Scale, MonitorSmartphone, ClipboardCheck, } from "lucide-react";
+Scale, MonitorSmartphone, ClipboardCheck, PlayCircle, } from "lucide-react";
 import { SC_DOCS, docBase, type ScApp } from "@/sc/registry";
 import { ANALYTICS_NAV, FINANCE_NAV, HR_NAV, PAYROLL_NAV, SALES_NAV, STORE_NAV } from "@/app/erp-navigation";
 
@@ -59,7 +59,7 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
       ],
     },
   ],
-  help: [{ title: "Help", items: [{ label: "User manuals", to: "/help", icon: BookOpen }] }],
+  help: [{ title: "Help", items: [{ label: "User manuals", to: "/help", icon: BookOpen }, { label: "Guides & videos", to: "/help/guides", icon: PlayCircle }] }],
   survey: [
     {
       title: "EagleEye Survey",

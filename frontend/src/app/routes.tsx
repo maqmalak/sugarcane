@@ -101,6 +101,7 @@ export function AppRoutes() {
 
         {/* later phases */}
         <Route path="help" element={sugar(<HelpPage />)} />
+        <Route path="help/guides" element={sugar(<HelpPage />)} />
         <Route path="purchase" element={sugar(<PurchasePage />)} />
         <Route path="sales" element={sugar(<SalesPage />)} />
         <Route path="finance" element={sugar(<FinancePage />)} />

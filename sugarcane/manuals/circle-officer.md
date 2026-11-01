@@ -26,3 +26,6 @@ You supervise the surveyors and the growers of your circles. You see only your o
 
 ## Reports
 *Circle Wise Survey Summary*, *Grower Wise Survey Summary*, *Surveyor Attendance Report*, *Circle Wise Performance* (MIS).
+
+## Grower loans
+You can enter a grower's **loan request** (Cane Accounts → Grower loans), and do or check the **loan field survey** (Loan field surveys): acres, crop condition, photos, GPS and a recommendation. The guide **Grower loans** and its video are at the top of this page.

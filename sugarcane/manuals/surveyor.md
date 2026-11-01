@@ -30,6 +30,22 @@ order: 10
 - A field that overlaps another field goes to the circle officer for review. No indent is made for it until that's cleared.
 - Nothing is lost offline: every survey has its own number, so a re-send never makes a duplicate.
 
+## Loan field surveys
+When a grower asks for a loan, you may be sent to see his field first. **EagleEye Survey → Loan field surveys** on the phone (or the web app):
+1. Open the loan. It shows the grower, the amount asked and his season survey (acres, expected cane).
+2. At the field, record:
+   - the **acres of cane seen**
+   - the **crop condition** (Excellent → Failed) and **stage**
+   - the **expected yield** (maund per acre)
+3. Take **field photo 1** (required) and photo 2. Then **Record GPS location**.
+4. Give your **recommendation**:
+   - *Recommend*
+   - *Recommend a lower amount*, with the amount
+   - *Do not recommend*, with the reason
+5. **Submit field survey.** The Cane Manager decides after reading it.
+
+The guide **Grower loans** and its video are at the top of this page.
+
 ## Problems
 - **"Device not approved"**: ask your Cane Manager to approve the phone.
 - **GPS accuracy too low**: stand in the open and wait a few seconds.

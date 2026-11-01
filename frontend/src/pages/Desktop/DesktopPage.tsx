@@ -391,9 +391,9 @@ const PLAYBOOKS: Record<string, { title: string; steps: { label: string; to: str
     { label: "Delivery Note", to: "/selling/delivery-notes" }, { label: "Sales Invoice", to: "/selling/sales-invoices" },
     { label: "Receive payment", to: "/accounting/payment-entries" }] },
   purchase: { title: "Procure to pay", steps: [
-    { label: "Material Request", to: "/import/material-requests" }, { label: "Request for Quotation", to: "/import/rfqs" },
-    { label: "Purchase Order", to: "/import/purchase-orders" }, { label: "Purchase Receipt", to: "/purchase/receipts" },
-    { label: "Purchase Invoice", to: "/purchase/invoices" }, { label: "Pay supplier", to: "/accounting/payment-entries" }] },
+    { label: "Purchase demand", to: "/import/material-requests" }, { label: "Inquiry (RFQ)", to: "/import/rfqs" },
+    { label: "Purchase order", to: "/import/purchase-orders" }, { label: "Goods receipt (GRN)", to: "/purchase/receipts" },
+    { label: "Purchase invoice", to: "/purchase/invoices" }, { label: "Pay supplier", to: "/accounting/payment-entries" }] },
   accounting: { title: "Record to report", steps: [
     { label: "Journal Entries", to: "/accounting/journal-entries" }, { label: "Payment Entries", to: "/accounting/payment-entries" },
     { label: "General Ledger", to: "/accounting/reports/general-ledger" }, { label: "Trial Balance", to: "/accounting/reports/trial-balance" },

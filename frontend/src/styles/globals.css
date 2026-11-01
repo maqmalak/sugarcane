@@ -93,10 +93,6 @@
       linear-gradient(180deg, hsl(210 40% 98%), hsl(214 40% 95.5%));
     background-attachment: fixed;
   }
-  /* cards float on the light page: a soft two-layer shadow instead of a hard grey line */
-  :root:not(.dark) .bg-card {
-    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 24px -12px rgb(15 23 42 / 0.12);
-  }
 
   .dark body {
     background-image:
@@ -361,4 +357,96 @@
   direction: rtl;
   font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif;
   line-height: 2;
+}
+
+
+/* ============================================================================================================
+   Light theme — modern surface layer. Cards are soft white-to-mist panels with a hairline top highlight and a
+   layered shadow; the header is frosted glass; fields are mist wells with a teal focus glow; outline buttons sit
+   raised; table heads are tinted. Unlayered and scoped to :root:not(.dark) so it wins over the defaults and
+   never touches dark mode.
+   ============================================================================================================ */
+:root:not(.dark) .bg-card {
+  /* a 2px brand accent along the top edge, over a white-to-mist panel */
+  background-image:
+    linear-gradient(90deg, hsl(174 72% 42% / 0.85), hsl(199 89% 55% / 0.7) 45%, hsl(243 75% 65% / 0.6)),
+    linear-gradient(180deg, rgb(255 255 255) 0%, hsl(210 45% 98.6%) 100%);
+  background-size: 100% 2px, 100% 100%;
+  background-repeat: no-repeat;
+  background-origin: padding-box;
+  border-color: hsl(214 32% 89%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255),
+    0 1px 2px rgb(15 23 42 / 0.04),
+    0 6px 16px -8px rgb(15 23 42 / 0.10),
+    0 18px 40px -24px rgb(13 148 136 / 0.18);
+  transition: box-shadow .2s ease, border-color .2s ease, transform .2s ease;
+}
+:root:not(.dark) .bg-card:hover {
+  border-color: hsl(174 45% 78%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255),
+    0 2px 4px rgb(15 23 42 / 0.05),
+    0 12px 28px -12px rgb(15 23 42 / 0.16),
+    0 24px 48px -28px rgb(13 148 136 / 0.28);
+}
+/* nested cards (a card inside a card) stay flat so pages don't get noisy */
+:root:not(.dark) .bg-card .bg-card { box-shadow: inset 0 1px 0 rgb(255 255 255), 0 1px 2px rgb(15 23 42 / 0.04); background-image: none; }
+:root:not(.dark) .bg-card .bg-card:hover { box-shadow: inset 0 1px 0 rgb(255 255 255), 0 4px 12px -6px rgb(15 23 42 / 0.14); }
+
+/* frosted header */
+:root:not(.dark) header.sticky {
+  background-color: rgb(255 255 255 / 0.72);
+  border-bottom-color: hsl(214 32% 90%);
+  box-shadow: 0 1px 0 rgb(255 255 255) inset, 0 8px 24px -18px rgb(15 23 42 / 0.25);
+  backdrop-filter: saturate(1.6) blur(14px);
+}
+
+/* fields: mist wells, teal focus glow */
+:root:not(.dark) input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),
+:root:not(.dark) select,
+:root:not(.dark) textarea {
+  background-color: hsl(210 45% 98.5%);
+  border-color: hsl(214 28% 84%);
+  transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+:root:not(.dark) input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(:disabled):hover,
+:root:not(.dark) select:not(:disabled):hover,
+:root:not(.dark) textarea:not(:disabled):hover { border-color: hsl(174 35% 65%); background-color: #fff; }
+:root:not(.dark) input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus-visible,
+:root:not(.dark) select:focus-visible,
+:root:not(.dark) textarea:focus-visible {
+  background-color: #fff;
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 4px hsl(var(--primary) / 0.14);
+  outline: none;
+}
+
+/* outline buttons: raised white chips */
+:root:not(.dark) button.border-input,
+:root:not(.dark) a.border-input {
+  background-image: linear-gradient(180deg, #fff, hsl(210 40% 97.5%));
+  border-color: hsl(214 28% 84%);
+  box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgb(15 23 42 / 0.06);
+}
+:root:not(.dark) button.border-input:hover,
+:root:not(.dark) a.border-input:hover {
+  border-color: hsl(174 40% 62%);
+  color: hsl(var(--primary));
+  box-shadow: inset 0 1px 0 #fff, 0 4px 10px -4px rgb(13 148 136 / 0.35);
+}
+
+/* tables: tinted heads, soft zebra on hover */
+:root:not(.dark) thead,
+:root:not(.dark) thead tr { background-image: linear-gradient(180deg, hsl(210 45% 97%), hsl(212 40% 95%)); }
+:root:not(.dark) tbody tr:hover { background-color: hsl(174 50% 97%); }
+
+/* scrollbars */
+:root:not(.dark) ::-webkit-scrollbar-thumb { background: hsl(214 25% 80%); border-radius: 9999px; border: 2px solid transparent; background-clip: content-box; }
+:root:not(.dark) ::-webkit-scrollbar-thumb:hover { background: hsl(174 35% 55%); background-clip: content-box; border: 2px solid transparent; }
+
+/* page titles: deep navy into brand teal */
+:root:not(.dark) main h1 {
+  background-image: linear-gradient(90deg, hsl(222 47% 14%), hsl(200 60% 26%) 55%, hsl(174 84% 28%));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
 }

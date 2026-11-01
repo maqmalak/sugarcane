@@ -54,6 +54,9 @@ The last run of the season is a **Season Close**:
 - It takes the rest of the off-season pool.
 - It moves each by-product's **variance** (actual sale − selling cost − NRV credited) to the *By-product Variance* account.
 
+## Guides and videos
+**Help → Guides & videos → Costing**: the A4 guide and the video.
+
 ## Reports
 - *Cost of Production Statement* (with the previous season beside it)
 - *In-process Ledger*

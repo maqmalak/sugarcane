@@ -9,11 +9,12 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Banknote, BarChart3, Boxes, CheckCircle2, ClipboardList, Clock, ExternalLink, FileText, Landmark, Package, Printer, Receipt, Scale,
-  ShoppingCart, Truck, UserCheck, Users, Wallet,
+  ShoppingCart, Truck, ChevronRight, Plus, UserCheck, Users, Wallet,
 } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
+import { FINANCE_NAV } from "@/app/erp-navigation";
 import { Bar, BarChart, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { C, ChartCard, ChartTip, DataTable, KpiCard, useChartTheme } from "@/sc/components/analytics/kit";
 import { Badge, type Tone } from "@/sc/components/ui/badge";
@@ -342,6 +343,54 @@ interface Fin {
 }
 const CODE_TONE: Record<string, Tone> = { JV: "gray", BPV: "red", BRV: "green", CPV: "orange", CRV: "blue" };
 
+/** Every finance function in one place: the Finance sidebar's groups as coloured cards (masters, banking, vouchers, AR / AP, reports). */
+const MANAGE_HUE: Record<string, [string, string]> = {
+  Transactions: ["from-blue-500 to-indigo-600", "from-blue-500/15"], "Receivables & payables": ["from-amber-400 to-orange-500", "from-amber-500/15"],
+  Banking: ["from-emerald-400 to-teal-600", "from-emerald-500/15"], Masters: ["from-violet-400 to-purple-600", "from-violet-500/15"],
+  Reports: ["from-sky-400 to-cyan-600", "from-sky-500/15"], Templates: ["from-fuchsia-400 to-pink-600", "from-fuchsia-500/15"],
+  Setup: ["from-slate-400 to-slate-600", "from-slate-500/15"], "More reports": ["from-rose-400 to-rose-600", "from-rose-500/15"],
+};
+function ManageFinance() {
+  const groups = FINANCE_NAV.filter((g) => g.title && !["Finance", "Overview"].includes(g.title));
+  const order = ["Transactions", "Receivables & payables", "Banking", "Reports", "Masters", "Templates", "Setup", "More reports"];
+  groups.sort((a, b) => order.indexOf(a.title ?? "") - order.indexOf(b.title ?? ""));
+  return (
+    <section className="rounded-2xl border bg-card p-5 shadow-sm">
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
+        <div><h3 className="text-lg font-semibold">Manage finance</h3>
+          <p className="text-xs text-muted-foreground">Every accounting function: vouchers and payments, receivables and payables, banking, statements, masters and setup.</p></div>
+        <div className="flex gap-2">
+          <Link to="/accounting/journal-entries/new" className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 px-3 text-sm font-semibold text-white shadow-sm hover:opacity-90"><Plus className="size-4" />Journal voucher</Link>
+          <Link to="/accounting/payment-entries/new" className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 px-3 text-sm font-semibold text-white shadow-sm hover:opacity-90"><Plus className="size-4" />Payment / receipt</Link>
+        </div>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        {groups.map((g) => {
+          const [tile, wash] = MANAGE_HUE[g.title ?? ""] ?? MANAGE_HUE.Setup;
+          return (
+            <div key={g.title} className={cn("rounded-2xl border bg-gradient-to-br to-transparent p-3", wash)}>
+              <div className="mb-2 flex items-center justify-between px-1"><span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{g.title}</span>
+                <span className="rounded-full bg-background/80 px-2 text-[10px] font-semibold text-muted-foreground">{g.items.length}</span></div>
+              <div className="space-y-0.5">
+                {g.items.map((i) => {
+                  const I = i.icon;
+                  return (
+                    <Link key={i.to} to={i.to} className="group flex items-center gap-2.5 rounded-xl px-1.5 py-1.5 text-sm transition-colors hover:bg-background/80">
+                      <span className={cn("grid size-7 shrink-0 place-items-center rounded-lg bg-gradient-to-br text-white shadow-sm", tile)}>{I ? <I className="size-3.5" /> : null}</span>
+                      <span className="min-w-0 flex-1 truncate font-medium group-hover:text-primary">{i.label}</span>
+                      <ChevronRight className="size-3.5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 export function FinancePage() {
   const q = useQuery({ queryKey: ["erp-finance"], queryFn: () => get<Fin>(`${API}.finance`) });
   const qc = useQueryClient();
@@ -376,6 +425,7 @@ export function FinancePage() {
         <KpiCard icon={Clock} label="Post-dated cheques" value={`${d.pdc.n}`} color={C.violet} to="/reports?r=Post%20Dated%20Cheques"
           sub={`in ${rs(d.pdc.received)} · out ${rs(d.pdc.issued)}`} />
       </div>
+      <ManageFinance />
       <section className="rounded-2xl border bg-card shadow-sm">
         <header className="flex flex-wrap items-center justify-between gap-2 border-b px-5 py-3">
           <div><h3 className="font-semibold">Vouchers waiting to be posted ({d.drafts.length})</h3>

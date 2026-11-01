@@ -38,6 +38,7 @@ The ERP checks the mill's rules and says why it refuses. For example: "the weigh
   7. TPT cash counter
   8. Grower payments
   9. Grower loans
-  10. Production
-  11. Printed documents
+  10. Laboratory & production
+  11. Costing
+  12. Printed documents
 - Guides for your own roles are marked *yours*. The manual pages also show their guide and video at the top.

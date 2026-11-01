@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { useFrappeGetCall } from "frappe-react-sdk";
 import toast from "react-hot-toast";
-import {
+import { Rocket, Settings2, Scale, Map as MapIcon, 
   AlertTriangle, ChevronRight, Inbox, ListTodo, RefreshCw, Truck, Activity, AlertCircle, CheckCircle2, ClipboardList,
   FileCheck2, FileClock, FileWarning, Landmark, PackageMinus, PackageX, PhoneCall, ShoppingCart, BookOpen, CalendarCheck, FileText, HandCoins,
   Package, Receipt, ShoppingBag, Target, Eye, Flag, type LucideIcon, ArrowRight, Factory, LayoutGrid,
@@ -401,13 +401,27 @@ const PLAYBOOKS: Record<string, { title: string; steps: { label: string; to: str
   stock: { title: "Inventory flow", steps: [
     { label: "Items", to: "/masters/items" }, { label: "Stock Entries", to: "/inventory/stock-entries" },
     { label: "Stock levels", to: "/inventory/stock" }, { label: "Stock Ledger", to: "/inventory/reports/stock-ledger" }] },
+  finance: { title: "Record to report", steps: [
+    { label: "Chart of Accounts", to: "/accounting/chart-of-accounts" }, { label: "Journal voucher", to: "/accounting/journal-entries/new" },
+    { label: "Payment / receipt", to: "/accounting/payment-entries/new" }, { label: "Post & print vouchers", to: "/finance" },
+    { label: "Bank clearance", to: "/accounting/bank-clearance" }, { label: "Receivable & payable", to: "/reports?r=Accounts%20Receivable" },
+    { label: "Trial Balance", to: "/accounting/reports/trial-balance" }, { label: "Profit and Loss", to: "/accounting/reports/profit-and-loss" },
+    { label: "Balance Sheet", to: "/accounting/reports/balance-sheet" }] },
+  help: { title: "Learn the mill, step by step", steps: [
+    { label: "Getting started", to: "/help?m=getting-started" }, { label: "Process flow & DFD", to: "/help/guides" },
+    { label: "Setup the mill", to: "/help?m=setup" }, { label: "E-survey & ELP", to: "/help?m=surveyor" },
+    { label: "Gate & weighbridge", to: "/help?m=gate" }, { label: "Payments & loans", to: "/help?m=cane-accountant" },
+    { label: "Guides & videos", to: "/help/guides" }] },
   crm: { title: "Lead to deal", steps: [
     { label: "Leads", to: "/crm/leads" }, { label: "Follow-ups", to: "/crm/follow-ups" }, { label: "Tasks", to: "/crm/tasks" }] },
 };
 
 /** A step's icon: the sidebar's icon for that page, else a file. */
 const NAV_ICON = new Map(Object.values(APP_NAVIGATION).flatMap((groups) => groups.flatMap((g) => g.items.map((i) => [i.to, i.icon] as const))));
-const stepIcon = (to: string): LucideIcon => (NAV_ICON.get(to) as LucideIcon | undefined) ?? FileText;
+const HELP_STEP_ICON: Record<string, LucideIcon> = {
+  "/help?m=getting-started": Rocket, "/help?m=setup": Settings2, "/help?m=surveyor": MapIcon, "/help?m=gate": Scale, "/help?m=cane-accountant": Landmark,
+};
+const stepIcon = (to: string): LucideIcon => HELP_STEP_ICON[to] ?? (NAV_ICON.get(to) as LucideIcon | undefined) ?? FileText;
 
 function playbookFor(app: AppTile, isPathAvailable: (to: string) => boolean) {
   const curated = PLAYBOOKS[app.id];
@@ -494,7 +508,7 @@ function AppTileCard({ app, stat }: { app: AppTile; stat?: { value: number; labe
               const last = i === playbook.steps.length - 1;
               const StepIcon = stepIcon(st.to);
               return (
-                <li key={st.to} className="relative">
+                <li key={`${i}-${st.to}`} className="relative">
                   {!last && <span aria-hidden className="absolute left-[23px] top-9 h-[calc(100%-22px)] w-px bg-gradient-to-b from-border to-border/30" />}
                   <Link to={st.to} className="group/step flex items-center gap-3 rounded-xl px-2 py-1.5 transition-colors hover:bg-muted/70">
                     <span className={cn("relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br text-[11px] font-bold text-white shadow-md ring-2 ring-popover transition-transform group-hover/step:scale-110",

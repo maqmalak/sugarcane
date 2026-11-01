@@ -276,6 +276,8 @@ function DocFormPageInner({ config }: { config: DocConfig }) {
     try {
       if (isNew) {
         const created = await createDoc(buildPayload());
+        // a create that comes back without a name did not save: stay on the form instead of opening ".../undefined"
+        if (!created?.name) throw new Error(`The ${config.singular.toLowerCase()} was not saved — check the required fields`);
         toast.success(`${config.singular} ${created.name ?? ""} created`);
         notifyDataChanged();
         navigate(`${config.base}/${encodeURIComponent(String(created.name))}`, { replace: true });

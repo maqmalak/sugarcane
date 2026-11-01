@@ -1,7 +1,7 @@
-import {
+import { LifeBuoy,
   BarChart3,
   Wallet,
-  Banknote, BookOpen, Landmark, Beaker, Boxes, Warehouse, ClipboardList, Factory, FileSpreadsheet, Gauge, Leaf, MapPinned, Truck, UserCog, Users,
+  Banknote, Landmark, Beaker, Boxes, Warehouse, ClipboardList, Factory, FileSpreadsheet, Gauge, Leaf, MapPinned, Truck, UserCog, Users,
   Weight, type LucideIcon,
 } from "lucide-react";
 
@@ -55,6 +55,9 @@ const MANAGERS = ["Cane Manager", "Cane Admin"];
 
 /** Desktop app-launcher — one tile per module, shown after login, in this order. */
 export const APPS: AppTile[] = [
+  { id: "help", label: "Help", tagline: "Manuals, guides & videos", group: "Overview", icon: LifeBuoy, to: "/help",
+    description: "The help centre: step-by-step manuals for each role, A4 guides with screenshots and demo videos — setup, survey, ELP, gate, payments, loans, lab and costing.",
+    colorClass: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400", features: ["Your role first", "Guides & videos", "Printable"] },
   { id: "survey", label: "EagleEye Survey", tagline: "Crop survey & maps", group: "Cane", icon: Leaf, to: "/survey",
     roles: [...MANAGERS, "Circle Officer", "Surveyor", "MIS Viewer"],
     description: "Surveyed cane area, expected production, varieties, disease, overlaps and the bird's-eye survey map.",
@@ -131,9 +134,6 @@ export const APPS: AppTile[] = [
     roles: [...MANAGERS, "Accounts Manager", "Accounts User", "Sales Manager", "Purchase Manager", "Stock Manager", "HR Manager", "MIS Viewer"],
     description: "Dashboards for the whole company: profit and loss, financial statements, sales, buying, stock, quality, assets, HR and payroll, with drill-down and a P&L simulator.",
     colorClass: "bg-violet-500/10 text-violet-600 dark:text-violet-400", features: ["Accounts", "Sales & buying", "Stock", "HR & payroll"] },
-  { id: "help", label: "Help", tagline: "User manuals", group: "Overview", icon: BookOpen, to: "/help",
-    description: "Step-by-step manuals for each role: field, gate, weighbridge, lab, accounts, stores, sales, finance, HR and management.",
-    colorClass: "bg-slate-500/10 text-slate-600 dark:text-slate-300", features: ["Your role first", "Printable"] },
   { id: "mis", label: "MIS", tagline: "The mill right now", group: "Overview", icon: Gauge, to: "/mis",
     roles: [...MANAGERS, "MIS Viewer", "Cane Accountant", "Production Manager", "Lab Chemist", "Yard Supervisor"],
     description: "One live screen for the mill — cane today, yard, depots, payments, DMR, stock, plant alerts, season and circles — and the grower SMS / WhatsApp messages.",

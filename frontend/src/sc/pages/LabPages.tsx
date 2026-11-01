@@ -10,7 +10,7 @@
  * Data: sugarcane.api.v1.lab.
  */
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
+import { Printer,
   AlertTriangle, Beaker, CheckCircle2, ClipboardCheck, Factory, FlaskConical, Gauge as GaugeIcon, Hourglass, Package, Pause, Play, Save, Sprout,
   Timer, TrendingUp, Truck, Weight,
 } from "lucide-react";
@@ -23,7 +23,7 @@ import { Badge } from "@/sc/components/ui/badge";
 import { Button } from "@/sc/components/ui/button";
 import { Input } from "@/sc/components/ui/input";
 import { Skeleton } from "@/sc/components/ui/skeleton";
-import { get, post } from "@/sc/lib/api";
+import { get, post, postDownload } from "@/sc/lib/api";
 import { money, num } from "@/sc/lib/format";
 import { cn } from "@/sc/lib/utils";
 import { useTheme } from "@/sc/providers/theme";
@@ -441,6 +441,7 @@ export function DmrPage() {
           ? <Button disabled={busy} onClick={() => act("post_production", { day: d.crushing_day }, "Production posted")}><Factory />Post production</Button>
           : <Link to="/procurement/day-close" className="text-xs font-semibold text-amber-600 underline">close the cane day first to post production</Link>)}
         {d.production && <Badge tone="green">Production {d.production.name} · Rs {num(d.production.cost_per_bag)}/bag</Badge>}
+        {d.saved && <Button variant="outline" onClick={() => postDownload(`${API}.dmr_pdf`, { day: d.crushing_day }, `DMR ${d.crushing_day}.pdf`).catch((e) => toast.error(err(e)))}><Printer />Print DMR</Button>}
       </Header>
       <div className="grid gap-4 lg:grid-cols-3">
         <section className="rounded-2xl border bg-card p-4 shadow-sm">

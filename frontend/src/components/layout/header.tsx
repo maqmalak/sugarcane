@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { PanelLeftClose, PanelLeftOpen, AtSign, Award, Bell, BellRing, ChevronRight, LogOut, ListTodo, Menu, MessageSquare, Search, Settings as SettingsIcon, Share2, User as UserIcon, UserCheck, UserCircle, CheckCheck } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, AtSign, Award, Bell, BellRing, ChevronRight, LogOut, ListTodo, Menu, MessageSquare, Search, Settings as SettingsIcon, Share2, Building2, Clock, Languages, LifeBuoy, ShieldCheck, UserCheck, UserCircle, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Select } from "@/components/ui/select";
-import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import { ThemeCustomizer } from "./theme-provider";
 import { Logo } from "@/components/common/logo";
 import { useAuth } from "@/hooks/useAuth";
@@ -277,31 +276,96 @@ export function Header({
         <NotificationsBell />
         <ThemeCustomizer />
 
-        <DropdownMenu
-          align="end"
-          width="w-60"
-          trigger={
-            <button className="flex items-center gap-2 rounded-md p-0.5 transition-colors hover:bg-accent" aria-label="User menu">
-              <Avatar name={fullName} src={user?.user_image} size="sm" />
-            </button>
-          }
-          items={[
-            { label: fullName, icon: <UserIcon className="h-4 w-4" />, disabled: true },
-            { label: user?.email ?? currentUser ?? "—", disabled: true },
-            { separator: true, label: "" },
-            { label: `Roles: ${roles.slice(0, 3).join(", ") || "—"}`, disabled: true },
-            { label: `Language: ${user?.language ?? "en"}`, disabled: true },
-            { label: `Time Zone: ${user?.time_zone ?? "—"}`, disabled: true },
-            { label: `Company: ${company ?? "—"}`, disabled: true },
-            { separator: true, label: "" },
-            { label: "My Account", icon: <UserCircle className="h-4 w-4" />, onClick: () => navigate("/account") },
-            { label: "Settings", icon: <SettingsIcon className="h-4 w-4" />, onClick: () => navigate("/settings") },
-            { separator: true, label: "" },
-            { label: "Sign out", icon: <LogOut className="h-4 w-4" />, destructive: true, onClick: () => void logout() },
-          ]}
-        />
+        <UserMenu fullName={fullName} email={user?.email ?? currentUser ?? ""} image={user?.user_image} roles={roles}
+          company={company ?? ""} language={user?.language ?? "en"} timeZone={user?.time_zone ?? ""}
+          onNavigate={navigate} onLogout={() => void logout()} />
       </div>
     </header>
+  );
+}
+
+/** The account menu under the avatar: who is signed in, their roles and context, and the account actions. */
+function UserMenu({ fullName, email, image, roles, company, language, timeZone, onNavigate, onLogout }: {
+  fullName: string; email: string; image?: string; roles: string[]; company: string; language: string; timeZone: string;
+  onNavigate: (to: string) => void; onLogout: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [allRoles, setAllRoles] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    const esc = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("mousedown", close); document.addEventListener("keydown", esc);
+    return () => { document.removeEventListener("mousedown", close); document.removeEventListener("keydown", esc); };
+  }, [open]);
+  const shown = (roles ?? []).filter((r) => !["All", "Guest", "Desk User"].includes(r)).sort();
+  const visible = allRoles ? shown : shown.slice(0, 6);
+  const localTime = (() => { try { return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", timeZone: timeZone || undefined }); } catch { return ""; } })();
+  const go = (to: string) => { setOpen(false); onNavigate(to); };
+  const Row = ({ icon: I, label, value }: { icon: typeof Building2; label: string; value: string }) => (
+    <div className="flex items-center gap-3 px-4 py-2">
+      <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground"><I className="size-4" /></span>
+      <div className="min-w-0"><div className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</div><div className="truncate text-sm font-medium">{value || "—"}</div></div>
+    </div>
+  );
+  const Action = ({ icon: I, label, sub, to }: { icon: typeof Building2; label: string; sub: string; to: string }) => (
+    <button type="button" onClick={() => go(to)} className="group flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition-colors hover:bg-accent">
+      <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><I className="size-4" /></span>
+      <span className="min-w-0 flex-1"><span className="block text-sm font-medium">{label}</span><span className="block truncate text-xs text-muted-foreground">{sub}</span></span>
+      <ChevronRight className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+    </button>
+  );
+  return (
+    <div ref={ref} className="relative">
+      <button type="button" onClick={() => setOpen((o) => !o)} aria-label="User menu" aria-expanded={open}
+        className={cn("relative rounded-full p-0.5 ring-2 ring-transparent transition-all hover:ring-primary/30", open && "ring-primary/50")}>
+        <Avatar name={fullName} src={image} size="sm" />
+        <span className="absolute bottom-0 right-0 size-2.5 rounded-full border-2 border-background bg-emerald-500" />
+      </button>
+      {open && (
+        <div className="absolute right-0 z-50 mt-2 w-[22rem] max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-2xl border bg-popover text-popover-foreground shadow-2xl">
+          <div className="relative bg-gradient-to-br from-primary/25 via-primary/10 to-transparent px-4 pb-4 pt-5">
+            <div className="flex items-center gap-3">
+              <div className="relative"><Avatar name={fullName} src={image} size="lg" className="ring-4 ring-background" />
+                <span className="absolute bottom-0 right-0 size-3 rounded-full border-2 border-background bg-emerald-500" /></div>
+              <div className="min-w-0">
+                <div className="truncate text-base font-semibold">{fullName}</div>
+                <div className="truncate text-xs text-muted-foreground">{email}</div>
+                <div className="mt-1 inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+                  <span className="size-1.5 rounded-full bg-emerald-500" />Signed in</div>
+              </div>
+            </div>
+          </div>
+          {shown.length > 0 && (
+            <div className="border-b px-4 py-3">
+              <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground"><ShieldCheck className="size-3.5" />Roles · {shown.length}</div>
+              <div className="flex flex-wrap gap-1.5">
+                {visible.map((r) => <span key={r} className="rounded-md border bg-muted/50 px-2 py-0.5 text-[11px] font-medium">{r}</span>)}
+                {shown.length > 6 && <button type="button" onClick={() => setAllRoles((v) => !v)} className="rounded-md px-2 py-0.5 text-[11px] font-semibold text-primary hover:bg-primary/10">{allRoles ? "Show less" : `+${shown.length - 6} more`}</button>}
+              </div>
+            </div>
+          )}
+          <div className="border-b py-1">
+            <Row icon={Building2} label="Company" value={company} />
+            <div className="grid grid-cols-2">
+              <Row icon={Clock} label="Time zone" value={`${timeZone || "—"}${localTime ? ` · ${localTime}` : ""}`} />
+              <Row icon={Languages} label="Language" value={language.toUpperCase()} />
+            </div>
+          </div>
+          <div className="space-y-0.5 p-2">
+            <Action icon={UserCircle} label="My account" sub="Profile, password, photo" to="/account" />
+            <Action icon={SettingsIcon} label="Settings" sub="Preferences and system settings" to="/settings" />
+            <Action icon={LifeBuoy} label="Help & guides" sub="Manuals, guides and videos" to="/help" />
+          </div>
+          <div className="border-t p-2">
+            <button type="button" onClick={() => { setOpen(false); onLogout(); }}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/30 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-500/10 dark:text-red-400">
+              <LogOut className="size-4" />Sign out</button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 

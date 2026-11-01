@@ -286,3 +286,14 @@ def insights(days: int = 14, day: str | None = None) -> dict:
 	return {"day": str(d), "from": str(start), "dmr": today, "trend": [{**x, "crushing_day": str(x.crushing_day)} for x in dmrs], "hourly": hourly,
 		"averages": g["averages"], "out_of_range": oor, "by_variety": by_variety, "by_circle": by_circle, "stoppages": stops,
 		"samples_today": sum(len(v) for v in g["cells"].values())}
+
+
+@frappe.whitelist(methods=["POST"])
+def dmr_pdf(day: str):
+	"""The day's DMR sheet (A4 PDF)."""
+	from sugarcane.cane_accounting.contractor_bills import dmr_pdf as make
+
+	fname, pdf = make(day)
+	frappe.local.response.filename = fname
+	frappe.local.response.filecontent = pdf
+	frappe.local.response.type = "download"

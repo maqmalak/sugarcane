@@ -237,7 +237,29 @@ def contract_pdf(name: str) -> tuple[str, bytes]:
 	return f"Unloading contract {doc.contract_no or doc.name}.pdf", _pdf("unloading_contract", _contract_ctx(doc))
 
 
-DESK_PRINTS = {"Contractor Bill": ("contractor_bill", _bill_ctx), "Unloading Contract": ("unloading_contract", _contract_ctx)}
+def _dmr_ctx(doc) -> dict:
+	from sugarcane.cane_accounting.bank_docs import _ctx, app_url, qr
+
+	stops = frappe.db.sql("""select category, sum(minutes) from `tabMill Stoppage` where crushing_day = %s group by category order by 2 desc""",
+		doc.crushing_day)
+	name = lambda u: frappe.utils.get_fullname(u) if u else ""
+	kg = lambda v: "{:,.0f}".format(flt(v))
+	f2 = lambda v, n=2: ("{:,.%df}" % n).format(flt(v)) if v not in (None, "") else "—"
+	return _ctx(doc=doc, kg=kg, f2=f2, stops=[(c or "Other", int(m or 0)) for c, m in stops], prepared=name(doc.prepared_by), approved=name(doc.approved_by),
+		qr=qr(app_url(f"/lab/dmr?day={doc.crushing_day}")))
+
+
+def dmr_pdf(day: str) -> tuple[str, bytes]:
+	"""The day's DMR on one A4 sheet (same layout as the desk print)."""
+	from sugarcane.cane_accounting.bank_docs import _pdf
+
+	doc = frappe.get_doc("Daily Manufacturing Report", f"DMR-{day}")
+	doc.check_permission("read")
+	return f"DMR {day}.pdf", _pdf("dmr", _dmr_ctx(doc))
+
+
+DESK_PRINTS = {"Contractor Bill": ("contractor_bill", _bill_ctx), "Unloading Contract": ("unloading_contract", _contract_ctx),
+	"Daily Manufacturing Report": ("dmr", _dmr_ctx)}
 
 
 def desk_print(doc) -> str:

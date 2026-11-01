@@ -2,7 +2,7 @@
  * Sidebars of the ERP apps: buying & stores, selling, finance (pages from MicroMax ERP) and HR & payroll (from Baogee).
  * Built from those apps' menus, keeping only the links that have a page here. Several URL prefixes share one sidebar.
  */
-import {
+import { FilePlus2, ArrowUpFromLine, ArrowDownToLine,
   ArrowLeftRight, ArrowRightLeft, Award, BadgeCheck, Banknote, BarChart3, Barcode, BookOpen, Boxes, Briefcase, Building, Building2, CalendarCheck, CalendarClock, CalendarDays, CalendarHeart, CalendarOff, CalendarPlus2, CalendarRange, ClipboardList, Clock3, Coins, CreditCard, DoorOpen, FileCheck2, FileSignature, FileSpreadsheet, FileText, GitBranch, HandCoins, Handshake, Hash, Hourglass, IdCard, Layers, LayoutDashboard, LayoutGrid, LayoutTemplate, Link2, ListChecks, ListTree, LogIn, MapIcon, MapPin, NotebookTabs, Package, Percent, PieChart, PlayCircle, PlusCircle, Quote, Receipt, Repeat, Rocket, Scale, ScanSearch, ScrollText, ShieldCheck, ShoppingCart, Sliders, Sparkles, Tag, Tags, Timer, TrendingUp, UserCircle, Users, Users2, Wallet, Warehouse, XCircle,
 } from "lucide-react";
 import type { NavGroup } from "@/app/navigation";
@@ -127,8 +127,22 @@ export const FINANCE_NAV: NavGroup[] = [
     { label: "Plaid Settings", to: "/accounting/plaid-settings", icon: Link2, roles: FIN_ROLES },
   ] },
   { title: "Transactions", items: [
+    { label: "New journal voucher", to: "/accounting/journal-entries/new", icon: FilePlus2, roles: FIN_ROLES },
+    { label: "New payment / receipt", to: "/accounting/payment-entries/new", icon: HandCoins, roles: FIN_ROLES },
     { label: "Journal Entries", to: "/accounting/journal-entries", icon: BookOpen, roles: FIN_ROLES },
     { label: "Payment Entries", to: "/accounting/payment-entries", icon: CreditCard, roles: FIN_ROLES },
+    { label: "Sales Invoices", to: "/selling/sales-invoices", icon: ArrowUpFromLine, roles: FIN_ROLES },
+    { label: "Purchase Invoices", to: "/purchase/invoices", icon: ArrowDownToLine, roles: FIN_ROLES },
+  ] },
+  { title: "Receivables & payables", items: [
+    { label: "Accounts Receivable", to: "/reports?r=Accounts%20Receivable", icon: TrendingUp, roles: FIN_ROLES },
+    { label: "Receivable Summary", to: "/reports?r=Accounts%20Receivable%20Summary", icon: Users, roles: FIN_ROLES },
+    { label: "Accounts Payable", to: "/reports?r=Accounts%20Payable", icon: Receipt, roles: FIN_ROLES },
+    { label: "Payable Summary", to: "/reports?r=Accounts%20Payable%20Summary", icon: Building, roles: FIN_ROLES },
+    { label: "Payables Projection", to: "/reports?r=Payables%20Projection", icon: CalendarRange, roles: FIN_ROLES },
+    { label: "Post-dated Cheques", to: "/reports?r=Post%20Dated%20Cheques", icon: NotebookTabs, roles: FIN_ROLES },
+    { label: "Sales Register", to: "/reports?r=Sales%20Register", icon: FileText, roles: FIN_ROLES },
+    { label: "Purchase Register", to: "/reports?r=Purchase%20Register", icon: FileText, roles: FIN_ROLES },
   ] },
   { title: "Reports", items: [
     { label: "General Ledger", to: "/accounting/reports/general-ledger", icon: FileText, roles: FIN_ROLES },

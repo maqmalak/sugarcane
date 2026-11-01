@@ -4,29 +4,29 @@
 
 @layer base {
   :root {
-    --background: 220 24% 95%; /* soft grey-blue page so white cards stand out */
+    --background: 210 40% 97%; /* bright cool page; the ambient glows below give it depth */
     --foreground: 222 47% 11%;
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 174 84% 31%; /* brand teal, as in dark mode */
+    --primary-foreground: 0 0% 100%;
     --secondary: 210 40% 96%;
     --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96%;
+    --muted: 214 38% 95%;
     --muted-foreground: 215 20% 36%; /* ~slate-600: secondary text readable (was 47%) */
-    --accent: 210 40% 96%;
+    --accent: 172 55% 94%; /* teal-tinted hover */
     --accent-foreground: 222 47% 11%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
-    --border: 215 24% 78%; /* card and table edges visible on the light background (was 83%) */
+    --border: 216 26% 86%; /* soft edges; cards also get a light shadow */
     /* inputs: own surface + a clearly visible border (requested: visible fields in light and dark) */
-    --input: 215 16% 62%;
+    --input: 215 20% 74%;
     --input-bg: 0 0% 100%;
     --success: 142 64% 34%;
     --warning: 32 95% 44%;
-    --ring: 221 83% 53%;
+    --ring: 174 84% 31%;
     --sidebar: 222 47% 11%;
     --sidebar-foreground: 210 40% 98%;
     --sidebar-muted: 217 16% 60%;
@@ -84,6 +84,20 @@
   /* Ambient teal/indigo/amber glow over the deep-navy base, echoed by the
      glass panels (Card/Dialog/DropdownMenu) so they read as frosted surfaces
      floating above it rather than flat rectangles. */
+  /* Light: the same idea in pastel — teal, indigo and amber washes over a bright page. */
+  :root:not(.dark) body {
+    background-image:
+      radial-gradient(1100px 560px at 12% -8%, rgb(20 184 166 / 0.13), transparent 60%),
+      radial-gradient(900px 520px at 92% 4%, rgb(99 102 241 / 0.10), transparent 55%),
+      radial-gradient(1000px 600px at 50% 108%, rgb(245 158 11 / 0.08), transparent 60%),
+      linear-gradient(180deg, hsl(210 40% 98%), hsl(214 40% 95.5%));
+    background-attachment: fixed;
+  }
+  /* cards float on the light page: a soft two-layer shadow instead of a hard grey line */
+  :root:not(.dark) .bg-card {
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 24px -12px rgb(15 23 42 / 0.12);
+  }
+
   .dark body {
     background-image:
       radial-gradient(1000px 520px at 18% 0%, rgb(20 184 166 / 0.16), transparent 55%),

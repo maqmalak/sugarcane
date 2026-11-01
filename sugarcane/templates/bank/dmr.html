@@ -1,0 +1,74 @@
+{% extends "sugarcane/templates/bank/_base.html" %}
+{% block body %}
+{%- from "sugarcane/templates/bank/_macros.html" import letterhead, footer with context -%}
+<style>
+.dmr td, .dmr th { font-size: 10px; padding: 2px 5px; line-height: 1.35; } .dmr table { margin: 4px 0; } .dmr .sub { margin-bottom: 4px; }
+.dmr h3 { font-size: 11px; margin: 6px 0 2px; }
+.dmr .cols { width: 100%; border: 0; margin: 0; } .dmr .cols > tbody > tr > td { border: 0; padding: 0 5px 0 0; vertical-align: top; width: 33.3%; }
+.dmr .kpi { width: 100%; border: 0; margin: 6px 0 4px; } .dmr .kpi td { border: 1px solid #bbf7d0; background: #f0fdf4; text-align: center; padding: 5px 4px; width: 16.6%; }
+.dmr .kpi b { display: block; font-size: 15px; color: #14532d; } .dmr .kpi span { font-size: 9px; color: #6b7280; text-transform: uppercase; letter-spacing: .4px; }
+.dmr th { width: auto !important; } .lf { margin-top: 6px; }
+</style>
+<div class="page">{{ letterhead() }}<div class="re-doc dmr">
+<img class="qr" src="{{ qr }}">
+<h2>Daily Manufacturing Report</h2>
+<div class="sub">Crushing day {{ fmt_date(doc.crushing_day) }} (07:00 → 07:00) &nbsp;·&nbsp; season {{ doc.season }} &nbsp;·&nbsp; {{ doc.name }} &nbsp;·&nbsp; <b>{{ doc.status }}</b></div>
+
+<table class="kpi"><tr>
+<td><b>{{ kg(doc.cane_crushed_kg / 1000 if doc.cane_crushed_kg else 0) }} t</b><span>Cane crushed</span></td>
+<td><b>{{ kg(doc.sugar_bags) }}</b><span>Sugar bags (50 kg)</span></td>
+<td><b>{{ f2(doc.recovery_pct) }} %</b><span>Recovery</span></td>
+<td><b>{{ f2(doc.crush_rate_tph) }} t/h</b><span>Crush rate</span></td>
+<td><b>{{ f2(doc.running_hours, 1) }} h</b><span>Running · {{ doc.stoppage_minutes or 0 }} min stopped</span></td>
+<td><b>{{ f2(doc.capacity_use_pct, 1) }} %</b><span>Capacity used</span></td>
+</tr></table>
+
+<table class="cols"><tr>
+<td><h3>Cane</h3><table>
+<tr><td>From the gate (CPRs)</td><td class="r">{{ kg(doc.cane_from_gate_kg) }} kg</td></tr>
+<tr><td>From depots</td><td class="r">{{ kg(doc.cane_from_depots_kg) }} kg</td></tr>
+<tr><td>Received</td><td class="r">{{ kg(doc.cane_received_kg) }} kg</td></tr>
+<tr><td>Yard opening</td><td class="r">{{ kg(doc.yard_opening_kg) }} kg</td></tr>
+<tr><td>Yard closing</td><td class="r">{{ kg(doc.yard_closing_kg) }} kg</td></tr>
+<tr class="sum"><td>Crushed</td><td class="r">{{ kg(doc.cane_crushed_kg) }} kg<br>{{ kg(doc.cane_crushed_maund) }} md</td></tr>
+</table></td>
+<td><h3>Production</h3><table>
+{% for g in doc.grades %}<tr><td>Sugar {{ g.grade }}</td><td class="r">{{ kg(g.bags) }} bags</td></tr>{% endfor %}
+<tr class="sum"><td>Sugar</td><td class="r">{{ kg(doc.sugar_bags) }} bags · {{ kg(doc.sugar_kg) }} kg</td></tr>
+<tr><td>Final molasses</td><td class="r">{{ kg(doc.molasses_kg) }} kg · {{ f2(doc.molasses_pct_cane) }} %</td></tr>
+<tr><td>Bagasse</td><td class="r">{{ kg(doc.bagasse_kg) }} kg · {{ f2(doc.bagasse_pct_cane) }} %</td></tr>
+<tr><td>&nbsp;· burnt / to yard</td><td class="r">{{ kg(doc.bagasse_burnt_kg) }} / {{ kg(doc.bagasse_to_yard_kg) }} kg</td></tr>
+<tr><td>Press mud</td><td class="r">{{ kg(doc.press_mud_kg) }} kg · {{ f2(doc.press_mud_pct_cane) }} %</td></tr>
+</table></td>
+<td><h3>Performance (% cane)</h3><table>
+<tr><td>Pol % cane</td><td class="r">{{ f2(doc.pol_pct_cane, 3) }}</td></tr>
+<tr><td>Mixed juice purity</td><td class="r">{{ f2(doc.mixed_juice_purity) }}</td></tr>
+<tr><td>Mill extraction</td><td class="r">{{ f2(doc.mill_extraction_pct) }}</td></tr>
+<tr><td>Pol lost in bagasse</td><td class="r">{{ f2(doc.loss_bagasse, 3) }}</td></tr>
+<tr><td>· in press mud</td><td class="r">{{ f2(doc.loss_press_mud, 3) }}</td></tr>
+<tr><td>· in final molasses</td><td class="r">{{ f2(doc.loss_molasses, 3) }}</td></tr>
+<tr><td>· undetermined</td><td class="r">{{ f2(doc.loss_undetermined, 3) }}</td></tr>
+<tr class="sum"><td>Total losses</td><td class="r">{{ f2((doc.loss_known or 0) + (doc.loss_undetermined or 0), 3) }}</td></tr>
+</table></td>
+</tr></table>
+
+{% if doc.shifts %}<h3>By shift</h3><table class="grid"><tr><th>Shift</th><th class="r">Cane received kg</th><th class="r">Stopped min</th><th class="r">Mill h</th><th class="r">Bags</th><th class="r">Molasses kg</th><th class="r">Bagasse kg</th><th class="r">Burnt kg</th><th class="r">Press mud kg</th></tr>
+{% for s in doc.shifts %}<tr><td>{{ s.shift }}</td><td class="r">{{ kg(s.cane_received_kg) }}</td><td class="r">{{ s.stoppage_minutes or 0 }}</td><td class="r">{{ f2(s.mill_hours) if s.mill_hours else "" }}</td><td class="r">{{ kg(s.sugar_bags) if s.sugar_bags else "" }}</td><td class="r">{{ kg(s.molasses_kg) if s.molasses_kg else "" }}</td><td class="r">{{ kg(s.bagasse_kg) if s.bagasse_kg else "" }}</td><td class="r">{{ kg(s.bagasse_burnt_kg) if s.bagasse_burnt_kg else "" }}</td><td class="r">{{ kg(s.press_mud_kg) if s.press_mud_kg else "" }}</td></tr>{% endfor %}</table>{% endif %}
+
+<table class="cols"><tr>
+<td style="width:66%"><h3>Laboratory averages</h3><table class="grid"><tr><th>Stream</th><th class="r">Samples</th><th class="r">Brix</th><th class="r">Pol</th><th class="r">Purity</th><th class="r">Moisture</th><th class="r">Out</th></tr>
+{% for a in doc.analyses %}<tr><td>{{ a.sample_type }}</td><td class="r">{{ a.samples }}</td><td class="r">{{ f2(a.brix) if a.brix else "" }}</td><td class="r">{{ f2(a.pol) if a.pol else "" }}</td><td class="r">{{ f2(a.purity) if a.purity else "" }}</td><td class="r">{{ f2(a.moisture_pct) if a.moisture_pct else "" }}</td><td class="r">{% if a.out_of_range %}<span class="red">{{ a.out_of_range }}</span>{% endif %}</td></tr>{% endfor %}</table></td>
+<td style="width:34%"><h3>Stoppages</h3><table class="grid"><tr><th>Category</th><th class="r">Min</th></tr>
+{% for c, m in stops %}<tr><td>{{ c }}</td><td class="r">{{ m }}</td></tr>{% else %}<tr><td colspan="2" class="muted">None</td></tr>{% endfor %}
+<tr class="sum"><td>Total</td><td class="r">{{ doc.stoppage_minutes or 0 }}</td></tr></table>
+<h3>Season to date</h3><table>
+<tr><td>Cane crushed</td><td class="r">{{ kg((doc.std_cane_crushed_kg or 0) / 1000) }} t</td></tr>
+<tr><td>Sugar bags</td><td class="r">{{ kg(doc.std_sugar_bags) }}</td></tr>
+<tr><td>Recovery</td><td class="r">{{ f2(doc.std_recovery_pct, 3) }} %</td></tr>
+<tr><td>Running hours</td><td class="r">{{ f2(doc.std_running_hours, 1) }}</td></tr></table></td>
+</tr></table>
+
+{% if doc.remarks %}<div class="box">Remarks: {{ doc.remarks }}</div>{% endif %}
+<table class="sign" style="margin-top:22px;table-layout:fixed"><tr><td style="width:30%">Lab Chemist<br><span class="muted">{{ prepared or "" }}</span></td><td class="gap" style="width:5%"></td><td style="width:30%">Production Manager<br><span class="muted">{{ approved or "" }}</span></td><td class="gap" style="width:5%"></td><td style="width:30%">General Manager</td></tr></table>
+</div>{{ footer("Daily manufacturing report " ~ doc.name) }}</div>
+{% endblock %}

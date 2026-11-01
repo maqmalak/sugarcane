@@ -52,6 +52,8 @@ FILTERS = {  # report -> filters it accepts (default by module below)
 	"By-product Stock and Movement": ["season", "from_date", "to_date"],
 	"By-product Realization": ["season", "to_date"],
 	"Cost of Production Statement": ["season", "from_date", "to_date"],
+	"Accounts Receivable": ["to_date"], "Accounts Receivable Summary": ["to_date"], "Accounts Payable": ["to_date"], "Accounts Payable Summary": ["to_date"],
+	"Sales Register": ["from_date", "to_date"], "Purchase Register": ["from_date", "to_date"],
 	"Cost per Bag Trend": ["season", "from_date", "to_date"],
 	"Cost Center Expense Analysis": ["season", "from_date", "to_date"],
 	"Recovery vs Cost": ["season", "from_date", "to_date", "cost_view"],
@@ -103,6 +105,12 @@ DESCRIPTIONS = {
 	"Production Summary": "Cane crushed, sugar bags by grade, recovery and by-products — by day, week or month",
 	"By-product Stock and Movement": "Molasses, bagasse and press mud: opening, produced, burnt in the boilers, sold, closing",
 	"By-product Realization": "NRV credited against the sales value realised (less selling cost) for the by-products sold",
+	"Accounts Receivable": "Who owes the mill, invoice by invoice, aged 0–30, 31–60, 61–90, 91–120 and over 120 days",
+	"Accounts Receivable Summary": "Receivable per customer with the ageing buckets",
+	"Accounts Payable": "What the mill owes, bill by bill, aged by due date",
+	"Accounts Payable Summary": "Payable per supplier with the ageing buckets",
+	"Sales Register": "Every sales invoice in the period with its taxes and totals",
+	"Purchase Register": "Every purchase invoice in the period with its taxes and totals",
 	"Cost of Production Statement": "Cane + processing − by-product credit = net cost of sugar per kg / bag / ton of cane, beside the previous season",
 	"Cost per Bag Trend": "Daily stock and provisional cost per bag against each costing run's final cost",
 	"Cost Center Expense Analysis": "Processing cost by cost centre and element after allocation, per ton of cane",
@@ -141,10 +149,19 @@ FILTER_DEFS = {
 MAX_PREVIEW = 300
 
 
+# ERPNext's own finance reports, shown in the Report Centre under Finance (receivables, payables, registers).
+ERP_FINANCE = ("Accounts Receivable", "Accounts Receivable Summary", "Accounts Payable", "Accounts Payable Summary", "Sales Register", "Purchase Register")
+AGEING = ("Accounts Receivable", "Accounts Receivable Summary", "Accounts Payable", "Accounts Payable Summary")
+
+
 def _reports():
 	rows = frappe.get_all("Report", filters={"module": ["in", SUGAR_MODULES], "disabled": 0,
 		"report_type": ["in", ["Script Report", "Query Report"]]}, fields=["name", "module"], order_by="module asc, name asc")
-	return {r.name: r.module for r in rows}
+	out = {r.name: r.module for r in rows}
+	for name in ERP_FINANCE:
+		if frappe.db.exists("Report", {"name": name, "disabled": 0}):
+			out[name] = "Mill Finance"
+	return out
 
 
 def _accepted(report, module):
@@ -162,6 +179,16 @@ def _filters(report, module, raw):
 		f[FILTER_DEFS.get(key, {}).get("param", key)] = value
 	if "season" in accepted and not f.get("season"):
 		f["season"] = frappe.db.get_single_value("Sugar Settings", "active_season")
+	if report in ERP_FINANCE:  # ERPNext's own reports need the company and their own date names
+		f["company"] = frappe.defaults.get_user_default("Company") or frappe.db.get_single_value("Global Defaults", "default_company")
+		if report in AGEING:
+			f["report_date"] = f.pop("to_date", None) or nowdate()
+			f.setdefault("ageing_based_on", "Due Date")
+			f.setdefault("range", "30, 60, 90, 120")
+			f.setdefault("range1", 30); f.setdefault("range2", 60); f.setdefault("range3", 90); f.setdefault("range4", 120)
+		else:
+			f.setdefault("from_date", frappe.utils.get_first_day(nowdate()))
+			f.setdefault("to_date", nowdate())
 	if report == "Surveyor Attendance Report":
 		f.setdefault("from_date", add_days(nowdate(), -14))
 		f.setdefault("to_date", nowdate())

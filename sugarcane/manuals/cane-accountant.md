@@ -12,8 +12,10 @@ order: 100
    - the five checks green: clearing 0; TPT, cess, grower payable and loans tied
 2. **Close the day.** The scheduler closes it at 07:15 if you haven't. A day with a problem stays open and is listed on the Desktop.
 
-## Paying growers
-1. **Cane Accounts → Payment scroll.** Start from the unpaid CPRs up to a date, or empty.
+## Paying growers (guide **Grower payments** above)
+1. **Cane Accounts → Payment scroll.** **Bank balances available** shows each bank: balance − draft scrolls = available, against what is unpaid to growers. The unpaid CPRs show the **loan cut** already recovered from each.
+   - Start from the unpaid CPRs up to a date, or empty.
+   - **Pay from**: choose the bank. Its balance, less other draft scrolls, must cover the scroll; otherwise choose another bank, take CPRs off, or get the account funded. A Cane Admin can pay over the balance.
 2. **Scan CPR barcodes**, or type a grower ID or CNIC to add all their unpaid CPRs. Duplicates are dropped.
 3. Check the scroll: one payment per grower. Growers without an IBAN go on a cheque scroll.
 4. **Pay.** Payment Entries are posted per grower, the CPRs are marked paid, and each grower gets an SMS.

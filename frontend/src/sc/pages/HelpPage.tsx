@@ -15,7 +15,7 @@ import { cn } from "@/sc/lib/utils";
 
 const API = "sugarcane.api.v1.help";
 interface Entry { slug: string; title: string; roles: string[]; mine: boolean }
-interface Guide { slug: string; title: string; kind: "Guide" | "Video"; summary: string; roles: string[]; pdf_url: string | null; video_url: string | null; mine: boolean }
+interface Guide { slug: string; order: number; title: string; kind: "Guide" | "Video"; summary: string; roles: string[]; pdf_url: string | null; video_url: string | null; mine: boolean }
 interface Manual { slug: string; title: string; roles: string[]; html: string; guides: Guide[] }
 
 function VideoModal({ g, onClose }: { g: Guide; onClose: () => void }) {
@@ -36,7 +36,7 @@ function GuideCard({ g, onPlay, compact }: { g: Guide; onPlay: (g: Guide) => voi
       <div className="flex items-start gap-2">
         <span className={cn("grid size-9 shrink-0 place-items-center rounded-xl", g.kind === "Guide" ? "bg-teal-500/10 text-teal-600" : "bg-violet-500/10 text-violet-600")}>
           {g.kind === "Guide" ? <FileText className="size-5" /> : <PlayCircle className="size-5" />}</span>
-        <div className="min-w-0 flex-1"><div className="font-semibold">{g.title}</div>
+        <div className="min-w-0 flex-1"><div className="font-semibold">{!compact && <span className="mr-1.5 text-muted-foreground">{g.order}.</span>}{g.title}</div>
           {!compact && <p className="mt-0.5 text-sm text-muted-foreground">{g.summary}</p>}</div>
         {g.mine && <Badge tone="green">yours</Badge>}
       </div>
@@ -61,14 +61,14 @@ export function HelpPage() {
   const first = list.data?.find((m) => m.mine && m.slug !== "getting-started")?.slug ?? list.data?.[0]?.slug;
   const slug = params.get("m") || first || "";
   const doc = useQuery({ queryKey: ["help", slug], queryFn: () => get<Manual>(`${API}.manual`, { slug }), enabled: !!slug && tab === "manuals" });
-  const mineFirst = [...(guides.data ?? [])].sort((a, b) => Number(b.mine) - Number(a.mine) || (a.kind === b.kind ? 0 : a.kind === "Guide" ? -1 : 1));
+  const ordered = guides.data ?? [];  // the server lists them in the order the work flows
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-end gap-3">
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-teal-600"><BookOpen className="size-4" />Help</div>
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{tab === "guides" ? "Guides & videos" : "User manuals"}</h1>
-          <p className="text-sm text-muted-foreground">{tab === "guides" ? "Step-by-step guides with screenshots (PDF, A4) and demo videos. Yours are marked." : "What each role does in the ERP, step by step. Yours are marked."}</p>
+          <p className="text-sm text-muted-foreground">{tab === "guides" ? "Step-by-step guides with screenshots (PDF, A4) and demo videos, in the order the work flows. Yours are marked." : "What each role does in the ERP, step by step. Yours are marked."}</p>
         </div>
         <div className="ml-auto flex rounded-xl border p-1">
           {([["manuals", "User manuals"], ["guides", `Guides & videos${guides.data ? ` (${guides.data.length})` : ""}`]] as const).map(([k, l]) => (
@@ -80,7 +80,7 @@ export function HelpPage() {
       {tab === "guides" ? (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {!guides.data && <Skeleton className="h-40" />}
-          {mineFirst.map((g) => <GuideCard key={g.slug} g={g} onPlay={setPlaying} />)}
+          {ordered.map((g) => <GuideCard key={g.slug} g={g} onPlay={setPlaying} />)}
         </div>
       ) : (
         <div className="grid gap-4 lg:grid-cols-[300px_1fr]">

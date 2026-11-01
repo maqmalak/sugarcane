@@ -27,4 +27,17 @@ order: 0
 The ERP checks the mill's rules and says why it refuses. For example: "the weight is not stable yet", "this indent expired on 4 Nov", or "a paid CPR can't be cancelled". Read the message: it tells you what to do. If you think a rule is wrong, tell your manager. Don't work around it.
 
 ## Help
-**Help** in your apps menu shows the manual for each of your roles.
+- **Help** in your apps menu shows the manual for each of your roles.
+- **Help → Guides & videos** has the step-by-step A4 guides (PDF, with screenshots) and the demo videos. They are listed in the order the work flows:
+  1. Process flow & DFD
+  2. Setup
+  3. EagleEye e-survey
+  4. Indenting and the ELP
+  5. Gate, gross & tare
+  6. Depot purchase
+  7. TPT cash counter
+  8. Grower payments
+  9. Grower loans
+  10. Production
+  11. Printed documents
+- Guides for your own roles are marked *yours*. The manual pages also show their guide and video at the top.

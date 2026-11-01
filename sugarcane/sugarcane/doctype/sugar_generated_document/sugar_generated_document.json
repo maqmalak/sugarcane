@@ -22,7 +22,7 @@
   {
    "fieldname": "document_type",
    "fieldtype": "Select",
-   "options": "Bank Payment Schedule\nBank Instruction Letters\nUnpaid CPR Scroll\nStop Payment Letter\nLoan Application\nContractor Bill\nGrower Statement\nOther",
+   "options": "Bank Payment Schedule\nBank Instruction Letters\nUnpaid CPR Scroll\nStop Payment Letter\nLoan Application\nContractor Bill\nUnloading Contract\nGrower Statement\nOther",
    "label": "Document",
    "reqd": 1,
    "read_only": 1,

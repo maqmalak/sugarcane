@@ -213,3 +213,16 @@ def bill_pdf(name: str) -> tuple[str, bytes]:
 	sup = frappe.db.get_value("Supplier", doc.contractor, ["supplier_name", "tax_id"], as_dict=True) or {}
 	pdf = _pdf("contractor_bill", _ctx(doc=doc, groups=dict(groups), sup=sup, qr=qr(app_url(f"/accounts/d/contractor-bill/{doc.name}"))))
 	return f"Contractor bill {doc.name}.pdf", pdf
+
+
+def contract_pdf(name: str) -> tuple[str, bytes]:
+	"""The unloading contract on A4 for signing: parties, rates by vehicle type, idle payment, billing and terms."""
+	from sugarcane.cane_accounting.bank_docs import _ctx, _pdf, app_url, qr
+
+	doc = frappe.get_doc("Unloading Contract", name)
+	doc.check_permission("read")
+	sup = frappe.db.get_value("Supplier", doc.contractor, ["supplier_name", "tax_id", "mobile_no"], as_dict=True) or {}
+	cats = [c.strip() for c in (doc.idle_categories or "").replace(",", "\n").splitlines() if c.strip()]
+	pdf = _pdf("unloading_contract", _ctx(doc=doc, sup=sup, cats=cats,
+		qr=qr(app_url(f"/accounts/d/unloading-contract/{doc.name}"))))
+	return f"Unloading contract {doc.contract_no or doc.name}.pdf", pdf

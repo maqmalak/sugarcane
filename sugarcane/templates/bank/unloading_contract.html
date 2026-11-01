@@ -1,0 +1,42 @@
+{% extends "sugarcane/templates/bank/_base.html" %}
+{% block body %}
+{%- from "sugarcane/templates/bank/_macros.html" import letterhead, footer with context -%}
+<div class="page">{{ letterhead() }}<div class="re-doc">
+<img class="qr" src="{{ qr }}">
+<h2>Cane Unloading Contract</h2>
+<div class="sub">Contract {{ doc.contract_no or doc.name }} &nbsp;·&nbsp; {{ fmt_date(doc.valid_from) }} – {{ fmt_date(doc.valid_to) }} &nbsp;·&nbsp; <b>{{ doc.status }}</b></div>
+
+<table>
+<tr><th>The mill</th><td><b>{{ company }}</b>{% if mill_address %} · {{ mill_address }}{% endif %}</td></tr>
+<tr><th>The contractor</th><td><b>{{ sup.supplier_name or doc.contractor }}</b>{% if sup.tax_id %} · NTN {{ sup.tax_id }}{% endif %}{% if sup.mobile_no %} · {{ sup.mobile_no }}{% endif %}</td></tr>
+<tr><th>Period</th><td>{{ fmt_date(doc.valid_from) }} to {{ fmt_date(doc.valid_to) }} (crushing season)</td></tr>
+<tr><th>Security deposit</th><td><b>Rs {{ money(doc.security_deposit) }}</b>{% if doc.security_deposit %} · {{ words(doc.security_deposit) }}{% endif %}</td></tr>
+</table>
+
+<h3>1 · Work</h3>
+<p>The contractor unloads all cane brought to the mill yard{% if doc.include_depot_trucks %}, including trucks from the mill's depots{% endif %}, with his own labour, and keeps the carrier and feeding area clear so that crushing does not stop for want of cane.</p>
+
+<h3>2 · Unloading rates</h3>
+<table class="grid"><tr><th>#</th><th>Vehicle type</th><th class="r">Rate per maund (Rs)</th><th class="r">Rate per vehicle (Rs)</th></tr>
+{% for r in doc.rates %}<tr><td>{{ loop.index }}</td><td>{{ r.vehicle_type }}</td><td class="r">{{ money(r.rate_per_maund) }}</td><td class="r">{{ money(r.rate_per_vehicle) if r.rate_per_vehicle else "—" }}</td></tr>{% endfor %}
+<tr class="sum"><td></td><td>Any other vehicle</td><td class="r">{{ money(doc.rate_per_maund) }}</td><td class="r">—</td></tr></table>
+<p class="muted">Maunds are the net cane weight on the mill weighbridge (CPR). Depot trucks unloaded: <span style="padding-left:3px"></span><b>{{ "paid at these rates" if doc.include_depot_trucks else "not paid" }}</b>.</p>
+
+<h3>3 · Idle payment when the mill stops</h3>
+<table>
+<tr><th>Idle rate</th><td><b>Rs {{ money(doc.idle_rate_per_hour) }}</b> per hour</td></tr>
+<tr><th>Stoppages paid</th><td>{{ cats|join(", ") if cats else "—" }}</td></tr>
+<tr><th>Shortest stoppage paid</th><td>{{ doc.idle_min_minutes or 0 }} minutes</td></tr>
+<tr><th>Most hours paid a day</th><td>{{ doc.idle_max_hours_per_day or 0 }} hours</td></tr>
+</table>
+<p class="muted">Hours are taken from the mill stoppage log. Stoppages of other kinds, or caused by the contractor, are not paid.</p>
+
+<h3>4 · Billing and payment</h3>
+<p>The mill makes the contractor bill for each period from the CPRs, depot dispatches and the stoppage log. Deductions are shown on the bill. The net amount is paid to the contractor's account after the bill is posted.</p>
+
+{% if doc.terms %}<h3>5 · Other terms</h3>
+<div class="box">{{ doc.terms }}</div>{% endif %}
+
+<table class="sign" style="margin-top:12mm;table-layout:fixed;width:100%"><tr><td style="width:23%">For {{ company }}<br>{{ signatory_1 or "Authorised Signatory" }}</td><td class="gap" style="width:2.6%"></td><td style="width:23%">Contractor<br>{{ sup.supplier_name or doc.contractor }}</td><td class="gap" style="width:2.6%"></td><td style="width:23%">Witness 1<br>name, CNIC</td><td class="gap" style="width:2.6%"></td><td style="width:23%">Witness 2<br>name, CNIC</td></tr></table>
+</div>{{ footer("Unloading contract " ~ (doc.contract_no or doc.name)) }}</div>
+{% endblock %}

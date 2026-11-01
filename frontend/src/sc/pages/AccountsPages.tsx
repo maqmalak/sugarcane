@@ -678,7 +678,9 @@ export function ContractorBillsPage() {
           { key: "v", label: "Valid", value: (r) => r.valid_from, render: (r) => `${dayLabel(r.valid_from)} – ${dayLabel(r.valid_to)}` },
           { key: "r", label: "Rate / md", align: "right", value: (r) => r.rate_per_maund, render: (r) => `Rs ${Number(r.rate_per_maund).toFixed(2)}` },
           { key: "i", label: "Idle / hour", align: "right", value: (r) => r.idle_rate_per_hour, render: (r) => money(r.idle_rate_per_hour) },
-          { key: "s", label: "Status", value: (r) => r.status, render: (r) => <Badge tone={r.status === "Active" ? "green" : "gray"}>{r.status}</Badge> },
+          { key: "s", label: "Status", value: (r) => r.status, render: (r) => (
+            <span className="flex items-center gap-2"><Badge tone={r.status === "Active" ? "green" : "gray"}>{r.status}</Badge>
+              <button type="button" title="Contract (PDF)" onClick={() => dl("unloading_contract_pdf", { name: r.name }, `Unloading contract ${r.name}.pdf`)} className="text-muted-foreground hover:text-foreground"><Download className="size-4" /></button></span>) },
         ]} />
       </ChartCard>
     </div>

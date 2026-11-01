@@ -436,6 +436,13 @@ def contractor_bill_pdf(name: str):
 	_download(*bill_pdf(name), "Contractor Bill", ("Contractor Bill", name))
 
 
+@frappe.whitelist(methods=["POST"])
+def unloading_contract_pdf(name: str):
+	from sugarcane.cane_accounting.contractor_bills import contract_pdf
+
+	_download(*contract_pdf(name), "Unloading Contract", ("Unloading Contract", name))
+
+
 # ---------------------------------------------------------------- loan field verification (loan survey) and grower history
 @frappe.whitelist(methods=["GET"])
 def surveyors() -> list:

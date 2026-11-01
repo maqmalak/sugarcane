@@ -1,0 +1,270 @@
+{
+ "actions": [],
+ "creation": "2026-11-01 22:00:00.000000",
+ "modified": "2026-11-01 22:00:00.000000",
+ "modified_by": "Administrator",
+ "owner": "Administrator",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "module": "Cane Procurement",
+ "name": "Cash Counter Session",
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "states": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "track_changes": 1,
+ "field_order": [
+  "naming_series",
+  "counter",
+  "cashier",
+  "status",
+  "cb1",
+  "opened_at",
+  "closed_at",
+  "sb_till",
+  "opening_balance",
+  "received_total",
+  "returned_total",
+  "cb2",
+  "cash_paid_total",
+  "cash_paid_count",
+  "expected_balance",
+  "cb3",
+  "jazzcash_total",
+  "jazzcash_count",
+  "sb_moves",
+  "movements",
+  "sb_close",
+  "denominations",
+  "counted_balance",
+  "difference",
+  "difference_journal_entry",
+  "close_note"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "options": "CCS-.YY.-.#####",
+   "default": "CCS-.YY.-.#####",
+   "hidden": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "counter",
+   "fieldtype": "Link",
+   "options": "Cash Counter",
+   "label": "Counter",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "cashier",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Cashier",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "options": "Open\nClosed",
+   "label": "Status",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "opened_at",
+   "fieldtype": "Datetime",
+   "label": "Opened",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "closed_at",
+   "fieldtype": "Datetime",
+   "label": "Closed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_till",
+   "fieldtype": "Section Break",
+   "label": "Till"
+  },
+  {
+   "fieldname": "opening_balance",
+   "fieldtype": "Currency",
+   "label": "Opening Balance",
+   "read_only": 1,
+   "description": "Carried from this counter's last close"
+  },
+  {
+   "fieldname": "received_total",
+   "fieldtype": "Currency",
+   "label": "Received from Strong Room",
+   "read_only": 1
+  },
+  {
+   "fieldname": "returned_total",
+   "fieldtype": "Currency",
+   "label": "Returned to Strong Room",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cash_paid_total",
+   "fieldtype": "Currency",
+   "label": "Cash Paid (bilties)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cash_paid_count",
+   "fieldtype": "Int",
+   "label": "Bilties Paid in Cash",
+   "read_only": 1
+  },
+  {
+   "fieldname": "expected_balance",
+   "fieldtype": "Currency",
+   "label": "Current / Expected Balance",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cb3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "jazzcash_total",
+   "fieldtype": "Currency",
+   "label": "Paid by JazzCash",
+   "read_only": 1
+  },
+  {
+   "fieldname": "jazzcash_count",
+   "fieldtype": "Int",
+   "label": "Bilties Paid by JazzCash",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_moves",
+   "fieldtype": "Section Break",
+   "label": "Strong room"
+  },
+  {
+   "fieldname": "movements",
+   "fieldtype": "Table",
+   "options": "Cash Counter Movement",
+   "label": "Cash In / Out",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_close",
+   "fieldtype": "Section Break",
+   "label": "Close"
+  },
+  {
+   "fieldname": "denominations",
+   "fieldtype": "Table",
+   "options": "Cash Counter Denomination",
+   "label": "Cash Counted",
+   "read_only": 1
+  },
+  {
+   "fieldname": "counted_balance",
+   "fieldtype": "Currency",
+   "label": "Counted Cash (closing balance)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "difference",
+   "fieldtype": "Currency",
+   "label": "Short (−) / Excess (+)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "difference_journal_entry",
+   "fieldtype": "Link",
+   "options": "Journal Entry",
+   "label": "Short / Excess Entry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "close_note",
+   "fieldtype": "Small Text",
+   "label": "Close Note",
+   "read_only": 1
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "share": 1,
+   "email": 1
+  },
+  {
+   "role": "Cane Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "share": 1,
+   "email": 1
+  },
+  {
+   "role": "Cane Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1
+  },
+  {
+   "role": "Cane Cashier",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1
+  },
+  {
+   "role": "Cane Accountant",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1
+  },
+  {
+   "role": "MIS Viewer",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1
+  }
+ ],
+ "autoname": "naming_series:",
+ "naming_rule": "By \"Naming Series\" field",
+ "title_field": "counter",
+ "description": "One cashier's shift on a cash counter: opening, cash from / to the strong room, bilties paid, and the counted close."
+}

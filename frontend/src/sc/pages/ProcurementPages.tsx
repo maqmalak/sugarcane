@@ -11,7 +11,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle, Banknote, CheckCircle2, ClipboardCheck, Clock, Factory, Hourglass, Printer, Receipt, RotateCcw, Scale, ScanBarcode,
-  Search, ShieldCheck, Smartphone, Ticket, Timer, Truck, Wallet, Warehouse, Weight, XCircle,
+  Search, ShieldCheck, Smartphone, ArrowDownToLine, ArrowUpFromLine, Lock, Unlock, MonitorSmartphone, Plus, X, Ticket, Timer, Truck, Wallet, Warehouse, Weight, XCircle,
 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import toast from "react-hot-toast";
@@ -355,9 +355,10 @@ export function GatePage() {
 }
 
 // =============================================================== weighbridge
-interface Reading { weight_kg: number; stable: number; source: string; at: string; age_s: number; raw?: string }
+interface Reading { weight_kg: number; stable: number; source: string; at: string; age_s: number; raw?: string; platform_ok?: number | null; sensors?: Record<string, number> | null }
 interface TerminalInfo {
-  terminal: { name: string; terminal_name: string; allowed_operations: string; indicator_protocol: string; lane?: string; depot?: string | null } | null; error?: string; ip?: string;
+  terminal: { name: string; terminal_name: string; allowed_operations: string; indicator_protocol: string; lane?: string; depot?: string | null;
+    position_sensors?: number; auto_capture?: number; auto_capture_seconds?: number } | null; error?: string; ip?: string;
   reading?: Reading | null; fresh_s: number; min_kg: number; can_manual: boolean;
   recent: { name: string; token: string; status: string; vehicle_no: string; vehicle_type: string; grower_name: string; gross_kg: number; tare_kg?: number; net_kg?: number; gross_at: string; tare_at?: string; cpr?: string; manual_entry: number }[];
 }
@@ -366,6 +367,42 @@ interface TokenDoc extends TokenRow {
   weighment_doc?: { gross_kg: number; gross_at: string; gross_terminal: string; tare_kg?: number; net_kg?: number; manual_entry: number } | null;
   cpr_doc?: { name: string; payable_kg: number; payable_maund: number; govt_value: number; tpt_amount: number; payable_cpr: number; bilty?: string } | null;
   vehicle_limits?: { min_gross_kg: number; max_gross_kg: number; min_tare_kg: number; max_tare_kg: number };
+}
+
+/** Top view of the deck with its position beams (fraud prevention): green = clear, red = cut by the vehicle. */
+export function PlatformPanel({ r, compact }: { r?: Reading | null; compact?: boolean }) {
+  const beams = r?.sensors ?? {};
+  const names = Object.keys(beams);
+  const ok = r?.platform_ok === 1;
+  const onDeck = (r?.weight_kg ?? 0) > 0;
+  const cut = names.filter((n) => !beams[n]);
+  const end = (pre: string) => names.filter((n) => n.startsWith(pre));
+  const Dot = ({ n }: { n: string }) => (
+    <span title={`${n}: ${beams[n] ? "clear" : "cut"}`} className={cn("inline-block size-3 rounded-full ring-2 ring-black/30", beams[n] ? "bg-emerald-400" : "animate-pulse bg-red-500")} />);
+  return (
+    <div className={cn("rounded-2xl border-2 p-3", !onDeck ? "border-zinc-700" : ok ? "border-emerald-500" : "border-red-500 bg-red-500/5")}>
+      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
+        <span className={cn("size-2.5 rounded-full", !onDeck ? "bg-zinc-500" : ok ? "bg-emerald-500" : "animate-ping bg-red-500")} />
+        {!onDeck ? <span className="text-muted-foreground">Platform empty</span>
+          : ok ? <span className="text-emerald-600 dark:text-emerald-400">Platform OK — vehicle fully on the deck</span>
+          : <span className="text-red-600 dark:text-red-400">Not fully on the platform — red light ON{cut.length ? ` · ${cut.join(", ")} cut` : ""}</span>}
+      </div>
+      {!compact && names.length > 0 && (
+        <div className="mt-2 flex items-center gap-2">
+          <div className="flex flex-col items-center gap-1 text-[10px] text-muted-foreground">{end("Pole-L").map((n) => <Dot key={n} n={n} />)}<span>pole</span></div>
+          <div className="flex flex-col gap-1">{end("Entry").map((n) => <Dot key={n} n={n} />)}</div>
+          <div className={cn("relative grid h-14 flex-1 place-items-center rounded-md border border-dashed text-[11px] font-semibold uppercase tracking-wider",
+            onDeck ? (ok ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" : "bg-red-500/10 text-red-600") : "bg-muted/40 text-muted-foreground")}>
+            <span className="absolute left-2 text-[10px] font-normal normal-case text-muted-foreground">entry</span>
+            Weighbridge deck 18 × 3 m
+            <span className="absolute right-2 text-[10px] font-normal normal-case text-muted-foreground">exit</span>
+          </div>
+          <div className="flex flex-col gap-1">{end("Exit").map((n) => <Dot key={n} n={n} />)}</div>
+          <div className="flex flex-col items-center gap-1 text-[10px] text-muted-foreground">{end("Pole-R").map((n) => <Dot key={n} n={n} />)}<span>pole</span></div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function LiveWeight({ r, fresh }: { r?: Reading | null; fresh: number }) {
@@ -488,10 +525,42 @@ export function WeighbridgePage({ mode }: { mode?: "gross" | "tare" } = {}) {
   const allowed = (o: string) => !!info?.terminal && ["All", o, ...(o !== "Misc" ? ["Gross and Tare"] : [])].includes(info.terminal.allowed_operations);
   const sim = info?.terminal?.indicator_protocol === "Simulator";
   const run = async (fn: () => Promise<unknown>) => { setBusy(true); try { await fn(); } catch (e) { toast.error(err(e)); } finally { setBusy(false); } };
+  const sensors = !!info?.terminal?.position_sensors;
+  const fresh = !!(reading?.stable && reading.age_s <= (info?.fresh_s ?? 10) && reading.age_s > -5);
+  const platformOk = !sensors || reading?.platform_ok === 1;
+  const ready = !!op && allowed(op) && fresh && platformOk && !(needBody && !bodyOk) && !manual.open;
+  // Auto-weigh: the scanned vehicle has stood still, fully on the deck, for N seconds → the weight is taken by itself.
+  const autoSecs = info?.terminal?.auto_capture ? Math.max(1, info.terminal.auto_capture_seconds || 3) : 0;
+  const [autoLeft, setAutoLeft] = useState<number | null>(null);
+  const [autoOff, setAutoOff] = useState(false);
+  const autoDone = useRef("");
+  useEffect(() => {
+    if (!autoSecs || !ready || autoOff || busy || autoDone.current === `${token}:${op}`) { setAutoLeft(null); return; }
+    let left = autoSecs;
+    setAutoLeft(left);
+    const t = setInterval(() => {
+      left -= 1;
+      if (left <= 0) { clearInterval(t); setAutoLeft(null); autoDone.current = `${token}:${op}`; capture(); } else setAutoLeft(left);
+    }, 1000);
+    return () => clearInterval(t);
+    // restart the count whenever the weight changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoSecs, ready, autoOff, token, op, reading?.weight_kg]);
+  // What the driver / grower sees on the weighbridge display
+  const [lastResult, setLastResult] = useState<Record<string, unknown> | null>(null);
+  useEffect(() => {
+    const term = info?.terminal?.name;
+    if (!term) return;
+    const state = tok && op ? { state: "weighing", stage: op, token: tok.name, vehicle_no: tok.vehicle_no, vehicle_type: tok.vehicle_type, grower_name: tok.grower_name,
+      gross_kg: tok.weighment_doc?.gross_kg } : lastResult ? { state: "done", ...lastResult } : { state: "idle" };
+    post(`sugarcane.api.v1.counter.display_push`, { screen: `wb:${term}`, state: JSON.stringify(state) }).catch(() => {});
+  }, [info?.terminal?.name, tok?.name, op, tok?.weighment_doc?.gross_kg, lastResult]); // eslint-disable-line react-hooks/exhaustive-deps
   const capture = () => run(async () => {
     const r = await post<{ weight_kg: number; cpr?: string; net_kg?: number; weighment: string }>(`${API}.capture`, { token, operation: op,
       ...(op === "Tare" && bodyOk ? { body_match: 1 } : {}), ...(manual.open ? { manual_kg: manual.kg, note: manual.note } : {}) });
     toast.success(op === "Gross" ? `Gross ${num(r.weight_kg)} kg recorded · gross slip printed` : `Tare ${num(r.weight_kg)} kg · net ${num(r.net_kg)} kg · CPR ${r.cpr}`);
+    setLastResult({ stage: op, token, vehicle_no: tok?.vehicle_no, grower_name: tok?.grower_name, weight_kg: r.weight_kg, net_kg: r.net_kg, cpr: r.cpr,
+      gross_kg: op === "Tare" ? tok?.weighment_doc?.gross_kg : r.weight_kg });
     if (op === "Gross") {
       printSlip("gross", r.weighment);
       // Gross done: the vehicle goes to the yard; the screen is ready for the next scan.
@@ -518,6 +587,7 @@ export function WeighbridgePage({ mode }: { mode?: "gross" | "tare" } = {}) {
       <div className="grid gap-4 lg:grid-cols-5">
         <div className="space-y-3 lg:col-span-2">
           <LiveWeight r={reading} fresh={info?.fresh_s ?? 10} />
+          {sensors && <PlatformPanel r={reading} />}
           <CameraWall place="Weighbridge" terminal={info?.terminal?.name} state={camState} cols={2}
             title={`${info?.terminal?.terminal_name ?? "Weighbridge"} cameras — live`} />
           {sim && (
@@ -526,6 +596,8 @@ export function WeighbridgePage({ mode }: { mode?: "gross" | "tare" } = {}) {
               <div className="flex flex-wrap gap-2">
                 <Button variant="outline" size="sm" disabled={!token || !(isDsp ? dsp?.next : op)} onClick={() => run(async () => {
                   await post(`${API}.simulate`, isDsp ? { dispatch: token, operation: dsp?.next } : { token, operation: op }); refetch(); })}>Put the vehicle on</Button>
+                {sensors && <Button variant="outline" size="sm" disabled={!token || !(isDsp ? dsp?.next : op)} onClick={() => run(async () => {
+                  await post(`${API}.simulate`, isDsp ? { dispatch: token, operation: dsp?.next, platform_ok: 0 } : { token, operation: op, platform_ok: 0 }); refetch(); })}>Half on (beam cut)</Button>}
                 <Button variant="outline" size="sm" onClick={() => run(async () => { await post(`${API}.simulate`, { weight_kg: 0, stable: 1 }); refetch(); })}>Empty bridge</Button>
               </div>
             </div>
@@ -582,8 +654,14 @@ export function WeighbridgePage({ mode }: { mode?: "gross" | "tare" } = {}) {
                     </div>
                   )}
                   {op === "Tare" && <GrossVsTare token={tok.name} terminal={info?.terminal?.name} checked={bodyOk} onCheck={setBodyOk} state={camState} />}
+                  {sensors && !manual.open && reading && reading.weight_kg > 0 && !platformOk && (
+                    <Notice tone="bad">Vehicle not fully on the platform{reading.sensors ? ` (${Object.entries(reading.sensors).filter(([, v]) => !v).map(([k]) => k).join(", ")} cut)` : ""} — ask the driver to move forward / back. The weight can't be taken.</Notice>)}
+                  {autoLeft !== null && (
+                    <Notice tone="info"><div className="flex items-center gap-3"><Timer className="size-4" />Auto-weigh in <b className="tabular-nums">{autoLeft} s</b> — vehicle stable and fully on the platform.
+                      <Button size="sm" variant="outline" className="ml-auto" onClick={() => setAutoOff(true)}>Stop auto</Button></div></Notice>)}
+                  {autoOff && autoSecs > 0 && <button type="button" className="text-xs text-primary underline" onClick={() => setAutoOff(false)}>Turn auto-weigh back on</button>}
                   <div className="flex flex-wrap gap-2">
-                    <Button className="h-12 flex-1 text-base" disabled={busy || !allowed(op) || (needBody && !bodyOk) || (!manual.open && !(reading?.stable && reading.age_s <= (info?.fresh_s ?? 10) && reading.age_s > -5))} onClick={capture}>
+                    <Button className="h-12 flex-1 text-base" disabled={busy || !allowed(op) || (needBody && !bodyOk) || (!manual.open && !(fresh && platformOk))} onClick={capture}>
                       <Weight />{busy ? "Saving…" : `Take ${op} weight${manual.open ? ` (${manual.kg || 0} kg typed)` : reading ? ` · ${num(reading.weight_kg)} kg` : ""}`}</Button>
                     {info?.can_manual && <Button variant="outline" className="h-12" onClick={() => setManual({ ...manual, open: !manual.open })}>{manual.open ? "Use the indicator" : "Type the weight"}</Button>}
                   </div>
@@ -674,32 +752,54 @@ interface Bilty { name: string; status: string; cpr: string; token: string; crus
   driver_mobile?: string; payment_mode?: string; wallet_number?: string; wallet_txn_id?: string }
 interface Counter { rows: Bilty[]; paid_today: { n: number; amt: number }; paid_by_me: { n: number; amt: number }; jazzcash_today?: { n: number; amt: number }; unpaid: { n: number; amt: number }; can_pay: boolean; can_reverse: boolean }
 
-function PayDialog({ b, onDone, onClose }: { b: Bilty; onDone: () => void; onClose: () => void }) {
-  const [who, setWho] = useState({ received_by: b.driver_name ?? "", received_by_cnic: b.driver_cnic ?? "" });
+const CAPI = "sugarcane.api.v1.counter";
+interface Session {
+  name: string; counter: string; cashier: string; status: string; opened_at: string; opening_balance: number; received_total: number; returned_total: number;
+  cash_paid_total: number; cash_paid_count: number; jazzcash_total: number; jazzcash_count: number; expected_balance: number;
+  movements: { movement_type: string; amount: number; at: string; reference?: string; journal_entry?: string }[];
+}
+interface CounterStatus {
+  session: Session | null; can_pay: boolean; denominations: number[];
+  counters: { name: string; display_title?: string; open?: { name: string; cashier: string; opened_at: string; expected_balance: number } | null;
+    last_close?: { name: string; counted_balance: number; closed_at: string } | null }[];
+}
+const pushDisplay = (counter: string, state: Record<string, unknown>) =>
+  post(`${CAPI}.display_push`, { screen: `counter:${counter}`, state: JSON.stringify(state) }).catch(() => {});
+
+/** Pay the basket: cash from the till (never more than it holds) or one JazzCash transfer for all of it. */
+function PayDialog({ basket, session, onDone, onClose }: { basket: Bilty[]; session: Session; onDone: () => void; onClose: () => void }) {
+  const first = basket[0];
+  const total = basket.reduce((a, b) => a + b.amount, 0);
+  const drivers = [...new Set(basket.map((b) => b.driver_cnic || b.driver_name))];
+  const [who, setWho] = useState({ received_by: first?.driver_name ?? "", received_by_cnic: first?.driver_cnic ?? "" });
   const [mode, setMode] = useState<"Cash" | "JazzCash">("Cash");
-  const [wallet, setWallet] = useState({ wallet_number: b.driver_mobile ?? "", wallet_txn_id: "" });
+  const [wallet, setWallet] = useState({ wallet_number: first?.driver_mobile ?? "", wallet_txn_id: "" });
   const [busy, setBusy] = useState(false);
+  const short = mode === "Cash" && total > session.expected_balance + 0.001;
   const walletErr = mode === "JazzCash" ? mobileError(wallet.wallet_number) || (!wallet.wallet_number ? "Enter the wallet number" : undefined) : undefined;
   const tidOk = mode === "Cash" || wallet.wallet_txn_id.replace(/[^A-Za-z0-9]/g, "").length >= 6;
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" onClick={onClose}>
       <div className="w-full max-w-md space-y-3 rounded-2xl border bg-card p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
-        <h3 className="text-lg font-semibold">Pay bilty {b.name}</h3>
-        <div className="rounded-xl bg-muted/40 p-3 text-center"><div className="text-3xl font-black tabular-nums">{money(b.amount)}</div>
-          <div className="text-xs text-muted-foreground">{md(b.payable_maund)} md × Rs {b.tpt_rate} · <Plate no={b.vehicle_no} /> · CPR {b.cpr}</div></div>
+        <h3 className="text-lg font-semibold">Pay {basket.length === 1 ? `bilty ${first.name}` : `${basket.length} bilties`}</h3>
+        <div className="rounded-xl bg-muted/40 p-3 text-center"><div className="text-3xl font-black tabular-nums">{money(total)}</div>
+          <div className="text-xs text-muted-foreground">{basket.length === 1 ? <>{md(first.payable_maund)} md × Rs {first.tpt_rate} · <Plate no={first.vehicle_no} /> · CPR {first.cpr}</>
+            : basket.map((b) => b.name).join(" · ")}</div></div>
+        {drivers.length > 1 && <Notice tone="warn">{drivers.length} different drivers — pay one person only (e.g. the transporter), and write who below.</Notice>}
         <div className="grid grid-cols-2 gap-2">
           {(["Cash", "JazzCash"] as const).map((m) => (
             <button key={m} type="button" onClick={() => setMode(m)} className={cn("flex items-center justify-center gap-2 rounded-xl border-2 p-3 text-sm font-bold",
               mode === m ? (m === "JazzCash" ? "border-red-500 bg-red-500/10 text-red-600 dark:text-red-400" : "border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300") : "text-muted-foreground")}>
-              {m === "Cash" ? <Banknote className="size-4" /> : <Smartphone className="size-4" />}{m === "Cash" ? "Cash" : "JazzCash"}</button>
+              {m === "Cash" ? <Banknote className="size-4" /> : <Smartphone className="size-4" />}{m}</button>
           ))}
         </div>
+        {short && <Notice tone="bad">The till holds {money(session.expected_balance)} — receive cash from the strong room first, or pay by JazzCash.</Notice>}
         <label className="block text-xs font-medium text-muted-foreground">Paid to<Input value={who.received_by} onChange={(e) => setWho({ ...who, received_by: e.target.value })} className="mt-1" /></label>
         <label className="block text-xs font-medium text-muted-foreground">CNIC (check the card)<Input value={who.received_by_cnic} onChange={(e) => setWho({ ...who, received_by_cnic: e.target.value })} className="mt-1" /></label>
         {mode === "JazzCash" && (
           <div className="space-y-2 rounded-xl border border-red-500/30 bg-red-500/5 p-3">
-            <p className="text-xs text-muted-foreground">Send <b>{money(b.amount)}</b> from the mill's JazzCash business account to the driver's wallet, then record it here.</p>
-            <label className="block text-xs font-medium text-muted-foreground">Driver's JazzCash wallet no.
+            <p className="text-xs text-muted-foreground">Send <b>{money(total)}</b> from the mill's JazzCash business account to the wallet in one transfer, then record it here.</p>
+            <label className="block text-xs font-medium text-muted-foreground">JazzCash wallet no.
               <Input value={wallet.wallet_number} onChange={(e) => setWallet({ ...wallet, wallet_number: e.target.value })} className={cn("mt-1 font-mono", walletErr && "border-red-500")} placeholder="03XXXXXXXXX" /></label>
             {walletErr && <p className="text-xs text-red-600">{walletErr}</p>}
             <label className="block text-xs font-medium text-muted-foreground">Transaction ID (TID) from JazzCash
@@ -708,14 +808,85 @@ function PayDialog({ b, onDone, onClose }: { b: Bilty; onDone: () => void; onClo
         )}
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={onClose}>Close</Button>
-          <Button disabled={busy || !who.received_by.trim() || !!walletErr || !tidOk} onClick={async () => {
+          <Button disabled={busy || !who.received_by.trim() || short || !!walletErr || !tidOk} onClick={async () => {
             setBusy(true);
             try {
-              await post(`${API}.pay`, { name: b.name, ...who, payment_mode: mode, ...(mode === "JazzCash" ? wallet : {}) });
-              toast.success(mode === "JazzCash" ? `Paid ${money(b.amount)} by JazzCash · TID ${wallet.wallet_txn_id}` : `Paid ${money(b.amount)} in cash`);
-              printSlip("bilty", b.name); onDone();
+              await post(`${CAPI}.pay`, { session: session.name, bilties: JSON.stringify(basket.map((b) => b.name)), ...who, payment_mode: mode, ...(mode === "JazzCash" ? wallet : {}) });
+              toast.success(mode === "JazzCash" ? `Paid ${money(total)} by JazzCash · TID ${wallet.wallet_txn_id}` : `Paid ${money(total)} in cash`);
+              pushDisplay(session.counter, { state: "paid", total, mode, payee: who.received_by, wallet: mode === "JazzCash" ? wallet.wallet_number : undefined,
+                items: basket.map((b) => ({ name: b.name, vehicle_no: b.vehicle_no, amount: b.amount })) });
+              printSlip("bilty", basket.map((b) => b.name).join(","));
+              onDone();
             } catch (e) { toast.error(err(e)); } finally { setBusy(false); }
-          }}>{mode === "JazzCash" ? <Smartphone /> : <Banknote />}{busy ? "Paying…" : mode === "JazzCash" ? "Record JazzCash & print" : "Pay cash & print"}</Button>
+          }}>{mode === "JazzCash" ? <Smartphone /> : <Banknote />}{busy ? "Paying…" : mode === "JazzCash" ? `Record JazzCash ${money(total)} & print` : `Pay ${money(total)} cash & print`}</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Cash received from / returned to the strong room. */
+function MoveDialog({ session, kind, onDone, onClose }: { session: Session; kind: "Received from Strong Room" | "Returned to Strong Room"; onDone: () => void; onClose: () => void }) {
+  const [amount, setAmount] = useState("");
+  const [ref, setRef] = useState("");
+  const [busy, setBusy] = useState(false);
+  const inn = kind.startsWith("Received");
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" onClick={onClose}>
+      <div className="w-full max-w-sm space-y-3 rounded-2xl border bg-card p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <h3 className="text-lg font-semibold">{inn ? "Cash received from the strong room" : "Cash returned to the strong room"}</h3>
+        <p className="text-xs text-muted-foreground">{session.counter} · till now {money(session.expected_balance)}</p>
+        <label className="block text-xs font-medium text-muted-foreground">Amount (Rs)<Input autoFocus value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ""))} className="mt-1 text-right font-mono text-lg" /></label>
+        <label className="block text-xs font-medium text-muted-foreground">Strong room voucher / {inn ? "brought by" : "taken by"}<Input value={ref} onChange={(e) => setRef(e.target.value)} className="mt-1" /></label>
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" onClick={onClose}>Close</Button>
+          <Button disabled={busy || !(Number(amount) > 0)} onClick={async () => {
+            setBusy(true);
+            try { await post(`${CAPI}.move`, { session: session.name, movement_type: kind, amount, reference: ref }); toast.success(`${inn ? "Received" : "Returned"} ${money(Number(amount))}`); onDone(); }
+            catch (e) { toast.error(err(e)); } finally { setBusy(false); }
+          }}>{inn ? <ArrowDownToLine /> : <ArrowUpFromLine />}{inn ? "Receive" : "Return"}</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Count the till by denomination and close the session. */
+function CloseDialog({ session, denoms, onDone, onClose }: { session: Session; denoms: number[]; onDone: () => void; onClose: () => void }) {
+  const [count, setCount] = useState<Record<number, string>>({});
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  const counted = denoms.reduce((a, d) => a + (Number(count[d]) || 0) * (d || 1), 0);
+  const diff = Math.round((counted - session.expected_balance) * 100) / 100;
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" onClick={onClose}>
+      <div className="w-full max-w-md space-y-3 rounded-2xl border bg-card p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <h3 className="text-lg font-semibold">Close {session.counter} — count the cash</h3>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+          {denoms.map((d) => (
+            <label key={d} className="flex items-center gap-2 text-sm">
+              <span className="w-20 text-right font-semibold tabular-nums">{d ? `Rs ${num(d)}` : "Coins (Rs)"}</span><span className="text-muted-foreground">×</span>
+              <Input value={count[d] ?? ""} onChange={(e) => setCount({ ...count, [d]: e.target.value.replace(/\D/g, "") })} className="h-8 w-20 text-right font-mono" />
+            </label>
+          ))}
+        </div>
+        <div className="rounded-xl bg-muted/40 p-3 text-sm">
+          <KV k="Expected in the till" v={money(session.expected_balance)} /><KV k="Counted" v={<b>{money(counted)}</b>} />
+          <KV k={diff < 0 ? "Short" : diff > 0 ? "Excess" : "Difference"} v={<span className={cn("font-bold", diff < 0 ? "text-red-600" : diff > 0 ? "text-amber-600" : "text-emerald-600")}>{money(Math.abs(diff))}</span>} />
+        </div>
+        {diff !== 0 && <label className="block text-xs font-medium text-muted-foreground">Reason for the {diff < 0 ? "shortage" : "excess"} (required)<Input value={note} onChange={(e) => setNote(e.target.value)} className="mt-1" /></label>}
+        <p className="text-xs text-muted-foreground">The counted cash stays in the till as the next opening balance. Return any extra to the strong room before closing.</p>
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" onClick={onClose}>Back</Button>
+          <Button disabled={busy || (diff !== 0 && !note.trim())} onClick={async () => {
+            setBusy(true);
+            try {
+              await post(`${CAPI}.close`, { session: session.name, denominations: JSON.stringify(denoms.map((d) => ({ denomination: d, count: Number(count[d]) || 0 }))), note });
+              toast.success(`${session.counter} closed · ${money(counted)} in the till`);
+              pushDisplay(session.counter, { state: "closed" });
+              onDone();
+            } catch (e) { toast.error(err(e)); } finally { setBusy(false); }
+          }}><Lock />{busy ? "Closing…" : "Close counter"}</Button>
         </div>
       </div>
     </div>
@@ -724,37 +895,121 @@ function PayDialog({ b, onDone, onClose }: { b: Bilty; onDone: () => void; onClo
 
 export function CounterPage() {
   const [params] = useSearchParams();
+  const qc = useQueryClient();
   const [q, setQ] = useState(params.get("q") ?? "");
   const [status, setStatus] = useState("Unpaid");
-  const [paying, setPaying] = useState<Bilty | null>(null);
+  const [basket, setBasket] = useState<Bilty[]>([]);
+  const [dialog, setDialog] = useState<null | "pay" | "in" | "out" | "close">(null);
+  const { data: st, refetch: reSt } = useQuery({ queryKey: ["sc-counter-status"], queryFn: () => get<CounterStatus>(`${CAPI}.status`), refetchInterval: 10_000 });
   const { data, refetch } = useQuery({ queryKey: ["sc-proc-bilties", q, status], queryFn: () => get<Counter>(`${API}.bilties`, { q, status }), refetchInterval: 30_000 });
-  const scanned = useRef("");
+  const ses = st?.session ?? null;
+  const total = basket.reduce((a, b) => a + b.amount, 0);
   useEffect(() => {
-    // A scanned bilty (or its CPR) with one unpaid match opens the payment straight away.
-    const key = q.trim().toUpperCase();
-    const hit = data?.rows.filter((r) => r.status === "Unpaid" && (r.name === key || r.cpr === key));
-    if (data?.can_pay && hit?.length === 1 && scanned.current !== key) { scanned.current = key; setPaying(hit[0]); }
-  }, [data, q]);
+    if (!ses) return;
+    pushDisplay(ses.counter, basket.length ? { state: "basket", total, payee: basket[0].driver_name, cnic: basket[0].driver_cnic,
+      items: basket.map((b) => ({ name: b.name, vehicle_no: b.vehicle_no, amount: b.amount, cpr: b.cpr })) } : { state: "idle" });
+  }, [ses?.counter, basket]); // eslint-disable-line react-hooks/exhaustive-deps
+  const add = (b: Bilty) => {
+    if (b.status !== "Unpaid") { toast.error(`${b.name} is ${b.status}`); return; }
+    if (basket.some((x) => x.name === b.name)) { toast(`${b.name} is already in the basket`); return; }
+    setBasket((x) => [...x, b]);
+  };
+  const scan = async (code: string) => {
+    try { add(await get<Bilty>(`${CAPI}.bilty`, { q: code })); } catch (e) { toast.error(err(e)); }
+  };
+  const done = () => { setDialog(null); reSt(); refetch(); qc.invalidateQueries({ queryKey: ["sc-counter-status"] }); };
   const reverse = async (b: Bilty) => {
     const reason = window.prompt(`Reverse the payment of ${b.name}? Give the reason:`);
     if (!reason) return;
-    try { await post(`${API}.reverse`, { name: b.name, reason }); toast.success("Payment reversed"); refetch(); } catch (e) { toast.error(err(e)); }
+    try { await post(`${API}.reverse`, { name: b.name, reason }); toast.success("Payment reversed"); done(); } catch (e) { toast.error(err(e)); }
   };
   return (
     <div className="space-y-5 p-4 sm:p-6">
-      <Header title="TPT cash counter" sub="Scan the bilty and pay the driver's carriage (TPT) in cash or by JazzCash. Each payment posts Dr TPT-Bilty Payable / Cr Cash Counter or JazzCash Wallet." />
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard icon={Hourglass} label="Unpaid bilties" value={money(data?.unpaid.amt ?? 0)} color={C.amber} sub={`${num(data?.unpaid.n)} bilties`} />
-        <KpiCard icon={Wallet} label="Paid today (counter)" value={money(data?.paid_today.amt ?? 0)} color={C.green} sub={`${num(data?.paid_today.n)} bilties`} />
-        <KpiCard icon={Banknote} label="Cash paid today by me" value={money(data?.paid_by_me.amt ?? 0)} color={C.teal} sub={`${num(data?.paid_by_me.n)} bilties — count your cash`} />
-        <KpiCard icon={Smartphone} label="JazzCash today" value={money(data?.jazzcash_today?.amt ?? 0)} color={C.red} sub={`${num(data?.jazzcash_today?.n ?? 0)} bilties to wallets`} />
-      </div>
+      <Header title={ses ? `${ses.counter} · TPT cash counter` : "TPT cash counter"}
+        sub={ses ? `Session ${ses.name} · ${ses.cashier} · opened ${fmt(ses.opened_at)}` : "Open a counter to start: the opening balance is carried from that counter's last close."}>
+        {ses && <a href={`/sugar/display?screen=${encodeURIComponent(`counter:${ses.counter}`)}`} target="_blank" rel="noreferrer"
+          className="inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm font-medium hover:bg-muted"><MonitorSmartphone className="size-4" />Payee display</a>}
+      </Header>
+
+      {!ses && st && (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {st.counters.map((k) => (
+            <section key={k.name} className="rounded-2xl border bg-card p-4 shadow-sm">
+              <div className="flex items-center gap-2"><Wallet className="size-5 text-primary" /><h3 className="font-semibold">{k.name}</h3>
+                {k.open ? <Badge tone="amber" className="ml-auto">Open · {k.open.cashier}</Badge> : <Badge tone="gray" className="ml-auto">Closed</Badge>}</div>
+              <div className="mt-3">
+                <KV k="Last close (opening balance)" v={money(k.last_close?.counted_balance ?? 0)} />
+                <KV k="Closed" v={k.last_close ? fmt(k.last_close.closed_at) : "—"} />
+                {k.open && <KV k="In the till now" v={money(k.open.expected_balance)} />}
+              </div>
+              <Button className="mt-3 w-full" disabled={!!k.open || !st.can_pay} onClick={async () => {
+                try { await post(`${CAPI}.open_counter`, { counter: k.name }); toast.success(`${k.name} opened`); reSt(); } catch (e) { toast.error(err(e)); }
+              }}><Unlock />{k.open ? "In use" : "Open this counter"}</Button>
+            </section>
+          ))}
+        </div>
+      )}
+
+      {ses && (
+        <>
+          <div className="grid gap-3 lg:grid-cols-[1.4fr_1fr]">
+            <section className="rounded-2xl border bg-card p-4 shadow-sm">
+              <div className="mb-2 flex items-center gap-2 text-sm font-semibold"><Wallet className="size-4" />Till — petty cash</div>
+              <div className="grid gap-2 sm:grid-cols-5">
+                {[["Opening", ses.opening_balance, ""], ["+ From strong room", ses.received_total, "text-emerald-600"], ["− To strong room", ses.returned_total, "text-amber-600"],
+                  [`− Cash paid (${ses.cash_paid_count})`, ses.cash_paid_total, "text-red-600"]].map(([l, v, c]) => (
+                  <div key={l as string} className="rounded-xl bg-muted/40 p-2.5"><div className="text-[11px] text-muted-foreground">{l}</div><div className={cn("text-lg font-bold tabular-nums", c as string)}>{money(v as number)}</div></div>
+                ))}
+                <div className="rounded-xl border-2 border-emerald-500 bg-emerald-500/10 p-2.5"><div className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">= Current balance</div>
+                  <div className="text-xl font-black tabular-nums text-emerald-700 dark:text-emerald-300">{money(ses.expected_balance)}</div></div>
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                <Smartphone className="size-3.5 text-red-500" />JazzCash this session: <b className="text-foreground">{money(ses.jazzcash_total)}</b> ({ses.jazzcash_count}) — not from the till
+                <span className="ml-auto flex flex-wrap gap-2">
+                  <Button size="sm" variant="outline" onClick={() => setDialog("in")}><ArrowDownToLine />Receive from strong room</Button>
+                  <Button size="sm" variant="outline" onClick={() => setDialog("out")}><ArrowUpFromLine />Return to strong room</Button>
+                  <Button size="sm" variant="outline" onClick={() => setDialog("close")}><Lock />Close counter</Button>
+                </span>
+              </div>
+              {ses.movements.length > 0 && (
+                <div className="mt-2 text-xs text-muted-foreground">{ses.movements.map((m, i) => (
+                  <span key={i} className="mr-3 inline-block">{m.movement_type.startsWith("Received") ? "↓" : "↑"} {money(m.amount)} · {fmt(m.at)}{m.reference ? ` · ${m.reference}` : ""}</span>))}</div>
+              )}
+            </section>
+            <section className="rounded-2xl border-2 border-primary/40 bg-card p-4 shadow-sm">
+              <div className="mb-2 flex items-center gap-2 text-sm font-semibold"><ScanBarcode className="size-4" />Scan bilties to pay
+                <span className="ml-auto text-xs font-normal text-muted-foreground">bilty no. or CPR</span></div>
+              <Scan onFind={scan} placeholder="Scan bilty (BLT-…) or CPR" />
+              <ul className="mt-2 max-h-56 divide-y overflow-y-auto">
+                {basket.map((b) => (
+                  <li key={b.name} className="flex items-center gap-2 py-1.5 text-sm">
+                    <span className="font-mono text-xs font-semibold">{b.name}</span><Plate no={b.vehicle_no} />
+                    <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">{b.driver_name}</span>
+                    <b className="tabular-nums">{money(b.amount)}</b>
+                    <button type="button" title="Remove" onClick={() => setBasket((x) => x.filter((y) => y.name !== b.name))} className="text-muted-foreground hover:text-red-600"><X className="size-4" /></button>
+                  </li>
+                ))}
+                {!basket.length && <li className="py-6 text-center text-sm text-muted-foreground">Scan one or more bilties — they add up here.</li>}
+              </ul>
+              <div className="mt-2 flex items-center gap-2 border-t pt-2">
+                <span className="text-sm text-muted-foreground">{basket.length} {basket.length === 1 ? "bilty" : "bilties"}</span>
+                <span className="ml-auto text-2xl font-black tabular-nums">{money(total)}</span>
+              </div>
+              <div className="mt-2 flex gap-2">
+                <Button variant="outline" disabled={!basket.length} onClick={() => setBasket([])}>Clear</Button>
+                <Button className="h-11 flex-1" disabled={!basket.length || !st?.can_pay} onClick={() => setDialog("pay")}><Banknote />Pay {basket.length > 1 ? `${basket.length} bilties` : ""} {money(total)}</Button>
+              </div>
+            </section>
+          </div>
+        </>
+      )}
+
       <div className="flex flex-wrap items-center gap-2">
         {[["Unpaid", "Unpaid"], ["Paid", "Paid"], ["", "All"]].map(([s, l]) => (
           <button key={s} type="button" onClick={() => setStatus(s)} className={cn("rounded-full border px-3 py-1 text-xs font-medium", status === s ? "border-primary/40 bg-primary/10 text-primary" : "text-muted-foreground")}>{l}</button>
         ))}
-        <div className="relative ml-auto"><ScanBarcode className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Scan bilty / CPR, vehicle no., driver CNIC…" className="h-10 w-80 pl-8 font-mono" /></div>
+        <div className="relative ml-auto"><Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find: bilty / CPR, vehicle no., driver CNIC…" className="h-10 w-80 pl-8 font-mono" /></div>
       </div>
       <ChartCard title="Bilties" bodyClass="h-auto">
         <DataTable rows={data?.rows ?? []} rowKey={(r) => r.name} dense cols={[
@@ -767,7 +1022,7 @@ export function CounterPage() {
           { key: "amount", label: "Amount", align: "right", value: (r) => r.amount, render: (r) => <b>{money(r.amount)}</b> },
           { key: "status", label: "", value: (r) => r.status, render: (r) => (
             <div className="flex items-center justify-end gap-2">
-              {r.status === "Unpaid" && data?.can_pay && <Button size="sm" onClick={() => setPaying(r)}><Banknote />Pay</Button>}
+              {r.status === "Unpaid" && ses && st?.can_pay && <Button size="sm" variant="outline" disabled={basket.some((x) => x.name === r.name)} onClick={() => add(r)}><Plus />Add</Button>}
               {r.status === "Paid" && <Badge tone={r.payment_mode === "JazzCash" ? "red" : "green"} title={`${r.received_by ?? ""} ${fmt(r.paid_at)}${r.wallet_txn_id ? ` · TID ${r.wallet_txn_id}` : ""}`}>
                 {r.payment_mode === "JazzCash" ? "JazzCash" : "Cash"} {fmt(r.paid_at)}</Badge>}
               {r.status === "Paid" && data?.can_reverse && <button type="button" title="Reverse payment" onClick={() => reverse(r)} className="text-muted-foreground hover:text-red-600"><RotateCcw className="size-4" /></button>}
@@ -775,7 +1030,9 @@ export function CounterPage() {
             </div>) },
         ]} />
       </ChartCard>
-      {paying && <PayDialog b={paying} onClose={() => setPaying(null)} onDone={() => { setPaying(null); refetch(); }} />}
+      {ses && dialog === "pay" && <PayDialog basket={basket} session={ses} onClose={() => setDialog(null)} onDone={() => { setBasket([]); done(); }} />}
+      {ses && (dialog === "in" || dialog === "out") && <MoveDialog session={ses} kind={dialog === "in" ? "Received from Strong Room" : "Returned to Strong Room"} onClose={() => setDialog(null)} onDone={done} />}
+      {ses && dialog === "close" && <CloseDialog session={ses} denoms={st?.denominations ?? [5000, 1000, 500, 100, 50, 20, 10, 0]} onClose={() => setDialog(null)} onDone={done} />}
     </div>
   );
 }

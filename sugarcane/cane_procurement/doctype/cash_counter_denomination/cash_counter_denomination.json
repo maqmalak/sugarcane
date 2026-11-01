@@ -1,0 +1,45 @@
+{
+ "actions": [],
+ "creation": "2026-11-01 22:00:00.000000",
+ "modified": "2026-11-01 22:00:00.000000",
+ "modified_by": "Administrator",
+ "owner": "Administrator",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "module": "Cane Procurement",
+ "name": "Cash Counter Denomination",
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "states": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "track_changes": 1,
+ "field_order": [
+  "denomination",
+  "count",
+  "amount"
+ ],
+ "fields": [
+  {
+   "fieldname": "denomination",
+   "fieldtype": "Int",
+   "label": "Note (Rs) — 0 = coins",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "count",
+   "fieldtype": "Int",
+   "label": "Count",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "Amount",
+   "in_list_view": 1
+  }
+ ],
+ "permissions": [],
+ "istable": 1,
+ "editable_grid": 1
+}

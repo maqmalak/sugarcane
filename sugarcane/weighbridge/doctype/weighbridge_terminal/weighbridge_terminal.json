@@ -20,6 +20,10 @@
   "indicator_protocol",
   "indicator_port",
   "lcd_port",
+  "sb_platform",
+  "position_sensors",
+  "auto_capture",
+  "auto_capture_seconds",
   "cb_hw",
   "camera_front_url",
   "camera_rear_url",
@@ -115,6 +119,30 @@
    "label": "LCD Display Port"
   },
   {
+   "fieldname": "sb_platform",
+   "fieldtype": "Section Break",
+   "label": "Platform sensors & auto-weigh"
+  },
+  {
+   "fieldname": "position_sensors",
+   "fieldtype": "Check",
+   "label": "Platform position sensors fitted",
+   "description": "Beams / loops at both ends of the deck: the indicator agent sends platform_ok=1 only when the whole vehicle is on the platform. A weight is refused while it is not."
+  },
+  {
+   "fieldname": "auto_capture",
+   "fieldtype": "Check",
+   "label": "Auto-weigh",
+   "description": "Take the weight by itself once the scanned vehicle is stable (and the platform is OK) for the seconds below"
+  },
+  {
+   "fieldname": "auto_capture_seconds",
+   "fieldtype": "Int",
+   "label": "Auto-weigh after (seconds stable)",
+   "default": "3",
+   "depends_on": "auto_capture"
+  },
+  {
    "fieldname": "cb_hw",
    "fieldtype": "Column Break"
   },
@@ -136,7 +164,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-10-13 12:00:00.000000",
+ "modified": "2026-11-01 22:30:00.000000",
  "modified_by": "Administrator",
  "module": "Weighbridge",
  "name": "Weighbridge Terminal",

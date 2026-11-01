@@ -1,0 +1,69 @@
+{
+ "actions": [],
+ "creation": "2026-11-01 22:00:00.000000",
+ "modified": "2026-11-01 22:00:00.000000",
+ "modified_by": "Administrator",
+ "owner": "Administrator",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "module": "Cane Procurement",
+ "name": "Cash Counter Movement",
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "states": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "track_changes": 1,
+ "field_order": [
+  "movement_type",
+  "amount",
+  "at",
+  "reference",
+  "by_user",
+  "journal_entry"
+ ],
+ "fields": [
+  {
+   "fieldname": "movement_type",
+   "fieldtype": "Select",
+   "options": "Received from Strong Room\nReturned to Strong Room",
+   "label": "Movement",
+   "in_list_view": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "Amount",
+   "in_list_view": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "at",
+   "fieldtype": "Datetime",
+   "label": "At",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "reference",
+   "fieldtype": "Data",
+   "label": "Voucher / brought by",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "by_user",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Cashier"
+  },
+  {
+   "fieldname": "journal_entry",
+   "fieldtype": "Link",
+   "options": "Journal Entry",
+   "label": "Journal Entry"
+  }
+ ],
+ "permissions": [],
+ "istable": 1,
+ "editable_grid": 0
+}

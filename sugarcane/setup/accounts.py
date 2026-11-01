@@ -74,6 +74,9 @@ def setup_company(company: str) -> dict:
 		"transit_shortage_account": _account(company, abbr, "Cane Transit Shortage", cost_of_sales),
 		"cane_bank_account": _account(company, abbr, "Cane Payments Bank", _group(company, "Bank Accounts", root_type="Asset"), "Bank"),
 		"jazzcash_account": _account(company, abbr, "JazzCash Wallet - TPT", _group(company, "Bank Accounts", root_type="Asset"), "Bank"),
+		"strong_room_account": _account(company, abbr, "Strong Room Cash - Cane", cash, "Cash"),
+		"cash_short_excess_account": _account(company, abbr, "Cash Short and Excess - Cane",
+			_group(company, "Indirect Expenses", "Direct Expenses", root_type="Expense")),
 		"markup_income_account": _account(company, abbr, "Loan Markup Income", _group(company, "Indirect Income", "Direct Income",
 			root_type="Income"), "Income Account"),
 	}

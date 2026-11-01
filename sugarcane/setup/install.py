@@ -39,6 +39,9 @@ def after_migrate():
 		from sugarcane.setup.accounts import setup_company
 
 		setup_company(company)
+		from sugarcane.cane_procurement.counter import ensure_counters
+
+		ensure_counters(company)
 		from sugarcane.setup.erp_config import configure
 
 		configure(company)

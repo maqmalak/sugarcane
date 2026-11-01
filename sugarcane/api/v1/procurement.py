@@ -142,7 +142,7 @@ def terminal() -> dict:
 		frappe.clear_last_message()
 		return {"terminal": None, "error": str(e), "ip": getattr(frappe.local, "request_ip", None)}
 	info = frappe.db.get_value("Weighbridge Terminal", t.name, ["name", "terminal_name", "weighbridge_no", "allowed_operations",
-		"indicator_protocol", "lane", "camera_front_url", "depot"], as_dict=True)
+		"indicator_protocol", "lane", "camera_front_url", "depot", "position_sensors", "auto_capture", "auto_capture_seconds"], as_dict=True)
 	cfg = p.settings()
 	return {"terminal": info, "reading": p.latest_reading(t.name), "fresh_s": cfg.fresh_s, "min_kg": cfg.min_kg,
 		"ip": getattr(frappe.local, "request_ip", None), "can_manual": bool(p.MANUAL_ROLES & set(frappe.get_roles())),
@@ -153,18 +153,18 @@ def terminal() -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
-def reading(weight_kg, stable=1, raw=None) -> dict:
-	"""Indicator agent → server, several times a second."""
-	return p.post_reading(weight_kg, stable, raw)
+def reading(weight_kg, stable=1, raw=None, platform_ok=None, sensors=None) -> dict:
+	"""Indicator agent → server, several times a second. `platform_ok` (1/0) from the deck's position sensors, when fitted."""
+	return p.post_reading(weight_kg, stable, raw, platform_ok=platform_ok, sensors=sensors)
 
 
 @frappe.whitelist(methods=["POST"])
-def simulate(token=None, operation=None, weight_kg=None, stable=1, dispatch=None) -> dict:
+def simulate(token=None, operation=None, weight_kg=None, stable=1, dispatch=None, platform_ok=1) -> dict:
 	from sugarcane.weighbridge.doctype.weighbridge_terminal.weighbridge_terminal import terminal_for_request
 
 	p.need(p.WEIGH_ROLES, _("use the weighbridge"))
 	vt = frappe.db.get_value("Depot Dispatch", dispatch, "vehicle_type") if dispatch else None
-	return p.simulate(terminal_for_request().name, token or None, operation, weight_kg, stable, vehicle_type=vt)
+	return p.simulate(terminal_for_request().name, token or None, operation, weight_kg, stable, vehicle_type=vt, platform_ok=platform_ok)
 
 
 @frappe.whitelist(methods=["POST"])
@@ -341,8 +341,9 @@ def slip(kind: str, name: str):
 
 	if kind not in KINDS:
 		frappe.throw(_("Unknown slip"))
-	frappe.local.response.filename = f"{KINDS[kind][0]} {name}.pdf"
-	frappe.local.response.filecontent = render(kind, [name])
+	names = [n.strip() for n in name.split(",") if n.strip()]  # several slips in one PDF (a basket of bilties)
+	frappe.local.response.filename = f"{KINDS[kind][0]} {names[0]}{' +' + str(len(names) - 1) if len(names) > 1 else ''}.pdf"
+	frappe.local.response.filecontent = render(kind, names)
 	frappe.local.response.type = "download"
 
 

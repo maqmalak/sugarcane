@@ -65,6 +65,8 @@
   "grower_loan_account",
   "cash_counter_account",
   "jazzcash_account",
+  "strong_room_account",
+  "cash_short_excess_account",
   "sb_cost",
   "cane_purchase_govt_account",
   "subsidy_purchase_account",
@@ -508,6 +510,20 @@
    "options": "Account",
    "label": "JazzCash Wallet (TPT) Account",
    "description": "Bilties paid by JazzCash are credited here (Bank type account for the mill's JazzCash business wallet)"
+  },
+  {
+   "fieldname": "strong_room_account",
+   "fieldtype": "Link",
+   "options": "Account",
+   "label": "Strong Room Cash Account",
+   "description": "Cash counters receive their cash from / return it to this account"
+  },
+  {
+   "fieldname": "cash_short_excess_account",
+   "fieldtype": "Link",
+   "options": "Account",
+   "label": "Cash Short & Excess Account",
+   "description": "Counter shortages / excesses found at close"
   },
   {
    "fieldname": "sb_cost",
@@ -1000,7 +1016,7 @@
  "index_web_pages_for_search": 0,
  "issingle": 1,
  "links": [],
- "modified": "2026-11-01 21:00:00.000000",
+ "modified": "2026-11-01 22:00:00.000000",
  "modified_by": "Administrator",
  "module": "Sugarcane",
  "name": "Sugar Settings",

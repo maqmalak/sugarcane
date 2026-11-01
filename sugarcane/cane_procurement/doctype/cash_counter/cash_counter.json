@@ -1,0 +1,124 @@
+{
+ "actions": [],
+ "creation": "2026-11-01 22:00:00.000000",
+ "modified": "2026-11-01 22:00:00.000000",
+ "modified_by": "Administrator",
+ "owner": "Administrator",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "module": "Cane Procurement",
+ "name": "Cash Counter",
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "states": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "track_changes": 1,
+ "field_order": [
+  "counter_name",
+  "cash_account",
+  "is_active",
+  "cb1",
+  "display_title",
+  "display_note"
+ ],
+ "fields": [
+  {
+   "fieldname": "counter_name",
+   "fieldtype": "Data",
+   "label": "Counter",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cash_account",
+   "fieldtype": "Link",
+   "options": "Account",
+   "label": "Cash Account",
+   "reqd": 1,
+   "in_list_view": 1,
+   "description": "The till's own cash ledger (Cash type)"
+  },
+  {
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Active",
+   "default": "1",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "display_title",
+   "fieldtype": "Data",
+   "label": "Display Title",
+   "description": "Shown on the payee display, e.g. TPT Counter 1"
+  },
+  {
+   "fieldname": "display_note",
+   "fieldtype": "Small Text",
+   "label": "Display Note",
+   "description": "Shown on the payee display between payments"
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "share": 1,
+   "email": 1
+  },
+  {
+   "role": "Cane Admin",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "share": 1,
+   "email": 1
+  },
+  {
+   "role": "Cane Manager",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1
+  },
+  {
+   "role": "Cane Cashier",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1
+  },
+  {
+   "role": "Cane Accountant",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1
+  },
+  {
+   "role": "MIS Viewer",
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "export": 1
+  }
+ ],
+ "autoname": "field:counter_name",
+ "naming_rule": "By fieldname",
+ "description": "A cash counter (till) at the mill: TPT bilties are paid from it."
+}

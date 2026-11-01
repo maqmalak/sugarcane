@@ -449,20 +449,27 @@ def latest_reading(terminal: str) -> dict | None:
 	return r
 
 
-def post_reading(weight_kg, stable=1, raw=None, source="Indicator", terminal=None) -> dict:
+def post_reading(weight_kg, stable=1, raw=None, source="Indicator", terminal=None, platform_ok=None, sensors=None) -> dict:
 	"""From the terminal's indicator agent (or the simulator), several times a second. Kept in the cache; a reading is
 	written to the Weighment Reading Log when a weighment uses it."""
 	from sugarcane.weighbridge.doctype.weighbridge_terminal.weighbridge_terminal import terminal_for_request
 
 	t = terminal or terminal_for_request().name
 	reading = {"weight_kg": cint(weight_kg), "stable": cint(stable), "raw": (raw or "")[:140], "source": source,
-		"at": str(now_datetime()), "ip": getattr(frappe.local, "request_ip", None), "user": frappe.session.user}
+		"at": str(now_datetime()), "ip": getattr(frappe.local, "request_ip", None), "user": frappe.session.user,
+		# position sensors: 1 = whole vehicle on the deck, 0 = overhanging / not on, None = no sensors reported
+		"platform_ok": None if platform_ok in (None, "") else cint(platform_ok),
+		# each beam: {"Entry-1": 1 clear / 0 cut, …} so the screen can show which one the vehicle is cutting
+		"sensors": (json.loads(sensors) if isinstance(sensors, str) else sensors) or None}
+	if reading["sensors"] and reading["platform_ok"] is None:
+		reading["platform_ok"] = int(all(cint(v) for v in reading["sensors"].values()))
 	_cache_reading(t, reading)
 	frappe.publish_realtime("sugarcane_weight", {"terminal": t, **reading}, after_commit=False)
 	return reading
 
 
-def simulate(terminal: str, token: str | None = None, operation: str | None = None, weight_kg=None, stable=1, vehicle_type=None) -> dict:
+def simulate(terminal: str, token: str | None = None, operation: str | None = None, weight_kg=None, stable=1, vehicle_type=None,
+		platform_ok=1) -> dict:
 	"""Simulator terminals only: put a weight on the bridge. Without a weight, a plausible one for the token's (or the given)
 	vehicle type; `operation` is Gross / Tare or a dispatch step (Depot Tare, Mill Gross, …)."""
 	if frappe.db.get_value("Weighbridge Terminal", terminal, "indicator_protocol") != "Simulator":
@@ -476,7 +483,17 @@ def simulate(terminal: str, token: str | None = None, operation: str | None = No
 			lo, hi = cint(vt.get("min_gross_kg")) or 6000, cint(vt.get("max_gross_kg")) or 20000
 			lo, hi = lo + (hi - lo) // 4, hi - (hi - lo) // 5
 		weight_kg = round(random.randint(lo, hi), -1)
-	return post_reading(cint(weight_kg), stable, f"SIM {cint(weight_kg):>7}kg {'ST' if cint(stable) else 'US'}", "Simulator", terminal)
+	fitted = cint(frappe.db.get_value("Weighbridge Terminal", terminal, "position_sensors"))
+	ok = cint(platform_ok) if cint(weight_kg) else 1  # empty deck: every beam clear
+	beams = {b: 1 for b in SIM_BEAMS}
+	if fitted and not ok:
+		beams["Exit-2"] = beams["Exit-3"] = 0  # the trolley overhangs the exit end
+	return post_reading(cint(weight_kg), stable, f"SIM {cint(weight_kg):>7}kg {'ST' if cint(stable) else 'US'}", "Simulator", terminal,
+		platform_ok=(ok if cint(weight_kg) else 0) if fitted else None, sensors=beams if fitted else None)
+
+
+# The fraud-prevention layout: three floor beams across each end of the deck, and two 5 ft pole beams.
+SIM_BEAMS = ("Entry-1", "Entry-2", "Entry-3", "Exit-1", "Exit-2", "Exit-3", "Pole-L", "Pole-R")
 
 
 def _limits(vehicle_type, operation, kg) -> str | None:
@@ -511,6 +528,9 @@ def take_weight(t: str, label: str, manual_kg=None, note=None, at=None, vehicle_
 		if reading["age_s"] > cfg.fresh_s and not at:
 			frappe.throw(_("The last reading from {0} is {1} s old. Is the indicator agent running?").format(t, int(reading["age_s"])),
 				title=_("Old reading"))
+		if not at and cint(frappe.db.get_value("Weighbridge Terminal", t, "position_sensors")) and cint(reading.get("platform_ok") or 0) != 1:
+			frappe.throw(_("The vehicle is not fully on the platform (position sensors). Move it forward / back until the platform shows OK."),
+				title=_("Platform not OK"))
 	kg = cint(reading["weight_kg"])
 	if kg < cfg.min_kg:
 		frappe.throw(_("{0} kg is below the lowest weight accepted ({1} kg) — is the vehicle on the bridge?").format(kg, cfg.min_kg))
@@ -671,7 +691,7 @@ PAY_MODES = ("Cash", "JazzCash")
 
 
 def pay_bilty(name: str, received_by: str | None = None, received_by_cnic: str | None = None, paid_at=None, payment_mode="Cash",
-		wallet_number=None, wallet_txn_id=None):
+		wallet_number=None, wallet_txn_id=None, session=None, batch=None):
 	"""Pay the driver's carriage: cash from the counter, or JazzCash from the mill's business wallet (the cashier sends it in the
 	JazzCash app / portal and records the driver's wallet number and the transaction ID it shows)."""
 	from sugarcane.calc.identity import FormatError, normalize_mobile
@@ -684,7 +704,17 @@ def pay_bilty(name: str, received_by: str | None = None, received_by_cnic: str |
 	b = frappe.get_doc("TPT Bilty", name)
 	if b.docstatus != 1 or b.status != "Unpaid":
 		frappe.throw(_("Bilty {0} is {1}").format(name, _(b.status if b.docstatus == 1 else "not submitted")))
-	credit = cfg.jazzcash_account if payment_mode == "JazzCash" else cfg.cash_account
+	# Live payments are made at an open cash counter session (its till pays the cash); back-dated / demo ones post to the
+	# default cash counter account.
+	counter = None
+	if session:
+		counter = frappe.db.get_value("Cash Counter Session", {"name": session, "status": "Open"}, "counter")
+		if not counter:
+			frappe.throw(_("Counter session {0} is not open").format(session))
+	elif not paid_at:
+		frappe.throw(_("Open your cash counter first (Cash Counter 1, 2 …)"), title=_("Counter not open"))
+	till = frappe.db.get_value("Cash Counter", counter, "cash_account") if counter else None
+	credit = cfg.jazzcash_account if payment_mode == "JazzCash" else (till or cfg.cash_account)
 	if not credit or not cfg.tpt_account:
 		frappe.throw(_("Set the TPT-Bilty Payable and {0} accounts in Sugar Settings").format(
 			_("JazzCash Wallet") if payment_mode == "JazzCash" else _("Cash Counter")))
@@ -698,7 +728,8 @@ def pay_bilty(name: str, received_by: str | None = None, received_by_cnic: str |
 		wallet_txn_id = "".join(ch for ch in str(wallet_txn_id or "") if ch.isalnum()).upper()
 		if len(wallet_txn_id) < 6:
 			frappe.throw(_("Enter the JazzCash transaction ID (TID) shown after sending the money"))
-		used = frappe.db.get_value("TPT Bilty", {"wallet_txn_id": wallet_txn_id, "name": ("!=", name)})
+		used = frappe.db.get_value("TPT Bilty", {"wallet_txn_id": wallet_txn_id, "name": ("!=", name),
+			"payment_batch": ("!=", batch or "-")})
 		if used:
 			frappe.throw(_("Transaction ID {0} is already recorded on bilty {1}").format(wallet_txn_id, used), title=_("Duplicate TID"))
 	else:
@@ -718,7 +749,8 @@ def pay_bilty(name: str, received_by: str | None = None, received_by_cnic: str |
 	je.submit()
 	b.db_set({"status": "Paid", "paid_at": at, "paid_by": frappe.session.user, "payment_journal_entry": je.name,
 		"received_by": received_by or b.driver_name, "received_by_cnic": received_by_cnic or b.driver_cnic,
-		"payment_mode": payment_mode, "wallet_number": wallet_number, "wallet_txn_id": wallet_txn_id})
+		"payment_mode": payment_mode, "wallet_number": wallet_number, "wallet_txn_id": wallet_txn_id,
+		"cash_counter": counter, "counter_session": session, "payment_batch": batch})
 	return b
 
 
@@ -734,7 +766,8 @@ def reverse_bilty_payment(name: str, reason: str):
 	je.flags.ignore_permissions = True
 	je.cancel()
 	b.db_set({"status": "Unpaid", "paid_at": None, "paid_by": None, "payment_journal_entry": None, "received_by": None,
-		"received_by_cnic": None, "payment_mode": None, "wallet_number": None, "wallet_txn_id": None})
+		"received_by_cnic": None, "payment_mode": None, "wallet_number": None, "wallet_txn_id": None, "cash_counter": None,
+		"counter_session": None, "payment_batch": None})
 	b.add_comment("Info", _("Payment reversed ({0}): {1}").format(je.name, frappe.utils.escape_html(reason)))
 	return b
 

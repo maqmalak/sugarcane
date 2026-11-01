@@ -275,11 +275,11 @@ function OfferCard({ o, types, onIssued, depot }: { o: Offer; types: VType[]; on
             <label className="block text-xs font-medium text-muted-foreground">Driver CNIC<Input value={v.driver_cnic}
               onChange={(e) => { setV({ ...v, driver_cnic: e.target.value, driver: "" }); setDrv({ state: "idle" }); }}
               onBlur={() => !cnicError(v.driver_cnic) && v.driver_cnic && !v.driver && findDriver(v.driver_cnic, "cnic")}
-              className={cn("mt-1", cnicErr && "border-red-500")} placeholder="33100-8680138-5" /></label>
+              className={cn("mt-1", cnicErr && "border-red-500")} placeholder="#####-#######-#" /></label>
           </div>
           {cnicErr && <p className="text-xs text-red-600">{cnicErr}</p>}
           <label className="block text-xs font-medium text-muted-foreground">Driver mobile<Input value={v.driver_mobile} onChange={(e) => setV({ ...v, driver_mobile: e.target.value })}
-            className={cn("mt-1", mobErr && "border-red-500")} placeholder="03007212058" /></label>
+            className={cn("mt-1", mobErr && "border-red-500")} placeholder="03XXXXXXXXX" /></label>
           {mobErr && <p className="text-xs text-red-600">{mobErr}</p>}
           {drv.msg && <Notice tone={drv.state === "found" ? "good" : drv.state === "new" ? "info" : "bad"}>{drv.msg}</Notice>}
         </div>
@@ -452,13 +452,14 @@ export function WeighbridgePage() {
   const [token, setToken] = useState(params.get("no") ?? "");
   const [scanned, setScanned] = useState("");
   const [bodyOk, setBodyOk] = useState(false);
+  const [lastGross, setLastGross] = useState<{ vehicle: string; kg: number; slip: string; token: string } | null>(null);
   const onScan = async (q: string) => {
     const x = q.trim().toUpperCase();
     if (!x) return;
     if (x.startsWith("DSP-")) { setToken(x); setScanned(""); return; }
     try {
       const r = await get<{ token: string; scanned: string }>(`${API}.scan`, { q: x });
-      setToken(r.token); setBodyOk(false);
+      setToken(r.token); setBodyOk(false); setLastGross(null);
       setScanned(r.token !== x ? `${x} → token ${r.token}` : "");
     } catch (e) { toast.error(err(e)); }
   };
@@ -474,6 +475,8 @@ export function WeighbridgePage() {
   const op = tok?.status === "Issued" ? "Gross" : tok?.status === "Gross" ? "Tare" : null;
   const { data: snaps } = useSnapshots(!isDsp && op === "Tare" ? token : null);
   const needBody = op === "Tare" && Object.values(snaps?.Gross ?? {}).some((x) => x.photo);
+  const maxTare = tok?.vehicle_limits?.max_tare_kg;
+  const camState: "loaded" | "empty" = tok?.status === "Completed" ? "empty" : op !== "Tare" ? "loaded" : reading && maxTare && reading.weight_kg > maxTare ? "loaded" : "empty";
   const allowed = (o: string) => !!info?.terminal && ["All", o, ...(o !== "Misc" ? ["Gross and Tare"] : [])].includes(info.terminal.allowed_operations);
   const sim = info?.terminal?.indicator_protocol === "Simulator";
   const run = async (fn: () => Promise<unknown>) => { setBusy(true); try { await fn(); } catch (e) { toast.error(err(e)); } finally { setBusy(false); } };
@@ -481,7 +484,12 @@ export function WeighbridgePage() {
     const r = await post<{ weight_kg: number; cpr?: string; net_kg?: number; weighment: string }>(`${API}.capture`, { token, operation: op,
       ...(op === "Tare" && bodyOk ? { body_match: 1 } : {}), ...(manual.open ? { manual_kg: manual.kg, note: manual.note } : {}) });
     toast.success(op === "Gross" ? `Gross ${num(r.weight_kg)} kg recorded · gross slip printed` : `Tare ${num(r.weight_kg)} kg · net ${num(r.net_kg)} kg · CPR ${r.cpr}`);
-    if (op === "Gross") printSlip("gross", r.weighment);
+    if (op === "Gross") {
+      printSlip("gross", r.weighment);
+      // Gross done: the vehicle goes to the yard; the screen is ready for the next scan.
+      setLastGross({ vehicle: tok?.vehicle_no ?? "", kg: r.weight_kg, slip: r.weighment, token });
+      setToken(""); setScanned("");
+    }
     if (r.cpr) printSlip("cpr", r.cpr);
     setBodyOk(false);
     setManual({ open: false, kg: "", note: "" });
@@ -502,7 +510,7 @@ export function WeighbridgePage() {
       <div className="grid gap-4 lg:grid-cols-5">
         <div className="space-y-3 lg:col-span-2">
           <LiveWeight r={reading} fresh={info?.fresh_s ?? 10} />
-          <CameraWall place="Weighbridge" terminal={info?.terminal?.name} state={op === "Tare" ? "empty" : "loaded"} cols={2}
+          <CameraWall place="Weighbridge" terminal={info?.terminal?.name} state={camState} cols={2}
             title={`${info?.terminal?.terminal_name ?? "Weighbridge"} cameras — live`} />
           {sim && (
             <div className="rounded-xl border border-dashed p-3">
@@ -518,6 +526,11 @@ export function WeighbridgePage() {
         <div className="space-y-3 lg:col-span-3">
           <Scan onFind={onScan} placeholder="Scan the indent, token (TKN-…), gross slip (WGT-…), depot truck (DSP-…) or type the vehicle no." />
           {scanned && <p className="text-xs text-muted-foreground">Scanned <span className="font-mono">{scanned}</span></p>}
+          {!token && lastGross && (
+            <Notice tone="good"><div className="flex flex-wrap items-center gap-3"><span>Gross <b>{num(lastGross.kg)} kg</b> recorded for <Plate no={lastGross.vehicle} /> ·
+              gross slip <b className="font-mono">{lastGross.slip}</b> printed — send the vehicle to the yard. Scan the next vehicle.</span>
+              <Button size="sm" variant="outline" onClick={() => printSlip("gross", lastGross.slip)}><Printer />Gross slip</Button></div></Notice>
+          )}
           {isDsp && dsp && <DispatchWeigh d={dsp} info={info} reading={reading} manual={manual} setManual={setManual} busy={busy} run={run}
             onDone={() => { reDsp(); refetch(); qc.invalidateQueries({ queryKey: ["sc-depot-board"] }); }} />}
           {!isDsp && tok && (
@@ -552,7 +565,7 @@ export function WeighbridgePage() {
                       <Input value={manual.note} onChange={(e) => setManual({ ...manual, note: e.target.value })} placeholder="Why typed in (indicator offline…)" className="sm:col-span-2" />
                     </div>
                   )}
-                  {op === "Tare" && <GrossVsTare token={tok.name} terminal={info?.terminal?.name} checked={bodyOk} onCheck={setBodyOk} />}
+                  {op === "Tare" && <GrossVsTare token={tok.name} terminal={info?.terminal?.name} checked={bodyOk} onCheck={setBodyOk} state={camState} />}
                   <div className="flex flex-wrap gap-2">
                     <Button className="h-12 flex-1 text-base" disabled={busy || !allowed(op) || (needBody && !bodyOk) || (!manual.open && !(reading?.stable && reading.age_s <= (info?.fresh_s ?? 10) && reading.age_s > -5))} onClick={capture}>
                       <Weight />{busy ? "Saving…" : `Take ${op} weight${manual.open ? ` (${manual.kg || 0} kg typed)` : reading ? ` · ${num(reading.weight_kg)} kg` : ""}`}</Button>

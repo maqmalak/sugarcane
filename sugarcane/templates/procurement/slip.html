@@ -44,7 +44,7 @@
     {% if d.lane %}<span class="tag">{{ d.lane }}</span>{% endif %}</div>
   <table class="kv">
     <tr><td class="k">Vehicle</td><td class="v" style="font-size:13px">{{ d.vehicle_no }} · {{ d.vehicle_type }}</td></tr>
-    <tr><td class="k">Driver</td><td class="v">{{ d.driver_name or "—" }} {% if d.driver_cnic %}· {{ d.driver_cnic }}{% endif %}</td></tr>
+    <tr><td class="k">Driver</td><td class="v">{{ d.driver_name or "—" }}{% if d.driver %} · {{ d.driver }}{% endif %} {% if d.driver_cnic %}· {{ d.driver_cnic }}{% endif %}</td></tr>
     <tr><td class="k">Grower</td><td class="v">{{ d.grower_name }}{% if d.father_name %} s/o {{ d.father_name }}{% endif %}</td></tr>
     <tr><td class="k">Grower ID</td><td class="v">{{ d.grower }}</td></tr>
     <tr><td class="k">Village · Circle</td><td class="v">{{ d.village_name or "" }} · {{ d.circle or "" }}</td></tr>
@@ -67,7 +67,7 @@
   </table>
   <div class="big">GROSS <b>{{ d.gross_fmt }} kg</b></div>
   <div class="big">Unload in the yard{% if d.tok.lane %} ({{ d.tok.lane }}){% endif %}, then show this slip at the <b>tare</b> weighbridge</div>
-  <div class="foot">The tare weighman scans this slip and compares the vehicle with the gross photos. Printed {{ printed_at }} by {{ printed_by }}.</div>
+  <div class="foot">Scanned at the tare; the vehicle is compared with the gross photos.<br>Printed {{ printed_at }} by {{ printed_by }}.</div>
 
   {% elif kind == "bilty" %}
   <table class="kv">

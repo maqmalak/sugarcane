@@ -80,7 +80,7 @@ export function useSnapshots(token?: string | null) {
 const at = (s?: string) => (s ? s.slice(11, 19) : "");
 
 /** Tare: the photo saved at gross beside the live camera of the same view, so the weighman sees it is the same vehicle body. */
-export function GrossVsTare({ token, terminal, checked, onCheck }: { token: string; terminal?: string | null; checked: boolean; onCheck: (v: boolean) => void }) {
+export function GrossVsTare({ token, terminal, checked, onCheck, state = "empty" }: { token: string; terminal?: string | null; checked: boolean; onCheck: (v: boolean) => void; state?: "loaded" | "empty" }) {
   const { data: snaps } = useSnapshots(token);
   const { data: cams } = useCameras("Weighbridge", terminal);
   const gross = Object.values(snaps?.Gross ?? {}).filter((s) => s.photo);
@@ -99,7 +99,7 @@ export function GrossVsTare({ token, terminal, checked, onCheck }: { token: stri
                 <img src={g.photo} alt={`gross ${g.view}`} className="aspect-video w-full object-cover" />
                 <span className="absolute right-1.5 bottom-1.5 rounded bg-amber-500/90 px-1.5 py-0.5 text-[10px] font-bold uppercase text-black">gross · {at(g.taken_at)}</span>
               </figure>
-              {cam ? <LiveCam cam={cam} state="empty" className="rounded-lg" />
+              {cam ? <LiveCam cam={cam} state={state} className="rounded-lg" />
                 : <div className="flex aspect-video items-center justify-center rounded-lg border border-dashed text-xs text-muted-foreground">no {g.view.toLowerCase()} camera on this bridge</div>}
             </div>
           </div>

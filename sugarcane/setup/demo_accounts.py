@@ -174,6 +174,7 @@ def payments():
 				doc = frappe.get_doc({"doctype": "Cane Payment Scroll", "posting_date": pay_day, "mode_of_payment": mode, "reference_no": r,
 					"items": [{"cpr": c} for c in cprs], "is_demo": 1, "remarks": f"Payment for cane up to {upto}"})
 				doc.flags.ignore_permissions = True
+				doc.flags.allow_overdraft = True  # the demo bank is not funded
 				doc.insert()
 				doc.submit()
 		rows = unpaid_cprs(to_date="2026-11-05")

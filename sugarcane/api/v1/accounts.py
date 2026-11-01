@@ -86,6 +86,36 @@ def _scroll_out(name):
 
 
 @frappe.whitelist(methods=["GET"])
+def bank_balances() -> dict:
+	"""Bank accounts with their balance, what draft scrolls will take and what is left; and what is unpaid to growers."""
+	_view()
+	rows = acc.bank_balances()
+	unpaid = frappe.db.sql("""select count(*) n, ifnull(sum(payable_cpr), 0) payable, ifnull(sum(loan_deduction), 0) loans
+		from `tabCane Purchase Receipt` where docstatus = 1 and payment_status = 'Unpaid'""", as_dict=True)[0]
+	return {"banks": rows, "unpaid": unpaid, "total_available": sum(r["available"] for r in rows),
+		"can_overdraft": bool({"System Manager", "Cane Admin"} & set(frappe.get_roles()))}
+
+
+@frappe.whitelist(methods=["GET"])
+def loan_adjustments(scroll: str | None = None, to_date: str | None = None) -> list:
+	"""CPRs whose payment was reduced for loan recovery, with the loans recovered from each."""
+	_view()
+	if scroll:
+		cprs = [r.cpr for r in frappe.get_all("Cane Payment Scroll CPR", filters={"parent": scroll}, fields=["cpr"])]
+	else:
+		cprs = [r.name for r in acc.unpaid_cprs(to_date or None)]
+	if not cprs:
+		return []
+	rows = frappe.db.sql("""select name cpr, posting_date, grower, grower_name, payable_cpr, loan_deduction, payable_cpr + loan_deduction cpr_value
+		from `tabCane Purchase Receipt` where name in %(c)s and ifnull(loan_deduction, 0) > 0 order by grower_name, posting_date""", {"c": cprs}, as_dict=True)
+	for r in rows:
+		r.loans = frappe.get_all("Grower Loan Entry", filters={"cpr": r.cpr, "entry_type": "Recovery"}, fields=["loan", "amount"])
+		for l in r.loans:
+			l.update(frappe.db.get_value("Grower Loan", l.loan, ["loan_type", "outstanding"], as_dict=True) or {})
+	return rows
+
+
+@frappe.whitelist(methods=["GET"])
 def scroll(name: str) -> dict:
 	_view()
 	return _scroll_out(name)
@@ -129,9 +159,13 @@ def add_to_scroll(name: str, q: str) -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
-def pay_scroll(name: str) -> dict:
+def pay_scroll(name: str, overdraft: int = 0) -> dict:
 	doc = frappe.get_doc("Cane Payment Scroll", name)
 	doc.flags.ignore_permissions = True
+	if cint(overdraft):
+		if not ({"System Manager", "Cane Admin"} & set(frappe.get_roles())):
+			frappe.throw(_("Only a Cane Admin can pay over the bank balance"), frappe.PermissionError)
+		doc.flags.allow_overdraft = True
 	doc.submit()
 	return _scroll_out(name)
 

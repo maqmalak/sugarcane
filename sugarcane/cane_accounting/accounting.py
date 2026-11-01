@@ -51,7 +51,8 @@ def unpaid_cprs(to_date=None, circle=None, source=None, grower=None, older_than_
 			vals[f] = v
 	cond.append("""not exists (select 1 from `tabCane Payment Scroll CPR` i join `tabCane Payment Scroll` s on s.name = i.parent
 		where i.cpr = c.name and s.docstatus = 0)""")
-	return frappe.db.sql(f"""select c.name, c.posting_date, c.grower, c.grower_name, c.circle, c.payable_cpr, c.journal_entry, g.iban, g.bank_name
+	return frappe.db.sql(f"""select c.name, c.posting_date, c.grower, c.grower_name, c.circle, c.payable_cpr, c.journal_entry, g.iban, g.bank_name,
+		ifnull(c.loan_deduction, 0) loan_deduction, c.payable_cpr + ifnull(c.loan_deduction, 0) cpr_value
 		from `tabCane Purchase Receipt` c left join `tabGrower` g on g.name = c.grower where {' and '.join(cond)}
 		order by c.posting_date, c.name limit {cint(limit) or 500}""", vals, as_dict=True)
 
@@ -65,7 +66,7 @@ def validate_scroll(doc):
 			continue
 		seen.add(it.cpr)
 		c = frappe.db.get_value("Cane Purchase Receipt", it.cpr, ["docstatus", "payment_status", "payment_scroll", "posting_date", "grower",
-			"grower_name", "payable_cpr", "journal_entry"], as_dict=True)
+			"grower_name", "payable_cpr", "journal_entry", "loan_deduction"], as_dict=True)
 		if not c or c.docstatus != 1:
 			frappe.throw(_("CPR {0} is not submitted").format(it.cpr))
 		if doc.docstatus == 0 and (c.payment_status == "Paid" or (c.payment_scroll and c.payment_scroll != doc.name)):
@@ -75,22 +76,26 @@ def validate_scroll(doc):
 		if other and doc.docstatus == 0:
 			frappe.throw(_("CPR {0} is already on scroll {1}").format(it.cpr, other[0][0]))
 		it.update({"posting_date": c.posting_date, "grower": c.grower, "grower_name": c.grower_name, "amount": c.payable_cpr,
+			"loan_deduction": flt(c.loan_deduction), "cpr_value": flt(c.payable_cpr) + flt(c.loan_deduction),
 			"journal_entry": c.journal_entry, "iban": frappe.db.get_value("Grower", c.grower, "iban")})
 		rows.append(it)
 	doc.set("items", rows)
 	by = OrderedDict()
 	for it in rows:
-		g = by.setdefault(it.grower, {"cprs": 0, "amount": 0.0})
+		g = by.setdefault(it.grower, {"cprs": 0, "amount": 0.0, "loan": 0.0})
 		g["cprs"] += 1
 		g["amount"] = flt(g["amount"] + flt(it.amount), 2)
+		g["loan"] = flt(g["loan"] + flt(it.loan_deduction), 2)
 	if doc.docstatus == 0:
 		doc.set("payments", [])
 		for grower, g in by.items():
 			gr = frappe.db.get_value("Grower", grower, ["grower_name", "cnic", "bank_name", "account_title", "iban"], as_dict=True) or {}
 			doc.append("payments", {"grower": grower, "grower_name": gr.get("grower_name"), "cnic": gr.get("cnic"), "bank_name": gr.get("bank_name"),
-				"account_title": gr.get("account_title") or gr.get("grower_name"), "iban": gr.get("iban"), "cprs": g["cprs"], "amount": g["amount"]})
+				"account_title": gr.get("account_title") or gr.get("grower_name"), "iban": gr.get("iban"), "cprs": g["cprs"], "amount": g["amount"],
+				"loan_deduction": g["loan"]})
 	doc.cpr_count, doc.grower_count = len(rows), len(by)
 	doc.total_amount = flt(sum(flt(r.amount) for r in rows), 2)
+	doc.loan_deduction = flt(sum(flt(r.loan_deduction) for r in rows), 2)
 	doc.without_iban = sum(1 for p in doc.payments if not p.iban)
 	if doc.docstatus == 0:
 		doc.status = "Draft"
@@ -105,7 +110,47 @@ def check_scroll(doc):
 		names = ", ".join(p.grower_name or p.grower for p in doc.payments if not p.iban)
 		frappe.throw(_("{0} grower(s) have no IBAN: {1}. Add their bank details or pay this scroll by cheque.").format(doc.without_iban, names),
 			title=_("Bank details missing"))
-	_bank(doc.bank_account)
+	bank = _bank(doc.bank_account)
+	# the money must be in the bank: its balance, less other scrolls already paid today but not yet in the balance, covers this one
+	bal = bank_balance(bank)
+	doc.bank_balance = bal
+	# other draft scrolls on the same bank have a claim on it too
+	others = flt(frappe.db.sql("""select ifnull(sum(total_amount), 0) from `tabCane Payment Scroll` where docstatus = 0 and bank_account = %s
+		and name != %s""", (bank, doc.name or ""))[0][0])
+	if flt(doc.total_amount) > bal - others + 0.01:
+		if not doc.flags.allow_overdraft:
+			frappe.throw(_("{0} holds {1}, of which {2} is on other draft scrolls; this scroll needs {3}. Fund the account, choose another "
+				"bank, or take CPRs off. A Cane Admin can pay it over the balance.").format(frappe.bold(bank), frappe.format_value(bal, "Currency"),
+				frappe.format_value(others, "Currency"), frappe.format_value(doc.total_amount, "Currency")), title=_("Not enough in the bank"))
+		doc.overdraft_by = frappe.session.user
+
+
+def bank_balance(account, on=None) -> float:
+	from erpnext.accounts.utils import get_balance_on
+
+	return flt(get_balance_on(account=account, date=on or nowdate()), 2)
+
+
+def bank_balances(company=None) -> list:
+	"""Every bank account of the company: balance, what draft scrolls on it will take, what is left; the default cane bank first."""
+	s = _settings()
+	company = company or s.company
+	accounts = frappe.get_all("Account", filters={"company": company, "account_type": "Bank", "is_group": 0, "disabled": 0},
+		fields=["name", "account_name", "parent_account"], order_by="name")
+	drafts = dict(frappe.db.sql("""select bank_account, sum(total_amount) from `tabCane Payment Scroll` where docstatus = 0
+		and company = %s group by bank_account""", company))
+	out = []
+	for a in accounts:
+		if "jazzcash" in a.name.lower():
+			continue
+		bal = bank_balance(a.name)
+		committed = flt(drafts.get(a.name))
+		out.append({"account": a.name, "account_name": a.account_name, "balance": bal, "committed": committed, "available": flt(bal - committed, 2),
+			"default": a.name == s.cane_bank_account,
+			"last_receipt": frappe.db.sql("""select max(posting_date) from `tabGL Entry` where account = %s and debit > 0 and is_cancelled = 0""",
+				a.name)[0][0]})
+	out.sort(key=lambda r: (not r["default"], r["account"]))
+	return out
 
 
 def submit_scroll(doc):

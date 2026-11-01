@@ -17,6 +17,9 @@
   "cpr_count",
   "grower_count",
   "total_amount",
+  "loan_deduction",
+  "bank_balance",
+  "overdraft_by",
   "without_iban",
   "sb_items",
   "items",
@@ -113,6 +116,27 @@
    "bold": 1
   },
   {
+   "fieldname": "loan_deduction",
+   "fieldtype": "Currency",
+   "label": "Loans recovered in these CPRs",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bank_balance",
+   "fieldtype": "Currency",
+   "label": "Bank balance when paid",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "overdraft_by",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Paid over the bank balance by",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
    "fieldname": "without_iban",
    "fieldtype": "Int",
    "label": "Growers Without IBAN",
@@ -167,7 +191,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-10-18 15:00:00.000000",
+ "modified": "2026-11-02 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Cane Accounting",
  "name": "Cane Payment Scroll",

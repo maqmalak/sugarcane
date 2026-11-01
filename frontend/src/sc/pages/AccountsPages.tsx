@@ -139,11 +139,67 @@ export function AccountsDashboardPage() {
 // =============================================================== scroll
 interface ScrollDoc {
   name: string; docstatus: number; status: string; posting_date: string; bank_account: string; mode_of_payment: string; reference_no?: string;
-  cpr_count: number; grower_count: number; total_amount: number; without_iban: number;
-  items: { cpr: string; posting_date: string; grower: string; grower_name: string; iban?: string; amount: number }[];
-  payments: { grower: string; grower_name: string; bank_name?: string; iban?: string; cprs: number; amount: number; payment_entry?: string; stop_requested?: number; stop_reason?: string }[];
+  cpr_count: number; grower_count: number; total_amount: number; without_iban: number; loan_deduction?: number; bank_balance?: number; overdraft_by?: string;
+  items: { cpr: string; posting_date: string; grower: string; grower_name: string; iban?: string; amount: number; loan_deduction?: number; cpr_value?: number }[];
+  payments: { grower: string; grower_name: string; bank_name?: string; iban?: string; cprs: number; amount: number; loan_deduction?: number; payment_entry?: string; stop_requested?: number; stop_reason?: string }[];
 }
-interface Unpaid { name: string; posting_date: string; grower: string; grower_name: string; circle: string; payable_cpr: number; iban?: string }
+interface Unpaid { name: string; posting_date: string; grower: string; grower_name: string; circle: string; payable_cpr: number; iban?: string; loan_deduction?: number; cpr_value?: number }
+interface Banks { banks: { account: string; account_name: string; balance: number; committed: number; available: number; default: boolean; last_receipt?: string }[];
+  unpaid: { n: number; payable: number; loans: number }; total_available: number; can_overdraft: boolean }
+interface LoanAdj { cpr: string; posting_date: string; grower: string; grower_name: string; payable_cpr: number; loan_deduction: number; cpr_value: number;
+  loans: { loan: string; amount: number; loan_type?: string; outstanding?: number }[] }
+
+/** What the mill's banks hold, what draft scrolls will take, what is left — against what is unpaid to growers. */
+function BankBalances({ data, current }: { data?: Banks; current?: ScrollDoc }) {
+  if (!data) return <Skeleton className="h-28" />;
+  const short = data.unpaid.payable - data.total_available;
+  return (
+    <section className="rounded-2xl border bg-card p-4 shadow-sm">
+      <div className="mb-3 flex flex-wrap items-center gap-2"><Landmark className="size-4 text-primary" /><h3 className="font-semibold">Bank balances available</h3>
+        <span className="text-xs text-muted-foreground">balance in the ledger − draft scrolls not yet paid = available</span>
+        <span className={cn("ml-auto rounded-full px-3 py-1 text-xs font-semibold", short > 0 ? "bg-red-500/10 text-red-600" : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300")}>
+          Unpaid to growers {money(data.unpaid.payable)} ({num(data.unpaid.n)} CPRs) · {short > 0 ? `short by ${money(short)}` : `covered, ${money(-short)} spare`}</span></div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {data.banks.map((b) => {
+          const mine = current && current.docstatus === 0 && current.bank_account === b.account;
+          const after = b.available;
+          return (
+            <div key={b.account} className={cn("rounded-xl border p-3", mine && "border-primary ring-1 ring-primary/40")}>
+              <div className="flex items-center gap-2 text-sm font-semibold"><Landmark className="size-4 text-muted-foreground" />{b.account_name}{b.default && <Badge tone="blue">cane</Badge>}{mine && <Badge tone="violet">this scroll</Badge>}</div>
+              <div className="mt-2 text-2xl font-black tabular-nums">{money(b.balance)}</div>
+              <div className="text-[11px] text-muted-foreground">balance{b.last_receipt ? ` · last funded ${dayLabel(b.last_receipt)}` : ""}</div>
+              <div className="mt-2 flex justify-between text-xs"><span className="text-muted-foreground">On draft scrolls</span><span className="tabular-nums">− {money(b.committed)}</span></div>
+              <div className="flex justify-between border-t pt-1 text-sm font-bold"><span>Available</span><span className={cn("tabular-nums", after < 0 ? "text-red-600" : "text-emerald-600")}>{money(after)}</span></div>
+            </div>
+          );
+        })}
+        <div className="rounded-xl bg-muted/40 p-3 text-sm">
+          <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Loans recovered in unpaid CPRs</div>
+          <div className="mt-2 text-2xl font-black tabular-nums text-amber-600">{money(data.unpaid.loans)}</div>
+          <p className="mt-1 text-[11px] text-muted-foreground">Already deducted from the CPRs at tare — growers are paid the net.</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function LoanAdjustments({ scroll, upto }: { scroll?: string; upto?: string }) {
+  const { data } = useQuery({ queryKey: ["sc-acc-loanadj", scroll, upto], queryFn: () => get<LoanAdj[]>(`${API}.loan_adjustments`, scroll ? { scroll } : upto ? { to_date: upto } : {}) });
+  if (!data?.length) return null;
+  return (
+    <ChartCard title={`Loan adjustments in ${scroll ? "these" : "unpaid"} CPRs (${data.length})`} sub="Each CPR's value, the loan recovered from it at tare, and what the grower is paid" bodyClass="h-auto">
+      <DataTable rows={data} rowKey={(r) => r.cpr} dense cols={[
+        { key: "c", label: "CPR", value: (r) => r.cpr, render: (r) => <span className="font-mono text-xs">{r.cpr}</span> },
+        { key: "d", label: "Day", value: (r) => r.posting_date, render: (r) => dayLabel(r.posting_date) },
+        { key: "g", label: "Grower", value: (r) => r.grower_name, render: (r) => <Link className="hover:underline" to={`/accounts/grower?g=${r.grower}`}>{r.grower_name}</Link> },
+        { key: "v", label: "CPR value", align: "right", value: (r) => r.cpr_value, render: (r) => money(r.cpr_value) },
+        { key: "l", label: "Loan recovered", align: "right", value: (r) => r.loan_deduction, render: (r) => <span className="font-semibold text-amber-600">− {money(r.loan_deduction)}</span> },
+        { key: "p", label: "Paid to grower", align: "right", value: (r) => r.payable_cpr, render: (r) => <b>{money(r.payable_cpr)}</b> },
+        { key: "ln", label: "Loans", value: (r) => r.loans.map((l) => l.loan).join(" "), render: (r) => <span className="text-xs">{r.loans.map((l) => <Link key={l.loan} to={`/accounts/loans?loan=${l.loan}`} className="mr-2 font-mono text-primary hover:underline">{l.loan} {l.loan_type ? `· ${l.loan_type}` : ""} ({money(l.amount)})</Link>)}</span> },
+      ]} />
+    </ChartCard>
+  );
+}
 
 /** Download a bank document; every one is also kept in the document vault. */
 const dl = (method: string, args: Record<string, string>, fname: string) => postDownload(`${API}.${method}`, args, fname).catch((e) => toast.error(err(e)));
@@ -158,6 +214,7 @@ export function ScrollPage() {
   const { data: unpaid } = useQuery({ queryKey: ["sc-acc-unpaid", upto], queryFn: () => get<Unpaid[]>(`${API}.unpaid`, upto ? { to_date: upto } : {}) });
   const [scan, setScan] = useState("");
   const [busy, setBusy] = useState(false);
+  const { data: banks, refetch: reBanks } = useQuery({ queryKey: ["sc-acc-banks", doc?.total_amount, doc?.bank_account, doc?.docstatus], queryFn: () => get<Banks>(`${API}.bank_balances`) });
   const box = useRef<HTMLInputElement>(null);
   useEffect(() => box.current?.focus(), [doc?.cpr_count]);
   const run = async (fn: () => Promise<unknown>) => { setBusy(true); try { await fn(); } catch (e) { toast.error(err(e)); } finally { setBusy(false); } };
@@ -173,12 +230,37 @@ export function ScrollPage() {
         {doc && <Button variant="outline" onClick={() => dl("bank_file", { name: doc.name }, `${doc.name}.csv`)}><Download />Bank file (CSV)</Button>}
         {doc && <Button variant="outline" onClick={() => dl("payment_schedule", { name: doc.name }, `Payment schedule ${doc.name}.pdf`)}><FileText />Payment schedule</Button>}
         {doc && <Button variant="outline" onClick={() => dl("instruction_letters", { name: doc.name }, `Bank instructions ${doc.name}.pdf`)}><Landmark />Instruction letters (by bank)</Button>}
-        {draft && <Button disabled={busy || !doc.cpr_count} onClick={() => { if (window.confirm(`Pay ${money(doc.total_amount)} to ${doc.grower_count} growers?`)) run(async () => { await post(`${API}.pay_scroll`, { name: doc.name }); toast.success("Paid"); refetch(); qc.invalidateQueries({ queryKey: ["sc-acc-unpaid"] }); }); }}><Banknote />Pay {doc ? money(doc.total_amount) : ""}</Button>}
+        {draft && (() => {
+          const b = banks?.banks.find((x) => x.account === doc.bank_account);
+          const room = b ? b.available + doc.total_amount : 0;  // balance less the OTHER draft scrolls on this bank
+          const over = !!b && doc.total_amount > room + 0.01;
+          return <Button disabled={busy || !doc.cpr_count || (over && !banks?.can_overdraft)} title={over ? `${doc.bank_account} holds ${money(b!.balance)}` : ""}
+            onClick={() => {
+              const msg = over ? `${doc.bank_account} has only ${money(room)} free. Pay ${money(doc.total_amount)} OVER the bank balance?` : `Pay ${money(doc.total_amount)} to ${doc.grower_count} growers from ${doc.bank_account}?`;
+              if (window.confirm(msg)) run(async () => { await post(`${API}.pay_scroll`, { name: doc.name, overdraft: over ? 1 : 0 }); toast.success("Paid"); refetch(); reBanks(); qc.invalidateQueries({ queryKey: ["sc-acc-unpaid"] }); });
+            }}><Banknote />Pay {money(doc.total_amount)}</Button>;
+        })()}
       </Header>
+      <BankBalances data={banks} current={doc} />
       {doc ? (
         <>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {draft && (() => {
+            const b = banks?.banks.find((x) => x.account === doc.bank_account);
+            const room = b ? b.available + doc.total_amount : 0;
+            return (
+              <div className={cn("flex flex-wrap items-center gap-3 rounded-xl border p-3 text-sm", b && doc.total_amount > room ? "border-red-500/50 bg-red-500/5" : "border-emerald-500/40 bg-emerald-500/5")}>
+                <Landmark className="size-4" />Pay from
+                <select value={doc.bank_account} onChange={(e) => run(async () => { await post(`${API}.save_scroll`, { name: doc.name, bank_account: e.target.value }); refetch(); })}
+                  className="h-9 rounded-lg border bg-background px-2 text-sm">{(banks?.banks ?? []).map((x) => <option key={x.account} value={x.account}>{x.account} — {money(x.balance)}</option>)}</select>
+                {b && <span>Balance <b>{money(b.balance)}</b>{b.committed - doc.total_amount > 0.5 ? <> − other draft scrolls <b>{money(b.committed - doc.total_amount)}</b></> : null} − this scroll <b>{money(doc.total_amount)}</b> = <b className={room - doc.total_amount < 0 ? "text-red-600" : "text-emerald-600"}>{money(room - doc.total_amount)}</b> left</span>}
+                {b && doc.total_amount > room && <span className="font-semibold text-red-600">Not enough in this bank — choose another, take CPRs off, or fund it.</span>}
+              </div>
+            );
+          })()}
+          {doc.docstatus === 1 && <div className="text-sm text-muted-foreground">Paid from <b>{doc.bank_account}</b>{doc.bank_balance ? <> · balance then {money(doc.bank_balance)}</> : null}{doc.overdraft_by ? <span className="text-red-600"> · paid over the balance by {doc.overdraft_by}</span> : null}</div>}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <KpiCard icon={Receipt} label="CPRs" value={num(doc.cpr_count)} color={C.violet} />
+            <KpiCard icon={HandCoins} label="Loans recovered" value={money(doc.loan_deduction ?? 0)} color={C.amber} sub="already cut from these CPRs" />
             <KpiCard icon={Users} label="Growers (payments)" value={num(doc.grower_count)} color={C.blue} sub={doc.without_iban ? `${doc.without_iban} without IBAN` : "all with IBAN"} />
             <KpiCard icon={Banknote} label="Total" value={money(doc.total_amount)} color={C.green} />
             <div className="rounded-2xl border bg-card p-4 shadow-sm">
@@ -203,6 +285,7 @@ export function ScrollPage() {
                 { key: "g", label: "Grower", value: (r) => r.grower_name, render: (r) => <Link className="hover:underline" to={`/accounts/grower?g=${r.grower}`}>{r.grower_name}</Link> },
                 { key: "b", label: "Bank · IBAN", value: (r) => r.iban ?? "", render: (r) => (r.iban ? <span className="font-mono text-[11px]">{r.bank_name} · {r.iban}</span> : <Badge tone="red">no IBAN</Badge>) },
                 { key: "c", label: "CPRs", align: "right", value: (r) => r.cprs },
+                { key: "l", label: "Loan cut", align: "right", value: (r) => r.loan_deduction ?? 0, render: (r) => r.loan_deduction ? <span className="text-amber-600">− {money(r.loan_deduction)}</span> : "" },
                 { key: "a", label: "Amount", align: "right", value: (r) => r.amount, render: (r) => <b>{money(r.amount)}</b> },
                 { key: "p", label: "Payment", value: (r) => r.payment_entry ?? "", render: (r) => (
                   <span className="flex items-center gap-2"><span className="font-mono text-[11px]">{r.payment_entry ?? "—"}</span>
@@ -220,13 +303,15 @@ export function ScrollPage() {
                 { key: "c", label: "CPR", value: (r) => r.cpr, render: (r) => <span className="font-mono text-xs">{r.cpr}</span> },
                 { key: "d", label: "Day", value: (r) => r.posting_date, render: (r) => dayLabel(r.posting_date) },
                 { key: "g", label: "Grower", value: (r) => r.grower_name },
+                { key: "l", label: "Loan cut", align: "right", value: (r) => r.loan_deduction ?? 0, render: (r) => r.loan_deduction ? <span className="text-amber-600">− {money(r.loan_deduction)}</span> : "" },
                 { key: "a", label: "Amount", align: "right", value: (r) => r.amount, render: (r) => money(r.amount) },
                 { key: "x", label: "", value: () => "", render: (r) => draft ? <button type="button" className="text-xs text-red-600 hover:underline" onClick={() => run(async () => { await post(`${API}.save_scroll`, { name: doc.name, cprs: doc.items.filter((i) => i.cpr !== r.cpr).map((i) => i.cpr) }); refetch(); })}>remove</button> : null },
               ]} />
             </ChartCard>
           </div>
+          <LoanAdjustments scroll={doc.name} />
         </>
-      ) : (
+      ) : (<>
         <ChartCard title={`Unpaid CPRs (${unpaid?.length ?? 0})`} sub="Start a scroll with all of them, or open one and scan" bodyClass="h-auto"
           actions={<div className="flex items-center gap-2"><span className="text-xs text-muted-foreground">up to</span><input type="date" value={upto} onChange={(e) => setUpto(e.target.value)} className="h-8 rounded-lg border bg-background px-2 text-sm" />
             <Button size="sm" disabled={busy || !unpaid?.length} onClick={() => start((unpaid ?? []).filter((r) => r.iban).map((r) => r.name))}><Plus />Scroll for those with an IBAN</Button>
@@ -238,10 +323,12 @@ export function ScrollPage() {
             { key: "g", label: "Grower", value: (r) => r.grower_name },
             { key: "ci", label: "Circle", value: (r) => r.circle },
             { key: "i", label: "IBAN", value: (r) => (r.iban ? 1 : 0), render: (r) => (r.iban ? <CheckCircle2 className="size-4 text-emerald-600" /> : <Badge tone="red">none</Badge>) },
+            { key: "l", label: "Loan cut", align: "right", value: (r) => r.loan_deduction ?? 0, render: (r) => r.loan_deduction ? <span className="text-amber-600">− {money(r.loan_deduction)}</span> : "" },
             { key: "a", label: "Payable", align: "right", value: (r) => r.payable_cpr, render: (r) => money(r.payable_cpr) },
           ]} />
         </ChartCard>
-      )}
+        <LoanAdjustments upto={upto} />
+      </>)}
     </div>
   );
 }

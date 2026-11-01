@@ -118,23 +118,29 @@ def unpaid_scroll(to_date=None, circle=None, as_on=None) -> tuple[str, bytes]:
 	by_grower = OrderedDict()
 	for r in rows:
 		g = by_grower.setdefault(r.grower, frappe._dict(grower=r.grower, grower_name=r.grower_name, circle=r.circle, iban=r.iban,
-			bank=(r.bank_name or "").strip() if r.iban else "", cprs=[], amount=0.0))
+			bank=(r.bank_name or "").strip() if r.iban else "", cprs=[], amount=0.0, loan=0.0))
 		g.cprs.append(frappe._dict(name=r.name, posting_date=r.posting_date, days=max(date_diff(d, r.posting_date), 0)))
 		g.amount = flt(g.amount + flt(r.payable_cpr), 2)
+		g.loan = flt(g.loan + flt(r.loan_deduction), 2)
 	cnic = dict(frappe.get_all("Grower", filters={"name": ["in", list(by_grower) or [""]]}, fields=["name", "cnic"], as_list=True))
 	groups = OrderedDict()
 	for g in by_grower.values():
 		g.cnic = cnic.get(g.grower)
-		b = groups.setdefault(g.bank or NO_BANK, {"bank": g.bank or NO_BANK, "rows": [], "amount": 0.0, "cprs": 0, "oldest": 0})
+		b = groups.setdefault(g.bank or NO_BANK, {"bank": g.bank or NO_BANK, "rows": [], "amount": 0.0, "cprs": 0, "oldest": 0, "loan": 0.0})
 		b["rows"].append(g)
 		b["amount"] = flt(b["amount"] + g.amount, 2)
+		b["loan"] = flt(b["loan"] + g.loan, 2)
 		b["cprs"] += len(g.cprs)
 		b["oldest"] = max(b["oldest"], max(c.days for c in g.cprs))
 	out = sorted(groups.values(), key=lambda g: (g["bank"] == NO_BANK, g["bank"]))
 	for g in out:
 		g["rows"].sort(key=lambda r: r.grower_name or "")
+	from sugarcane.cane_accounting.accounting import bank_balances
+
+	banks = bank_balances()
 	pdf = _pdf("unpaid_scroll", _ctx(groups=out, as_on=d, upto=to_date, circle=circle, growers=len(by_grower), cprs=len(rows),
-		total=flt(sum(g["amount"] for g in out), 2), qr=qr(app_url("/accounts/scroll"))))
+		total=flt(sum(g["amount"] for g in out), 2), loans=flt(sum(g["loan"] for g in out), 2), banks=banks,
+		available=flt(sum(b["available"] for b in banks), 2), qr=qr(app_url("/accounts/scroll"))))
 	return f"Unpaid CPR scroll {d}.pdf", pdf
 
 

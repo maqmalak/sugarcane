@@ -12,6 +12,7 @@
   "account_title",
   "iban",
   "cprs",
+  "loan_deduction",
   "amount",
   "payment_entry",
   "stop_requested",
@@ -69,6 +70,12 @@
    "in_list_view": 1
   },
   {
+   "fieldname": "loan_deduction",
+   "fieldtype": "Currency",
+   "label": "Loan recovered",
+   "read_only": 1
+  },
+  {
    "fieldname": "amount",
    "fieldtype": "Currency",
    "label": "Amount",
@@ -111,7 +118,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-10-18 15:00:00.000000",
+ "modified": "2026-11-02 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Cane Accounting",
  "name": "Cane Payment Scroll Payment",

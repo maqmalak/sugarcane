@@ -77,7 +77,13 @@ class TestAccounts(ProcurementBase):
 		with self.assertRaises(frappe.ValidationError):  # the same CPR can't sit on a second scroll
 			frappe.get_doc({"doctype": "Cane Payment Scroll", "posting_date": add_days(day, 3), "remarks": TAG, "items": [{"cpr": cprs[0]}]}).insert()
 		self.assertLess(flt(get_balance_on(party_type="Grower", party=self.grower, company=company)), 0)
-		sc.submit()
+		from unittest.mock import patch
+
+		with patch.object(acc, "bank_balance", return_value=1.0), self.assertRaises(frappe.ValidationError):  # not enough in the bank
+			frappe.get_doc("Cane Payment Scroll", sc.name).submit()
+		sc = frappe.get_doc("Cane Payment Scroll", sc.name)
+		with patch.object(acc, "bank_balance", return_value=10**9):  # enough whatever other draft scrolls hold
+			sc.submit()
 		sc.reload()
 		self.assertEqual(sc.status, "Paid")
 		pe = frappe.get_doc("Payment Entry", sc.payments[0].payment_entry)

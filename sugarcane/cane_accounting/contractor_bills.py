@@ -197,11 +197,9 @@ def unpost(doc):
 	doc.db_set("status", "Cancelled")
 
 
-def bill_pdf(name: str) -> tuple[str, bytes]:
-	from sugarcane.cane_accounting.bank_docs import _ctx, _pdf, app_url, qr
+def _bill_ctx(doc) -> dict:
+	from sugarcane.cane_accounting.bank_docs import _ctx, app_url, qr
 
-	doc = frappe.get_doc("Contractor Bill", name)
-	doc.check_permission("read")
 	groups = defaultdict(lambda: {"rows": [], "maund": 0.0, "amount": 0.0, "deduction": 0.0, "hours": 0.0})
 	label = {"Cane Purchase Receipt": _("Cane unloaded (gate CPRs)") if doc.bill_type == "Unloading at Mill" else _("Cane loaded"),
 		"Depot Dispatch": _("Depot trucks"), "Mill Stoppage": _("Idle payment — mill stopped"), "Journal Entry": _("Depot commission")}
@@ -211,18 +209,51 @@ def bill_pdf(name: str) -> tuple[str, bytes]:
 		for k in ("maund", "amount", "deduction", "hours"):
 			g[k] = round(g[k] + flt(i.get(k)), 3 if k in ("maund", "hours") else 2)
 	sup = frappe.db.get_value("Supplier", doc.contractor, ["supplier_name", "tax_id"], as_dict=True) or {}
-	pdf = _pdf("contractor_bill", _ctx(doc=doc, groups=dict(groups), sup=sup, qr=qr(app_url(f"/accounts/d/contractor-bill/{doc.name}"))))
-	return f"Contractor bill {doc.name}.pdf", pdf
+	return _ctx(doc=doc, groups=dict(groups), sup=sup, qr=qr(app_url(f"/accounts/d/contractor-bill/{doc.name}")))
+
+
+def bill_pdf(name: str) -> tuple[str, bytes]:
+	from sugarcane.cane_accounting.bank_docs import _pdf
+
+	doc = frappe.get_doc("Contractor Bill", name)
+	doc.check_permission("read")
+	return f"Contractor bill {doc.name}.pdf", _pdf("contractor_bill", _bill_ctx(doc))
+
+
+def _contract_ctx(doc) -> dict:
+	from sugarcane.cane_accounting.bank_docs import _ctx, app_url, qr
+
+	sup = frappe.db.get_value("Supplier", doc.contractor, ["supplier_name", "tax_id", "mobile_no"], as_dict=True) or {}
+	cats = [c.strip() for c in (doc.idle_categories or "").replace(",", "\n").splitlines() if c.strip()]
+	return _ctx(doc=doc, sup=sup, cats=cats, qr=qr(app_url(f"/accounts/d/unloading-contract/{doc.name}")))
 
 
 def contract_pdf(name: str) -> tuple[str, bytes]:
 	"""The unloading contract on A4 for signing: parties, rates by vehicle type, idle payment, billing and terms."""
-	from sugarcane.cane_accounting.bank_docs import _ctx, _pdf, app_url, qr
+	from sugarcane.cane_accounting.bank_docs import _pdf
 
 	doc = frappe.get_doc("Unloading Contract", name)
 	doc.check_permission("read")
-	sup = frappe.db.get_value("Supplier", doc.contractor, ["supplier_name", "tax_id", "mobile_no"], as_dict=True) or {}
-	cats = [c.strip() for c in (doc.idle_categories or "").replace(",", "\n").splitlines() if c.strip()]
-	pdf = _pdf("unloading_contract", _ctx(doc=doc, sup=sup, cats=cats,
-		qr=qr(app_url(f"/accounts/d/unloading-contract/{doc.name}"))))
-	return f"Unloading contract {doc.contract_no or doc.name}.pdf", pdf
+	return f"Unloading contract {doc.contract_no or doc.name}.pdf", _pdf("unloading_contract", _contract_ctx(doc))
+
+
+DESK_PRINTS = {"Contractor Bill": ("contractor_bill", _bill_ctx), "Unloading Contract": ("unloading_contract", _contract_ctx)}
+
+
+def desk_print(doc) -> str:
+	"""Jinja method for the desk Print Formats "Contractor Bill" and "Unloading Contract": the same A4 page as the PDF from the
+	React app, without the page wrapper (the desk adds its own)."""
+	import re
+
+	template, ctx = DESK_PRINTS[doc.doctype]
+	html = frappe.render_template(f"sugarcane/templates/bank/{template}.html", ctx(doc))
+	style = re.search(r"<style>(.*?)</style>", html, re.S).group(1)
+	style = re.sub(r"@page\s*{[^}]*}", "", style)
+	body = re.search(r"<body>(.*)</body>", html, re.S).group(1)
+	# the desk print styles grey out table headings and use larger spacing; keep the PDF look and fit the same pages
+	desk = (".print-format .re-doc { font-size: 11.5px; line-height: 1.4; }"
+		" .print-format .re-doc th { color: #1f2937 !important; font-weight: bold !important; font-size: inherit; }"
+		" .print-format .re-doc h2, .print-format .re-doc h3 { font-weight: bold !important; }"
+		" .print-format .re-doc td, .print-format .re-doc th { padding: 3px 6px !important; }"
+		" .print-format .re-doc table.sign td { border-top: 1px solid #6b7280 !important; } .print-format .re-doc table.sign td.gap { border-top: 0 !important; }")
+	return f"<style>{style}{desk}</style>{body}"

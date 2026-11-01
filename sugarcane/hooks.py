@@ -77,10 +77,7 @@ add_to_apps_screen = [
 # ----------
 
 # add methods and filters to jinja environment
-# jinja = {
-# 	"methods": "sugarcane.utils.jinja_methods",
-# 	"filters": "sugarcane.utils.jinja_filters"
-# }
+jinja = {"methods": ["sugarcane.cane_accounting.contractor_bills.desk_print"]}
 
 # Installation
 # ------------

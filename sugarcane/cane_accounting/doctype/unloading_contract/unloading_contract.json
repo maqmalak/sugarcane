@@ -230,5 +230,6 @@
  "states": [],
  "track_changes": 1,
  "autoname": "field:contract_no",
- "title_field": "contractor"
+ "title_field": "contractor",
+ "default_print_format": "Unloading Contract"
 }

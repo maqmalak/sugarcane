@@ -47,7 +47,7 @@ def bilty(q: str) -> dict:
 	"""Scanner → one bilty (by bilty no. or its CPR) for the basket."""
 	p.need(VIEW, _("see bilties"))
 	q = (q or "").strip().upper()
-	name = frappe.db.get_value("TPT Bilty", q) or frappe.db.get_value("TPT Bilty", {"cpr": q, "docstatus": 1}) \\
+	name = frappe.db.get_value("TPT Bilty", q) or frappe.db.get_value("TPT Bilty", {"cpr": q, "docstatus": 1}) \
 		or frappe.db.get_value("TPT Bilty", {"token": q, "docstatus": 1})
 	if not name:
 		frappe.throw(_("No bilty for {0}").format(frappe.bold(q)), title=_("Not found"))

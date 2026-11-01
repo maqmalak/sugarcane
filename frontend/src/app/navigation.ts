@@ -5,7 +5,7 @@
 import {
   BarChart3, Boxes, ClipboardList, FileSpreadsheet, Gauge, LayoutDashboard, Leaf, Map as MapIcon, MapPinned,
   Sparkles, Target, Ticket, Inbox, Layers, Truck, UserCog, Users, Warehouse, Weight, Beaker, Factory, Banknote, MessageSquare, BookOpen, type LucideIcon, Wand2, ScanBarcode, ShieldCheck, AlertTriangle, MapPin,
-} from "lucide-react";
+Scale, } from "lucide-react";
 import { SC_DOCS, docBase, type ScApp } from "@/sc/registry";
 import { ANALYTICS_NAV, FINANCE_NAV, HR_NAV, PAYROLL_NAV, SALES_NAV, STORE_NAV } from "@/app/erp-navigation";
 
@@ -130,7 +130,9 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
       items: [
         { label: "Intake dashboard", to: "/procurement", icon: Sparkles, roles: PROC_ROLES },
         { label: "Gate · token issue", to: "/procurement/gate", icon: Ticket, roles: [...MANAGERS, "Token Clerk"] },
-        { label: "Weighbridge", to: "/procurement/weighbridge", icon: Weight, roles: [...MANAGERS, "Gross Weighman", "Tare Weighman"] },
+        { label: "Gross · 1st weight", to: "/procurement/gross", icon: Weight, roles: [...MANAGERS, "Gross Weighman"] },
+        { label: "Tare · 2nd weight", to: "/procurement/tare", icon: Scale, roles: [...MANAGERS, "Tare Weighman"] },
+        { label: "Weighbridge (both)", to: "/procurement/weighbridge", icon: Weight, roles: [...MANAGERS, "Gross Weighman", "Tare Weighman"] },
         { label: "Yard board", to: "/procurement/yard", icon: Warehouse, roles: PROC_ROLES },
         { label: "TPT cash counter", to: "/procurement/counter", icon: Banknote, roles: [...MANAGERS, "Cane Cashier", "Cane Accountant"] },
         { label: "Day close", to: "/procurement/day-close", icon: ClipboardList, roles: [...MANAGERS, "Cane Accountant"] },
@@ -277,6 +279,8 @@ export const ROUTE_TITLES: Record<string, string> = {
   indenting: "Indenting",
   procurement: "Cane Procurement",
   weighbridge: "Weighbridge",
+  gross: "Gross · 1st weight",
+  tare: "Tare · 2nd weight",
   yard: "Yard",
   counter: "Cash Counter",
   "day-close": "Day Close",

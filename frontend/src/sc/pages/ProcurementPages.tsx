@@ -446,7 +446,9 @@ function DispatchWeigh({ d, info, reading, manual, setManual, busy, run, onDone 
   );
 }
 
-export function WeighbridgePage() {
+/** One weighbridge screen; `mode` gives it a fixed job (menu: Gross · 1st weight / Tare · 2nd weight) — without it, the next
+ *  weight due on the scanned token is taken (a bridge that does both). */
+export function WeighbridgePage({ mode }: { mode?: "gross" | "tare" } = {}) {
   const qc = useQueryClient();
   const [params] = useSearchParams();
   const [token, setToken] = useState(params.get("no") ?? "");
@@ -472,11 +474,17 @@ export function WeighbridgePage() {
   const reading = live && info?.reading && live.at > info.reading.at ? live : info?.reading ?? live;
   const { data: tok, refetch: reTok } = useQuery({ queryKey: ["sc-proc-token", token], enabled: !!token && !isDsp, queryFn: () => get<TokenDoc>(`${API}.token`, { name: token }) });
   const { data: dsp, refetch: reDsp } = useQuery({ queryKey: ["sc-depot-dispatch", token], enabled: isDsp, queryFn: () => get<DispatchDoc>("sugarcane.api.v1.depot.dispatch", { name: token }) });
-  const op = tok?.status === "Issued" ? "Gross" : tok?.status === "Gross" ? "Tare" : null;
+  const due = tok?.status === "Issued" ? "Gross" : tok?.status === "Gross" ? "Tare" : null;
+  // On a gross-only / tare-only screen a vehicle at the other stage is shown but not weighed.
+  const wrongStage = !!(mode && due && due.toLowerCase() !== mode);
+  const op = wrongStage ? null : due;
+  const { data: yard } = useQuery({ queryKey: ["sc-proc-yard", "wb", mode], enabled: !!mode, refetchInterval: 15_000,
+    queryFn: () => get<Yard>(`${API}.yard`, {}) });
+  const waiting = mode === "tare" ? yard?.waiting_tare : mode === "gross" ? yard?.waiting_gross : undefined;
   const { data: snaps } = useSnapshots(!isDsp && op === "Tare" ? token : null);
   const needBody = op === "Tare" && Object.values(snaps?.Gross ?? {}).some((x) => x.photo);
   const maxTare = tok?.vehicle_limits?.max_tare_kg;
-  const camState: "loaded" | "empty" = tok?.status === "Completed" ? "empty" : op !== "Tare" ? "loaded" : reading && maxTare && reading.weight_kg > maxTare ? "loaded" : "empty";
+  const camState: "loaded" | "empty" = tok?.status === "Completed" || (mode === "tare" && !op) ? "empty" : op !== "Tare" ? "loaded" : reading && maxTare && reading.weight_kg > maxTare ? "loaded" : "empty";
   const allowed = (o: string) => !!info?.terminal && ["All", o, ...(o !== "Misc" ? ["Gross and Tare"] : [])].includes(info.terminal.allowed_operations);
   const sim = info?.terminal?.indicator_protocol === "Simulator";
   const run = async (fn: () => Promise<unknown>) => { setBusy(true); try { await fn(); } catch (e) { toast.error(err(e)); } finally { setBusy(false); } };
@@ -504,7 +512,7 @@ export function WeighbridgePage() {
   );
   return (
     <div className="mx-auto max-w-7xl space-y-5 p-4 sm:p-6">
-      <Header title={`Weighbridge · ${info?.terminal?.terminal_name ?? "…"}`} sub={`${info?.terminal?.depot ? `at ${info.terminal.depot} · ` : ""}${info?.terminal?.allowed_operations ?? ""} · ${info?.terminal?.lane ?? ""} · indicator ${info?.terminal?.indicator_protocol ?? ""} · this PC ${info?.ip ?? ""}`}>
+      <Header title={`${mode === "gross" ? "Gross · 1st weight" : mode === "tare" ? "Tare · 2nd weight" : "Weighbridge"} · ${info?.terminal?.terminal_name ?? "…"}`} sub={`${info?.terminal?.depot ? `at ${info.terminal.depot} · ` : ""}${info?.terminal?.allowed_operations ?? ""} · ${info?.terminal?.lane ?? ""} · indicator ${info?.terminal?.indicator_protocol ?? ""} · this PC ${info?.ip ?? ""}`}>
         <NavBtn to="/procurement/yard" icon={Warehouse}>Yard</NavBtn>
       </Header>
       <div className="grid gap-4 lg:grid-cols-5">
@@ -524,7 +532,15 @@ export function WeighbridgePage() {
           )}
         </div>
         <div className="space-y-3 lg:col-span-3">
-          <Scan onFind={onScan} placeholder="Scan the indent, token (TKN-…), gross slip (WGT-…), depot truck (DSP-…) or type the vehicle no." />
+          <Scan onFind={onScan} placeholder={mode === "tare" ? "Scan the gross slip (WGT-…), token, indent or type the vehicle no."
+            : mode === "gross" ? "Scan the indent or token (TKN-…), or type the vehicle no."
+            : "Scan the indent, token (TKN-…), gross slip (WGT-…), depot truck (DSP-…) or type the vehicle no."} />
+          {mode && info?.terminal && !["All", "Gross and Tare", mode === "gross" ? "Gross" : "Tare"].includes(info.terminal.allowed_operations) && (
+            <Notice tone="warn">This PC ({info.terminal.terminal_name}) is registered for {info.terminal.allowed_operations} weights only — open it on the {mode} weighbridge PC.</Notice>)}
+          {wrongStage && tok && (
+            <Notice tone="warn"><b>{tok.vehicle_no}</b> · {tok.name}: {due === "Gross"
+              ? <>the gross (1st weight) is not taken yet — send the vehicle to the <Link className="font-semibold underline" to={`/procurement/gross?no=${tok.name}`}>gross weighbridge</Link> first.</>
+              : <>gross already taken — this vehicle is due for its <Link className="font-semibold underline" to={`/procurement/tare?no=${tok.name}`}>tare (2nd weight)</Link>.</>}</Notice>)}
           {scanned && <p className="text-xs text-muted-foreground">Scanned <span className="font-mono">{scanned}</span></p>}
           {!token && lastGross && (
             <Notice tone="good"><div className="flex flex-wrap items-center gap-3"><span>Gross <b>{num(lastGross.kg)} kg</b> recorded for <Plate no={lastGross.vehicle} /> ·
@@ -577,6 +593,18 @@ export function WeighbridgePage() {
           )}
         </div>
       </div>
+      {waiting && (
+        <ChartCard title={mode === "tare" ? "Waiting for tare (2nd weight)" : "Waiting for gross (1st weight)"}
+          sub={mode === "tare" ? "Gross taken — unloading in the yard. Click a row instead of scanning." : "Token issued at the gate. Click a row instead of scanning."} bodyClass="h-auto">
+          <DataTable rows={waiting} rowKey={(r) => r.name} dense cols={[
+            { key: "token", label: "Token", value: (r) => r.name, render: (r) => <button type="button" onClick={() => { setToken(r.name); setScanned(""); setBodyOk(false); setLastGross(null); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="font-mono text-xs font-semibold text-primary hover:underline">{r.name}</button> },
+            { key: "vehicle", label: "Vehicle", value: (r) => r.vehicle_no, render: (r) => <><Plate no={r.vehicle_no} /> <span className="text-xs text-muted-foreground">{r.vehicle_type}</span></> },
+            { key: "grower", label: "Grower", value: (r) => r.grower_name },
+            { key: "gross", label: "Gross", value: (r) => r.gross_kg ?? 0, render: (r) => r.gross_kg ? `${num(r.gross_kg)} kg` : "—" },
+            { key: "wait", label: "Waiting", value: (r) => r.minutes, render: (r) => <span className={cn("tabular-nums", r.late && "font-bold text-red-600")}>{mins(r.minutes)}</span> },
+          ]} />
+        </ChartCard>
+      )}
       <ChartCard title="Recent weighments on this terminal" bodyClass="h-auto">
         <DataTable rows={info?.recent ?? []} rowKey={(r) => r.name} dense cols={[
           { key: "token", label: "Token", value: (r) => r.token, render: (r) => <button type="button" onClick={() => setToken(r.token)} className="font-mono text-xs text-primary hover:underline">{r.token}</button> },

@@ -5,7 +5,7 @@
 import {
   BarChart3, Boxes, ClipboardList, FileSpreadsheet, Gauge, LayoutDashboard, Leaf, Map as MapIcon, MapPinned,
   Sparkles, Target, Ticket, Inbox, Layers, Truck, UserCog, Users, Warehouse, Weight, Beaker, Factory, Banknote, MessageSquare, BookOpen, type LucideIcon, Wand2, ScanBarcode, ShieldCheck, AlertTriangle, MapPin,
-Scale, MonitorSmartphone, } from "lucide-react";
+Scale, MonitorSmartphone, ClipboardCheck, } from "lucide-react";
 import { SC_DOCS, docBase, type ScApp } from "@/sc/registry";
 import { ANALYTICS_NAV, FINANCE_NAV, HR_NAV, PAYROLL_NAV, SALES_NAV, STORE_NAV } from "@/app/erp-navigation";
 
@@ -67,6 +67,7 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
         { label: "Insights", to: "/survey", icon: Sparkles, roles: SURVEY_ROLES },
         { label: "Approvals inbox", to: "/approvals/inbox", icon: Inbox, roles: [...MANAGERS, "Circle Officer"] },
         { label: "Survey Map", to: "/survey/map", icon: MapIcon, roles: SURVEY_ROLES },
+        { label: "Loan field surveys", to: "/survey/loan-surveys", icon: ClipboardCheck, roles: [...MANAGERS, "Surveyor", "Circle Officer"] },
         { label: "Season Quotas", to: "/survey/quota", icon: Target, roles: [...MANAGERS, "Circle Officer", "MIS Viewer"] },
         { label: "Area Map", to: "/survey/geo", icon: MapPinned, roles: [...MANAGERS, "Circle Officer"] },
         { label: "Growers", to: "/survey/growers", icon: Users, roles: [...MANAGERS, "Circle Officer", "Cane Accountant", "MIS Viewer"] },
@@ -194,6 +195,7 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
         { label: "Payment scroll", to: "/accounts/scroll", icon: ScanBarcode, roles: ACC_ROLES },
         { label: "Road cess", to: "/accounts/cess", icon: Banknote, roles: ACC_ROLES },
         { label: "Grower loans", to: "/accounts/loans", icon: Users, roles: [...ACC_ROLES, "Circle Officer"] },
+        { label: "Loan field surveys", to: "/accounts/loan-surveys", icon: ClipboardCheck, roles: [...ACC_ROLES, "Circle Officer"] },
         { label: "Grower statement", to: "/accounts/grower", icon: FileSpreadsheet, roles: [...ACC_ROLES, "Circle Officer"] },
         { label: "Contractor bills", to: "/accounts/contractors", icon: Truck, roles: ACC_ROLES },
         { label: "Document vault", to: "/accounts/documents", icon: Layers, roles: [...ACC_ROLES, "Circle Officer"] },
@@ -285,6 +287,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   tare: "Tare · 2nd weight",
   displays: "Payee displays",
   "cashier-summary": "Daily cashier summary",
+  "loan-surveys": "Loan field surveys",
   yard: "Yard",
   counter: "Cash Counter",
   "day-close": "Day Close",

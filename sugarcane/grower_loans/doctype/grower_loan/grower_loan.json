@@ -37,6 +37,28 @@
   "markup_accrued",
   "recovered",
   "outstanding",
+  "sb_verify",
+  "verification_status",
+  "surveyor",
+  "verification_requested_on",
+  "verified_on",
+  "cb_v1",
+  "verified_acres",
+  "crop_condition",
+  "crop_stage",
+  "expected_maund_per_acre",
+  "cb_v2",
+  "recommendation",
+  "recommended_amount",
+  "verification_latitude",
+  "verification_longitude",
+  "sb_verify2",
+  "verification_photo_1",
+  "cb_v3",
+  "verification_photo_2",
+  "cb_v4",
+  "verification_remarks",
+  "reject_reason",
   "sb_rec",
   "recoveries_html",
   "remarks",
@@ -116,7 +138,7 @@
   {
    "fieldname": "status",
    "fieldtype": "Select",
-   "options": "Draft\nApproved\nDisbursed\nRecovered\nWritten Off\nCancelled",
+   "options": "Draft\nRejected\nApproved\nDisbursed\nRecovered\nWritten Off\nCancelled",
    "label": "Status",
    "read_only": 1,
    "in_list_view": 1,
@@ -272,6 +294,137 @@
    "bold": 1
   },
   {
+   "fieldname": "sb_verify",
+   "fieldtype": "Section Break",
+   "label": "Field verification (loan survey)"
+  },
+  {
+   "fieldname": "verification_status",
+   "fieldtype": "Select",
+   "label": "Verification",
+   "options": "\nNot needed\nPending\nVerified",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "surveyor",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Surveyor",
+   "read_only": 1
+  },
+  {
+   "fieldname": "verification_requested_on",
+   "fieldtype": "Datetime",
+   "label": "Sent for verification",
+   "read_only": 1
+  },
+  {
+   "fieldname": "verified_on",
+   "fieldtype": "Datetime",
+   "label": "Verified on",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_v1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "verified_acres",
+   "fieldtype": "Float",
+   "label": "Acres seen in the field",
+   "read_only": 1
+  },
+  {
+   "fieldname": "crop_condition",
+   "fieldtype": "Select",
+   "options": "\nExcellent\nGood\nAverage\nPoor\nFailed",
+   "label": "Crop condition",
+   "read_only": 1
+  },
+  {
+   "fieldname": "crop_stage",
+   "fieldtype": "Select",
+   "options": "\nGermination\nTillering\nGrand growth\nMaturity",
+   "label": "Crop stage",
+   "read_only": 1
+  },
+  {
+   "fieldname": "expected_maund_per_acre",
+   "fieldtype": "Float",
+   "label": "Expected maund / acre",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_v2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "recommendation",
+   "fieldtype": "Select",
+   "options": "\nRecommend\nRecommend a lower amount\nDo not recommend",
+   "label": "Recommendation",
+   "read_only": 1
+  },
+  {
+   "fieldname": "recommended_amount",
+   "fieldtype": "Currency",
+   "label": "Recommended amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "verification_latitude",
+   "fieldtype": "Float",
+   "label": "Latitude",
+   "precision": "6",
+   "read_only": 1
+  },
+  {
+   "fieldname": "verification_longitude",
+   "fieldtype": "Float",
+   "label": "Longitude",
+   "precision": "6",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_verify2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "verification_photo_1",
+   "fieldtype": "Attach Image",
+   "label": "Field photo 1",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_v3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "verification_photo_2",
+   "fieldtype": "Attach Image",
+   "label": "Field photo 2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_v4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "verification_remarks",
+   "fieldtype": "Small Text",
+   "label": "Surveyor's remarks",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reject_reason",
+   "fieldtype": "Small Text",
+   "label": "Reason rejected",
+   "read_only": 1,
+   "depends_on": "eval:doc.status=='Rejected'"
+  },
+  {
    "fieldname": "sb_rec",
    "fieldtype": "Section Break",
    "label": "Recoveries and Markup"
@@ -307,7 +460,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-10-18 15:00:00.000000",
+ "modified": "2026-11-02 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Grower Loans",
  "name": "Grower Loan",

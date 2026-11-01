@@ -14,6 +14,7 @@ class GrowerLoan(Document):
 
 	def before_submit(self):
 		loans._need(loans.MANAGERS, _("approve loans"))
+		loans.check_approval(self)
 		self.status = "Approved"
 		self.approved_by, self.approved_on = frappe.session.user, frappe.utils.now_datetime()
 

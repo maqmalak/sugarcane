@@ -60,9 +60,11 @@ def eligibility(grower: str, loan_type: str, season: str, exclude: str | None = 
 		limits.append((_("{0}% of the expected cane ({1} md × {2})").format(t.recovery_pct, f"{exp_md:,.0f}", rate), exp_value * flt(t.recovery_pct) / 100))
 	cap = min((v for _l, v in limits), default=0)
 	eligible = max(flt(cap - taken - open_out, 2), 0)
+	min_acres = flt(t.get("min_surveyed_acres"))
 	checks = [
 		(_("Grower is active"), not frappe.db.get_value("Grower", grower, "disabled"), ""),
 		(_("Cane surveyed this season"), acres > 0, _("{0} acres, {1} md expected").format(f"{acres:g}", f"{exp_md:,.0f}")),
+		*([(_("At least {0} acres surveyed").format(f"{min_acres:g}"), acres >= min_acres, _("{0} acres").format(f"{acres:g}"))] if min_acres else []),
 		(_("No loan written off before"), not written, _("{0} written off").format(written) if written else ""),
 		(_("Open loans can be recovered from the expected cane"), open_out <= exp_value, frappe.format_value(open_out, "Currency")),
 	]
@@ -113,9 +115,110 @@ def validate_loan(doc):
 		if taken + flt(doc.amount) > limit + 0.01:
 			frappe.throw(_("{0} surveyed acres allow at most {1} of {2} loans ({3} already taken)").format(f"{doc.surveyed_acres:g}",
 				frappe.format_value(limit, "Currency"), doc.loan_type, frappe.format_value(taken, "Currency")), title=_("Over the limit"))
-	if doc.docstatus == 0:
+	if doc.docstatus == 0 and doc.status != "Rejected":
 		doc.status = "Draft"
 		doc.outstanding = 0
+	if doc.docstatus == 0 and not doc.verification_status:
+		doc.verification_status = "Pending" if cint(t.get("requires_field_verification")) else "Not needed"
+
+
+def check_approval(doc):
+	"""Approval rules beyond the limits: eligible, field-verified when the type needs it, recommended, not above the recommendation."""
+	if doc.status == "Rejected":
+		frappe.throw(_("Loan {0} was rejected").format(doc.name))
+	t = frappe.get_cached_doc("Grower Loan Type", doc.loan_type)
+	el = eligibility(doc.grower, doc.loan_type, doc.season, doc.name, doc.guarantor)
+	failed = [c[0] for c in el["checks"] if not c[1]]
+	if failed:
+		frappe.throw(_("Not eligible: {0}").format("; ".join(failed)), title=_("Eligibility"))
+	if flt(doc.amount) > flt(el["eligible"]) + 0.01:
+		frappe.throw(_("{0} is more than the eligible {1}").format(frappe.format_value(doc.amount, "Currency"),
+			frappe.format_value(el["eligible"], "Currency")), title=_("Eligibility"))
+	if cint(t.get("requires_field_verification")):
+		if doc.verification_status != "Verified":
+			frappe.throw(_("The field survey for this loan is not done yet"), title=_("Field verification"))
+		if doc.recommendation == "Do not recommend":
+			frappe.throw(_("The surveyor did not recommend this loan — reject it, or send it for a new survey"), title=_("Not recommended"))
+		if flt(doc.recommended_amount) and flt(doc.amount) > flt(doc.recommended_amount) + 0.01:
+			frappe.throw(_("Approve at most the recommended {0}").format(frappe.format_value(doc.recommended_amount, "Currency")),
+				title=_("Over the recommendation"))
+
+
+VERIFIERS = MANAGERS | {"Surveyor", "Circle Officer"}
+
+
+def request_verification(name: str, surveyor: str):
+	_need(MANAGERS | ACCOUNTANTS | {"Circle Officer"}, _("send loans for field verification"))
+	doc = frappe.get_doc("Grower Loan", name)
+	if doc.docstatus or doc.status == "Rejected":
+		frappe.throw(_("Loan {0} is {1}").format(name, _(doc.status)))
+	if not frappe.db.exists("User", surveyor):
+		frappe.throw(_("Choose the surveyor"))
+	doc.db_set({"verification_status": "Pending", "surveyor": surveyor, "verification_requested_on": frappe.utils.now_datetime(),
+		"verified_on": None, "recommendation": None, "recommended_amount": 0})
+	doc.add_comment("Info", _("Sent for field verification to {0}").format(surveyor))
+	return doc
+
+
+def verify(name: str, verified_acres, crop_condition, crop_stage, expected_maund_per_acre, recommendation, recommended_amount=None,
+		remarks=None, latitude=None, longitude=None, photo_1=None, photo_2=None):
+	"""The surveyor's field visit for a loan: what was seen, two photos, and the recommendation."""
+	_need(VERIFIERS, _("verify loans in the field"))
+	doc = frappe.get_doc("Grower Loan", name)
+	if doc.docstatus or doc.status == "Rejected":
+		frappe.throw(_("Loan {0} is {1}").format(name, _(doc.status)))
+	if doc.surveyor and doc.surveyor != frappe.session.user and not (MANAGERS & set(frappe.get_roles())):
+		frappe.throw(_("Loan {0} is assigned to {1}").format(name, doc.surveyor), frappe.PermissionError)
+	if crop_condition not in ("Excellent", "Good", "Average", "Poor", "Failed"):
+		frappe.throw(_("Choose the crop condition"))
+	if recommendation not in ("Recommend", "Recommend a lower amount", "Do not recommend"):
+		frappe.throw(_("Choose the recommendation"))
+	if flt(verified_acres) <= 0:
+		frappe.throw(_("Enter the acres seen in the field"))
+	if not photo_1:
+		frappe.throw(_("Take at least one photo of the field"))
+	rec_amt = flt(recommended_amount) if recommendation == "Recommend a lower amount" else (flt(doc.amount) if recommendation == "Recommend" else 0)
+	if recommendation == "Recommend a lower amount" and not (0 < rec_amt < flt(doc.amount)):
+		frappe.throw(_("Enter the lower amount you recommend"))
+	if recommendation == "Do not recommend" and not (remarks or "").strip():
+		frappe.throw(_("Say why the loan is not recommended"))
+	doc.db_set({"verification_status": "Verified", "surveyor": doc.surveyor or frappe.session.user, "verified_on": frappe.utils.now_datetime(),
+		"verified_acres": flt(verified_acres), "crop_condition": crop_condition, "crop_stage": crop_stage or None,
+		"expected_maund_per_acre": flt(expected_maund_per_acre), "recommendation": recommendation, "recommended_amount": rec_amt,
+		"verification_remarks": (remarks or "").strip() or None, "verification_latitude": flt(latitude) or None,
+		"verification_longitude": flt(longitude) or None, "verification_photo_1": photo_1, "verification_photo_2": photo_2 or None})
+	return frappe.get_doc("Grower Loan", name)
+
+
+def reject(name: str, reason: str):
+	_need(MANAGERS, _("reject loans"))
+	if not (reason or "").strip():
+		frappe.throw(_("Give the reason"))
+	doc = frappe.get_doc("Grower Loan", name)
+	if doc.docstatus:
+		frappe.throw(_("Loan {0} is already {1}").format(name, _(doc.status)))
+	doc.db_set({"status": "Rejected", "reject_reason": reason.strip()})
+	doc.add_comment("Info", _("Rejected: {0}").format(frappe.utils.escape_html(reason)))
+	return doc
+
+
+def grower_history(grower: str) -> dict:
+	"""A grower's record for a loan decision: every previous loan and how it was repaid, and the cane supplied each season."""
+	loans_ = frappe.get_all("Grower Loan", filters={"grower": grower, "docstatus": 1}, fields=["name", "season", "loan_type", "amount",
+		"markup_accrued", "recovered", "outstanding", "status", "disbursed_on"], order_by="application_date asc")
+	for l in loans_:
+		due = flt(l.amount) + flt(l.markup_accrued)
+		l.recovered_pct = round(flt(l.recovered) / due * 100, 1) if due else 0
+		last = frappe.db.sql("""select max(posting_date) from `tabGrower Loan Entry` where loan = %s
+			and entry_type in ('Recovery', 'Cash Repayment')""", l.name)[0][0]
+		l.last_recovery = str(last) if last else None
+	cane = frappe.db.sql("""select season, count(*) cprs, ifnull(sum(payable_maund), 0) maund, ifnull(sum(payable_cpr), 0) paid_value,
+		ifnull(sum(loan_deduction), 0) loan_recovered from `tabCane Purchase Receipt` where grower = %s and docstatus = 1 group by season
+		order by season""", grower, as_dict=True)
+	rejected = frappe.db.count("Grower Loan", {"grower": grower, "status": "Rejected"})
+	return {"loans": loans_, "cane": cane, "rejected": rejected,
+		"totals": {"loans": len(loans_), "borrowed": sum(flt(l.amount) for l in loans_), "recovered": sum(flt(l.recovered) for l in loans_),
+			"outstanding": sum(flt(l.outstanding) for l in loans_), "written_off": sum(1 for l in loans_ if l.status == "Written Off")}}
 
 
 def _journal(day, rows, remark, voucher_type="Journal Entry", ref=None):

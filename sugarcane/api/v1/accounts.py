@@ -172,7 +172,10 @@ def deposit_cess(from_date, to_date, deposit_date, challan_no, bank_account=None
 # ---------------------------------------------------------------- loans
 LOAN_FIELDS = ["name", "grower", "grower_name", "circle", "loan_type", "season", "status", "docstatus", "application_date", "amount",
 	"requested_amount", "eligible_amount", "expected_cane_maund", "approved_by", "approved_on", "guarantor", "markup_pct",
-	"recovery_pct", "disbursed_on", "markup_accrued", "recovered", "outstanding", "guarantor_name", "surveyed_acres"]
+	"recovery_pct", "disbursed_on", "markup_accrued", "recovered", "outstanding", "guarantor_name", "surveyed_acres",
+	"verification_status", "surveyor", "verification_requested_on", "verified_on", "verified_acres", "crop_condition", "crop_stage",
+	"expected_maund_per_acre", "recommendation", "recommended_amount", "verification_latitude", "verification_longitude",
+	"verification_photo_1", "verification_photo_2", "verification_remarks", "reject_reason", "expected_cane_value"]
 
 
 @frappe.whitelist(methods=["GET"])
@@ -191,7 +194,8 @@ def loans(status: str | None = None, grower: str | None = None) -> dict:
 
 @frappe.whitelist(methods=["GET"])
 def loan(name: str) -> dict:
-	_view()
+	if not (ln.VERIFIERS & set(frappe.get_roles())):
+		_view()
 	d = frappe.db.get_value("Grower Loan", name, LOAN_FIELDS + ["disbursement_journal", "remarks"], as_dict=True)
 	d.entries = frappe.get_all("Grower Loan Entry", filters={"loan": name}, fields=["entry_type", "posting_date", "amount", "cpr", "journal_entry",
 		"period", "remarks"], order_by="posting_date asc, creation asc")
@@ -395,3 +399,57 @@ def contractor_bill_pdf(name: str):
 	from sugarcane.cane_accounting.contractor_bills import bill_pdf
 
 	_download(*bill_pdf(name), "Contractor Bill", ("Contractor Bill", name))
+
+
+# ---------------------------------------------------------------- loan field verification (loan survey) and grower history
+@frappe.whitelist(methods=["GET"])
+def surveyors() -> list:
+	_view()
+	users = frappe.db.sql("""select distinct u.name, u.full_name from `tabUser` u join `tabHas Role` r on r.parent = u.name
+		where r.role in ('Surveyor', 'Circle Officer') and u.enabled = 1 order by u.full_name""", as_dict=True)
+	return users
+
+
+@frappe.whitelist(methods=["POST"])
+def request_verification(name: str, surveyor: str) -> dict:
+	ln.request_verification(name, surveyor)
+	return loan(name)
+
+
+@frappe.whitelist(methods=["GET"])
+def loan_verifications(mine: int = 1, status: str = "Pending") -> list:
+	"""The field surveys to do (a surveyor's own, or all for managers)."""
+	ln._need(ln.VERIFIERS | ln.ACCOUNTANTS, _("see loan verifications"))
+	f = {"docstatus": 0, "status": "Draft"}
+	if status:
+		f["verification_status"] = status
+	if cint(mine) and not (ln.MANAGERS & set(frappe.get_roles())):
+		f["surveyor"] = frappe.session.user
+	rows = frappe.get_all("Grower Loan", filters=f, fields=LOAN_FIELDS, order_by="verification_requested_on asc", limit=200)
+	for r in rows:
+		r.village_name = frappe.db.get_value("Grower", r.grower, "village_name")
+	return rows
+
+
+@frappe.whitelist(methods=["POST"])
+def verify_loan(name: str, verified_acres, crop_condition, crop_stage=None, expected_maund_per_acre=0, recommendation=None,
+		recommended_amount=None, remarks=None, latitude=None, longitude=None, photo_1=None, photo_2=None) -> dict:
+	ln.verify(name, verified_acres, crop_condition, crop_stage, expected_maund_per_acre, recommendation, recommended_amount, remarks,
+		latitude, longitude, photo_1, photo_2)
+	return loan(name)
+
+
+@frappe.whitelist(methods=["POST"])
+def reject_loan(name: str, reason: str) -> dict:
+	ln.reject(name, reason)
+	return loan(name)
+
+
+@frappe.whitelist(methods=["GET"])
+def grower_history(grower: str) -> dict:
+	if not (ln.VERIFIERS & set(frappe.get_roles())):
+		_view()
+	h = ln.grower_history(grower)
+	h["grower"] = frappe.db.get_value("Grower", grower, ["name", "grower_name", "father_name", "cnic", "village_name", "circle", "mobile"],
+		as_dict=True)
+	return h

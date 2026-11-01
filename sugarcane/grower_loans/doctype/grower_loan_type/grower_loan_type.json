@@ -13,6 +13,8 @@
   "recovery_pct",
   "max_amount",
   "max_per_acre",
+  "min_surveyed_acres",
+  "requires_field_verification",
   "is_demo"
  ],
  "fields": [
@@ -68,6 +70,19 @@
    "description": "0 = no limit"
   },
   {
+   "fieldname": "min_surveyed_acres",
+   "fieldtype": "Float",
+   "label": "Minimum surveyed acres",
+   "description": "Eligibility: the grower's cane surveyed this season must be at least this"
+  },
+  {
+   "fieldname": "requires_field_verification",
+   "fieldtype": "Check",
+   "label": "Needs a field survey before approval",
+   "default": "1",
+   "description": "A surveyor visits the field (acres, crop condition, photos, recommendation) before the Cane Manager can approve"
+  },
+  {
    "fieldname": "is_demo",
    "fieldtype": "Check",
    "label": "Demo Record",
@@ -79,7 +94,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-10-18 15:00:00.000000",
+ "modified": "2026-11-02 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Grower Loans",
  "name": "Grower Loan Type",

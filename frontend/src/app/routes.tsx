@@ -19,6 +19,7 @@ const proc = (name: string) => lazy(() => import("@/sc/pages/ProcurementPages").
 const ProcurementDashboardPage = proc("ProcurementDashboardPage");
 const GatePage = proc("GatePage");
 const CashierSummaryPage = lazy(() => import("@/sc/pages/CashierSummaryPage").then((m) => ({ default: m.CashierSummaryPage })));
+const LoanSurveysPage = lazy(() => import("@/sc/pages/LoanSurveyPages").then((m) => ({ default: m.LoanSurveysPage })));
 const DisplayPage = lazy(() => import("@/sc/pages/DisplayPage").then((m) => ({ default: m.DisplayPage })));
 const DisplaysPage = lazy(() => import("@/sc/pages/DisplayPage").then((m) => ({ default: m.DisplaysPage })));
 const WeighbridgePage = lazy(() => import("@/sc/pages/ProcurementPages").then((m) => ({ default: m.WeighbridgePage })));
@@ -160,6 +161,8 @@ export function AppRoutes() {
         <Route path="accounts/scroll" element={sugar(<ScrollPage />)} />
         <Route path="accounts/cess" element={sugar(<CessPage />)} />
         <Route path="accounts/loans" element={sugar(<LoansPage />)} />
+        <Route path="accounts/loan-surveys" element={sugar(<LoanSurveysPage />)} />
+        <Route path="survey/loan-surveys" element={sugar(<LoanSurveysPage />)} />
         <Route path="accounts/grower" element={sugar(<StatementPage />)} />
         <Route path="accounts/documents" element={sugar(<DocumentsPage />)} />
         <Route path="accounts/contractors" element={sugar(<ContractorBillsPage />)} />

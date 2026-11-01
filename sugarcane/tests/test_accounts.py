@@ -48,6 +48,7 @@ class TestAccounts(ProcurementBase):
 		if not frappe.db.exists("Grower Loan Type", LTYPE):
 			frappe.get_doc({"doctype": "Grower Loan Type", "loan_type_name": LTYPE, "purpose": "Fertilizer", "markup_pct": 12, "recovery_pct": 50,
 				"max_amount": 500000, "max_per_acre": 20000}).insert()
+		frappe.db.set_value("Grower Loan Type", LTYPE, {"requires_field_verification": 0, "min_surveyed_acres": 0})
 		self.grower = frappe.db.get_value("Cane Indent", self.indents[0].name, "grower")
 
 	def _two_cprs(self):
@@ -123,6 +124,43 @@ class TestAccounts(ProcurementBase):
 		self.assertFalse(frappe.db.get_value("Cane Purchase Receipt", cprs[0], "cess_deposited"))
 
 	# ------------------------------------------------------------ loans
+	def test_loan_field_verification(self):
+		season = self.season
+		frappe.db.set_value("Grower Loan Type", LTYPE, {"requires_field_verification": 1, "min_surveyed_acres": 0})
+		frappe.clear_document_cache("Grower Loan Type", LTYPE)
+		loan = frappe.get_doc({"doctype": "Grower Loan", "grower": self.grower, "loan_type": LTYPE, "season": season, "amount": 20000,
+			"remarks": TAG}).insert()
+		self.assertEqual(loan.verification_status, "Pending")
+		with self.assertRaises(frappe.ValidationError):  # no field survey yet
+			loan.submit()
+		ln.request_verification(loan.name, "Administrator")
+		with self.assertRaises(frappe.ValidationError):  # a photo is required
+			ln.verify(loan.name, 3, "Good", "Grand growth", 750, "Recommend")
+		ln.verify(loan.name, 3, "Good", "Grand growth", 750, "Recommend a lower amount", 15000, "patchy at the canal end",
+			31.9, 72.6, "/files/field.jpg")
+		loan.reload()
+		self.assertEqual((loan.verification_status, flt(loan.recommended_amount)), ("Verified", 15000))
+		with self.assertRaises(frappe.ValidationError):  # above the recommendation
+			loan.submit()
+		loan.reload()
+		loan.amount = 15000
+		loan.save()
+		loan.submit()
+		self.assertEqual(loan.status, "Approved")
+		# a second request is rejected and can't be approved
+		other = frappe.get_doc({"doctype": "Grower Loan", "grower": self.grower, "loan_type": LTYPE, "season": season, "amount": 5000,
+			"remarks": TAG}).insert()
+		ln.reject(other.name, "already has a fertilizer loan this season")
+		other = frappe.get_doc("Grower Loan", other.name)
+		self.assertEqual(other.status, "Rejected")
+		with self.assertRaises(frappe.ValidationError):
+			other.submit()
+		h = ln.grower_history(self.grower)
+		self.assertIn(loan.name, [l.name for l in h["loans"]])
+		self.assertEqual(h["rejected"], 1)
+		frappe.db.set_value("Grower Loan Type", LTYPE, "requires_field_verification", 0)
+		frappe.clear_document_cache("Grower Loan Type", LTYPE)
+
 	def test_loan_lifecycle_and_recovery(self):
 		season = self.season
 		acres = ln.surveyed_acres(self.grower, season)

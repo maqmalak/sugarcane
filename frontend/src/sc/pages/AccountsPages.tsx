@@ -9,7 +9,7 @@
  * Data: sugarcane.api.v1.accounts.
  */
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, Banknote, CheckCircle2, Download, FileText, HandCoins, Landmark, Plus, Receipt, ScanBarcode, Search, Users, Wallet, XCircle } from "lucide-react";
+import { AlertTriangle, Banknote, CheckCircle2, ClipboardCheck, Download, FileText, HandCoins, Landmark, Plus, Receipt, ScanBarcode, Search, Users, Wallet, XCircle } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
@@ -23,6 +23,7 @@ import { get, post, postDownload } from "@/sc/lib/api";
 import { money, num } from "@/sc/lib/format";
 import { cn } from "@/sc/lib/utils";
 import { useTheme } from "@/sc/providers/theme";
+import { GrowerHistory, LoanSteps, VerificationCard, type LoanSurvey } from "@/sc/pages/LoanSurveyPages";
 
 const API = "sugarcane.api.v1.accounts";
 const err = (e: unknown) => (e instanceof Error ? e.message : String(e));
@@ -44,7 +45,7 @@ function Header({ title, sub, children }: { title: string; sub: string; children
 const NavBtn = ({ to, icon: Icon, children }: { to: string; icon: typeof Wallet; children: ReactNode }) => (
   <Link to={to} className="inline-flex h-9 items-center gap-2 rounded-lg border bg-card px-3 text-sm font-semibold hover:bg-accent"><Icon className="size-4" />{children}</Link>
 );
-const LOAN_TONE: Record<string, Tone> = { Draft: "gray", Approved: "blue", Disbursed: "amber", Recovered: "green", "Written Off": "red", Cancelled: "gray" };
+const LOAN_TONE: Record<string, Tone> = { Rejected: "red", Draft: "gray", Approved: "blue", Disbursed: "amber", Recovered: "green", "Written Off": "red", Cancelled: "gray" };
 
 // =============================================================== dashboard
 interface Dash {
@@ -293,9 +294,9 @@ export function CessPage() {
 }
 
 // =============================================================== loans
-interface LoanRow { requested_amount?: number; eligible_amount?: number; guarantor?: string; name: string; grower: string; grower_name: string; circle: string; loan_type: string; status: string; docstatus: number; application_date: string; amount: number; markup_pct: number; recovery_pct: number; disbursed_on?: string; markup_accrued: number; recovered: number; outstanding: number; guarantor_name?: string; surveyed_acres: number }
+interface LoanRow { verification_status?: string; requested_amount?: number; eligible_amount?: number; guarantor?: string; name: string; grower: string; grower_name: string; circle: string; loan_type: string; status: string; docstatus: number; application_date: string; amount: number; markup_pct: number; recovery_pct: number; disbursed_on?: string; markup_accrued: number; recovered: number; outstanding: number; guarantor_name?: string; surveyed_acres: number }
 interface LoanTypes { name: string; purpose: string; markup_pct: number; recovery_pct: number; max_amount: number; max_per_acre: number }
-interface LoanDetail extends LoanRow { entries: { entry_type: string; posting_date: string; amount: number; cpr?: string; journal_entry?: string; period?: string; remarks?: string }[] }
+interface LoanDetail extends LoanRow, Omit<LoanSurvey, keyof LoanRow> { entries: { entry_type: string; posting_date: string; amount: number; cpr?: string; journal_entry?: string; period?: string; remarks?: string }[] }
 
 interface Eligibility { acres: number; expected_maund: number; expected_value: number; cap: number; taken: number; open_outstanding: number; eligible: number;
   limits: { label: string; amount: number }[]; checks: { label: string; ok: boolean; detail: string }[];
@@ -340,19 +341,25 @@ function LoanPanel({ name, canDisburse, canApprove, onChange }: { name: string; 
         <span className="text-sm text-muted-foreground">{data.loan_type} · {data.markup_pct}% a year · {data.recovery_pct}% of each CPR</span>
         <span className="ml-auto flex gap-2">
           <Button size="sm" variant="outline" onClick={() => dl("loan_application", { name }, `Loan application ${name}.pdf`)}><FileText />Application (PDF)</Button>
-          {data.status === "Draft" && canApprove && <><Input value={approve} onChange={(e) => setApprove(e.target.value)} placeholder={`approve ${num(data.amount)}`} className="h-8 w-32" />
-            <Button size="sm" onClick={async () => { try { if (approve) await post(`${API}.save_loan`, { name, approved_amount: approve, grower: data.grower, loan_type: data.loan_type, amount: approve }); await act("approve_loan", {}, "Approved"); } catch (e) { toast.error(err(e)); } }}><CheckCircle2 />Approve</Button></>}
+          {data.status === "Draft" && canApprove && <><Input value={approve} onChange={(e) => setApprove(e.target.value)} placeholder={`approve ${num(data.recommended_amount || data.amount)}`} className="h-8 w-32" />
+            <Button size="sm" disabled={data.verification_status === "Pending" || data.recommendation === "Do not recommend"}
+              title={data.verification_status === "Pending" ? "Waiting for the field survey" : ""}
+              onClick={async () => { try { const amt = approve || (data.recommended_amount && data.recommended_amount < data.amount ? String(data.recommended_amount) : ""); if (amt) await post(`${API}.save_loan`, { name, approved_amount: amt, grower: data.grower, loan_type: data.loan_type, amount: amt }); await act("approve_loan", {}, "Approved"); } catch (e) { toast.error(err(e)); } }}><CheckCircle2 />Approve</Button>
+            <Button size="sm" variant="outline" onClick={() => { const r = window.prompt("Reject this loan request — reason:"); if (r) act("reject_loan", { reason: r }, "Rejected"); }}><XCircle />Reject</Button></>}
           {data.status === "Approved" && canDisburse && <Button size="sm" onClick={() => act("disburse", { on: today() }, "Disbursed")}><Banknote />Disburse {money(data.amount)}</Button>}
           {data.status === "Disbursed" && canDisburse && <><Input value={amt} onChange={(e) => setAmt(e.target.value)} placeholder="Amount" className="h-8 w-28" /><Button size="sm" variant="outline" disabled={!amt} onClick={() => act("repay", { amount: amt }, "Repayment recorded")}><HandCoins />Repay</Button></>}
         </span>
       </div>
+      <div className="mt-3"><LoanSteps l={data} /></div>
       <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
         {([["Applied for", data.requested_amount ?? data.amount], ["Eligible", data.eligible_amount ?? 0], [data.docstatus ? "Approved" : "To approve", data.amount], ["Markup", data.markup_accrued], ["Recovered", data.recovered], ["Outstanding", data.outstanding]] as const).map(([l, v]) => (
           <div key={l} className="rounded-xl bg-muted/40 p-2 text-center"><div className="text-lg font-bold tabular-nums">{money(v)}</div><div className="text-[11px] text-muted-foreground">{l}</div></div>
         ))}
         <div className="rounded-xl bg-muted/40 p-2 text-center"><div className="text-lg font-bold tabular-nums">{data.surveyed_acres}</div><div className="text-[11px] text-muted-foreground">surveyed acres</div></div>
       </div>
+      <div className="mt-3"><VerificationCard l={data} canAssign={canApprove || canDisburse} onChange={() => { refetch(); onChange(); }} /></div>
       {el && <div className="mt-3"><EligibilityBox el={el} /></div>}
+      <div className="mt-3"><GrowerHistory grower={data.grower} /></div>
       <div className="mt-3">
         <DataTable rows={data.entries} rowKey={(r) => `${r.entry_type}-${r.posting_date}-${r.cpr ?? r.period ?? r.amount}`} dense cols={[
           { key: "d", label: "Date", value: (r) => r.posting_date, render: (r) => dayLabel(r.posting_date) },
@@ -377,7 +384,8 @@ export function LoansPage() {
     queryFn: () => get<Eligibility>(`${API}.loan_eligibility`, { grower: f.grower, loan_type: f.loan_type, guarantor: f.guarantor }) });
   return (
     <div className="space-y-5 p-4 sm:p-6">
-      <Header title="Grower loans" sub="Applied → approved by the Cane Manager → disbursed by bank; recovered from each CPR (the type's share of its net after TPT); markup accrued monthly">
+      <Header title="Grower loans" sub="Requested → field survey → approved by the Cane Manager → disbursed by bank; recovered from each CPR (the type's share of its net after TPT); markup accrued monthly">
+        <Link to="/accounts/loan-surveys" className="inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm font-medium hover:bg-muted"><ClipboardCheck className="size-4" />Loan field surveys</Link>
         <input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="h-9 rounded-lg border bg-background px-2 text-sm" />
         <Button variant="outline" disabled={!month} onClick={async () => { try { const r = await post<{ loans: number; amount: number }>(`${API}.markup`, { month }); toast.success(`Markup ${money(r.amount)} on ${r.loans} loans`); refetch(); } catch (e) { toast.error(err(e)); } }}>Accrue markup</Button>
       </Header>
@@ -391,11 +399,12 @@ export function LoansPage() {
           <Input value={f.guarantor} onChange={(e) => setF({ ...f, guarantor: e.target.value })} placeholder="Guarantor grower ID (optional)" className="font-mono" />
           <Button disabled={!f.grower || !f.loan_type || !f.amount || (!!pre && Number(f.amount) > pre.eligible)} onClick={async () => { try { const d = await post<{ name: string }>(`${API}.save_loan`, f); toast.success(`${d.name} applied`); setOpen(d.name); setF({ grower: "", loan_type: "", amount: "", guarantor: "" }); refetch(); } catch (e) { toast.error(err(e)); } }}><Plus />Apply</Button>
         </div>
+        {f.grower.length >= 10 && <div className="mt-3"><GrowerHistory grower={f.grower} /></div>}
         {pre && <div className="mt-3"><EligibilityBox el={pre} />{Number(f.amount) > pre.eligible && <p className="mt-2 text-sm font-semibold text-red-600">More than the eligible {money(pre.eligible)}</p>}</div>}
       </section>
       {open && <LoanPanel key={open} name={open} canApprove={!!data?.can_approve} canDisburse={!!data?.can_disburse} onChange={() => refetch()} />}
       <div className="flex flex-wrap gap-2">
-        {["", "Draft", "Approved", "Disbursed", "Recovered", "Written Off"].map((s) => (
+        {["", "Draft", "Approved", "Disbursed", "Recovered", "Rejected", "Written Off"].map((s) => (
           <button key={s} type="button" onClick={() => setStatus(s)} className={cn("rounded-full border px-3 py-1 text-xs font-medium", status === s ? "border-primary/40 bg-primary/10 text-primary" : "text-muted-foreground")}>{s || "All"}</button>
         ))}
       </div>
@@ -409,7 +418,8 @@ export function LoansPage() {
           { key: "m", label: "Markup", align: "right", value: (r) => r.markup_accrued, render: (r) => money(r.markup_accrued) },
           { key: "r", label: "Recovered", align: "right", value: (r) => r.recovered, render: (r) => money(r.recovered) },
           { key: "o", label: "Outstanding", align: "right", value: (r) => r.outstanding, render: (r) => <b>{money(r.outstanding)}</b>, bar: { color: C.blue } },
-          { key: "s", label: "Status", value: (r) => r.status, render: (r) => <Badge tone={LOAN_TONE[r.status]}>{r.status}</Badge> },
+          { key: "s", label: "Status", value: (r) => r.status, render: (r) => <><Badge tone={LOAN_TONE[r.status]}>{r.status}</Badge>
+            {r.status === "Draft" && r.verification_status && r.verification_status !== "Not needed" && <Badge tone={r.verification_status === "Verified" ? "green" : "amber"} className="ml-1">survey {r.verification_status.toLowerCase()}</Badge>}</> },
         ]} />
       </ChartCard>
     </div>

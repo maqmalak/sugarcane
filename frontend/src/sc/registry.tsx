@@ -13,6 +13,7 @@ import toast from "react-hot-toast";
 import type { DocConfig, ExtraContext, FormAction } from "@/components/doc/doc-config";
 import { humanizeError, postCall } from "@/services/frappe";
 import { slugOf, type Enhancer } from "./meta/buildConfig";
+import { idErrors } from "./validators";
 import { lazy, Suspense, type ReactNode } from "react";
 
 // Map panels load lazily: they import the app's routes, which import this registry (a static import would be circular).
@@ -212,7 +213,8 @@ export const ENHANCERS: Record<string, Enhancer> = {
     subtitle: "Supply permits — one vehicle load each",
     extend: (config) => ({ ...config, extra: (c) => <>{!c.isNew && later(<IndentCard ctx={c} />)}{config.extra?.(c)}</> }),
   },
-  Grower: { extend: (config) => ({ ...config, extra: (c) => <>{config.extra?.(c)}{!c.isNew && later(<GrowerPhotos name={c.name ?? ""} />)}</> }) },
+  Grower: { extend: (config) => ({ ...config,
+    validate: (v, rows) => ({ ...config.validate?.(v, rows), ...idErrors(v, { cnic: "cnic", mobile: ["mobile"], iban: "iban" }) }), extra: (c) => <>{config.extra?.(c)}{!c.isNew && later(<GrowerPhotos name={c.name ?? ""} />)}</> }) },
   "Cane Survey": {
     subtitle: "Field surveys — boundary, variety, disease, photos",
     extend: (config) => withPhotos(withActions([

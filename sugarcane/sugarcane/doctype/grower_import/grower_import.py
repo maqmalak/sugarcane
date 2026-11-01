@@ -13,7 +13,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cint, cstr, flt
 
-from sugarcane.calc.identity import FormatError, normalize_cnic, normalize_code
+from sugarcane.calc.identity import FormatError, normalize_cnic, normalize_code, normalize_iban, normalize_mobile
 
 COLUMNS = (
 	"grower_name", "father_name", "cnic", "mobile", "circle_code", "village_code", "passbook_no", "acres",
@@ -150,6 +150,15 @@ def _check(row, circles, seen_cnic, seen_pb):
 	filer = cstr(row.get("filer_status")).strip().title() or "Non-Filer"
 	if filer not in ("Filer", "Non-Filer"):
 		raise FormatError("filer_status must be Filer or Non-Filer")
+	row["mobile"] = normalize_mobile(cstr(row.get("mobile")).strip() or None)
+	row["iban"] = normalize_iban(cstr(row.get("iban")).strip() or None)
+	bank = cstr(row.get("bank_name")).strip()
+	if bank:
+		from sugarcane.setup.banks import match_bank
+
+		row["bank_name"] = match_bank(bank)
+		if not row["bank_name"]:
+			raise FormatError(f"Bank {bank!r} is not in the bank list (Sugar Setup → Banks); use the name as listed")
 	seen_cnic.add(cnic)
 	if passbook:
 		seen_pb.add(passbook)

@@ -7,7 +7,8 @@ from frappe.model.document import Document
 from frappe.model.naming import getseries
 
 from sugarcane.calc.identity import GROWER_SERIAL_LEN, FormatError, grower_id_prefix, normalize_iban
-from sugarcane.utils import clean_cnic, settings
+from sugarcane.setup.banks import bank_from_iban
+from sugarcane.utils import clean_cnic, clean_mobile, settings
 
 
 class Grower(Document):
@@ -32,6 +33,9 @@ class Grower(Document):
 	def validate(self):
 		self.cnic = clean_cnic(self.cnic)
 		self.grower_name = (self.grower_name or "").strip()
+		# Old records keep whatever was imported until someone edits the number.
+		if self.mobile and (self.is_new() or self.has_value_changed("mobile")):
+			self.mobile = clean_mobile(self.mobile)
 		if self.village and self.circle:
 			village_circle = frappe.db.get_value("Cane Village", self.village, "circle")
 			if village_circle != self.circle:
@@ -41,7 +45,13 @@ class Grower(Document):
 			try:
 				self.iban = normalize_iban(self.iban)
 			except FormatError as e:
-				frappe.throw(_(str(e)))
+				frappe.throw(_("Bank IBAN: {0}").format(str(e)))
+			from_iban = bank_from_iban(self.iban)
+			if from_iban and not self.bank_name:
+				self.bank_name = from_iban
+			elif from_iban and from_iban != self.bank_name:
+				frappe.msgprint(_("The IBAN looks like a {0} account, but the bank is set to {1}. Please check.").format(
+					frappe.bold(from_iban), frappe.bold(self.bank_name)), indicator="orange", alert=True)
 		self.set_payable_account()
 
 	def set_payable_account(self):

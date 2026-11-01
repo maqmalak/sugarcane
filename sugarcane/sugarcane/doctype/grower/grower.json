@@ -61,7 +61,7 @@
    "label": "Father / Husband Name"
   },
   {
-   "description": "#####-#######-#",
+   "description": "13 digits, e.g. 33100-8680138-5",
    "fieldname": "cnic",
    "fieldtype": "Data",
    "in_global_search": 1,
@@ -75,7 +75,8 @@
    "fieldname": "mobile",
    "fieldtype": "Data",
    "label": "Mobile",
-   "options": "Phone"
+   "options": "Phone",
+   "description": "11 digits, e.g. 03007212058"
   },
   {
    "description": "Taken by the surveyor at the first survey, or uploaded here",
@@ -179,8 +180,10 @@
   },
   {
    "fieldname": "bank_name",
-   "fieldtype": "Data",
-   "label": "Bank"
+   "fieldtype": "Link",
+   "label": "Bank",
+   "options": "Bank",
+   "description": "Filled from the IBAN when left blank"
   },
   {
    "fieldname": "branch_name",
@@ -210,7 +213,8 @@
    "fieldname": "iban",
    "fieldtype": "Data",
    "label": "IBAN",
-   "length": 34
+   "length": 34,
+   "description": "24 characters, e.g. PK36SCBL0000001123456702"
   },
   {
    "fieldname": "bank_account",

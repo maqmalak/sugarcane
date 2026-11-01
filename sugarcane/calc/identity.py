@@ -74,6 +74,25 @@ def normalize_iban(value: str | None) -> str | None:
 	return iban
 
 
+def normalize_mobile(value: str | None) -> str | None:
+	"""Pakistani mobile → '03XXXXXXXXX' (11 digits). Accepts 0300-7212058, 0300 7212058, +92 300 7212058, 0092…, 923…
+	Raises FormatError for anything else (wrong length, landline, not starting 03)."""
+	if not value:
+		return None
+	d = re.sub(r"[\s\-().+]", "", str(value))
+	if not d.isdigit():
+		raise FormatError(f"Mobile {value!r} must contain digits only")
+	if d.startswith("0092"):
+		d = "0" + d[4:]
+	elif d.startswith("92") and len(d) == 12:
+		d = "0" + d[2:]
+	elif d.startswith("3") and len(d) == 10:
+		d = "0" + d
+	if not re.fullmatch(r"03\d{9}", d):
+		raise FormatError(f"Mobile {value!r} is not valid. Use 11 digits starting 03, e.g. 03007212058")
+	return d
+
+
 def make_iban(country: str, bban: str) -> str:
 	"""IBAN with correct check digits for a country code and BBAN (used for demo data and tests)."""
 	check = 98 - _iban_mod97(bban.upper() + country.upper() + "00")

@@ -1,7 +1,7 @@
 import frappe
 from frappe import _
 
-from sugarcane.calc.identity import FormatError, normalize_cnic, normalize_code
+from sugarcane.calc.identity import FormatError, normalize_cnic, normalize_code, normalize_mobile
 
 
 def check_app_permission():
@@ -27,6 +27,14 @@ def clean_cnic(value, label="CNIC", required=True):
 		return normalize_cnic(value)
 	except FormatError:
 		frappe.throw(_("{0} {1} is not valid. Use the format #####-#######-# (13 digits).").format(label, frappe.bold(value)))
+
+
+def clean_mobile(value, label="Mobile"):
+	"""Normalised Pakistani mobile (03XXXXXXXXX) or a ValidationError the user can read; blank stays blank."""
+	try:
+		return normalize_mobile(value)
+	except FormatError:
+		frappe.throw(_("{0} {1} is not valid. Use 11 digits starting 03, e.g. 03007212058.").format(label, frappe.bold(value)))
 
 
 def clean_code(value, length, label):

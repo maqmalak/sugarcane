@@ -22,6 +22,9 @@ def after_migrate():
 
 	ensure_lab_masters()
 	ensure_sms_keywords()
+	from sugarcane.setup.banks import ensure as ensure_banks
+
+	ensure_banks()
 	from sugarcane.setup.indexes import ensure as ensure_indexes
 
 	ensure_indexes()

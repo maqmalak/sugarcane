@@ -87,10 +87,11 @@ export function KpiCard({ icon: Icon, label, value, sub, delta, deltaInvert, spa
   to?: string; progress?: number; footer?: ReactNode;
 }) {
   const body = (
-    <div className="group relative h-full overflow-hidden rounded-2xl border bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
+    <div className="kpi-card group relative h-full overflow-hidden rounded-2xl border bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+      style={{ ["--kpi" as string]: color }}>
       <div className="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full opacity-[0.12] blur-2xl" style={{ background: color }} />
       <div className="flex items-start justify-between gap-2">
-        <span className="grid size-9 place-items-center rounded-xl text-white shadow-sm" style={{ background: `linear-gradient(135deg, ${color}, ${color}cc)` }}><Icon className="size-[18px]" /></span>
+        <span className="grid size-10 place-items-center rounded-xl text-white shadow-md ring-1 ring-white/20 transition-transform duration-200 group-hover:scale-110" style={{ background: `linear-gradient(135deg, ${color}, ${color}cc)` }}><Icon className="size-5" /></span>
         <Delta value={delta} invert={deltaInvert} />
       </div>
       <p className="mt-3 text-xs font-medium text-muted-foreground">{label}</p>

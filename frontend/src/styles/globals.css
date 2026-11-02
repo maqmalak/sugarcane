@@ -450,3 +450,35 @@
   background-image: linear-gradient(90deg, hsl(222 47% 14%), hsl(200 60% 26%) 55%, hsl(174 84% 28%));
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
+
+/* ------------------------------------------------------------------------------------------------------------
+   Light theme — Help-centre card look everywhere: a soft coloured "cover" wash across the top of each card,
+   cycling teal / sky / violet / amber across a grid (KPI cards take their own colour), rounder corners and a lift.
+   ------------------------------------------------------------------------------------------------------------ */
+:root:not(.dark) { --wash: 174 70% 42%; }
+:root:not(.dark) .bg-card { --wash: 174 70% 42%; border-radius: 1rem; }
+:root:not(.dark) :is(.grid, .flex) > .bg-card:nth-child(4n + 2) { --wash: 199 89% 48%; }
+:root:not(.dark) :is(.grid, .flex) > .bg-card:nth-child(4n + 3) { --wash: 258 80% 62%; }
+:root:not(.dark) :is(.grid, .flex) > .bg-card:nth-child(4n + 4) { --wash: 32 95% 50%; }
+:root:not(.dark) .bg-card {
+  background-image:
+    linear-gradient(90deg, hsl(var(--wash) / 0.9), hsl(var(--wash) / 0.35) 60%, transparent),
+    linear-gradient(180deg, hsl(var(--wash) / 0.13) 0, hsl(var(--wash) / 0.05) 70px, transparent 120px),
+    linear-gradient(180deg, rgb(255 255 255) 0%, hsl(210 45% 98.6%) 100%);
+  background-size: 100% 3px, 100% 100%, 100% 100%;
+  background-repeat: no-repeat;
+}
+/* grid cards lift on hover like the help cards; long tables and forms stay put */
+:root:not(.dark) :is(.grid, .flex) > .bg-card:hover { transform: translateY(-3px); }
+/* KPI cards: the wash in the card's own colour */
+:root:not(.dark) .kpi-card {
+  background-image:
+    linear-gradient(90deg, var(--kpi), color-mix(in srgb, var(--kpi) 35%, transparent) 60%, transparent),
+    linear-gradient(160deg, color-mix(in srgb, var(--kpi) 16%, white) 0%, color-mix(in srgb, var(--kpi) 5%, white) 45%, white 75%) !important;
+  background-size: 100% 3px, 100% 100% !important;
+  background-repeat: no-repeat !important;
+}
+:root:not(.dark) .kpi-card:hover { border-color: color-mix(in srgb, var(--kpi) 45%, white); }
+/* cards inside cards stay plain */
+:root:not(.dark) .bg-card .bg-card:not(.kpi-card) { background-image: linear-gradient(180deg, #fff, hsl(210 45% 98.8%)); border-radius: 0.75rem; }
+:root:not(.dark) .bg-card .bg-card:hover { transform: none; }

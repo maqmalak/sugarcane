@@ -1,1 +1,0 @@
-import{ay as a}from"./index-Byq13J03.js";const t=r=>a("sugarcane.api.v1.counter.shift_report_pdf",{session:r},`Shift report ${r}.pdf`),o=r=>a("sugarcane.api.v1.counter.daily_summary_pdf",{day:r},`Cashier summary ${r}.pdf`);export{t as a,o as p};

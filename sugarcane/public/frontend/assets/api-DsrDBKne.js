@@ -1,1 +1,0 @@
-import{cA as r,g as o}from"./index-Cdyt7Ojq.js";async function a(e,t){return o("frappe.client.get",{doctype:e,name:t})}function c(e){return r("get_items_from_purchase_receipts",{doctype:"Landed Cost Voucher",...e})}export{a as g,c as r};

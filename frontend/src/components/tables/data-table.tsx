@@ -368,8 +368,8 @@ export function FrappeDataTable<T extends Record<string, any>>({
 
       {filters}
 {/* Table */}
-      <div className="overflow-x-auto rounded-xl border border-border bg-background shadow-sm scrollbar-thin">
-        <table className="w-full min-w-max border-collapse text-sm">
+      <div className="list-table overflow-x-auto rounded-2xl border border-border bg-card shadow-sm scrollbar-thin">
+        <table className="w-full min-w-max border-separate border-spacing-0 text-sm">
           <thead>
             <tr className="border-b border-border text-left">
               {selectable && (
@@ -386,11 +386,11 @@ export function FrappeDataTable<T extends Record<string, any>>({
                       headerCellRefs.current[colIdx] = el;
                     }}
                     className={cn(
-                      "whitespace-nowrap bg-muted px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground",
+                      "sticky top-0 z-10 whitespace-nowrap border-b border-border bg-muted/90 px-3 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground backdrop-blur",
                       col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : "text-left",
                       col.headerClassName,
                       col.sortable !== false ? "cursor-pointer select-none" : "",
-                      frozen && "sticky z-20",
+                      frozen && "z-20",
                       frozen && colIdx === frozenCount - 1 && "border-r border-border",
                     )}
                     style={frozen ? { left: frozenLefts[colIdx] ?? 0 } : undefined}
@@ -411,7 +411,7 @@ export function FrappeDataTable<T extends Record<string, any>>({
                   </th>
                 );
               })}
-              {(rowActions || onRowClick) && <th className="w-10 bg-muted px-2 py-2.5" />}
+              {(rowActions || onRowClick) && <th className="sticky top-0 z-10 w-10 border-b border-border bg-muted/90 px-2 py-3 backdrop-blur" />}
             </tr>
           </thead>
           <tbody>
@@ -450,9 +450,9 @@ export function FrappeDataTable<T extends Record<string, any>>({
                     key={rowKey(row)}
                     onClick={() => onRowClick?.(row)}
                     className={cn(
-                      "group/row border-b border-border/70 last:border-0",
+                      "list-row group/row transition-colors [&>td]:border-b [&>td]:border-border/60 [&:last-child>td]:border-0",
                       rowStriped && "bg-accent/40",
-                      onRowClick && "cursor-pointer transition-colors hover:bg-primary/[0.05]",
+                      onRowClick && "cursor-pointer hover:bg-primary/[0.06]",
                     )}
                   >
                     {selectable && (
@@ -470,7 +470,8 @@ export function FrappeDataTable<T extends Record<string, any>>({
                         <td
                           key={col.key}
                           className={cn(
-                            "px-3 py-2.5",
+                            "px-3 py-3",
+                            colIdx === 0 && "relative",
                             colIdx === 0 && onRowClick && "font-medium group-hover/row:text-primary",
                             col.align === "right"
                               ? "text-right tabular-nums"
@@ -479,12 +480,22 @@ export function FrappeDataTable<T extends Record<string, any>>({
                               : "text-left",
                             col.cellClassName,
                             frozen && "sticky z-10",
-                            frozen && (rowStriped ? "bg-accent" : "bg-background"),
+                            frozen && (rowStriped ? "bg-accent" : "bg-card"),
                             frozen && colIdx === frozenCount - 1 && "border-r border-border",
                           )}
                           style={frozen ? { left: frozenLefts[colIdx] ?? 0 } : undefined}
                         >
-                          {col.render
+                          {colIdx === 0 && onRowClick && (
+                            <span aria-hidden className="absolute inset-y-1.5 left-0 w-[3px] rounded-r-full bg-primary opacity-0 transition-opacity group-hover/row:opacity-100" />
+                          )}
+                          {colIdx === 0 && onRowClick && !selectable ? (
+                            <span className="flex min-w-0 items-center gap-3">
+                              <RowAvatar text={String((row as Record<string, unknown>)[col.key] ?? rowKey(row))} />
+                              <span className="min-w-0">
+                                {col.render ? col.render(row) : String((row as Record<string, unknown>)[col.key] ?? "—")}
+                              </span>
+                            </span>
+                          ) : col.render
                             ? col.render(row)
                             : String((row as Record<string, unknown>)[col.key] ?? "—")}
                         </td>
@@ -496,7 +507,7 @@ export function FrappeDataTable<T extends Record<string, any>>({
                         <DropdownMenu
                           trigger={
                             <button
-                              className="rounded-md p-1 text-muted-foreground opacity-60 transition group-hover/row:opacity-100 hover:bg-accent hover:text-foreground"
+                              className="rounded-lg p-1.5 text-muted-foreground opacity-0 transition group-hover/row:opacity-100 hover:bg-accent hover:text-foreground focus-visible:opacity-100"
                               aria-label="Row actions"
                             >
                               <MoreGlyph />
@@ -602,5 +613,27 @@ function MoreGlyph() {
       <circle cx="12" cy="12" r="1.7" />
       <circle cx="12" cy="19" r="1.7" />
     </svg>
+  );
+}
+
+
+/** A coloured initials tile for a list row: the colour is fixed per record (hash of its text), so lists read at a glance. */
+const AVATAR_TONES = [
+  "from-teal-400 to-teal-600", "from-sky-400 to-blue-600", "from-violet-400 to-purple-600", "from-amber-400 to-orange-500",
+  "from-rose-400 to-pink-600", "from-emerald-400 to-green-600", "from-indigo-400 to-indigo-600", "from-cyan-400 to-cyan-600",
+];
+function RowAvatar({ text }: { text: string }) {
+  const clean = text.replace(/[^A-Za-z0-9 ]/g, " ").trim();
+  const words = clean.split(/\s+/).filter(Boolean);
+  const letters = /^[A-Z]{2,}[- ]?\d/.test(text)
+    ? text.replace(/[^A-Z]/g, "").slice(0, 2)             // ACC-JV-2026-… → AJ, CPR-26-… → CP
+    : words.length > 1 ? (words[0][0] + words[1][0]) : clean.slice(0, 2);
+  let h = 0;
+  for (let i = 0; i < text.length; i++) h = (h * 31 + text.charCodeAt(i)) | 0;
+  const tone = AVATAR_TONES[Math.abs(h) % AVATAR_TONES.length];
+  return (
+    <span className={cn("grid size-8 shrink-0 place-items-center rounded-lg bg-gradient-to-br text-[11px] font-bold uppercase text-white shadow-sm ring-1 ring-white/20 transition-transform group-hover/row:scale-110", tone)}>
+      {(letters || "•").toUpperCase()}
+    </span>
   );
 }

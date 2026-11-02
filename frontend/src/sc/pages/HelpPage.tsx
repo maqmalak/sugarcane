@@ -41,7 +41,7 @@ const STAGE_HUE: Record<string, Hue> = {
   "Start here": "sky", "Survey & cane intake": "emerald", "Payments & loans": "amber", "Mill: lab, production & costing": "violet", "Printed documents": "slate",
 };
 const GUIDE_ICON: Record<string, [LucideIcon, Hue]> = {
-  "process-flow-dfd": [Network, "sky"], setup: [Settings2, "blue"], "e-survey": [MapIcon, "emerald"], elp: [Truck, "orange"],
+  "process-flow-dfd": [Network, "sky"], setup: [Settings2, "blue"], "e-survey": [MapIcon, "emerald"], indenting: [ClipboardList, "teal"], elp: [Truck, "orange"],
   "gate-gross-tare": [Scale, "indigo"], "video-one-indent": [DoorOpen, "teal"], "video-gate-circles": [Users, "teal"], "video-depot": [Warehouse, "lime"],
   "cash-counter": [Banknote, "amber"], "grower-payments": [Landmark, "amber"], "video-bank": [Coins, "orange"], "grower-loans": [HandCoins, "rose"],
   laboratory: [FlaskConical, "violet"], costing: [PieChart, "fuchsia"], "video-production": [Factory, "violet"], "print-documents": [Printer, "slate"],

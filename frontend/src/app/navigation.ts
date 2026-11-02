@@ -101,7 +101,7 @@ export const APP_NAVIGATION: Record<string, NavGroup[]> = {
         { label: "Insights", to: "/indenting", icon: Sparkles, roles: INDENT_ROLES },
         { label: "Generate indents", to: "/indenting/generate", icon: Wand2, roles: [...MANAGERS, "Indent Clerk"] },
         { label: "Look up an indent", to: "/indenting/lookup", icon: ScanBarcode, roles: [...INDENT_ROLES, "Token Clerk"] },
-        { label: "Approvals inbox", to: "/approvals/inbox", icon: Inbox, roles: MANAGERS },
+        { label: "Expired indents", to: "/reports?r=Expired%20Indents", icon: AlertTriangle, roles: INDENT_ROLES },
       ],
     },
     ...docGroups("indenting", INDENT_ROLES),

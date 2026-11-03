@@ -48,14 +48,14 @@
     --secondary: 220 66% 14%;
     --secondary-foreground: 220 13% 91%;
     --muted: 218 36% 20%;
-    --muted-foreground: 218 22% 77%;
+    --muted-foreground: 218 24% 80%;
     --accent: 220 66% 14%;
     --accent-foreground: 220 13% 91%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     --border: 216 28% 34%;
-    --input: 214 26% 46%;
-    --input-bg: 222 52% 8%; /* darker than cards so fields read as inset wells */
+    --input: 213 30% 52%;
+    --input-bg: 218 34% 22%; /* a step lighter than cards so fields stand out */
     --success: 142 60% 48%;
     --warning: 35 92% 55%;
     --ring: 173 80% 40%;
@@ -111,21 +111,22 @@
   .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),
   .dark select,
   .dark textarea {
-    background-color: hsl(222 52% 8%);
-    border-color: hsl(214 28% 40%);
-    color: hsl(220 20% 96%);
-    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.45);
+    background-color: hsl(218 34% 22%); /* raised a step above the card (15.5%) so every field stands out */
+    border-color: hsl(213 30% 52%);
+    color: hsl(0 0% 100%);
+    font-weight: 500;
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 1px 2px rgb(0 0 0 / 0.35);
     transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
   }
   .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(:disabled):hover,
   .dark select:not(:disabled):hover,
   .dark textarea:not(:disabled):hover {
-    border-color: hsl(213 32% 54%);
+    border-color: hsl(210 40% 68%);
   }
   .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus-visible,
   .dark select:focus-visible,
   .dark textarea:focus-visible {
-    background-color: hsl(222 50% 10%);
+    background-color: hsl(218 36% 25%);
     border-color: hsl(var(--primary));
     box-shadow: 0 0 0 3px hsl(var(--primary) / 0.22);
   }
@@ -133,20 +134,23 @@
   .dark select:disabled,
   .dark textarea:disabled {
     opacity: 1;
-    background-color: hsl(220 40% 11%);
+    background-color: hsl(218 30% 18%);
     border-style: dashed;
-    color: hsl(220 18% 82%);
+    color: hsl(220 20% 90%);
   }
   .dark input::placeholder,
   .dark textarea::placeholder {
-    color: hsl(220 16% 58%);
+    color: hsl(218 18% 68%);
   }
   .dark select option {
-    background-color: hsl(222 52% 10%);
+    background-color: hsl(218 36% 18%);
+    color: hsl(0 0% 100%);
   }
   /* Native date/time pickers: light calendar icon on the dark field. */
   .dark input::-webkit-calendar-picker-indicator {
-    filter: invert(0.85);
+    filter: invert(1) brightness(1.2);
+    opacity: 0.9;
+    cursor: pointer;
   }
 }
 

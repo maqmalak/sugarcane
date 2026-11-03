@@ -252,7 +252,7 @@ export function FieldRenderer({
         <Label required={meta.reqd}>{label}</Label>
       )}
       {input}
-      {meta.description && !error && <p className="text-xs text-muted-foreground">{meta.description}</p>}
+      {meta.description && !error && <p className="text-xs text-muted-foreground dark:text-slate-300">{meta.description}</p>}
     </div>
   );
 }

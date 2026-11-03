@@ -11,7 +11,7 @@ export function Label({
   return (
     <label
       htmlFor={htmlFor}
-      className={cn("mb-1.5 block text-xs font-semibold tracking-wide text-slate-600 dark:text-slate-300", className)}
+      className={cn("mb-1.5 block text-[13px] font-semibold tracking-wide text-slate-700 dark:text-slate-100", className)}
       {...props}
     >
       {children}

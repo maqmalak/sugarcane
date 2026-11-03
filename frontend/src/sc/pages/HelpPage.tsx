@@ -14,6 +14,7 @@ import toast from "react-hot-toast";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Skeleton } from "@/sc/components/ui/skeleton";
 import { get } from "@/sc/lib/api";
+import { MANUAL_PAGES, linkScreens, routeLabel } from "@/sc/lib/manual-links";
 import { cn } from "@/sc/lib/utils";
 
 const API = "sugarcane.api.v1.help";
@@ -206,7 +207,7 @@ function LinksTable({ guides, manuals, query }: { guides: Guide[]; manuals: Entr
 /** Give each h2 of the manual an id, and list them for the "On this page" outline. */
 function withOutline(html: string) {
   const toc: { id: string; text: string }[] = [];
-  const out = html.replace(/<h2([^>]*)>(.*?)<\/h2>/g, (_m, attrs: string, inner: string) => {
+  const out = linkScreens(html).replace(/<h2([^>]*)>(.*?)<\/h2>/g, (_m, attrs: string, inner: string) => {
     const id = `sec-${toc.length + 1}`;
     toc.push({ id, text: inner.replace(/<[^>]+>/g, "") });
     return `<h2${attrs} id="${id}">${inner}</h2>`;
@@ -352,13 +353,28 @@ export function HelpPage() {
                     <CopyBtn url={manualLink(doc.data.slug)} label="Copy link" className="h-9 rounded-xl px-3 text-sm print:hidden" />
                     <button type="button" onClick={() => window.print()} className="inline-flex h-9 items-center gap-1.5 rounded-xl border bg-background px-3 text-sm font-semibold hover:bg-accent print:hidden"><Printer className="size-4" />Print</button>
                   </div>
+                  {(MANUAL_PAGES[doc.data.slug] ?? []).length > 0 && (
+                    <div className="mt-4 flex flex-wrap items-center gap-2 print:hidden">
+                      <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Open in the app</span>
+                      {MANUAL_PAGES[doc.data.slug].map((to) => (
+                        <a key={to} href={`/sugar${to}`} onClick={(e) => { if (!e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0) { e.preventDefault(); navigate(to); } }}
+                          title={`${window.location.origin}/sugar${to}`}
+                          className="inline-flex items-center gap-1.5 rounded-lg border bg-background/85 px-2.5 py-1 text-xs font-semibold shadow-sm hover:bg-accent">
+                          {routeLabel(to)}<ArrowUpRight className="size-3.5 opacity-60" /></a>))}
+                    </div>
+                  )}
                   {doc.data.guides.length > 0 && (
                     <div className="mt-4 grid gap-2 sm:grid-cols-2 print:hidden">
                       {doc.data.guides.map((g) => <MiniGuide key={g.slug} g={g} onPlay={setPlaying} />)}
                     </div>
                   )}
                 </header>
-                <div className="manual max-w-3xl space-y-3 px-6 py-6 text-[15px] leading-7 sm:px-8 [&_code]:rounded [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-[13px] [&_h1]:hidden [&_h2]:mt-8 [&_h2]:scroll-mt-24 [&_h2]:border-b [&_h2]:pb-2 [&_h2]:text-lg [&_h2]:font-semibold [&_h3]:mt-5 [&_h3]:font-semibold [&_li]:ml-5 [&_li]:pl-1 [&_li::marker]:text-primary [&_ol]:list-decimal [&_ol]:space-y-1.5 [&_strong]:font-semibold [&_table]:my-4 [&_table]:w-full [&_table]:text-sm [&_td]:border-t [&_td]:px-3 [&_td]:py-2 [&_td]:align-top [&_th]:bg-muted/60 [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:font-semibold [&_ul]:list-disc [&_ul]:space-y-1.5"
+                <div onClick={(e) => {
+                  const a = (e.target as Element).closest<HTMLAnchorElement>("a[data-route]");
+                  if (!a || e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
+                  e.preventDefault();
+                  navigate(a.dataset.route!);
+                }} className="manual [&_.route-link]:ml-1 [&_.route-link]:inline-flex [&_.route-link]:size-5 [&_.route-link]:translate-y-[-1px] [&_.route-link]:items-center [&_.route-link]:justify-center [&_.route-link]:rounded-md [&_.route-link]:bg-primary/10 [&_.route-link]:align-middle [&_.route-link]:text-primary [&_.route-link]:transition-colors [&_.route-link:hover]:bg-primary [&_.route-link:hover]:text-primary-foreground max-w-3xl space-y-3 px-6 py-6 text-[15px] leading-7 sm:px-8 [&_code]:rounded [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-[13px] [&_h1]:hidden [&_h2]:mt-8 [&_h2]:scroll-mt-24 [&_h2]:border-b [&_h2]:pb-2 [&_h2]:text-lg [&_h2]:font-semibold [&_h3]:mt-5 [&_h3]:font-semibold [&_li]:ml-5 [&_li]:pl-1 [&_li::marker]:text-primary [&_ol]:list-decimal [&_ol]:space-y-1.5 [&_strong]:font-semibold [&_table]:my-4 [&_table]:w-full [&_table]:text-sm [&_td]:border-t [&_td]:px-3 [&_td]:py-2 [&_td]:align-top [&_th]:bg-muted/60 [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:font-semibold [&_ul]:list-disc [&_ul]:space-y-1.5"
                   dangerouslySetInnerHTML={{ __html: outline.html }} />
               </>
             )}

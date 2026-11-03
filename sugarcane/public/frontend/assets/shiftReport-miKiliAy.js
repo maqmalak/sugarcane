@@ -1,1 +1,0 @@
-import{aE as a}from"./index-k2elLFo8.js";const t=r=>a("sugarcane.api.v1.counter.shift_report_pdf",{session:r},`Shift report ${r}.pdf`),o=r=>a("sugarcane.api.v1.counter.daily_summary_pdf",{day:r},`Cashier summary ${r}.pdf`);export{t as a,o as p};

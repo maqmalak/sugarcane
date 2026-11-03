@@ -243,7 +243,7 @@ export const APP_LABELS: Record<string, string> = {
   production: "Sugar Production",
   accounts: "Cane Accounts",
   "field-force": "Field Force",
-  setup: "Sugar Setup",
+  setup: "Setup",
   reports: "Report Centre",
   mis: "MIS",
   help: "Help",

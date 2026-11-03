@@ -79,7 +79,7 @@ export const APPS: AppTile[] = [
   { id: "reports", label: "Report Centre", tagline: "Preview, Excel & PDF", group: "Overview", icon: FileSpreadsheet, to: "/reports",
     description: "Every sugar-mill report with filters, charts, totals and Excel / PDF downloads.",
     colorClass: "bg-violet-500/10 text-violet-600 dark:text-violet-400", features: ["Crop survey", "Attendance", "Performance"] },
-  { id: "setup", label: "Sugar Setup", tagline: "Masters & settings", group: "Finance & Setup", icon: Boxes, to: "/setup", roles: MANAGERS,
+  { id: "setup", label: "Setup", tagline: "Masters & settings", group: "Overview", icon: Boxes, to: "/setup", roles: MANAGERS,
     description: "Sugar Settings, seasons, shifts, area hierarchy, sources, depots, varieties, vehicles and weighbridge terminals.",
     colorClass: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400", features: ["Seasons & rates", "Area hierarchy", "Vehicles"] },
   { id: "indenting", label: "Indenting", tagline: "Permits & printing", group: "Mill Operations", icon: ClipboardList, to: "/indenting",

@@ -241,7 +241,7 @@
    "description": "How surveyed cane becomes indents (permits, one vehicle load each). Quota % and supply windows come from the Indent Quota Rules of this season."
   },
   {
-   "default": "200",
+   "default": "500",
    "fieldname": "indent_load_maund",
    "fieldtype": "Float",
    "label": "Load per Indent (maund)",

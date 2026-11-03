@@ -55,7 +55,7 @@ def season(company, loads_per_day):
 	doc = frappe.copy_doc(live)
 	doc.update({"season_name": SEASON, "status": "Closed", "start_date": START, "end_date": END, "govt_rate": 400, "subsidy_rate": 8,
 		"additional_subsidy_rate": 4, "tpt_rate": 28, "crushing_target_maund": 1_200_000, "is_demo": 1, "indent_start_date": None,
-		"daily_intake_maund": loads_per_day * cint(live.indent_load_maund or 200), "bag_bom": None, "budget_processing_per_ton": 3600})
+		"daily_intake_maund": loads_per_day * cint(live.indent_load_maund or 500), "bag_bom": None, "budget_processing_per_ton": 3600})
 	doc.set("circle_quotas", [])
 	doc.flags.ignore_permissions = True
 	doc.insert()

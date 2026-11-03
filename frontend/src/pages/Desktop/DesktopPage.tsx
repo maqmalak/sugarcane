@@ -63,7 +63,7 @@ const QUICK: { label: string; sub: string; to: string; icon: LucideIcon; bg: str
   { label: "Area Map", sub: "Pins & boundaries", to: "/setup/area-map", icon: MapPinned, bg: "from-cyan-500 to-sky-600 shadow-cyan-500/30" },
   { label: "Sources & routes", sub: "Depots, check posts, journey time", to: "/setup/d/cane-source", icon: Truck, bg: "from-indigo-500 to-violet-600 shadow-indigo-500/30" },
   { label: "Report Centre", sub: "Excel & PDF reports", to: "/reports", icon: FileSpreadsheet, bg: "from-red-500 to-orange-500 shadow-red-500/30" },
-  { label: "Sugar Setup", sub: "Masters & settings", to: "/setup", icon: Boxes, bg: "from-slate-500 to-slate-600 shadow-slate-500/30" },
+  { label: "Setup", sub: "Masters & settings", to: "/setup", icon: Boxes, bg: "from-slate-500 to-slate-600 shadow-slate-500/30" },
 ];
 
 

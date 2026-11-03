@@ -33,7 +33,7 @@ def check_role():
 def standards(season: str) -> frappe._dict:
 	s = frappe.get_doc("Crushing Season", season)
 	start, end = getdate(s.start_date), getdate(s.end_date)
-	load = flt(s.indent_load_maund) or 200
+	load = flt(s.indent_load_maund) or 500
 	intake = flt(s.daily_intake_maund) or calc.derive_capacity(flt(s.crushing_target_maund), start, end)
 	return frappe._dict(season=season, start=start, end=end, first=max(getdate(s.indent_start_date or start), start),
 		load=load, validity=max(cint(s.indent_validity_days) or 3, 1), partial=flt(s.indent_partial_load_pct or 50),

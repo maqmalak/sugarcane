@@ -6,10 +6,11 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowUpRight, Banknote, BookOpen, Calculator, ClipboardList, Coins, Crown, DoorOpen, Factory, FileText, Filter, FlaskConical, HandCoins,
-  Landmark, LifeBuoy, ListTree, type LucideIcon, Map as MapIcon, Network, Package, PieChart, PlayCircle, Printer, Rocket, Scale, Search,
+  Landmark, LifeBuoy, Link2, ListTree, type LucideIcon, Map as MapIcon, Network, Package, PieChart, PlayCircle, Printer, Rocket, Scale, Search,
   Settings2, ShoppingCart, Sparkles, Truck, UserCog, Users, Video, Warehouse, X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Skeleton } from "@/sc/components/ui/skeleton";
 import { get } from "@/sc/lib/api";
@@ -54,6 +55,31 @@ const MANUAL_ICON: Record<string, [LucideIcon, Hue]> = {
 };
 const guideLook = (g: Guide): [LucideIcon, Hue] => GUIDE_ICON[g.slug] ?? [g.kind === "Video" ? PlayCircle : FileText, STAGE_HUE[g.stage] ?? "slate"];
 const manualLook = (slug: string): [LucideIcon, Hue] => MANUAL_ICON[slug] ?? [BookOpen, "slate"];
+/** Shareable addresses: the help pages live under /sugar (the router basename). */
+const BASE = `${window.location.origin}/sugar`;
+const guideLink = (slug: string) => `${BASE}/help/guides?g=${slug}`;
+const videoLink = (slug: string) => `${BASE}/help/guides?g=${slug}&play=1`;
+const manualLink = (slug: string) => `${BASE}/help?m=${slug}`;
+const absolute = (u: string) => (u.startsWith("http") ? u : `${window.location.origin}${u}`);
+
+/** Copy a link; falls back to a hidden text box where the clipboard API is blocked (plain http). */
+function copy(text: string) {
+  const done = () => toast.success("Link copied");
+  if (navigator.clipboard && window.isSecureContext) { void navigator.clipboard.writeText(text).then(done); return; }
+  const t = document.createElement("textarea");
+  t.value = text; t.style.position = "fixed"; t.style.opacity = "0";
+  document.body.appendChild(t); t.select();
+  try { document.execCommand("copy"); done(); } finally { t.remove(); }
+}
+
+function CopyBtn({ url, label, className }: { url: string; label?: string; className?: string }) {
+  return (
+    <button type="button" onClick={() => copy(url)} title={`Copy link: ${url}`}
+      className={cn("inline-flex items-center justify-center gap-1.5 rounded-lg border bg-background/85 px-2 py-1.5 text-xs font-semibold hover:bg-accent", className)}>
+      <Link2 className="size-3.5" />{label}</button>
+  );
+}
+
 const match = (q: string, ...text: (string | undefined)[]) => !q || text.some((t) => (t ?? "").toLowerCase().includes(q));
 
 function Tile({ icon: I, hue, size = "md" }: { icon: LucideIcon; hue: Hue; size?: "sm" | "md" | "lg" }) {
@@ -83,10 +109,10 @@ function VideoModal({ g, onClose }: { g: Guide; onClose: () => void }) {
   );
 }
 
-function GuideCard({ g, onPlay }: { g: Guide; onPlay: (g: Guide) => void }) {
+function GuideCard({ g, onPlay, active }: { g: Guide; onPlay: (g: Guide) => void; active?: boolean }) {
   const [I, hue] = guideLook(g);
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border bg-card shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
+    <article id={`g-${g.slug}`} className={cn("group flex scroll-mt-24 flex-col overflow-hidden rounded-2xl border bg-card shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl", active && "ring-4 ring-primary/50")}>
       <div className={cn("relative flex h-28 items-end gap-3 bg-gradient-to-br p-4", HUE[hue].cover)}>
         <span className={cn("absolute right-4 top-2 text-6xl font-black tabular-nums opacity-[0.12]", HUE[hue].text)}>{String(g.order).padStart(2, "0")}</span>
         <div className="transition-transform duration-200 group-hover:scale-110"><Tile icon={I} hue={hue} size="lg" /></div>
@@ -105,6 +131,7 @@ function GuideCard({ g, onPlay }: { g: Guide; onPlay: (g: Guide) => void }) {
               className={cn("inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl px-3 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90", HUE[hue].tile)}><PlayCircle className="size-4" />Watch</button>}
             {g.pdf_url && <a href={g.pdf_url} target="_blank" rel="noreferrer"
               className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl border px-3 text-sm font-semibold hover:bg-accent"><FileText className="size-4" />Read<ArrowUpRight className="size-3.5 opacity-60" /></a>}
+            <CopyBtn url={guideLink(g.slug)} className="h-9 rounded-xl px-2.5" />
           </div>
           <div className="mt-3 flex flex-wrap gap-1">
             {g.roles.filter((r) => r !== "all").slice(0, 4).map((r) => <span key={r} className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">{r}</span>)}
@@ -128,6 +155,54 @@ function MiniGuide({ g, onPlay }: { g: Guide; onPlay: (g: Guide) => void }) {
   );
 }
 
+/** Every help address in one place, to paste into WhatsApp, email or training notes. */
+function LinksTable({ guides, manuals, query }: { guides: Guide[]; manuals: Entry[]; query: string }) {
+  const gs = guides.filter((g) => match(query, g.title, g.stage));
+  const ms = manuals.filter((m) => match(query, m.title));
+  const cell = "px-3 py-2 align-top";
+  const Url = ({ url, open }: { url: string; open?: boolean }) => (
+    <div className="flex items-center gap-1.5">
+      <a href={url} target={open ? "_blank" : undefined} rel="noreferrer" className="min-w-0 truncate font-mono text-xs text-primary hover:underline">{url.replace(/^https?:\/\//, "")}</a>
+      <CopyBtn url={url} className="shrink-0 px-1.5 py-1" />
+    </div>
+  );
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-4 shadow-sm">
+        <Link2 className="size-5 text-primary" />
+        <div className="min-w-0 flex-1 text-sm"><div className="font-semibold">Help centre</div><div className="text-muted-foreground">Share these links. People sign in first, then land on the page.</div></div>
+        <Url url={`${BASE}/help`} /><Url url={`${BASE}/help/guides`} />
+      </div>
+      <section className="overflow-x-auto rounded-2xl border bg-card shadow-sm">
+        <div className="border-b px-4 py-3 font-semibold">Guides &amp; videos · {gs.length}</div>
+        <table className="w-full text-sm">
+          <thead className="bg-muted/60 text-left text-xs"><tr><th className={cell}>#</th><th className={cell}>Title</th><th className={cell}>Page</th><th className={cell}>Guide (PDF)</th><th className={cell}>Video</th></tr></thead>
+          <tbody>{gs.map((g) => (
+            <tr key={g.slug} className="border-t">
+              <td className={cn(cell, "tabular-nums text-muted-foreground")}>{String(g.order).padStart(2, "0")}</td>
+              <td className={cn(cell, "min-w-48")}><div className="font-medium">{g.title}</div><div className="text-xs text-muted-foreground">{g.stage}</div></td>
+              <td className={cn(cell, "max-w-72")}><Url url={guideLink(g.slug)} /></td>
+              <td className={cn(cell, "max-w-72")}>{g.pdf_url ? <Url url={absolute(g.pdf_url)} open /> : <span className="text-muted-foreground">—</span>}</td>
+              <td className={cn(cell, "max-w-72")}>{g.video_url ? <Url url={videoLink(g.slug)} /> : <span className="text-muted-foreground">—</span>}</td>
+            </tr>))}</tbody>
+        </table>
+      </section>
+      <section className="overflow-x-auto rounded-2xl border bg-card shadow-sm">
+        <div className="border-b px-4 py-3 font-semibold">User manuals · {ms.length}</div>
+        <table className="w-full text-sm">
+          <thead className="bg-muted/60 text-left text-xs"><tr><th className={cell}>Manual</th><th className={cell}>For</th><th className={cell}>Page</th></tr></thead>
+          <tbody>{ms.map((m) => (
+            <tr key={m.slug} className="border-t">
+              <td className={cn(cell, "font-medium")}>{m.title}</td>
+              <td className={cn(cell, "text-xs text-muted-foreground")}>{m.roles.includes("all") ? "Everyone" : m.roles.join(", ")}</td>
+              <td className={cn(cell, "max-w-80")}><Url url={manualLink(m.slug)} /></td>
+            </tr>))}</tbody>
+        </table>
+      </section>
+    </div>
+  );
+}
+
 /** Give each h2 of the manual an id, and list them for the "On this page" outline. */
 function withOutline(html: string) {
   const toc: { id: string; text: string }[] = [];
@@ -143,7 +218,8 @@ export function HelpPage() {
   const [params, setParams] = useSearchParams();
   const [playing, setPlaying] = useState<Guide | null>(null);
   const [q, setQ] = useState("");
-  const [kind, setKind] = useState<"all" | "Guide" | "Video" | "mine">("all");
+  const [kind, setKind] = useState<"all" | "Guide" | "Video" | "mine" | "links">(params.get("view") === "links" ? "links" : "all");
+  const focus = params.get("g");
   const loc = useLocation();
   const navigate = useNavigate();
   const tab = loc.pathname.endsWith("/guides") || params.get("tab") === "guides" ? "guides" : "manuals";
@@ -163,6 +239,15 @@ export function HelpPage() {
   const outline = useMemo(() => withOutline(doc.data?.html ?? ""), [doc.data?.html]);
   const counts = { guides: all.filter((g) => g.pdf_url).length, videos: all.filter((g) => g.video_url).length, manuals: list.data?.length ?? 0 };
   const [MI, mhue] = manualLook(slug);
+
+  // ?g=<slug> scrolls to that guide's card; &play=1 also opens its video.
+  useEffect(() => {
+    if (!focus || !guides.data || tab !== "guides") return;
+    const g = guides.data.find((x) => x.slug === focus);
+    if (!g) return;
+    if (params.get("play") === "1" && g.video_url) setPlaying(g);
+    requestAnimationFrame(() => document.getElementById(`g-${focus}`)?.scrollIntoView({ behavior: "smooth", block: "center" }));
+  }, [focus, guides.data, tab]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="space-y-6">
@@ -204,13 +289,13 @@ export function HelpPage() {
         <div className="space-y-8">
           <div className="flex flex-wrap items-center gap-2">
             <Filter className="size-4 text-muted-foreground" />
-            {([["all", `All · ${all.length}`], ["Guide", `PDF guides · ${counts.guides}`], ["Video", `Videos · ${counts.videos}`], ["mine", `For my roles · ${all.filter((g) => g.mine).length}`]] as const).map(([k, l]) => (
+            {([["all", `All · ${all.length}`], ["Guide", `PDF guides · ${counts.guides}`], ["Video", `Videos · ${counts.videos}`], ["mine", `For my roles · ${all.filter((g) => g.mine).length}`], ["links", "Page links"]] as const).map(([k, l]) => (
               <button key={k} type="button" onClick={() => setKind(k)}
                 className={cn("rounded-full border px-3 py-1 text-xs font-semibold transition-colors", kind === k ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent")}>{l}</button>))}
           </div>
           {!guides.data && <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-72 rounded-2xl" />)}</div>}
           {guides.data && !shownGuides.length && <div className="rounded-2xl border border-dashed p-10 text-center text-sm text-muted-foreground">Nothing matches “{q}”.</div>}
-          {stages.map(([stage, items], si) => {
+          {kind === "links" ? <LinksTable guides={all} manuals={list.data ?? []} query={query} /> : stages.map(([stage, items], si) => {
             const h = STAGE_HUE[stage] ?? "slate";
             return (
               <section key={stage}>
@@ -221,7 +306,7 @@ export function HelpPage() {
                   <span className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                  {items.map((g) => <GuideCard key={g.slug} g={g} onPlay={setPlaying} />)}
+                  {items.map((g) => <GuideCard key={g.slug} g={g} onPlay={setPlaying} active={g.slug === focus} />)}
                 </div>
               </section>
             );
@@ -264,6 +349,7 @@ export function HelpPage() {
                         {doc.data.roles.includes("all") && <span className="rounded-md border bg-background/70 px-2 py-0.5 text-[11px] font-medium">Everyone</span>}
                       </div>
                     </div>
+                    <CopyBtn url={manualLink(doc.data.slug)} label="Copy link" className="h-9 rounded-xl px-3 text-sm print:hidden" />
                     <button type="button" onClick={() => window.print()} className="inline-flex h-9 items-center gap-1.5 rounded-xl border bg-background px-3 text-sm font-semibold hover:bg-accent print:hidden"><Printer className="size-4" />Print</button>
                   </div>
                   {doc.data.guides.length > 0 && (

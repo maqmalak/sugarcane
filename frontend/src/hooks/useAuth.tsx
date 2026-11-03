@@ -126,7 +126,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // `location.assign` sidesteps that entirely and, as a bonus, hard-resets
     // every in-memory cache (SWR, component state) rather than leaving stale
     // authenticated data sitting behind the login screen.
-    window.location.assign("/login");
+    window.location.assign("/sugar/login"); // the app's own sign-in page (BrowserRouter basename /sugar), not the desk /login
   }, [updateCurrentUser, getUserCookie]);
 
   const hasRole = React.useCallback(

@@ -14,7 +14,7 @@ PUBLIC = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))
 # like the Android APKs). A video is listed only when its file is on this server. "manuals": shown at the top of those manuals.
 GUIDES = [  # in the order the work flows: the big picture, setup, survey, ELP, gate, counter, payments, loans, production, prints
 	{"slug": "process-flow-dfd", "stage": "Start here", "title": "Process flow & DFD", "kind": "Guide",
-		"summary": "The whole ERP in DFD level 0 and 1, the cane accounting process flow, and the DFDs for setup, e-survey, ELP and grower payments.",
+		"summary": "The whole ERP in DFD level 0 and 1, the cane accounting process flow, and the DFDs for setup, e-survey, indenting (with the indent generation flow), ELP and grower payments.",
 		"pdf": "help/process-flow-dfd.pdf", "video": None, "roles": ["all"], "manuals": ["getting-started", "management"]},
 	{"slug": "setup", "stage": "Start here", "title": "Setup — company, site, areas, growers", "kind": "Guide",
 		"summary": "Sugar Settings and the season, sources, loading points, depots, weighbridges and cameras, zone / circle / village, growers, passbooks and the Excel import.",

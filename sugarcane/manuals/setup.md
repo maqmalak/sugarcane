@@ -22,6 +22,21 @@ Set the mill up in this order: each step uses the one before it. Everything is u
 
    Tokens copy the rates when they are issued, so change rates only at a season boundary.
 
+### By-product NRV on the season
+**NRV** stands for **Net Realisable Value**: the money a by-product actually brings in after the cost of selling it.
+
+> **NRV = sale price − selling and handling cost**
+
+The Crushing Season form uses it in three fields under **Production**: Molasses, Bagasse and Press Mud NRV (per kg).
+
+**How costing uses it:** the mill's total cost covers cane plus processing. The by-products carry part of that cost at their NRV, and the rest falls on sugar:
+
+> **cane cost + processing cost − by-product credit (at NRV) = net cost of sugar**
+
+**Example:** molasses sells for Rs 30,000 a ton and costs Rs 1,100 a ton to sell and handle. Its NRV is Rs 28,900 a ton, which is **Rs 28.90 per kg**.
+
+At the end, the actual sale value minus selling cost minus the NRV that was credited is posted to the *By-product Variance* account. The *By-product Realization* report shows this.
+
 ## 2 · Site setup
 | Sugar Setup → | What to enter |
 |---|---|

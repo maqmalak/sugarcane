@@ -187,19 +187,22 @@
    "fieldname": "molasses_nrv_per_kg",
    "fieldtype": "Currency",
    "label": "Molasses NRV (per kg)",
-   "options": "Company:company:default_currency"
+   "options": "Company:company:default_currency",
+   "description": "Net Realisable Value = sale price − selling and handling cost, per kg"
   },
   {
    "fieldname": "bagasse_nrv_per_kg",
    "fieldtype": "Currency",
    "label": "Bagasse NRV (per kg)",
-   "options": "Company:company:default_currency"
+   "options": "Company:company:default_currency",
+   "description": "Net Realisable Value = sale price − selling and handling cost, per kg"
   },
   {
    "fieldname": "press_mud_nrv_per_kg",
    "fieldtype": "Currency",
    "label": "Press Mud NRV (per kg)",
-   "options": "Company:company:default_currency"
+   "options": "Company:company:default_currency",
+   "description": "Net Realisable Value = sale price − selling and handling cost, per kg"
   },
   {
    "fieldname": "budget_processing_per_ton",
@@ -306,7 +309,7 @@
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-10-17 10:00:00.000000",
+ "modified": "2026-11-04 22:22:13.988379",
  "modified_by": "Administrator",
  "module": "Sugarcane",
  "name": "Crushing Season",

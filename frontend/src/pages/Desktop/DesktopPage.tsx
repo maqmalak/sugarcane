@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { useFrappeGetCall } from "frappe-react-sdk";
 import toast from "react-hot-toast";
-import { Rocket, Settings2, Scale, Map as MapIcon, 
+import { Rocket, Settings2, Scale, Map as MapIcon, Network, PlayCircle,
   AlertTriangle, ChevronRight, Inbox, ListTodo, RefreshCw, Truck, Activity, AlertCircle, CheckCircle2, ClipboardList,
   FileCheck2, FileClock, FileWarning, Landmark, PackageMinus, PackageX, PhoneCall, ShoppingCart, BookOpen, CalendarCheck, FileText, HandCoins,
   Package, Receipt, ShoppingBag, Target, Eye, Flag, type LucideIcon, ArrowRight, Factory, LayoutGrid,
@@ -408,8 +408,9 @@ const PLAYBOOKS: Record<string, { title: string; steps: { label: string; to: str
     { label: "Trial Balance", to: "/accounting/reports/trial-balance" }, { label: "Profit and Loss", to: "/accounting/reports/profit-and-loss" },
     { label: "Balance Sheet", to: "/accounting/reports/balance-sheet" }] },
   help: { title: "Learn the mill, step by step", steps: [
-    { label: "Getting started", to: "/help?m=getting-started" }, { label: "Process flow & DFD", to: "/help/guides" },
-    { label: "Setup the mill", to: "/help?m=setup" }, { label: "E-survey & ELP", to: "/help?m=surveyor" },
+    { label: "Getting started", to: "/help?m=getting-started" }, { label: "Process flow & DFD", to: "/help/guides?g=process-flow-dfd" },
+    { label: "Setup the mill", to: "/help?m=setup" }, { label: "E-survey", to: "/help?m=surveyor" },
+    { label: "Indenting", to: "/help?m=indenting" }, { label: "ELP loading points", to: "/help?m=elp" },
     { label: "Gate & weighbridge", to: "/help?m=gate" }, { label: "Payments & loans", to: "/help?m=cane-accountant" },
     { label: "Guides & videos", to: "/help/guides" }] },
   crm: { title: "Lead to deal", steps: [
@@ -419,7 +420,8 @@ const PLAYBOOKS: Record<string, { title: string; steps: { label: string; to: str
 /** A step's icon: the sidebar's icon for that page, else a file. */
 const NAV_ICON = new Map(Object.values(APP_NAVIGATION).flatMap((groups) => groups.flatMap((g) => g.items.map((i) => [i.to, i.icon] as const))));
 const HELP_STEP_ICON: Record<string, LucideIcon> = {
-  "/help?m=getting-started": Rocket, "/help?m=setup": Settings2, "/help?m=surveyor": MapIcon, "/help?m=gate": Scale, "/help?m=cane-accountant": Landmark,
+  "/help?m=getting-started": Rocket, "/help/guides?g=process-flow-dfd": Network, "/help?m=setup": Settings2, "/help?m=surveyor": MapIcon,
+  "/help?m=indenting": ClipboardList, "/help?m=elp": Truck, "/help?m=gate": Scale, "/help?m=cane-accountant": Landmark, "/help/guides": PlayCircle,
 };
 const stepIcon = (to: string): LucideIcon => HELP_STEP_ICON[to] ?? (NAV_ICON.get(to) as LucideIcon | undefined) ?? FileText;
 
